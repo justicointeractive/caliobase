@@ -19,6 +19,7 @@
     "@nestjs/swagger": "^5.2.1",
     "@nestjs/typeorm": "^8.1.4",
     "@nrwl/nest": "^14.3.6",
+    "@types/bcrypt": "^5.0.0",
     "bcrypt": "^5.0.1",
     "change-case": "^4.1.2",
     "class-transformer": "^0.5.1",

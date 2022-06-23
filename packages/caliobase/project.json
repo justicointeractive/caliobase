@@ -11,7 +11,9 @@
         "tsConfig": "packages/caliobase/tsconfig.lib.json",
         "packageJson": "packages/caliobase/package.json",
         "main": "packages/caliobase/src/index.ts",
-        "assets": ["packages/caliobase/*.md"]
+        "assets": ["packages/caliobase/*.md"],
+        "generatePackageJson": true,
+        "externalDependencies": "none"
       }
     },
     "lint": {
