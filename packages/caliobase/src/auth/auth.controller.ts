@@ -5,6 +5,7 @@ import { DataSource } from 'typeorm';
 
 import { AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator';
+import { UserPasswordRepository } from './entities';
 import { UserSocialLogin } from './entities/user-social-login.entity';
 import { User } from './entities/user.entity';
 
@@ -18,6 +19,34 @@ export class SocialValidateBody {
   accessToken!: string;
 }
 
+export class UserSignupBody {
+  @IsString()
+  @ApiProperty()
+  givenName!: string;
+
+  @IsString()
+  @ApiProperty()
+  familyName!: string;
+
+  @IsString()
+  @ApiProperty()
+  email!: string;
+
+  @IsString()
+  @ApiProperty()
+  password!: string;
+}
+
+export class UserLoginBody {
+  @IsString()
+  @ApiProperty()
+  email!: string;
+
+  @IsString()
+  @ApiProperty()
+  password!: string;
+}
+
 export class AccessTokenResponse {
   @ApiProperty()
   accessToken!: string;
@@ -28,6 +57,9 @@ export class AccessTokenResponse {
 export class AuthController {
   private socialLoginRepo = this.dataSource.getRepository(UserSocialLogin);
   private userRepo = this.dataSource.getRepository(User);
+  private userPasswordRepo = UserPasswordRepository.forDataSource(
+    this.dataSource
+  );
 
   constructor(
     private dataSource: DataSource,
@@ -67,6 +99,40 @@ export class AuthController {
         providerUserId,
       });
     }
+
+    return {
+      accessToken: await this.authService.sign({
+        userId: user.id,
+      }),
+    };
+  }
+
+  @Public()
+  @Post('user/signup')
+  @ApiBody({ type: UserSignupBody })
+  async signupUser(@Body() body: UserSignupBody) {
+    const user = await this.userRepo.save({
+      ...body,
+    });
+
+    await this.userPasswordRepo.setUserPassword(user, body.password);
+
+    return {
+      accessToken: await this.authService.sign({
+        userId: user.id,
+      }),
+    };
+  }
+
+  @Public()
+  @Post('user/login')
+  @ApiBody({ type: UserSignupBody })
+  async loginUser(@Body() body: UserLoginBody) {
+    const user = await this.userRepo.findOneOrFail({
+      where: { email: body.email },
+    });
+
+    await this.userPasswordRepo.compareUserPassword(user, body.password);
 
     return {
       accessToken: await this.authService.sign({
