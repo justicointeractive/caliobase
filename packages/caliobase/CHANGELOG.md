@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-5](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-4...caliobase-0.0.1-5) (2022-06-23)
+
+
+### Features
+
+* add user email/password routes ([e115d24](https://github.com/justicointeractive/caliobase/commit/e115d24a6e4074363cc92dcb2ae45358056e2349))
+
 ### [0.0.1-4](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-3...caliobase-0.0.1-4) (2022-06-23)
 
 
