@@ -3,6 +3,17 @@
   "sourceRoot": "packages/caliobase/src",
   "projectType": "library",
   "targets": {
+    "build": {
+      "executor": "@nrwl/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/caliobase",
+        "tsConfig": "packages/caliobase/tsconfig.lib.json",
+        "packageJson": "packages/caliobase/package.json",
+        "main": "packages/caliobase/src/index.ts",
+        "assets": ["packages/caliobase/*.md"]
+      }
+    },
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
@@ -16,6 +27,18 @@
       "options": {
         "jestConfig": "packages/caliobase/jest.config.ts",
         "passWithNoTests": true
+      }
+    },
+    "deploy": {
+      "executor": "ngx-deploy-npm:deploy",
+      "options": {
+        "access": "public"
+      }
+    },
+    "version": {
+      "executor": "@jscutlery/semver:version",
+      "options": {
+        "preset": "conventional"
       }
     }
   },
