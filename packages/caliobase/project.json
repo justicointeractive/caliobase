@@ -39,7 +39,10 @@
       "executor": "@jscutlery/semver:version",
       "options": {
         "preset": "conventional",
-        "postTargets": ["caliobase:deploy"]
+        "trackDeps": true,
+        "postTargets": ["caliobase:deploy"],
+        "releaseAs": "prerelease",
+        "preId": "alpha"
       }
     }
   },
