@@ -1,7 +1,7 @@
 export interface ICaliobaseController<TEntity> {
-  create(...args: any[]): Promise<TEntity>;
-  findAll(...args: any[]): Promise<TEntity[]>;
-  findOne(...args: any[]): Promise<TEntity | undefined>;
-  update(...args: any[]): Promise<TEntity[]>;
-  remove(...args: any[]): Promise<TEntity[]>;
+  create(...args: unknown[]): Promise<TEntity>;
+  findAll(...args: unknown[]): Promise<TEntity[]>;
+  findOne(...args: unknown[]): Promise<TEntity | null>;
+  update(...args: unknown[]): Promise<TEntity[]>;
+  remove(...args: unknown[]): Promise<TEntity[]>;
 }

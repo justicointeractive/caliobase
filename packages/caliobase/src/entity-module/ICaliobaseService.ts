@@ -16,7 +16,7 @@ export interface ICaliobaseService<TEntity, TCreate, TUpdate> {
   findOne(
     findOptions: CaliobaseFindOptions<TEntity>,
     options: ICaliobaseServiceOptions
-  ): Promise<TEntity | undefined>;
+  ): Promise<TEntity | null>;
   update(
     conditions: FindOptionsWhere<TEntity>,
     update: TUpdate,

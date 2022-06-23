@@ -1,10 +1,10 @@
 import { Type } from '@nestjs/common';
 import { fromPairs, toPairs } from 'lodash';
 import {
+  DataSource,
   DeepPartial,
   EntityManager,
   FindOptionsWhere,
-  getConnection,
   ObjectLiteral,
 } from 'typeorm';
 
@@ -49,8 +49,10 @@ export function CaliobaseService<
 
     public static FindManyOptions = findManyOptions;
 
+    constructor(private dataSource: DataSource) {}
+
     async create(createDto: TCreate, { owner }: ICaliobaseServiceOptions) {
-      return await getConnection().transaction(async (manager) => {
+      return await this.dataSource.transaction(async (manager) => {
         const entityRepository = manager.getRepository(entity);
 
         const created: TEntity = await entityRepository.save(
@@ -76,7 +78,7 @@ export function CaliobaseService<
       { where, order }: CaliobaseFindOptions<TEntity>,
       { owner }: ICaliobaseServiceOptions
     ) {
-      return await getConnection().transaction(async (manager) => {
+      return await this.dataSource.transaction(async (manager) => {
         return await buildQuery(
           entity,
           manager,
@@ -90,7 +92,7 @@ export function CaliobaseService<
       { where, order }: CaliobaseFindOptions<TEntity>,
       { owner }: ICaliobaseServiceOptions
     ) {
-      return await getConnection().transaction(async (manager) => {
+      return await this.dataSource.transaction(async (manager) => {
         return await buildQuery(
           entity,
           manager,
@@ -105,7 +107,7 @@ export function CaliobaseService<
       updateDto: TUpdate,
       { owner }: ICaliobaseServiceOptions
     ) {
-      return await getConnection().transaction(async (manager) => {
+      return await this.dataSource.transaction(async (manager) => {
         const allFound = await buildQuery(
           entity,
           manager,
@@ -127,7 +129,7 @@ export function CaliobaseService<
       conditions: FindOptionsWhere<TEntity>,
       { owner }: ICaliobaseServiceOptions
     ) {
-      return await getConnection().transaction(async (manager) => {
+      return await this.dataSource.transaction(async (manager) => {
         const allFound = await buildQuery(
           entity,
           manager,

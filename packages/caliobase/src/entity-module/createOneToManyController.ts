@@ -17,7 +17,7 @@ import {
 import { camelCase, sentenceCase } from 'change-case';
 import { ValidatorOptions } from 'class-validator';
 import { singular } from 'pluralize';
-import { getConnection, getMetadataArgsStorage } from 'typeorm';
+import { DataSource, getMetadataArgsStorage } from 'typeorm';
 import { ColumnMetadataArgs } from 'typeorm/metadata-args/ColumnMetadataArgs';
 import { RelationMetadataArgs } from 'typeorm/metadata-args/RelationMetadataArgs';
 
@@ -106,6 +106,8 @@ export function createOneToManyController<T>(
 
   @RenameClass(relationEntityName)
   class EntityRelationController {
+    constructor(private dataSource: DataSource) {}
+
     @Post(
       `${oneSidePathParams}/${oneToManyRelationPropertyName}/${manyEntityPrimaryNonGeneratedPathParams}`
     )
@@ -124,7 +126,7 @@ export function createOneToManyController<T>(
       params: CreateEntityRelationParams,
       @Request() { user }: Express.Request
     ) {
-      return getConnection().transaction(async (entityManager) => {
+      return this.dataSource.transaction(async (entityManager) => {
         await relationPermissionChecker.checkPermissions(
           'write',
           { ...params, ...body },
@@ -150,7 +152,7 @@ export function createOneToManyController<T>(
       params: UpdateEntityRelationParams,
       @Request() { user }: Express.Request
     ) {
-      return getConnection().transaction(async (entityManager) => {
+      return this.dataSource.transaction(async (entityManager) => {
         await relationPermissionChecker.checkPermissions(
           'read',
           { ...params },
@@ -178,7 +180,7 @@ export function createOneToManyController<T>(
       params: UpdateEntityRelationParams,
       @Request() { user }: Express.Request
     ) {
-      return getConnection().transaction(async (entityManager) => {
+      return this.dataSource.transaction(async (entityManager) => {
         await relationPermissionChecker.checkPermissions(
           'write',
           { ...params, ...body },
@@ -199,7 +201,7 @@ export function createOneToManyController<T>(
       params: UpdateEntityRelationParams,
       @Request() { user }: Express.Request
     ) {
-      return getConnection().transaction(async (entityManager) => {
+      return this.dataSource.transaction(async (entityManager) => {
         await relationPermissionChecker.checkPermissions(
           'write',
           { ...params },

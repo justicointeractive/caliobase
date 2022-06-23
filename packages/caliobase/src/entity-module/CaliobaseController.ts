@@ -1,15 +1,15 @@
 import {
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
   Delete,
+  Get,
   Inject,
-  Type,
-  Request,
-  ValidationPipe,
+  Param,
+  Patch,
+  Post,
   Query,
+  Request,
+  Type,
+  ValidationPipe,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -27,26 +27,26 @@ import { CaliobaseJwtPayload } from '../auth/jwt-payload';
 import { getRelationController } from '../entity-module/decorators';
 import { cloneMetadata } from '../util/cloneMetadata';
 
-import { ICaliobaseController } from './ICaliobaseController';
-import { ICaliobaseServiceType } from './ICaliobaseService';
 import { createAclController } from './createAclController';
 import { createOneToManyController } from './createOneToManyController';
 import { RenameClass } from './decorators/RenameClass.decorator';
+import { ICaliobaseController } from './ICaliobaseController';
+import { ICaliobaseServiceType } from './ICaliobaseService';
 
 import { ToFindOptions } from '.';
 
 export function CaliobaseController<TEntity, TCreate, TUpdate>(
   ControllerService: ICaliobaseServiceType<TEntity, TCreate, TUpdate>,
   findManyOptions: Type<ToFindOptions<TEntity>>,
-  validatorOptions: ValidatorOptions,
-): Type<any>[] {
+  validatorOptions: ValidatorOptions
+): Type<unknown>[] {
   const Entity = ControllerService.Entity;
 
   function getOwnerIdObject(jwt?: CaliobaseJwtPayload) {
     const id = jwt && jwt.organizationId;
     if (id == null) {
       throw new Error(
-        'supplied access token does not provide an appropriate owner id',
+        'supplied access token does not provide an appropriate owner id'
       );
     }
     return { id };
@@ -58,13 +58,13 @@ export function CaliobaseController<TEntity, TCreate, TUpdate>(
 
   const primaryColumnRoutePath = toColumnRoutePath(primaryColumns);
 
-  const controllers: Type<any>[] = [];
+  const controllers: Type<unknown>[] = [];
   {
     @RenameClass(ControllerService.Entity)
     class EntityController implements ICaliobaseController<TEntity> {
       constructor(
         @Inject(ControllerService)
-        public readonly service: InstanceType<typeof ControllerService>,
+        public readonly service: InstanceType<typeof ControllerService>
       ) {}
 
       @Post()
@@ -79,10 +79,10 @@ export function CaliobaseController<TEntity, TCreate, TUpdate>(
           new ValidationPipe({
             expectedType: ControllerService.CreateDto,
             ...validatorOptions,
-          }),
+          })
         )
         createDto: TCreate,
-        @Request() { user }: Express.Request,
+        @Request() { user }: Express.Request
       ) {
         return this.service.create(createDto, {
           owner: getOwnerIdObject(user),
@@ -102,9 +102,9 @@ export function CaliobaseController<TEntity, TCreate, TUpdate>(
           new ValidationPipe({
             expectedType: findManyOptions,
             ...validatorOptions,
-          }),
+          })
         )
-        listOptions: ToFindOptions<TEntity>,
+        listOptions: ToFindOptions<TEntity>
       ) {
         return this.service.findAll(listOptions.toFindOptions(), {
           owner: getOwnerIdObject(user),
@@ -115,10 +115,10 @@ export function CaliobaseController<TEntity, TCreate, TUpdate>(
       @ApiOkResponse({
         type: ControllerService.Entity,
       })
-      findOne(@Param() params: any, @Request() { user }: Express.Request) {
+      findOne(@Param() params: unknown, @Request() { user }: Express.Request) {
         return this.service.findOne(
           { where: pickColumnProperties(primaryColumns, params) },
-          { owner: getOwnerIdObject(user) },
+          { owner: getOwnerIdObject(user) }
         );
       }
 
@@ -127,32 +127,32 @@ export function CaliobaseController<TEntity, TCreate, TUpdate>(
         type: ControllerService.UpdateDto,
       })
       update(
-        @Param() params: any,
+        @Param() params: unknown,
         @Body(
           new ValidationPipe({
             expectedType: ControllerService.UpdateDto,
             ...validatorOptions,
-          }),
+          })
         )
         updateDto: TUpdate,
-        @Request() { user }: Express.Request,
+        @Request() { user }: Express.Request
       ) {
         return this.service.update(
           pickColumnProperties(primaryColumns, params),
           updateDto,
           {
             owner: getOwnerIdObject(user),
-          },
+          }
         );
       }
 
       @Delete(primaryColumnRoutePath)
-      remove(@Param() params: any, @Request() { user }: Express.Request) {
+      remove(@Param() params: unknown, @Request() { user }: Express.Request) {
         return this.service.remove(
           pickColumnProperties(primaryColumns, params),
           {
             owner: getOwnerIdObject(user),
-          },
+          }
         );
       }
     }
@@ -174,7 +174,7 @@ export function CaliobaseController<TEntity, TCreate, TUpdate>(
       String(propertyName),
       {
         validatorOptions,
-      },
+      }
     );
     controllers.push(EntityRelationController);
   });
@@ -186,7 +186,7 @@ export function getPrimaryColumns<TEntity>(entity: Type<TEntity>) {
     (col) =>
       typeof col.target !== 'string' &&
       (entity === col.target || entity.prototype instanceof col.target) &&
-      col.options.primary,
+      col.options.primary
   );
 
   return primaryColumns;
@@ -194,14 +194,14 @@ export function getPrimaryColumns<TEntity>(entity: Type<TEntity>) {
 
 export function pickColumnProperties<T>(
   primaryColumns: ColumnMetadataArgs[],
-  params: T,
+  params: T
 ) {
   return fromPairs(
     primaryColumns.map((col) => [
       col.propertyName,
       params[col.propertyName as keyof T],
-    ]),
-  ) as Record<keyof T, any>;
+    ])
+  ) as Record<keyof T, unknown>;
 }
 
 export function toColumnRoutePath(columns: (string | ColumnMetadataArgs)[]) {
