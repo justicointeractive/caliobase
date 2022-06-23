@@ -1,21 +1,22 @@
 {
   "extends": "nx/presets/npm.json",
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
-  "npmScope": "kaliobase",
+  "npmScope": "caliobase",
   "affected": {
     "defaultBase": "main"
   },
+  "workspaceLayout": {
+    "libsDir": "packages",
+    "appsDir": "examples"
+  },
   "tasksRunnerOptions": {
     "default": {
-      "runner": "nx/tasks-runners/default",
+      "runner": "@nrwl/nx-cloud",
       "options": {
-        "cacheableOperations": [
-          "build",
-          "lint",
-          "test",
-          "e2e"
-        ]
+        "cacheableOperations": ["build", "lint", "test", "e2e"],
+        "accessToken": "MTMyODlkOTctOTU5Yi00NzkwLWE1NGEtNWFlMDg2MDY4MTIxfHJlYWQtd3JpdGU="
       }
     }
-  }
+  },
+  "defaultProject": "example"
 }
