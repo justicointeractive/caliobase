@@ -2,6 +2,14 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-3](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-2...caliobase-0.0.1-3) (2022-06-23)
+
+
+### Bug Fixes
+
+* npm nx preset breaks dependency tracking ([29acb13](https://github.com/justicointeractive/caliobase/commit/29acb1389ce4628349fc5476ef9504f0cae70dc1))
+* troubleshooting generating package.json ([28b33fb](https://github.com/justicointeractive/caliobase/commit/28b33fbc8a2e3dcee67220ae87ffd476cde1ebcf))
+
 ### [0.0.1-2](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-1...caliobase-0.0.1-2) (2022-06-23)
 
 
