@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-4](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-3...caliobase-0.0.1-4) (2022-06-23)
+
+
+### Bug Fixes
+
+* parameter decorators for path parameters ([9dd1615](https://github.com/justicointeractive/caliobase/commit/9dd1615b6086493a145978561af659f34ebd18cc))
+
 ### [0.0.1-3](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-2...caliobase-0.0.1-3) (2022-06-23)
 
 
