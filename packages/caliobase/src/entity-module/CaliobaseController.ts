@@ -15,6 +15,8 @@ import {
   ApiBody,
   ApiCreatedResponse,
   ApiOkResponse,
+  ApiParam,
+  ApiParamOptions,
   ApiQuery,
 } from '@nestjs/swagger';
 import { ValidatorOptions } from 'class-validator';
@@ -55,6 +57,11 @@ export function CaliobaseController<TEntity, TCreate, TUpdate>(
   const AclEntity = getAclEntity(ControllerService.Entity);
 
   const primaryColumns = getPrimaryColumns(ControllerService.Entity);
+
+  const primaryColumnParams: ApiParamOptions[] = primaryColumns.map((col) => ({
+    name: col.propertyName,
+    required: true,
+  }));
 
   const primaryColumnRoutePath = toColumnRoutePath(primaryColumns);
 
@@ -115,6 +122,7 @@ export function CaliobaseController<TEntity, TCreate, TUpdate>(
       @ApiOkResponse({
         type: ControllerService.Entity,
       })
+      @ApiParams(primaryColumnParams)
       findOne(@Param() params: unknown, @Request() { user }: Express.Request) {
         return this.service.findOne(
           { where: pickColumnProperties(primaryColumns, params) },
@@ -126,6 +134,7 @@ export function CaliobaseController<TEntity, TCreate, TUpdate>(
       @ApiBody({
         type: ControllerService.UpdateDto,
       })
+      @ApiParams(primaryColumnParams)
       update(
         @Param() params: unknown,
         @Body(
@@ -147,6 +156,7 @@ export function CaliobaseController<TEntity, TCreate, TUpdate>(
       }
 
       @Delete(primaryColumnRoutePath)
+      @ApiParams(primaryColumnParams)
       remove(@Param() params: unknown, @Request() { user }: Express.Request) {
         return this.service.remove(
           pickColumnProperties(primaryColumns, params),
@@ -215,3 +225,11 @@ export function isGenerated(col: ColumnMetadataArgs): boolean {
     getMetadataArgsStorage().findGenerated(col.target, col.propertyName) != null
   );
 }
+
+export const ApiParams: (
+  apiParamOptions: ApiParamOptions[]
+) => MethodDecorator = (apiParamOptions) => (target, key, descriptor) => {
+  apiParamOptions.forEach((option) =>
+    ApiParam(option)(target, key, descriptor)
+  );
+};

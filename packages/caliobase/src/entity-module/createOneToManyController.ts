@@ -12,6 +12,7 @@ import {
 import {
   ApiCreatedResponse,
   ApiOkResponse,
+  ApiParamOptions,
   PartialType,
 } from '@nestjs/swagger';
 import { camelCase, sentenceCase } from 'change-case';
@@ -24,6 +25,7 @@ import { RelationMetadataArgs } from 'typeorm/metadata-args/RelationMetadataArgs
 import { cloneMetadata } from '../util/cloneMetadata';
 
 import {
+  ApiParams,
   getPrimaryColumns,
   isGenerated,
   toColumnRoutePath,
@@ -54,6 +56,9 @@ export function createOneToManyController<T>(
 
   const oneSidePathParams = toColumnRoutePath(manyToOneReferencingColumns);
 
+  const oneSideColumnParams: ApiParamOptions[] =
+    manyToOneReferencingColumns.map((col) => ({ name: col, required: true }));
+
   // when creating, primary non-generated columns should be in url
   const manyEntityPrimaryNonGeneratedColumns = getPrimaryColumns(ManyEntity)
     .filter(
@@ -75,6 +80,15 @@ export function createOneToManyController<T>(
   const manyEntityPrimaryPathParams = toColumnRoutePath(
     manyEntityPrimaryColumns
   );
+
+  const manySideColumnParams: ApiParamOptions[] = manyEntityPrimaryColumns.map(
+    (col) => ({ name: col, required: true })
+  );
+
+  const bothSideColumnParams = [
+    ...oneSideColumnParams,
+    ...manySideColumnParams,
+  ];
 
   const relationEntityName = `${OneEntity.name}${ManyEntity.name}`;
 
@@ -114,6 +128,7 @@ export function createOneToManyController<T>(
     @ApiCreatedResponse({
       type: ManyEntity,
     })
+    @ApiParams(bothSideColumnParams)
     [toMethodName('create', oneToManyRelationPropertyName)](
       @Body(
         new ValidationPipe({
@@ -147,6 +162,7 @@ export function createOneToManyController<T>(
     @ApiOkResponse({
       type: ManyEntity,
     })
+    @ApiParams(bothSideColumnParams)
     [toMethodName('get', oneToManyRelationPropertyName)](
       @Param(new ValidationPipe({ expectedType: UpdateEntityRelationParams }))
       params: UpdateEntityRelationParams,
@@ -168,6 +184,7 @@ export function createOneToManyController<T>(
     @ApiOkResponse({
       type: ManyEntity,
     })
+    @ApiParams(bothSideColumnParams)
     [toMethodName('update', oneToManyRelationPropertyName)](
       @Body(
         new ValidationPipe({
@@ -196,6 +213,7 @@ export function createOneToManyController<T>(
     @ApiOkResponse({
       type: ManyEntity,
     })
+    @ApiParams(bothSideColumnParams)
     [toMethodName('remove', oneToManyRelationPropertyName)](
       @Param(new ValidationPipe({ expectedType: UpdateEntityRelationParams }))
       params: UpdateEntityRelationParams,

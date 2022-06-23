@@ -15,12 +15,16 @@
         "projects": "dependencies"
       }
     ],
+    "serve": [{ "target": "build", "projects": "self" }],
     "build": [
       {
         "target": "build",
         "projects": "dependencies"
       }
     ]
+  },
+  "implicitDependencies": {
+    "package.json": "*"
   },
   "tasksRunnerOptions": {
     "default": {

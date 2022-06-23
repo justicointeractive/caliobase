@@ -49,7 +49,7 @@ declare global {
           throw new Error('could not get private key');
         }
         const privateKey = Buffer.from(privateKeyBase64, 'base64').toString(
-          'utf8',
+          'utf8'
         );
         return {
           privateKey,
@@ -96,7 +96,7 @@ export class CaliobaseModule {
           CaliobaseEntityModule(entity, {
             ...CaliobaseModule.defaultValidatorOptions,
             ...validatorOptions,
-          }),
+          })
         ),
         TypeOrmModule.forFeature([
           Member,
@@ -111,7 +111,7 @@ export class CaliobaseModule {
                 // eslint-disable-next-line @typescript-eslint/ban-types
                 getAclEntity(e) as Function & {
                   prototype: AclItem<{ id: string }>;
-                },
+                }
             )
             .filter((e): e is typeof AclItem => e != null),
         ]),

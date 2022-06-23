@@ -11,15 +11,15 @@ import { DeepPartial } from 'typeorm';
 
 import { CaliobaseController } from './CaliobaseController';
 import { CaliobaseService } from './CaliobaseService';
+import { RenameClass } from './decorators/RenameClass.decorator';
 import { ICaliobaseServiceType } from './ICaliobaseService';
 import { ValidatedType } from './ValidatedType';
-import { RenameClass } from './decorators/RenameClass.decorator';
 
 import { buildFindManyQueryParamClass, ToFindOptions } from '.';
 
 export function CaliobaseEntityModule<TEntity>(
   entityType: Type<TEntity>,
-  validatorOptions: ValidationPipeOptions,
+  validatorOptions: ValidationPipeOptions
 ): ICaliobaseEntityModule<TEntity> {
   const FindManyParams = buildFindManyQueryParamClass(entityType);
 
@@ -35,7 +35,7 @@ export function CaliobaseEntityModule<TEntity>(
     entityType,
     FindManyParams,
     CreateEntityDto as Type<DeepPartial<TEntity>>,
-    UpdateEntityDto as Type<DeepPartial<TEntity>>,
+    UpdateEntityDto as Type<DeepPartial<TEntity>>
   ) {}
 
   const controllers = (() => {
@@ -43,7 +43,7 @@ export function CaliobaseEntityModule<TEntity>(
       const controllers = CaliobaseController(
         EntityService,
         FindManyParams,
-        validatorOptions,
+        validatorOptions
       );
 
       return controllers;
