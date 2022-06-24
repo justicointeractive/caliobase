@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-8](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-7...caliobase-0.0.1-8) (2022-06-24)
+
+
+### Bug Fixes
+
+* decorate org controller with response types ([b8c81a4](https://github.com/justicointeractive/caliobase/commit/b8c81a4f3ce6a1440d2ad303c4aa055ce6bac9ee))
+
 ### [0.0.1-7](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-6...caliobase-0.0.1-7) (2022-06-24)
 
 
