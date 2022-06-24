@@ -8,7 +8,7 @@ import {
 } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
 import { DataSource } from 'typeorm';
-import { AuthService, Member, Organization, User } from '../auth';
+import { AuthService, Member, Organization, Public, User } from '../auth';
 import { MetaService } from './meta.service';
 
 class CreateRoot {
@@ -50,6 +50,7 @@ export class MetaController {
     private authService: AuthService
   ) {}
 
+  @Public()
   @Get()
   @ApiOkResponse({ type: GetMetaResponse })
   async getMeta() {
@@ -58,6 +59,7 @@ export class MetaController {
     };
   }
 
+  @Public()
   @Post()
   @ApiBody({ type: CreateRoot })
   @ApiCreatedResponse({ type: Member })
