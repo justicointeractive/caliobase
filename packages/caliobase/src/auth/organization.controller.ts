@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import { Controller, Get, Param, Post, Request } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 import { AccessTokenResponse } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -22,6 +22,7 @@ export class OrganizationController {
   ) {}
 
   @Get()
+  @ApiOkResponse({ type: [Member] })
   async findAll(@Request() request: Express.Request) {
     return await this.memberRepo.find({
       where: {
@@ -32,6 +33,7 @@ export class OrganizationController {
   }
 
   @Post()
+  @ApiCreatedResponse({ type: Member })
   async create(@Request() request: Express.Request) {
     const organization = await this.orgRepo.save({});
 
@@ -44,6 +46,7 @@ export class OrganizationController {
   }
 
   @Post(':id/token')
+  @ApiCreatedResponse({ type: AccessTokenResponse })
   async getOrganizationToken(
     @Param('id') organizationId: string,
     @Request() request: Express.Request
@@ -66,6 +69,7 @@ export class OrganizationController {
 
   @Public()
   @Post('token/public')
+  @ApiCreatedResponse({ type: AccessTokenResponse })
   async getPublicAccessToken(
     @Request() request: Express.Request
   ): Promise<AccessTokenResponse> {
