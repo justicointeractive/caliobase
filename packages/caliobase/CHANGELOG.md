@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-6](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-5...caliobase-0.0.1-6) (2022-06-24)
+
+
+### Features
+
+* decorate with @ApiProperty() ([f366b57](https://github.com/justicointeractive/caliobase/commit/f366b578b2690e24b908894283d88d0c4d48a154))
+
 ### [0.0.1-5](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-4...caliobase-0.0.1-5) (2022-06-23)
 
 
