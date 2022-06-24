@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Patch, Post, Request } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
   ApiOkResponse,
@@ -134,6 +135,7 @@ export class AuthController {
 
   @Get('me')
   @ApiCreatedResponse({ type: User })
+  @ApiBearerAuth()
   async getMe(
     @Request() { user: { id } }: { user: { id: string } }
   ): Promise<User> {
