@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.2](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.1...caliobase-0.0.1-alpha.2) (2022-06-24)
+
+
+### Bug Fixes
+
+* pass through email transport ([8f291c4](https://github.com/justicointeractive/caliobase/commit/8f291c44a11e624f74408e2bc23a880cfb4b83c8))
+
 ### [0.0.1-alpha.1](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.0...caliobase-0.0.1-alpha.1) (2022-06-24)
 
 
