@@ -43,7 +43,7 @@
         "trackDeps": true,
         "postTargets": ["caliobase:deploy"],
         "releaseAs": "prerelease",
-        "preId": "alpha"
+        "preid": "alpha"
       }
     }
   },
