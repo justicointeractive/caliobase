@@ -15,6 +15,7 @@ import { AuthService } from './auth/auth.service';
 import { AclItem, getAclEntity } from './auth/entities/acl.entity';
 import { Member } from './auth/entities/member.entity';
 import { Organization } from './auth/entities/organization.entity';
+import { PasswordResetToken } from './auth/entities/password-reset-token.entity';
 import { UserPassword } from './auth/entities/user-password.entity';
 import { UserSocialLogin } from './auth/entities/user-social-login.entity';
 import { User } from './auth/entities/user.entity';
@@ -112,6 +113,7 @@ export class CaliobaseModule {
           UserPassword,
           UserSocialLogin,
           User,
+          PasswordResetToken,
           ...bridgeEntities,
           ...controllerEntities
             .map(
