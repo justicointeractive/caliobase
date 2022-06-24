@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.7](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.6...caliobase-0.0.1-alpha.7) (2022-06-24)
+
+
+### Bug Fixes
+
+* handle password reset request where account does not exist ([eed3251](https://github.com/justicointeractive/caliobase/commit/eed325189f6c333a47861eeeb3411b99413a670b))
+
 ### [0.0.1-alpha.6](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.5...caliobase-0.0.1-alpha.6) (2022-06-24)
 
 
