@@ -9,6 +9,8 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ValidatorOptions } from 'class-validator';
+import { createTransport, Transport } from 'nodemailer';
+import SESTransport = require('nodemailer/lib/ses-transport');
 
 import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
@@ -27,6 +29,7 @@ import {
   SocialProvider,
   SocialProvidersToken,
 } from './auth/social-provider/social-provider';
+import { CaliobaseConfig } from './config/config';
 import { CaliobaseEntityModule } from './entity-module/CaliobaseEntityModule';
 
 declare global {
@@ -83,11 +86,15 @@ export class CaliobaseModule {
     controllerEntities,
     otherEntities: bridgeEntities,
     validatorOptions,
+    baseUrl,
+    emailTransporter,
   }: {
     socialProviders?: SocialProvider[];
     controllerEntities: Type<any>[];
     otherEntities: Type<any>[];
     validatorOptions?: ValidatorOptions;
+    baseUrl: string;
+    emailTransporter: Transport;
   }): DynamicModule {
     return {
       module: CaliobaseModule,
@@ -120,6 +127,13 @@ export class CaliobaseModule {
         {
           provide: SocialProvidersToken,
           useValue: socialProviders,
+        },
+        {
+          provide: CaliobaseConfig,
+          useValue: new CaliobaseConfig({
+            baseUrl,
+            emailTransport: createTransport(emailTransporter),
+          }),
         },
       ],
     };

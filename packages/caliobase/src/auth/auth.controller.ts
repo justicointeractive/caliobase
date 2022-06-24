@@ -1,17 +1,15 @@
-import { Body, Controller, Get, Post, Request } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post, Request } from '@nestjs/common';
 import {
   ApiBody,
   ApiCreatedResponse,
+  ApiOkResponse,
   ApiProperty,
   ApiTags,
 } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
-import { DataSource } from 'typeorm';
 
 import { AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator';
-import { UserPasswordRepository } from './entities';
-import { UserSocialLogin } from './entities/user-social-login.entity';
 import { User } from './entities/user.entity';
 
 export class SocialValidateBody {
@@ -41,6 +39,21 @@ export class UserSignupBody {
   @ApiProperty()
   password!: string;
 }
+export class CreatePasswordResetTokenBody {
+  @IsString()
+  @ApiProperty()
+  email!: string;
+}
+
+export class ResetWithTokenBody {
+  @IsString()
+  @ApiProperty()
+  password!: string;
+
+  @IsString()
+  @ApiProperty()
+  token!: string;
+}
 
 export class UserLoginBody {
   @IsString()
@@ -57,20 +70,23 @@ export class AccessTokenResponse {
   accessToken!: string;
 }
 
+export class UpdatePasswordBody {
+  @ApiProperty()
+  currentPassword!: string;
+
+  @ApiProperty()
+  newPassword!: string;
+}
+
+export class UpdatePasswordResponse {
+  @ApiProperty()
+  success!: boolean;
+}
+
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  private readonly socialLoginRepo =
-    this.dataSource.getRepository(UserSocialLogin);
-  private readonly userRepo = this.dataSource.getRepository(User);
-  private readonly userPasswordRepo = UserPasswordRepository.forDataSource(
-    this.dataSource
-  );
-
-  constructor(
-    private dataSource: DataSource,
-    private authService: AuthService
-  ) {}
+  constructor(private authService: AuthService) {}
 
   @Public()
   @Post('social/validate')
@@ -79,33 +95,7 @@ export class AuthController {
   async socialValidate(
     @Body() body: SocialValidateBody
   ): Promise<AccessTokenResponse> {
-    const profile = await this.authService.validate(body);
-
-    const { providerUserId, provider, name, email } = profile;
-
-    const socialLogin = await this.socialLoginRepo.findOne({
-      where: {
-        provider,
-        providerUserId,
-      },
-      relations: ['user'],
-    });
-
-    let user = socialLogin?.user;
-
-    if (user == null) {
-      const { givenName, familyName } = name;
-      user = await this.userRepo.save({
-        email,
-        givenName,
-        familyName,
-      });
-      await this.socialLoginRepo.save({
-        user,
-        provider,
-        providerUserId,
-      });
-    }
+    const user = await this.authService.validateSocial(body);
 
     return {
       accessToken: await this.authService.sign({
@@ -119,11 +109,7 @@ export class AuthController {
   @ApiBody({ type: UserSignupBody })
   @ApiCreatedResponse({ type: AccessTokenResponse })
   async signupUser(@Body() body: UserSignupBody) {
-    const user = await this.userRepo.save({
-      ...body,
-    });
-
-    await this.userPasswordRepo.setUserPassword(user, body.password);
+    const user = await this.authService.createUserWithPassword(body);
 
     return {
       accessToken: await this.authService.sign({
@@ -137,11 +123,7 @@ export class AuthController {
   @ApiBody({ type: UserSignupBody })
   @ApiCreatedResponse({ type: AccessTokenResponse })
   async loginUser(@Body() body: UserLoginBody) {
-    const user = await this.userRepo.findOneOrFail({
-      where: { email: body.email },
-    });
-
-    await this.userPasswordRepo.compareUserPassword(user, body.password);
+    const user = await this.authService.validatePassword(body);
 
     return {
       accessToken: await this.authService.sign({
@@ -155,6 +137,41 @@ export class AuthController {
   async getMe(
     @Request() { user: { id } }: { user: { id: string } }
   ): Promise<User> {
-    return await this.userRepo.findOneByOrFail({ id });
+    return await this.authService.getUserById({ userId: id });
+  }
+
+  @Patch('me/password')
+  @ApiOkResponse({ type: UpdatePasswordResponse })
+  async updatePassword(
+    @Body() body: UpdatePasswordBody,
+    @Request() { user: { id } }: { user: { id: string } }
+  ): Promise<UpdatePasswordResponse> {
+    await this.authService.setUserPassword(id, body);
+
+    return { success: true };
+  }
+
+  @Public()
+  @Post('user/password/emailResetToken')
+  @ApiBody({ type: CreatePasswordResetTokenBody })
+  @ApiOkResponse()
+  async emailResetToken(@Body() body: CreatePasswordResetTokenBody) {
+    await this.authService.createAndEmailPasswordResetLink(body.email);
+
+    return {
+      success: true,
+    };
+  }
+
+  @Public()
+  @Post('user/password/resetWithToken')
+  @ApiBody({ type: ResetWithTokenBody })
+  @ApiOkResponse()
+  async resetWithToken(@Body() body: ResetWithTokenBody) {
+    await this.authService.setPasswordWithResetToken(body.token, body.password);
+
+    return {
+      success: true,
+    };
   }
 }
