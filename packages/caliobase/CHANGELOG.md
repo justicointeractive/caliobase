@@ -2,6 +2,14 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-7](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-6...caliobase-0.0.1-7) (2022-06-24)
+
+
+### Bug Fixes
+
+* decorate auth controller with response types ([c9774a5](https://github.com/justicointeractive/caliobase/commit/c9774a55010079b0d9518bcf74fc2a63c48dfba0))
+* remove uses of deprecated getRepository method ([979ed51](https://github.com/justicointeractive/caliobase/commit/979ed51cbe743ae2c289638d8352f61ccddebd07))
+
 ### [0.0.1-6](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-5...caliobase-0.0.1-6) (2022-06-24)
 
 
