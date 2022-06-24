@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.10](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.9...caliobase-0.0.1-alpha.10) (2022-06-24)
+
+
+### Bug Fixes
+
+* tell typeorm that PasswordResetToken exists ([1299b64](https://github.com/justicointeractive/caliobase/commit/1299b64c9527696723e336200d8544eb24f334a0))
+
 ### [0.0.1-alpha.9](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.8...caliobase-0.0.1-alpha.9) (2022-06-24)
 
 
