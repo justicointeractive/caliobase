@@ -7,7 +7,6 @@ import {
   OneToOne,
   PrimaryColumn,
   RelationId,
-  Repository,
 } from 'typeorm';
 
 import { User } from './user.entity';
@@ -26,7 +25,7 @@ export class UserPassword {
   hash!: string;
 }
 
-export class UserPasswordRepository extends Repository<UserPassword> {
+export class UserPasswordRepository {
   static forDataSource(dataSource: DataSource) {
     return dataSource.getRepository(UserPassword).extend({
       async setUserPassword(user: User, password: string) {

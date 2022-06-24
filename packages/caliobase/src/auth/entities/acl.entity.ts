@@ -42,9 +42,11 @@ export abstract class AclItem<T> {
   access!: AclAccessLevel;
 
   @PrimaryColumn()
+  @ApiProperty()
   organizationId!: string;
 
   @ManyToOne(() => Organization)
+  @ApiProperty()
   organization!: Organization;
 }
 
