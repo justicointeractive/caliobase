@@ -121,27 +121,38 @@ export class AuthService {
   }
 
   async createAndEmailPasswordResetLink(userEmail: string) {
-    const user = await this.userRepo.findOneOrFail({
+    const user = await this.userRepo.findOne({
       where: { email: userEmail },
     });
 
-    const token = await cryptoRandomString({
-      length: 128,
-      type: 'url-safe',
-    });
+    const html = await (async () => {
+      if (user) {
+        const token = await cryptoRandomString({
+          length: 128,
+          type: 'url-safe',
+        });
 
-    await this.passwordResetTokenRepo.save({
-      user,
-      token,
-      validUntil: addHours(Date.now(), 1),
-    });
+        await this.passwordResetTokenRepo.save({
+          user,
+          token,
+          validUntil: addHours(Date.now(), 1),
+        });
 
-    const html = forgotPasswordEmail({
-      resetUrl: `${this.config.baseUrl}/?forgotPasswordToken=${token}`,
-    });
+        const html = forgotPasswordEmail({
+          accountExists: true,
+          resetUrl: `${this.config.baseUrl}/?forgotPasswordToken=${token}`,
+        });
+
+        return html;
+      }
+
+      return forgotPasswordEmail({
+        accountExists: false,
+      });
+    })();
 
     await this.config.emailTransport.sendMail({
-      to: user.email,
+      to: userEmail,
       subject: `Password Reset Request`,
       html,
     });

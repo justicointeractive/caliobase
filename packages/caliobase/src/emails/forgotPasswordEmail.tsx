@@ -11,7 +11,14 @@ import {
   render,
 } from 'mjml-react';
 
-export function forgotPasswordEmail(options: { resetUrl: string }) {
+export function forgotPasswordEmail(
+  options:
+    | {
+        accountExists: true;
+        resetUrl: string;
+      }
+    | { accountExists: false }
+) {
   const { html } = render(
     <Mjml>
       <MjmlHead>
@@ -23,23 +30,32 @@ export function forgotPasswordEmail(options: { resetUrl: string }) {
           <MjmlColumn>
             <MjmlText>
               We've received a request to reset your password. If you did not
-              request that you can safely ignore this email. If you would like
-              to reset your password click the button below.
+              request that you can safely ignore this email.{' '}
+              {options.accountExists ? (
+                <>
+                  If you would like to reset your password click the button
+                  below.
+                </>
+              ) : (
+                <>No account was found for this email address.</>
+              )}
             </MjmlText>
           </MjmlColumn>
         </MjmlSection>
 
-        <MjmlSection>
-          <MjmlColumn>
-            <MjmlButton
-              padding="20px"
-              backgroundColor="#346DB7"
-              href={options.resetUrl}
-            >
-              Reset Password
-            </MjmlButton>
-          </MjmlColumn>
-        </MjmlSection>
+        {options.accountExists && (
+          <MjmlSection>
+            <MjmlColumn>
+              <MjmlButton
+                padding="20px"
+                backgroundColor="#346DB7"
+                href={options.resetUrl}
+              >
+                Reset Password
+              </MjmlButton>
+            </MjmlColumn>
+          </MjmlSection>
+        )}
       </MjmlBody>
     </Mjml>,
     {}
