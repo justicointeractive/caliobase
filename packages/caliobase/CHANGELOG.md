@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.1](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.0...caliobase-0.0.1-alpha.1) (2022-06-24)
+
+
+### Features
+
+* user password management ([b6d190d](https://github.com/justicointeractive/caliobase/commit/b6d190dd7b3185409006477b8f3b4954841ea98d))
+
 ### [0.0.1-alpha.0](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-8...caliobase-0.0.1-alpha.0) (2022-06-24)
 
 
