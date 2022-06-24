@@ -1,23 +1,29 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import { Controller, Get, Param, Post, Request } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { getRepository } from 'typeorm';
 
 import { AccessTokenResponse } from './auth.controller';
 import { AuthService } from './auth.service';
 import { Member } from './entities/member.entity';
 import { Organization } from './entities/organization.entity';
 
+import { DataSource } from 'typeorm';
 import { Public } from '.';
 
 @ApiTags('organization')
 @Controller('organization')
 export class OrganizationController {
-  constructor(private authService: AuthService) {}
+  private readonly memberRepo = this.dataSource.getRepository(Member);
+  private readonly orgRepo = this.dataSource.getRepository(Organization);
+
+  constructor(
+    private dataSource: DataSource,
+    private authService: AuthService
+  ) {}
 
   @Get()
   async findAll(@Request() request: Express.Request) {
-    return await getRepository(Member).find({
+    return await this.memberRepo.find({
       where: {
         userId: request.user?.userId,
       },
@@ -27,9 +33,9 @@ export class OrganizationController {
 
   @Post()
   async create(@Request() request: Express.Request) {
-    const organization = await getRepository(Organization).save({});
+    const organization = await this.orgRepo.save({});
 
-    await getRepository(Member).save({
+    await this.memberRepo.save({
       userId: request.user?.userId,
       organization,
     });
@@ -42,7 +48,7 @@ export class OrganizationController {
     @Param('id') organizationId: string,
     @Request() request: Express.Request
   ): Promise<AccessTokenResponse> {
-    const member = await getRepository(Member).findOneOrFail({
+    const member = await this.memberRepo.findOneOrFail({
       where: {
         userId: request.user?.userId,
         organizationId,

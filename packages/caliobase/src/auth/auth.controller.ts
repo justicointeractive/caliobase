@@ -60,9 +60,10 @@ export class AccessTokenResponse {
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  private socialLoginRepo = this.dataSource.getRepository(UserSocialLogin);
-  private userRepo = this.dataSource.getRepository(User);
-  private userPasswordRepo = UserPasswordRepository.forDataSource(
+  private readonly socialLoginRepo =
+    this.dataSource.getRepository(UserSocialLogin);
+  private readonly userRepo = this.dataSource.getRepository(User);
+  private readonly userPasswordRepo = UserPasswordRepository.forDataSource(
     this.dataSource
   );
 

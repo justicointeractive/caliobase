@@ -92,8 +92,6 @@ export function createOneToManyController<T>(
 
   const relationEntityName = `${OneEntity.name}${ManyEntity.name}`;
 
-  const relationPermissionChecker = new RelationPermissionChecker(ManyEntity);
-
   @RenameClass(relationEntityName)
   class CreateEntityRelationParams extends ValidatedType(ManyEntity, {
     include: [
@@ -120,6 +118,11 @@ export function createOneToManyController<T>(
 
   @RenameClass(relationEntityName)
   class EntityRelationController {
+    relationPermissionChecker = new RelationPermissionChecker(
+      this.dataSource,
+      ManyEntity
+    );
+
     constructor(private dataSource: DataSource) {}
 
     @Post(
@@ -142,7 +145,7 @@ export function createOneToManyController<T>(
       @Request() { user }: Express.Request
     ) {
       return this.dataSource.transaction(async (entityManager) => {
-        await relationPermissionChecker.checkPermissions(
+        await this.relationPermissionChecker.checkPermissions(
           'write',
           { ...params, ...body },
           user
@@ -169,7 +172,7 @@ export function createOneToManyController<T>(
       @Request() { user }: Express.Request
     ) {
       return this.dataSource.transaction(async (entityManager) => {
-        await relationPermissionChecker.checkPermissions(
+        await this.relationPermissionChecker.checkPermissions(
           'read',
           { ...params },
           user
@@ -198,7 +201,7 @@ export function createOneToManyController<T>(
       @Request() { user }: Express.Request
     ) {
       return this.dataSource.transaction(async (entityManager) => {
-        await relationPermissionChecker.checkPermissions(
+        await this.relationPermissionChecker.checkPermissions(
           'write',
           { ...params, ...body },
           user
@@ -220,7 +223,7 @@ export function createOneToManyController<T>(
       @Request() { user }: Express.Request
     ) {
       return this.dataSource.transaction(async (entityManager) => {
-        await relationPermissionChecker.checkPermissions(
+        await this.relationPermissionChecker.checkPermissions(
           'write',
           { ...params },
           user

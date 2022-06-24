@@ -1,5 +1,5 @@
 import { Type, UnauthorizedException } from '@nestjs/common';
-import { getMetadataArgsStorage, getRepository, In } from 'typeorm';
+import { DataSource, getMetadataArgsStorage, In } from 'typeorm';
 
 import {
   AclAccessLevel,
@@ -13,7 +13,7 @@ import { relationColumnPropertyName } from './createOneToManyController';
 import { getRequiredWriteAccessLevel } from '.';
 
 export class RelationPermissionChecker {
-  constructor(private ManyEntity: Type<any>) {}
+  constructor(private dataSource: DataSource, private ManyEntity: Type<any>) {}
 
   manySideRelationAccessRequired = getMetadataArgsStorage()
     .filterRelations(this.ManyEntity)
@@ -80,7 +80,7 @@ export class RelationPermissionChecker {
     user: CaliobaseJwtPayload
   ) {
     const AclEntity = getAclEntity(entity);
-    const result = await getRepository(AclEntity).findOne({
+    const result = await this.dataSource.getRepository(AclEntity).findOne({
       where: {
         ...primaryKey,
         access: In(getAclAccessLevels(requiredLevel)),
