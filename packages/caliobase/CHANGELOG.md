@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.8](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.7...caliobase-0.0.1-alpha.8) (2022-06-24)
+
+
+### Features
+
+* add a way to create a root/default org + first user ([31063d5](https://github.com/justicointeractive/caliobase/commit/31063d50092173243a5c10a941e7ebe14a31340f))
+
 ### [0.0.1-alpha.7](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.6...caliobase-0.0.1-alpha.7) (2022-06-24)
 
 
