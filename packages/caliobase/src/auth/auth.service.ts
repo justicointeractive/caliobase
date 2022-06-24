@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { cryptoRandomStringAsync } from 'crypto-random-string';
+import cryptRandomString from 'crypto-random-string';
 import { addHours } from 'date-fns';
 import { DataSource, MoreThanOrEqual } from 'typeorm';
 import { CaliobaseConfig } from '../config/config';
@@ -125,7 +125,7 @@ export class AuthService {
       where: { email: userEmail },
     });
 
-    const token = await cryptoRandomStringAsync({
+    const token = await cryptRandomString.async({
       length: 128,
       type: 'url-safe',
     });
