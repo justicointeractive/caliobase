@@ -1,5 +1,10 @@
 import { Body, Controller, Get, Post, Request } from '@nestjs/common';
-import { ApiBody, ApiProperty, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiCreatedResponse,
+  ApiProperty,
+  ApiTags,
+} from '@nestjs/swagger';
 import { IsString } from 'class-validator';
 import { DataSource } from 'typeorm';
 
@@ -69,6 +74,7 @@ export class AuthController {
   @Public()
   @Post('social/validate')
   @ApiBody({ type: SocialValidateBody })
+  @ApiCreatedResponse({ type: AccessTokenResponse })
   async socialValidate(
     @Body() body: SocialValidateBody
   ): Promise<AccessTokenResponse> {
@@ -110,6 +116,7 @@ export class AuthController {
   @Public()
   @Post('user/signup')
   @ApiBody({ type: UserSignupBody })
+  @ApiCreatedResponse({ type: AccessTokenResponse })
   async signupUser(@Body() body: UserSignupBody) {
     const user = await this.userRepo.save({
       ...body,
@@ -127,6 +134,7 @@ export class AuthController {
   @Public()
   @Post('user/login')
   @ApiBody({ type: UserSignupBody })
+  @ApiCreatedResponse({ type: AccessTokenResponse })
   async loginUser(@Body() body: UserLoginBody) {
     const user = await this.userRepo.findOneOrFail({
       where: { email: body.email },
@@ -142,6 +150,7 @@ export class AuthController {
   }
 
   @Get('me')
+  @ApiCreatedResponse({ type: User })
   async getMe(
     @Request() { user: { id } }: { user: { id: string } }
   ): Promise<User> {
