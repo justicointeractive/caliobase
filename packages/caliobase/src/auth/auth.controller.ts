@@ -120,7 +120,7 @@ export class AuthController {
 
   @Public()
   @Post('user/login')
-  @ApiBody({ type: UserSignupBody })
+  @ApiBody({ type: UserLoginBody })
   @ApiCreatedResponse({ type: AccessTokenResponse })
   async loginUser(@Body() body: UserLoginBody) {
     const user = await this.authService.validatePassword(body);
