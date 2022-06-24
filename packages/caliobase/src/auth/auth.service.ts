@@ -88,7 +88,12 @@ export class AuthService {
     return user;
   }
 
-  async createUserWithPassword(request: { email: string; password: string }) {
+  async createUserWithPassword(request: {
+    email: string;
+    givenName: string;
+    familyName: string;
+    password: string;
+  }) {
     const user = await this.userRepo.save({
       ...request,
     });

@@ -10,8 +10,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ValidatorOptions } from 'class-validator';
 import { Transporter } from 'nodemailer';
-import SESTransport = require('nodemailer/lib/ses-transport');
-
 import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
 import { AclItem, getAclEntity } from './auth/entities/acl.entity';
@@ -31,6 +29,8 @@ import {
 } from './auth/social-provider/social-provider';
 import { CaliobaseConfig } from './config/config';
 import { CaliobaseEntityModule } from './entity-module/CaliobaseEntityModule';
+import { MetaController } from './meta/meta.controller';
+import { MetaService } from './meta/meta.service';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -66,12 +66,13 @@ declare global {
   providers: [
     AuthService,
     JwtStrategy,
+    MetaService,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
   ],
-  controllers: [AuthController, OrganizationController],
+  controllers: [MetaController, AuthController, OrganizationController],
 })
 export class CaliobaseModule {
   static defaultValidatorOptions: ValidationPipeOptions = {
