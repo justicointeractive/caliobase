@@ -1,16 +1,11 @@
-import {
-  Injectable,
-  Module,
-  Type,
-  ValidationPipeOptions,
-} from '@nestjs/common';
+import { Module, Type, ValidationPipeOptions } from '@nestjs/common';
 import { PATH_METADATA } from '@nestjs/common/constants';
 import { PartialType } from '@nestjs/swagger';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DeepPartial } from 'typeorm';
 
 import { CaliobaseController } from './CaliobaseController';
-import { CaliobaseService } from './CaliobaseService';
+import { createEntityServiceClass } from './createEntityServiceClass';
 import { RenameClass } from './decorators/RenameClass.decorator';
 import { ICaliobaseServiceType } from './ICaliobaseService';
 import { ValidatedType } from './ValidatedType';
@@ -29,14 +24,12 @@ export function CaliobaseEntityModule<TEntity>(
   @RenameClass(entityType)
   class UpdateEntityDto extends (PartialType(CreateEntityDto) as any) {}
 
-  @Injectable()
-  @RenameClass(entityType)
-  class EntityService extends CaliobaseService(
+  const EntityService = createEntityServiceClass(
     entityType,
     FindManyParams,
     CreateEntityDto as Type<DeepPartial<TEntity>>,
     UpdateEntityDto as Type<DeepPartial<TEntity>>
-  ) {}
+  );
 
   const controllers = (() => {
     if (Reflect.getMetadata(PATH_METADATA, entityType)) {

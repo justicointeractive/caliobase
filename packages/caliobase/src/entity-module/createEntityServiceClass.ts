@@ -1,4 +1,4 @@
-import { Type } from '@nestjs/common';
+import { Injectable, Type } from '@nestjs/common';
 import { fromPairs, toPairs } from 'lodash';
 import {
   DataSource,
@@ -24,24 +24,26 @@ import {
   ICaliobaseServiceType,
 } from './ICaliobaseService';
 
-import { CaliobaseFindOptions } from '.';
+import { CaliobaseFindOptions, RenameClass } from '.';
 
-export function CaliobaseService<
+export function createEntityServiceClass<
   TEntity,
   TCreate extends DeepPartial<TEntity>,
   TUpdate extends DeepPartial<TEntity>
 >(
-  entity: Type<TEntity>,
+  entityType: Type<TEntity>,
   findManyOptions: Type<ToFindOptions<TEntity>>,
   createDto: Type<TCreate>,
   updateDto: Type<TUpdate>
 ): ICaliobaseServiceType<TEntity, TCreate, TUpdate> {
-  const AclEntity = getAclEntity(entity);
+  const AclEntity = getAclEntity(entityType);
 
+  @Injectable()
+  @RenameClass(entityType)
   class CaliobaseServiceClass
     implements ICaliobaseService<TEntity, TCreate, TUpdate>
   {
-    public static Entity = entity;
+    public static Entity = entityType;
 
     public static CreateDto = createDto;
 
@@ -53,12 +55,12 @@ export function CaliobaseService<
 
     async create(createDto: TCreate, { owner }: ICaliobaseServiceOptions) {
       return await this.dataSource.transaction(async (manager) => {
-        const entityRepository = manager.getRepository(entity);
+        const entityRepository = manager.getRepository(entityType);
 
         const created: TEntity = await entityRepository.save(
           entityRepository.create({
             ...createDto,
-            ...getCaliobaseOwnerOrganizationMixin(entity, owner),
+            ...getCaliobaseOwnerOrganizationMixin(entityType, owner),
           }) as TEntity & ObjectLiteral // todo more narrow type
         );
         if (AclEntity != null) {
@@ -80,7 +82,7 @@ export function CaliobaseService<
     ) {
       return await this.dataSource.transaction(async (manager) => {
         return await buildQuery(
-          entity,
+          entityType,
           manager,
           { where, order },
           owner
@@ -94,7 +96,7 @@ export function CaliobaseService<
     ) {
       return await this.dataSource.transaction(async (manager) => {
         return await buildQuery(
-          entity,
+          entityType,
           manager,
           { where, order },
           owner
@@ -109,7 +111,7 @@ export function CaliobaseService<
     ) {
       return await this.dataSource.transaction(async (manager) => {
         const allFound = await buildQuery(
-          entity,
+          entityType,
           manager,
           { where: conditions },
           owner,
@@ -118,7 +120,7 @@ export function CaliobaseService<
         for (const found of allFound) {
           Object.assign(found, updateDto);
           await manager
-            .getRepository(entity)
+            .getRepository(entityType)
             .save(found as TEntity & ObjectLiteral);
         }
         return allFound;
@@ -131,7 +133,7 @@ export function CaliobaseService<
     ) {
       return await this.dataSource.transaction(async (manager) => {
         const allFound = await buildQuery(
-          entity,
+          entityType,
           manager,
           { where: conditions },
           owner,
@@ -139,7 +141,7 @@ export function CaliobaseService<
         ).getMany();
         for (const found of allFound) {
           Object.assign(found, updateDto);
-          await manager.getRepository(entity).remove(found);
+          await manager.getRepository(entityType).remove(found);
         }
         return allFound;
       });
