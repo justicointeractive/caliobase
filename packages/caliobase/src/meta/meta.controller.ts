@@ -36,6 +36,12 @@ class CreateRoot {
 class GetMetaResponse {
   @ApiProperty()
   hasRootMember!: boolean;
+
+  @ApiProperty()
+  publicOrgId!: boolean;
+
+  @ApiProperty()
+  rootOrgId!: boolean;
 }
 
 @ApiTags('meta')
@@ -56,6 +62,8 @@ export class MetaController {
   async getMeta() {
     return {
       hasRootMember: await this.metaService.getHasRootMember(),
+      publicOrgId: Organization.PublicId,
+      rootOrgId: Organization.RootId,
     };
   }
 
