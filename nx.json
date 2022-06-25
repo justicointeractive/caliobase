@@ -10,6 +10,7 @@
   },
   "targetDependencies": {
     "version": [
+      { "target": "build", "projects": "self" },
       {
         "target": "version",
         "projects": "dependencies"
