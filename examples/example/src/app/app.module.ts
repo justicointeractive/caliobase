@@ -2,6 +2,7 @@ import { CaliobaseModule } from '@caliobase/caliobase';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { createTransport } from 'nodemailer';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -36,6 +37,8 @@ import { Bank, Configuration, ConfigurationBank, Note } from './entities';
     CaliobaseModule.forRoot({
       controllerEntities: [Bank, Configuration],
       otherEntities: [ConfigurationBank, Note],
+      baseUrl: '',
+      emailTransport: createTransport(),
     }),
   ],
   controllers: [AppController],
