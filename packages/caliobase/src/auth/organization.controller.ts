@@ -1,6 +1,11 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import { Controller, Get, Param, Post, Request } from '@nestjs/common';
-import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import { AccessTokenResponse } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -12,6 +17,7 @@ import { Public } from '.';
 
 @ApiTags('organization')
 @Controller('organization')
+@ApiBearerAuth()
 export class OrganizationController {
   private readonly memberRepo = this.dataSource.getRepository(Member);
   private readonly orgRepo = this.dataSource.getRepository(Organization);

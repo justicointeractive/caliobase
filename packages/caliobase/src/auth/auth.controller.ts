@@ -40,6 +40,7 @@ export class UserSignupBody {
   @ApiProperty()
   password!: string;
 }
+
 export class CreatePasswordResetTokenBody {
   @IsString()
   @ApiProperty()
@@ -86,6 +87,7 @@ export class UpdatePasswordResponse {
 
 @ApiTags('auth')
 @Controller('auth')
+@ApiBearerAuth()
 export class AuthController {
   constructor(private authService: AuthService) {}
 
@@ -135,7 +137,6 @@ export class AuthController {
 
   @Get('me')
   @ApiCreatedResponse({ type: User })
-  @ApiBearerAuth()
   async getMe(
     @Request() { user: { id } }: { user: { id: string } }
   ): Promise<User> {

@@ -12,6 +12,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
   ApiOkResponse,
@@ -26,8 +27,8 @@ import { ColumnMetadataArgs } from 'typeorm/metadata-args/ColumnMetadataArgs';
 
 import { getAclEntity } from '..';
 import { CaliobaseJwtPayload } from '../auth/jwt-payload';
-import { getRelationController } from '../entity-module/decorators';
 import { cloneMetadata } from '../util/cloneMetadata';
+import { getRelationController } from './decorators';
 
 import { createAclController } from './createAclController';
 import { createOneToManyController } from './createOneToManyController';
@@ -37,7 +38,7 @@ import { ICaliobaseServiceType } from './ICaliobaseService';
 
 import { ToFindOptions } from '.';
 
-export function CaliobaseController<TEntity, TCreate, TUpdate>(
+export function createEntityController<TEntity, TCreate, TUpdate>(
   ControllerService: ICaliobaseServiceType<TEntity, TCreate, TUpdate>,
   findManyOptions: Type<ToFindOptions<TEntity>>,
   validatorOptions: ValidatorOptions
@@ -68,6 +69,7 @@ export function CaliobaseController<TEntity, TCreate, TUpdate>(
   const controllers: Type<unknown>[] = [];
   {
     @RenameClass(ControllerService.Entity)
+    @ApiBearerAuth()
     class EntityController implements ICaliobaseController<TEntity> {
       constructor(
         @Inject(ControllerService)

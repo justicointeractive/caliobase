@@ -10,6 +10,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiParamOptions,
@@ -29,7 +30,7 @@ import {
   getPrimaryColumns,
   isGenerated,
   toColumnRoutePath,
-} from './CaliobaseController';
+} from './createEntityController';
 import { RenameClass } from './decorators/RenameClass.decorator';
 import { RelationPermissionChecker } from './RelationPermissionChecker';
 
@@ -117,6 +118,7 @@ export function createOneToManyController<T>(
   class UpdateEntityRelationDto extends PartialType(CreateEntityRelationDto) {}
 
   @RenameClass(relationEntityName)
+  @ApiBearerAuth()
   class EntityRelationController {
     relationPermissionChecker = new RelationPermissionChecker(
       this.dataSource,

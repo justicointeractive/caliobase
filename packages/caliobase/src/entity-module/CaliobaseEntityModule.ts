@@ -4,7 +4,7 @@ import { PartialType } from '@nestjs/swagger';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DeepPartial } from 'typeorm';
 
-import { CaliobaseController } from './CaliobaseController';
+import { createEntityController } from './createEntityController';
 import { createEntityServiceClass } from './createEntityServiceClass';
 import { RenameClass } from './decorators/RenameClass.decorator';
 import { ICaliobaseServiceType } from './ICaliobaseService';
@@ -33,7 +33,7 @@ export function CaliobaseEntityModule<TEntity>(
 
   const controllers = (() => {
     if (Reflect.getMetadata(PATH_METADATA, entityType)) {
-      const controllers = CaliobaseController(
+      const controllers = createEntityController(
         EntityService,
         FindManyParams,
         validatorOptions

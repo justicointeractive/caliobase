@@ -1,6 +1,6 @@
-export * from './CaliobaseController';
 export * from './CaliobaseEntityModule';
 export * from './CaliobaseQueryParams';
+export * from './createEntityController';
 export * from './createEntityServiceClass';
 export * from './decorators';
 export * from './ICaliobaseController';
