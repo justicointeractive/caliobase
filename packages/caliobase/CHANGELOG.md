@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.14](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.13...caliobase-0.0.1-alpha.14) (2022-06-25)
+
+
+### Features
+
+* add public/root org ids to meta response ([89dc187](https://github.com/justicointeractive/caliobase/commit/89dc187111d5ceeb7fa20ee63f7c0d5617342a1b))
+
 ### [0.0.1-alpha.13](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.12...caliobase-0.0.1-alpha.13) (2022-06-25)
 
 
