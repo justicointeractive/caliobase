@@ -38,10 +38,10 @@ class GetMetaResponse {
   hasRootMember!: boolean;
 
   @ApiProperty()
-  publicOrgId!: boolean;
+  publicOrgId!: string;
 
   @ApiProperty()
-  rootOrgId!: boolean;
+  rootOrgId!: string;
 }
 
 @ApiTags('meta')
@@ -60,7 +60,7 @@ export class MetaController {
   @Get()
   @ApiOkResponse({ type: GetMetaResponse })
   async getMeta() {
-    return {
+    return <GetMetaResponse>{
       hasRootMember: await this.metaService.getHasRootMember(),
       publicOrgId: Organization.PublicId,
       rootOrgId: Organization.RootId,
