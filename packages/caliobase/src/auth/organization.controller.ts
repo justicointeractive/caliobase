@@ -5,6 +5,7 @@ import {
   ApiBody,
   ApiCreatedResponse,
   ApiOkResponse,
+  ApiProperty,
   ApiTags,
 } from '@nestjs/swagger';
 
@@ -18,6 +19,7 @@ import { DataSource } from 'typeorm';
 import { Public } from '.';
 
 export class CreateOrganizationBody {
+  @ApiProperty()
   @IsString()
   @IsOptional()
   name?: string;
