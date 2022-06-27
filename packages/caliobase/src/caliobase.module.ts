@@ -35,6 +35,7 @@ import { MetaService } from './meta/meta.service';
 import { AbstractObjectStorageProvider } from './object-storage/AbstractFileProvider';
 import { ObjectStorageObject } from './object-storage/object-storage-object.entity';
 import { ObjectStorageController } from './object-storage/object-storage.controller';
+import { ObjectStorageService } from './object-storage/object-storage.service';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -71,6 +72,7 @@ declare global {
     AuthService,
     JwtStrategy,
     MetaService,
+    ObjectStorageService,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
