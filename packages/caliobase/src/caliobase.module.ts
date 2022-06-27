@@ -32,6 +32,8 @@ import { CaliobaseConfig } from './config/config';
 import { createEntityModule } from './entity-module/createEntityModule';
 import { MetaController } from './meta/meta.controller';
 import { MetaService } from './meta/meta.service';
+import { AbstractObjectStorageProvider } from './object-storage/AbstractFileProvider';
+import { ObjectStorageObject } from './object-storage/object-storage-object.entity';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -84,6 +86,7 @@ export class CaliobaseModule {
   };
 
   static forRoot({
+    objectStorageProvider,
     socialProviders = DefaultSocialProviders,
     controllerEntities,
     otherEntities: bridgeEntities,
@@ -91,9 +94,10 @@ export class CaliobaseModule {
     baseUrl,
     emailTransport,
   }: {
+    objectStorageProvider: AbstractObjectStorageProvider;
     socialProviders?: SocialProvider[];
-    controllerEntities: Type<any>[];
-    otherEntities: Type<any>[];
+    controllerEntities: Type<unknown>[];
+    otherEntities: Type<unknown>[];
     validatorOptions?: ValidatorOptions;
     baseUrl: string;
     emailTransport: Transporter;
@@ -114,6 +118,7 @@ export class CaliobaseModule {
           UserSocialLogin,
           User,
           PasswordResetToken,
+          ObjectStorageObject,
           ...bridgeEntities,
           ...controllerEntities
             .map(
@@ -130,6 +135,10 @@ export class CaliobaseModule {
         {
           provide: SocialProvidersToken,
           useValue: socialProviders,
+        },
+        {
+          provide: AbstractObjectStorageProvider,
+          useValue: objectStorageProvider,
         },
         {
           provide: CaliobaseConfig,

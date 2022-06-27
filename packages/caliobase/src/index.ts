@@ -1,3 +1,4 @@
 export * from './auth';
-export * from './entity-module';
 export * from './caliobase.module';
+export * from './entity-module';
+export * from './object-storage';
