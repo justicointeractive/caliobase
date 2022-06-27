@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.1.2](https://github.com/justicointeractive/caliobase/compare/example-0.1.1...example-0.1.2) (2022-06-27)
+
+
+### Bug Fixes
+
+* example app ([c33752f](https://github.com/justicointeractive/caliobase/commit/c33752f1bd30892f4465ba7391dcc6ed9a514601))
+
 ### [0.1.1](https://github.com/justicointeractive/caliobase/compare/example-0.1.0...example-0.1.1) (2022-06-25)
 
 
