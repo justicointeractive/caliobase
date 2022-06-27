@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post, Request } from '@nestjs/common';
+import { Body, Controller, Param, Patch, Post, Request } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -73,13 +73,13 @@ export class ObjectStorageController {
     return object;
   }
 
-  @Post()
+  @Patch(':objectId')
   @ApiBody({ type: ObjectStorageUpdateRequest })
   @ApiOkResponse({
     type: ObjectStorageObject,
   })
   async updateObjectStorageObject(
-    @Param('id') objectId: string,
+    @Param('objectId') objectId: string,
     @Body() file: ObjectStorageUpdateRequest,
     @Request() request: Express.Request
   ): Promise<ObjectStorageObject> {
