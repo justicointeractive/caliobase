@@ -206,7 +206,7 @@ function recursiveJoinEagerRelations(
       // TODO: prevent infinite recursion
       recursiveJoinEagerRelations(
         query,
-        `${prefix}.${eagerRelation.propertyName}`,
+        eagerRelation.propertyName,
         eagerRelation.inverseEntityMetadata.relations
       );
     });
