@@ -34,7 +34,7 @@ export class S3ObjectStorageProvider extends AbstractObjectStorageProvider {
 
     const result = await getSignedUrl(this.s3, command, { expiresIn: 15 * 60 });
 
-    return { signedUrl: result };
+    return { url: result, method: 'PUT' };
   }
 
   async deleteFile(path: string): Promise<DeleteResult> {

@@ -25,4 +25,11 @@ export class ObjectStorageObject {
   uploadedBy!: User;
 }
 
-export type ObjectStorageObjectStatus = 'pending' | 'processing' | 'ready';
+export const ObjectStorageObjectStatuses = [
+  'pending',
+  'processing',
+  'ready',
+] as const;
+
+export type ObjectStorageObjectStatus =
+  typeof ObjectStorageObjectStatuses[number];

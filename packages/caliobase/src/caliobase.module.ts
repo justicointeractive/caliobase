@@ -34,6 +34,7 @@ import { MetaController } from './meta/meta.controller';
 import { MetaService } from './meta/meta.service';
 import { AbstractObjectStorageProvider } from './object-storage/AbstractFileProvider';
 import { ObjectStorageObject } from './object-storage/object-storage-object.entity';
+import { ObjectStorageController } from './object-storage/object-storage.controller';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -75,7 +76,12 @@ declare global {
       useClass: JwtAuthGuard,
     },
   ],
-  controllers: [MetaController, AuthController, OrganizationController],
+  controllers: [
+    MetaController,
+    AuthController,
+    OrganizationController,
+    ObjectStorageController,
+  ],
 })
 export class CaliobaseModule {
   static defaultValidatorOptions: ValidationPipeOptions = {

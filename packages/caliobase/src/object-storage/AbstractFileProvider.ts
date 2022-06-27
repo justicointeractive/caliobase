@@ -9,7 +9,8 @@ export type DeleteResult = {
 };
 
 export interface SignedUploadUrl {
-  signedUrl: string;
+  url: string;
+  method: string;
 }
 
 export abstract class AbstractObjectStorageProvider {
