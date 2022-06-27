@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-namespace */
-import { Controller, Get, Param, Post, Request } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Request } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiBody,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiTags,
@@ -12,8 +13,15 @@ import { AuthService } from './auth.service';
 import { Member } from './entities/member.entity';
 import { Organization } from './entities/organization.entity';
 
+import { IsOptional, IsString } from 'class-validator';
 import { DataSource } from 'typeorm';
 import { Public } from '.';
+
+export class CreateOrganizationBody {
+  @IsString()
+  @IsOptional()
+  name?: string;
+}
 
 @ApiTags('organization')
 @Controller('organization')
@@ -40,8 +48,12 @@ export class OrganizationController {
 
   @Post()
   @ApiCreatedResponse({ type: Member })
-  async create(@Request() request: Express.Request) {
-    const organization = await this.orgRepo.save({});
+  @ApiBody({ type: CreateOrganizationBody })
+  async create(
+    @Body() body: CreateOrganizationBody,
+    @Request() request: Express.Request
+  ) {
+    const organization = await this.orgRepo.save({ ...body });
 
     await this.memberRepo.save({
       userId: request.user?.userId,

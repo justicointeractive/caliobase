@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { Member, Organization, User } from '../auth';
+import { AuthService, Member, Organization, User } from '../auth';
 
 @Injectable()
 export class MetaService {
@@ -8,7 +8,10 @@ export class MetaService {
   userRepo = this.dataSource.getRepository(User);
   memberRepo = this.dataSource.getRepository(Member);
 
-  constructor(private dataSource: DataSource) {}
+  constructor(
+    private dataSource: DataSource,
+    private authService: AuthService
+  ) {}
 
   async assertHasNoRootMember() {
     if (await this.getHasRootMember()) {
@@ -42,5 +45,33 @@ export class MetaService {
     }
 
     return true;
+  }
+
+  async createRoot(create: {
+    organization: { name?: string };
+    user: {
+      email: string;
+      givenName: string;
+      familyName: string;
+      password: string;
+    };
+  }) {
+    await this.assertHasNoRootMember();
+
+    const user: User = await this.authService.createUserWithPassword({
+      email: create.user.email,
+      password: create.user.password,
+      givenName: create.user.givenName,
+      familyName: create.user.familyName,
+    });
+
+    const organization: Organization = await this.orgRepo.save({
+      id: Organization.RootId,
+      name: create.organization.name,
+    });
+
+    const member: Member = await this.memberRepo.save({ user, organization });
+
+    return member;
   }
 }

@@ -6,31 +6,26 @@ import {
   ApiProperty,
   ApiTags,
 } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { ValidateNested } from 'class-validator';
 import { DataSource } from 'typeorm';
-import { AuthService, Member, Organization, Public, User } from '../auth';
+import {
+  CreateOrganizationBody,
+  Member,
+  Organization,
+  Public,
+  UserSignupBody,
+} from '../auth';
 import { MetaService } from './meta.service';
 
 class CreateRoot {
-  @IsString()
-  @ApiProperty()
-  orgName!: string;
+  @ValidateNested()
+  @Type(() => UserSignupBody)
+  user!: UserSignupBody;
 
-  @IsString()
-  @ApiProperty()
-  userEmail!: string;
-
-  @IsString()
-  @ApiProperty()
-  userGivenName!: string;
-
-  @IsString()
-  @ApiProperty()
-  userFamilyName!: string;
-
-  @IsString()
-  @ApiProperty()
-  userPassword!: string;
+  @ValidateNested()
+  @Type(() => CreateOrganizationBody)
+  organization!: CreateOrganizationBody;
 }
 
 class GetMetaResponse {
@@ -52,8 +47,7 @@ export class MetaController {
 
   constructor(
     private dataSource: DataSource,
-    private metaService: MetaService,
-    private authService: AuthService
+    private metaService: MetaService
   ) {}
 
   @Public()
@@ -72,22 +66,6 @@ export class MetaController {
   @ApiBody({ type: CreateRoot })
   @ApiCreatedResponse({ type: Member })
   async createRoot(@Body() body: CreateRoot) {
-    await this.metaService.assertHasNoRootMember();
-
-    const user: User = await this.authService.createUserWithPassword({
-      email: body.userEmail,
-      password: body.userPassword,
-      givenName: body.userGivenName,
-      familyName: body.userFamilyName,
-    });
-
-    const organization: Organization = await this.orgRepo.save({
-      id: Organization.RootId,
-      name: body.orgName,
-    });
-
-    const member: Member = await this.memberRepo.save({ user, organization });
-
-    return member;
+    return this.metaService.createRoot(body);
   }
 }
