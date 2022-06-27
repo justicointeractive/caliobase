@@ -6,8 +6,10 @@ import {
   EntityManager,
   FindOptionsWhere,
   ObjectLiteral,
+  SelectQueryBuilder,
 } from 'typeorm';
-
+import { RelationMetadata } from 'typeorm/metadata/RelationMetadata';
+import { CaliobaseFindOptions, RenameClass } from '.';
 import {
   AclAccessLevel,
   AclAccessLevels,
@@ -17,14 +19,11 @@ import {
   getCaliobaseOwnerOrganizationMixin,
   ToFindOptions,
 } from '..';
-
 import {
   ICaliobaseService,
   ICaliobaseServiceOptions,
   ICaliobaseServiceType,
 } from './ICaliobaseService';
-
-import { CaliobaseFindOptions, RenameClass } from '.';
 
 export function createEntityServiceClass<
   TEntity,
@@ -167,14 +166,7 @@ export function buildQuery<TEntity>(
     aclAccessLevels
   );
 
-  repository.metadata.relations
-    .filter((r) => r.isEager)
-    .forEach((eagerRelation) => {
-      query.leftJoinAndSelect(
-        `entity.${eagerRelation.propertyName}`,
-        eagerRelation.propertyName
-      );
-    });
+  recursiveJoinEagerRelations(query, 'entity', repository.metadata.relations);
 
   if (getAclProperty(entity) != null) {
     query.innerJoinAndSelect(
@@ -197,6 +189,27 @@ export function buildQuery<TEntity>(
   }
 
   return query;
+}
+
+function recursiveJoinEagerRelations(
+  query: SelectQueryBuilder<unknown>,
+  prefix: string,
+  relations: RelationMetadata[]
+) {
+  relations
+    .filter((r) => r.isEager)
+    .forEach((eagerRelation) => {
+      query.leftJoinAndSelect(
+        `${prefix}.${eagerRelation.propertyName}`,
+        eagerRelation.propertyName
+      );
+      // TODO: prevent infinite recursion
+      recursiveJoinEagerRelations(
+        query,
+        `${prefix}.${eagerRelation.propertyName}`,
+        eagerRelation.inverseEntityMetadata.relations
+      );
+    });
 }
 
 export function prepareInClause<T extends string>(prefix: string, values: T[]) {
