@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.24](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.23...caliobase-0.0.1-alpha.24) (2022-06-27)
+
+
+### Features
+
+* recursive eager relations ([9a3f462](https://github.com/justicointeractive/caliobase/commit/9a3f4621845829a4d5c05709c9948d7f8a4885f6))
+
 ### [0.0.1-alpha.23](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.22...caliobase-0.0.1-alpha.23) (2022-06-27)
 
 
