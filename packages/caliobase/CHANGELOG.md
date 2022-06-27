@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.18](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.17...caliobase-0.0.1-alpha.18) (2022-06-27)
+
+
+### Features
+
+* override s3 endpoint ([2a752d1](https://github.com/justicointeractive/caliobase/commit/2a752d1d68c4584531c9e46b50eb0fdafc323f4c))
+
 ### [0.0.1-alpha.17](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.16...caliobase-0.0.1-alpha.17) (2022-06-27)
 
 ### [0.0.1-alpha.16](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.15...caliobase-0.0.1-alpha.16) (2022-06-27)
