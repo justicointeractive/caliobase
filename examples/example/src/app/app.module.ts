@@ -1,4 +1,4 @@
-import { CaliobaseModule } from '@caliobase/caliobase';
+import { CaliobaseModule, S3ObjectStorageProvider } from '@caliobase/caliobase';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -35,6 +35,10 @@ import { Bank, Configuration, ConfigurationBank, Note } from './entities';
       },
     }),
     CaliobaseModule.forRoot({
+      objectStorageProvider: new S3ObjectStorageProvider({
+        bucket: 'bucket',
+        keyPrefix: '',
+      }),
       controllerEntities: [Bank, Configuration],
       otherEntities: [ConfigurationBank, Note],
       baseUrl: '',
