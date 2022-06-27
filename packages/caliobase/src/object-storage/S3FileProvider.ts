@@ -10,7 +10,7 @@ import {
 const s3 = new S3({});
 
 export class S3ObjectStorageProvider extends AbstractObjectStorageProvider {
-  constructor(private options: { bucket: string; prefix: string }) {
+  constructor(private options: { bucket: string; keyPrefix: string }) {
     super();
   }
 
@@ -19,7 +19,7 @@ export class S3ObjectStorageProvider extends AbstractObjectStorageProvider {
   ): Promise<SignedUploadUrl> {
     const command = new PutObjectCommand({
       Bucket: this.options.bucket,
-      Key: `${this.options.prefix}${file.key}`,
+      Key: `${this.options.keyPrefix}${file.key}`,
       ContentType: file.contentType,
       ContentLength: file.contentLength,
     });
@@ -32,7 +32,7 @@ export class S3ObjectStorageProvider extends AbstractObjectStorageProvider {
   async deleteFile(path: string): Promise<DeleteResult> {
     await s3.deleteObject({
       Bucket: this.options.bucket,
-      Key: `${this.options.prefix}${path}`,
+      Key: `${this.options.keyPrefix}${path}`,
     });
     return { deleted: true };
   }
