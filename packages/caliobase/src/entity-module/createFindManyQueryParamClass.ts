@@ -160,7 +160,7 @@ function matchArrayness<TLeader, TFollower>(
   return propertyType;
 }
 
-export function buildFindManyQueryParamClass<TEntity>(
+export function createFindManyQueryParamClass<TEntity>(
   entityType: Type<TEntity>
 ): Type<ToFindOptions<TEntity>> {
   const keys = QueryProperty.getKeys(entityType.prototype);

@@ -10,13 +10,13 @@ import { RenameClass } from './decorators/RenameClass.decorator';
 import { ICaliobaseServiceType } from './ICaliobaseService';
 import { ValidatedType } from './ValidatedType';
 
-import { buildFindManyQueryParamClass, ToFindOptions } from '.';
+import { createFindManyQueryParamClass, ToFindOptions } from '.';
 
-export function CaliobaseEntityModule<TEntity>(
+export function createEntityModule<TEntity>(
   entityType: Type<TEntity>,
   validatorOptions: ValidationPipeOptions
 ): ICaliobaseEntityModule<TEntity> {
-  const FindManyParams = buildFindManyQueryParamClass(entityType);
+  const FindManyParams = createFindManyQueryParamClass(entityType);
 
   @RenameClass(entityType)
   class CreateEntityDto extends (ValidatedType(entityType) as any) {}

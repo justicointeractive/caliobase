@@ -29,7 +29,7 @@ import {
   SocialProvidersToken,
 } from './auth/social-provider/social-provider';
 import { CaliobaseConfig } from './config/config';
-import { CaliobaseEntityModule } from './entity-module/CaliobaseEntityModule';
+import { createEntityModule } from './entity-module/createEntityModule';
 import { MetaController } from './meta/meta.controller';
 import { MetaService } from './meta/meta.service';
 
@@ -102,7 +102,7 @@ export class CaliobaseModule {
       module: CaliobaseModule,
       imports: [
         ...controllerEntities.map((entity) =>
-          CaliobaseEntityModule(entity, {
+          createEntityModule(entity, {
             ...CaliobaseModule.defaultValidatorOptions,
             ...validatorOptions,
           })
