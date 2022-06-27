@@ -21,10 +21,12 @@ import { MetaService } from './meta.service';
 class CreateRoot {
   @ValidateNested()
   @Type(() => UserSignupBody)
+  @ApiProperty()
   user!: UserSignupBody;
 
   @ValidateNested()
   @Type(() => CreateOrganizationBody)
+  @ApiProperty()
   organization!: CreateOrganizationBody;
 }
 
@@ -42,9 +44,6 @@ class GetMetaResponse {
 @ApiTags('meta')
 @Controller('meta')
 export class MetaController {
-  private readonly memberRepo = this.dataSource.getRepository(Member);
-  private readonly orgRepo = this.dataSource.getRepository(Organization);
-
   constructor(
     private dataSource: DataSource,
     private metaService: MetaService
