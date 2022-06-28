@@ -1,4 +1,4 @@
-import { ApiHideProperty } from '@nestjs/swagger';
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 import { RequireWriteAccessLevel } from '@caliobase/caliobase';
@@ -8,6 +8,7 @@ import { Configuration } from './configuration.entity';
 @Entity()
 export class Note {
   @PrimaryGeneratedColumn('uuid')
+  @ApiProperty()
   id!: string;
 
   @ApiHideProperty()
@@ -16,5 +17,6 @@ export class Note {
   configuration!: Configuration;
 
   @Column()
+  @ApiProperty()
   note!: string;
 }

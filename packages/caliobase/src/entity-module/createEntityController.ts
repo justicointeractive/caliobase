@@ -14,8 +14,7 @@ import {
 import {
   ApiBearerAuth,
   ApiBody,
-  ApiCreatedResponse,
-  ApiOkResponse,
+  ApiExtraModels,
   ApiParam,
   ApiParamOptions,
   ApiQuery,
@@ -24,19 +23,23 @@ import { ValidatorOptions } from 'class-validator';
 import { fromPairs } from 'lodash';
 import { getMetadataArgsStorage } from 'typeorm';
 import { ColumnMetadataArgs } from 'typeorm/metadata-args/ColumnMetadataArgs';
-
+import { ToFindOptions } from '.';
 import { getAclEntity } from '..';
 import { CaliobaseJwtPayload } from '../auth/jwt-payload';
+import {
+  ApiCreatedItemResponse,
+  ApiOkItemResponse,
+  ApiOkPaginatedResponse,
+  ItemEnvelope,
+  ItemsEnvelope,
+} from '../lib/envelopes';
 import { cloneMetadata } from '../util/cloneMetadata';
-import { getRelationController } from './decorators';
-
 import { createAclController } from './createAclController';
 import { createOneToManyController } from './createOneToManyController';
+import { getRelationController } from './decorators';
 import { RenameClass } from './decorators/RenameClass.decorator';
 import { ICaliobaseController } from './ICaliobaseController';
 import { ICaliobaseServiceType } from './ICaliobaseService';
-
-import { ToFindOptions } from '.';
 
 export function createEntityController<TEntity, TCreate, TUpdate>(
   ControllerService: ICaliobaseServiceType<TEntity, TCreate, TUpdate>,
@@ -70,6 +73,7 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
   {
     @RenameClass(ControllerService.Entity)
     @ApiBearerAuth()
+    @ApiExtraModels(ControllerService.Entity)
     class EntityController implements ICaliobaseController<TEntity> {
       constructor(
         @Inject(ControllerService)
@@ -80,10 +84,10 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
       @ApiBody({
         type: ControllerService.CreateDto,
       })
-      @ApiCreatedResponse({
+      @ApiCreatedItemResponse({
         type: ControllerService.Entity,
       })
-      create(
+      async create(
         @Body(
           new ValidationPipe({
             expectedType: ControllerService.CreateDto,
@@ -93,19 +97,21 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
         createDto: TCreate,
         @Request() { user }: Express.Request
       ) {
-        return this.service.create(createDto, {
-          owner: getOwnerIdObject(user),
-        });
+        return new ItemEnvelope(
+          await this.service.create(createDto, {
+            owner: getOwnerIdObject(user),
+          })
+        );
       }
 
       @Get()
       @ApiQuery({
         type: findManyOptions,
       })
-      @ApiOkResponse({
-        type: [ControllerService.Entity],
+      @ApiOkPaginatedResponse({
+        type: ControllerService.Entity,
       })
-      findAll(
+      async findAll(
         @Request() { user }: Express.Request,
         @Query(
           new ValidationPipe({
@@ -115,20 +121,27 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
         )
         listOptions: ToFindOptions<TEntity>
       ) {
-        return this.service.findAll(listOptions.toFindOptions(), {
-          owner: getOwnerIdObject(user),
-        });
+        return new ItemsEnvelope(
+          await this.service.findAll(listOptions.toFindOptions(), {
+            owner: getOwnerIdObject(user),
+          })
+        );
       }
 
       @Get(primaryColumnRoutePath)
-      @ApiOkResponse({
+      @ApiOkItemResponse({
         type: ControllerService.Entity,
       })
       @ApiParams(primaryColumnParams)
-      findOne(@Param() params: unknown, @Request() { user }: Express.Request) {
-        return this.service.findOne(
-          { where: pickColumnProperties(primaryColumns, params) },
-          { owner: getOwnerIdObject(user) }
+      async findOne(
+        @Param() params: unknown,
+        @Request() { user }: Express.Request
+      ) {
+        return new ItemEnvelope(
+          await this.service.findOne(
+            { where: pickColumnProperties(primaryColumns, params) },
+            { owner: getOwnerIdObject(user) }
+          )
         );
       }
 
@@ -137,7 +150,10 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
         type: ControllerService.UpdateDto,
       })
       @ApiParams(primaryColumnParams)
-      update(
+      @ApiOkPaginatedResponse({
+        type: ControllerService.Entity,
+      })
+      async update(
         @Param() params: unknown,
         @Body(
           new ValidationPipe({
@@ -148,23 +164,33 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
         updateDto: TUpdate,
         @Request() { user }: Express.Request
       ) {
-        return this.service.update(
-          pickColumnProperties(primaryColumns, params),
-          updateDto,
-          {
-            owner: getOwnerIdObject(user),
-          }
+        return new ItemsEnvelope(
+          await this.service.update(
+            pickColumnProperties(primaryColumns, params),
+            updateDto,
+            {
+              owner: getOwnerIdObject(user),
+            }
+          )
         );
       }
 
       @Delete(primaryColumnRoutePath)
       @ApiParams(primaryColumnParams)
-      remove(@Param() params: unknown, @Request() { user }: Express.Request) {
-        return this.service.remove(
-          pickColumnProperties(primaryColumns, params),
-          {
-            owner: getOwnerIdObject(user),
-          }
+      @ApiOkPaginatedResponse({
+        type: ControllerService.Entity,
+      })
+      async remove(
+        @Param() params: unknown,
+        @Request() { user }: Express.Request
+      ) {
+        return new ItemsEnvelope(
+          await this.service.remove(
+            pickColumnProperties(primaryColumns, params),
+            {
+              owner: getOwnerIdObject(user),
+            }
+          )
         );
       }
     }

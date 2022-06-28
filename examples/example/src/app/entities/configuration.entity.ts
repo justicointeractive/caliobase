@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiProperty, ApiTags } from '@nestjs/swagger';
 import { IsNumber, IsString } from 'class-validator';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
@@ -20,16 +20,19 @@ import { Note } from './note.entity';
 @ApiTags('configuration')
 export class Configuration {
   @PrimaryGeneratedColumn('uuid')
+  @ApiProperty()
   id!: string;
 
   @QueryProperty()
   @Column({ default: 1 })
   @IsNumber()
+  @ApiProperty()
   rank!: number;
 
   @QueryProperty()
   @Column({ default: '' })
   @IsString()
+  @ApiProperty()
   name!: string;
 
   @RelationController()
@@ -37,6 +40,7 @@ export class Configuration {
     eager: true,
     cascade: false,
   })
+  @ApiProperty()
   banks!: ConfigurationBank[];
 
   @RelationController()
@@ -44,9 +48,11 @@ export class Configuration {
     eager: true,
     cascade: false,
   })
+  @ApiProperty()
   notes!: Note[];
 
   @EntityOwner()
+  @ApiProperty()
   organization!: Organization;
 
   @EntityAcl(Configuration)

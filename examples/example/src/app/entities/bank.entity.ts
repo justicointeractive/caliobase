@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { ApiHideProperty, ApiTags } from '@nestjs/swagger';
+import { ApiHideProperty, ApiProperty, ApiTags } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsBoolean,
@@ -8,7 +8,7 @@ import {
   IsString,
   IsUUID,
   Matches,
-  ValidateNested
+  ValidateNested,
 } from 'class-validator';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
@@ -17,16 +17,18 @@ import {
   EntityAcl,
   EntityOwner,
   Organization,
-  QueryProperty
+  QueryProperty,
 } from '@caliobase/caliobase';
 
 @Entity()
 @Controller('bank')
 @ApiTags('bank')
 export class Bank {
+  @ApiProperty()
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
+  @ApiProperty()
   @Column({ nullable: true })
   @IsUUID()
   @IsOptional()
@@ -36,21 +38,25 @@ export class Bank {
   @ManyToOne(() => Bank, { onDelete: 'SET NULL' })
   forkedFrom?: Bank;
 
+  @ApiProperty()
   @QueryProperty()
   @Column({ default: 1 })
   @IsNumber()
   rank!: number;
 
+  @ApiProperty()
   @QueryProperty()
   @Column()
   @IsString()
   name!: string;
 
+  @ApiProperty()
   @Column({ type: 'jsonb' })
   @Type(() => BankChannel)
   @ValidateNested({ each: true })
   channels!: BankChannel[];
 
+  @ApiProperty()
   @EntityOwner()
   organization!: Organization;
 
