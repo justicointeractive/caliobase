@@ -30,12 +30,12 @@ export const ApiPaginatedResponse =
                 items: {
                   type: 'array',
                   items: { $ref: getSchemaPath(type) },
-                  nullable: false,
                 },
                 count: { type: 'number' },
                 prev: { type: 'string' },
                 next: { type: 'string' },
               },
+              required: ['items'],
             },
           ],
         },
@@ -60,8 +60,9 @@ export const ApiItemResponse =
         schema: {
           type: 'object',
           properties: {
-            item: { $ref: getSchemaPath(type), nullable },
+            item: { $ref: getSchemaPath(type) },
           },
+          required: [...(nullable ? [] : ['item'])],
         },
       })
     );
