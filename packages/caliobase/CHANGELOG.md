@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.27](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.26...caliobase-0.0.1-alpha.27) (2022-06-28)
+
+
+### Bug Fixes
+
+* nullability of entity controller envelope props ([0e0a9b4](https://github.com/justicointeractive/caliobase/commit/0e0a9b4835e7ca3aa7fc0c5a8571a43a5fd4519d))
+
 ### [0.0.1-alpha.26](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.25...caliobase-0.0.1-alpha.26) (2022-06-28)
 
 
