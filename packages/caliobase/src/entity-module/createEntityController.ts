@@ -84,9 +84,12 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
       @ApiBody({
         type: ControllerService.CreateDto,
       })
-      @ApiCreatedItemResponse({
-        type: ControllerService.Entity,
-      })
+      @ApiCreatedItemResponse(
+        {
+          type: ControllerService.Entity,
+        },
+        { nullable: false }
+      )
       async create(
         @Body(
           new ValidationPipe({
@@ -129,9 +132,12 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
       }
 
       @Get(primaryColumnRoutePath)
-      @ApiOkItemResponse({
-        type: ControllerService.Entity,
-      })
+      @ApiOkItemResponse(
+        {
+          type: ControllerService.Entity,
+        },
+        { nullable: true }
+      )
       @ApiParams(primaryColumnParams)
       async findOne(
         @Param() params: unknown,

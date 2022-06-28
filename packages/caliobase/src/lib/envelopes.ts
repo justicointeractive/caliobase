@@ -27,7 +27,11 @@ export const ApiPaginatedResponse =
           allOf: [
             {
               properties: {
-                items: { type: 'array', items: { $ref: getSchemaPath(type) } },
+                items: {
+                  type: 'array',
+                  items: { $ref: getSchemaPath(type) },
+                  nullable: false,
+                },
                 count: { type: 'number' },
                 prev: { type: 'string' },
                 next: { type: 'string' },
@@ -47,13 +51,16 @@ export const ApiItemResponse =
       options?: ApiResponseOptions
     ) => MethodDecorator & ClassDecorator
   ) =>
-  <TModel extends Type<unknown>>({ type }: { type: TModel }) => {
+  <TModel extends Type<unknown>>(
+    { type }: { type: TModel },
+    { nullable }: { nullable: boolean }
+  ) => {
     return applyDecorators(
       decorator({
         schema: {
           type: 'object',
           properties: {
-            item: { $ref: getSchemaPath(type) },
+            item: { $ref: getSchemaPath(type), nullable },
           },
         },
       })
