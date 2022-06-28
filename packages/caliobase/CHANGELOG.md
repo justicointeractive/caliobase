@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.26](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.25...caliobase-0.0.1-alpha.26) (2022-06-28)
+
+
+### Bug Fixes
+
+* paginated/enveloped entity controller methods ([e25f423](https://github.com/justicointeractive/caliobase/commit/e25f423e4ac78c1e1d920fc5cc5d362a5cdd625b))
+
 ### [0.0.1-alpha.25](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.24...caliobase-0.0.1-alpha.25) (2022-06-27)
 
 
