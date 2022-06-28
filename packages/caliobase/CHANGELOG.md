@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.28](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.27...caliobase-0.0.1-alpha.28) (2022-06-28)
+
+
+### Bug Fixes
+
+* non-nullable props ([2648e1a](https://github.com/justicointeractive/caliobase/commit/2648e1af9bcd8ad666d16e21d571028f25ec25b7))
+
 ### [0.0.1-alpha.27](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.26...caliobase-0.0.1-alpha.27) (2022-06-28)
 
 
