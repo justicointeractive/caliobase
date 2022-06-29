@@ -184,7 +184,12 @@ export function buildQuery<TEntity>(
 
   if (order != null) {
     query.orderBy(
-      fromPairs(toPairs(order).map(([key, value]) => [`entity.${key}`, value]))
+      fromPairs(
+        toPairs(order).map(([key, value]) => [
+          `entity.${key}`,
+          value as 'ASC' | 'DESC',
+        ])
+      )
     );
   }
 
