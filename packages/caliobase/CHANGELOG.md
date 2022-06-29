@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.31](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.30...caliobase-0.0.1-alpha.31) (2022-06-29)
+
+
+### Features
+
+* add an option to disable jwt modules ([96e1e40](https://github.com/justicointeractive/caliobase/commit/96e1e405a81159402bbe83893589f37806d8839b))
+
 ### [0.0.1-alpha.30](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.29...caliobase-0.0.1-alpha.30) (2022-06-29)
 
 
