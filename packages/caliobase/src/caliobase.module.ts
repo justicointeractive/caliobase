@@ -56,8 +56,31 @@ const buildInEntities = [
 ];
 
 @Module({
-  imports: [ConfigModule],
+  imports: [
+    ConfigModule,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (config: ConfigService) => {
+        const privateKeyBase64 = config.get<string>('JWT_PRIVATE_KEY');
+        if (privateKeyBase64 == null) {
+          throw new Error('could not get private key');
+        }
+        const privateKey = Buffer.from(privateKeyBase64, 'base64').toString(
+          'utf8'
+        );
+
+        return {
+          privateKey,
+          signOptions: {
+            algorithm: 'RS256',
+          },
+        };
+      },
+    }),
+  ],
   providers: [
+    JwtStrategy,
     AuthService,
     MetaService,
     ObjectStorageService,
@@ -89,7 +112,6 @@ export class CaliobaseModule {
     validatorOptions,
     baseUrl,
     emailTransport,
-    disableJwtModules = false,
   }: {
     objectStorageProvider: AbstractObjectStorageProvider;
     socialProviders?: SocialProvider[];
@@ -98,41 +120,10 @@ export class CaliobaseModule {
     validatorOptions?: ValidatorOptions;
     baseUrl: string;
     emailTransport: Transporter;
-    disableJwtModules?: boolean;
   }): DynamicModule {
-    const { jwtImports = [], jwtProviders = [] } = disableJwtModules
-      ? {}
-      : {
-          jwtImports: [
-            JwtModule.registerAsync({
-              imports: [ConfigModule],
-              inject: [ConfigService],
-              useFactory: async (config: ConfigService) => {
-                const privateKeyBase64 = config.get<string>('JWT_PRIVATE_KEY');
-                if (privateKeyBase64 == null) {
-                  throw new Error('could not get private key');
-                }
-                const privateKey = Buffer.from(
-                  privateKeyBase64,
-                  'base64'
-                ).toString('utf8');
-
-                return {
-                  privateKey,
-                  signOptions: {
-                    algorithm: 'RS256',
-                  },
-                };
-              },
-            }),
-          ],
-          jwtProviders: [JwtStrategy],
-        };
-
     return {
       module: CaliobaseModule,
       imports: [
-        ...jwtImports,
         ...controllerEntities.map((entity) =>
           createEntityModule(entity, {
             ...CaliobaseModule.defaultValidatorOptions,
@@ -154,7 +145,6 @@ export class CaliobaseModule {
         ]),
       ],
       providers: [
-        ...jwtProviders,
         {
           provide: SocialProvidersToken,
           useValue: socialProviders,
