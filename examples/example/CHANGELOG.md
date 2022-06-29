@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.3.0](https://github.com/justicointeractive/caliobase/compare/example-0.2.0...example-0.3.0) (2022-06-29)
+
+
+### Features
+
+* add a decorator for caliobase entities ([3f5423a](https://github.com/justicointeractive/caliobase/commit/3f5423a570ca702716ebed6dd719404125e5779f))
+
 ## [0.2.0](https://github.com/justicointeractive/caliobase/compare/example-0.1.3...example-0.2.0) (2022-06-29)
 
 
