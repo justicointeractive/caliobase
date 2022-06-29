@@ -25,12 +25,17 @@ export class ObjectStorageService {
   ) {
     const { fileName, contentLength, contentType, owner, uploadedBy } = file;
 
+    const key = `${owner.id}/${format(new Date(), 'yyyy/MM/dd')}/${fileName}`;
+
+    const cdnUrl = `${this.objectStorage.options.cdnUrlPrefix}${key}`;
+
     const object = await this.objectRepo.save({
       owner,
       uploadedBy,
       contentLength,
       contentType,
-      key: `${owner.id}/${format(new Date(), 'yyyy/MM/dd')}/${fileName}`,
+      key,
+      cdnUrl,
       status: 'pending',
     });
 

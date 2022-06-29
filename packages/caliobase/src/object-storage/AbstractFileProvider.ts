@@ -18,7 +18,15 @@ export class SignedUploadUrl {
   method!: string;
 }
 
+export type ObjectStorageProviderOptions = {
+  cdnUrlPrefix: string;
+};
+
 export abstract class AbstractObjectStorageProvider {
+  constructor(
+    public readonly options: Readonly<ObjectStorageProviderOptions>
+  ) {}
+
   abstract createSignedUploadUrl(
     file: ObjectUploadRequest
   ): Promise<SignedUploadUrl>;

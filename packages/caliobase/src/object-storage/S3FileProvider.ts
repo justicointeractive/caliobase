@@ -7,19 +7,22 @@ import {
   SignedUploadUrl,
 } from './AbstractFileProvider';
 
+export type S3ObjectStorageProviderOptions = {
+  cdnUrlPrefix: string;
+  bucket: string;
+  keyPrefix: string;
+  endpoint?: string;
+};
+
 export class S3ObjectStorageProvider extends AbstractObjectStorageProvider {
   s3 = new S3({
     endpoint: this.options.endpoint,
   });
 
   constructor(
-    private options: {
-      bucket: string;
-      keyPrefix: string;
-      endpoint?: string;
-    }
+    public override readonly options: Readonly<S3ObjectStorageProviderOptions>
   ) {
-    super();
+    super(options);
   }
 
   async createSignedUploadUrl(

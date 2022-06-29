@@ -45,6 +45,16 @@ declare global {
   }
 }
 
+const buildInEntities = [
+  Member,
+  Organization,
+  UserPassword,
+  UserSocialLogin,
+  User,
+  PasswordResetToken,
+  ObjectStorageObject,
+];
+
 @Module({
   imports: [
     ConfigModule,
@@ -120,13 +130,7 @@ export class CaliobaseModule {
           })
         ),
         TypeOrmModule.forFeature([
-          Member,
-          Organization,
-          UserPassword,
-          UserSocialLogin,
-          User,
-          PasswordResetToken,
-          ObjectStorageObject,
+          ...buildInEntities,
           ...bridgeEntities,
           ...controllerEntities
             .map(

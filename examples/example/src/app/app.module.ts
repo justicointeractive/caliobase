@@ -38,6 +38,7 @@ import { Bank, Configuration, ConfigurationBank, Note } from './entities';
       objectStorageProvider: new S3ObjectStorageProvider({
         bucket: 'bucket',
         keyPrefix: '',
+        cdnUrlPrefix: '',
       }),
       controllerEntities: [Bank, Configuration],
       otherEntities: [ConfigurationBank, Note],

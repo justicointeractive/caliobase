@@ -18,6 +18,10 @@ export class ObjectStorageObject {
 
   @Column()
   @ApiProperty()
+  cdnUrl!: string;
+
+  @Column()
+  @ApiProperty()
   contentLength!: number;
 
   @Column()
