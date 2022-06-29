@@ -2,6 +2,18 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.30](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.29...caliobase-0.0.1-alpha.30) (2022-06-29)
+
+
+### Features
+
+* add a decorator for caliobase entities ([3f5423a](https://github.com/justicointeractive/caliobase/commit/3f5423a570ca702716ebed6dd719404125e5779f))
+
+
+### Bug Fixes
+
+* constructing order by clause from order ([103e263](https://github.com/justicointeractive/caliobase/commit/103e2635fdcdd6041fb80dfc5473e5d57bb29416))
+
 ### [0.0.1-alpha.29](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.28...caliobase-0.0.1-alpha.29) (2022-06-29)
 
 
