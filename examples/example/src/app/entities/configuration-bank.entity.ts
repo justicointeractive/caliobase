@@ -1,16 +1,13 @@
-import { Controller } from '@nestjs/common';
-import { ApiHideProperty, ApiProperty, ApiTags } from '@nestjs/swagger';
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import { IsBoolean, IsNumber, IsString, IsUUID } from 'class-validator';
-import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Column, ManyToOne, PrimaryColumn } from 'typeorm';
 
-import { RequireWriteAccessLevel } from '@caliobase/caliobase';
+import { CaliobaseEntity, RequireWriteAccessLevel } from '@caliobase/caliobase';
 
 import { Bank } from './bank.entity';
 import { Configuration } from './configuration.entity';
 
-@Entity()
-@Controller('configuration-bank')
-@ApiTags('configuration-bank')
+@CaliobaseEntity({ controller: { name: 'configuration-bank' } })
 export class ConfigurationBank {
   @PrimaryColumn()
   @IsUUID()

@@ -1,10 +1,10 @@
-import { Controller } from '@nestjs/common';
-import { ApiProperty, ApiTags } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsString } from 'class-validator';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 import {
   Acl,
+  CaliobaseEntity,
   EntityAcl,
   EntityOwner,
   Organization,
@@ -15,9 +15,7 @@ import {
 import { ConfigurationBank } from './configuration-bank.entity';
 import { Note } from './note.entity';
 
-@Entity()
-@Controller('configuration')
-@ApiTags('configuration')
+@CaliobaseEntity({ controller: { name: 'configuration' } })
 export class Configuration {
   @PrimaryGeneratedColumn('uuid')
   @ApiProperty()

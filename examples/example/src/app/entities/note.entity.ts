@@ -1,11 +1,11 @@
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
-import { RequireWriteAccessLevel } from '@caliobase/caliobase';
+import { CaliobaseEntity, RequireWriteAccessLevel } from '@caliobase/caliobase';
 
 import { Configuration } from './configuration.entity';
 
-@Entity()
+@CaliobaseEntity()
 export class Note {
   @PrimaryGeneratedColumn('uuid')
   @ApiProperty()

@@ -5,6 +5,8 @@ import { IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
 import {
   Equal,
   FindOperator,
+  FindOptionsOrder,
+  FindOptionsOrderProperty,
   FindOptionsWhere,
   FindOptionsWhereProperty,
   ILike,
@@ -15,12 +17,11 @@ import {
   MoreThan,
   MoreThanOrEqual,
   Not,
-  OrderByCondition,
 } from 'typeorm';
 
 import { RenameClass } from './decorators/RenameClass.decorator';
 
-import { QueryProperty } from '.';
+import { CaliobaseEntity, QueryProperty } from '.';
 
 type OperatorType<T> = T extends [Type<infer U>] ? [Type<U>] : Type<T>;
 
@@ -136,7 +137,7 @@ function toQueryParamName(
 
 export type CaliobaseFindOptions<TEntity> = {
   where: FindOptionsWhere<TEntity>;
-  order?: OrderByCondition;
+  order?: FindOptionsOrder<TEntity>;
 };
 
 export type ToFindOptions<TEntity> = {
@@ -189,12 +190,17 @@ export function createFindManyQueryParamClass<TEntity>(
         });
       });
 
-      const orderBy: OrderByCondition = {};
+      const orderBy: FindOptionsOrder<TEntity> = {};
 
-      this.orderBy?.forEach((order) => {
-        const [key, direction] = order.split('.');
+      (
+        this.orderBy ??
+        CaliobaseEntity.get(entityType)?.controller?.defaultOrderBy
+      )?.forEach((order) => {
+        const [key, direction] = order.split('.') as [keyof TEntity, string];
         const orderDirection = direction.toUpperCase() as 'ASC' | 'DESC';
-        orderBy[key] = orderDirection;
+        orderBy[key] = orderDirection as FindOptionsOrderProperty<
+          NonNullable<TEntity[keyof TEntity]>
+        >;
       });
 
       const findManyOptions: CaliobaseFindOptions<TEntity> = {

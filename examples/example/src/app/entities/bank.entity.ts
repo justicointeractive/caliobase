@@ -1,5 +1,4 @@
-import { Controller } from '@nestjs/common';
-import { ApiHideProperty, ApiProperty, ApiTags } from '@nestjs/swagger';
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsBoolean,
@@ -10,19 +9,18 @@ import {
   Matches,
   ValidateNested,
 } from 'class-validator';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 import {
   Acl,
+  CaliobaseEntity,
   EntityAcl,
   EntityOwner,
   Organization,
   QueryProperty,
 } from '@caliobase/caliobase';
 
-@Entity()
-@Controller('bank')
-@ApiTags('bank')
+@CaliobaseEntity({ controller: { name: 'bank' } })
 export class Bank {
   @ApiProperty()
   @PrimaryGeneratedColumn('uuid')
