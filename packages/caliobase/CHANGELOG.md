@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.32](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.31...caliobase-0.0.1-alpha.32) (2022-06-29)
+
+
+### Bug Fixes
+
+* that new "no jwt" option should be optional ([c7aff65](https://github.com/justicointeractive/caliobase/commit/c7aff659921a7e36ff9ab5551821f9adb4485a33))
+
 ### [0.0.1-alpha.31](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.30...caliobase-0.0.1-alpha.31) (2022-06-29)
 
 
