@@ -98,7 +98,7 @@ export class CaliobaseModule {
     validatorOptions?: ValidatorOptions;
     baseUrl: string;
     emailTransport: Transporter;
-    disableJwtModules: boolean;
+    disableJwtModules?: boolean;
   }): DynamicModule {
     const { jwtImports = [], jwtProviders = [] } = disableJwtModules
       ? {}
