@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.29](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.28...caliobase-0.0.1-alpha.29) (2022-06-29)
+
+
+### Features
+
+* object storage cdn url prefix ([f7edee7](https://github.com/justicointeractive/caliobase/commit/f7edee7cdb7fbfe8da4e33623452ba58e91abd97))
+
 ### [0.0.1-alpha.28](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.27...caliobase-0.0.1-alpha.28) (2022-06-28)
 
 
