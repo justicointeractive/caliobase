@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-namespace */
 import { Body, Controller, Get, Param, Post, Request } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -8,15 +7,16 @@ import {
   ApiProperty,
   ApiTags,
 } from '@nestjs/swagger';
-
+import { IsOptional, IsString } from 'class-validator';
+import { async as cryptoRandomString } from 'crypto-random-string';
+import { addDays } from 'date-fns';
+import { DataSource } from 'typeorm';
+import { Public, User } from '.';
 import { AccessTokenResponse } from './auth.controller';
 import { AuthService } from './auth.service';
+import { MemberInvitationToken } from './entities/member-invitation-token.entity';
 import { Member } from './entities/member.entity';
 import { Organization } from './entities/organization.entity';
-
-import { IsOptional, IsString } from 'class-validator';
-import { DataSource } from 'typeorm';
-import { Public } from '.';
 
 export class CreateOrganizationBody {
   @ApiProperty()
@@ -29,8 +29,12 @@ export class CreateOrganizationBody {
 @Controller('organization')
 @ApiBearerAuth()
 export class OrganizationController {
+  private readonly userRepo = this.dataSource.getRepository(User);
   private readonly memberRepo = this.dataSource.getRepository(Member);
   private readonly orgRepo = this.dataSource.getRepository(Organization);
+  private readonly memberInviteRepo = this.dataSource.getRepository(
+    MemberInvitationToken
+  );
 
   constructor(
     private dataSource: DataSource,
@@ -100,5 +104,54 @@ export class OrganizationController {
         onBehalfOfOrganizationId: request.user?.organizationId,
       }),
     };
+  }
+
+  @Post(':id/invitation')
+  @ApiCreatedResponse({ type: MemberInvitationToken })
+  async createInvitation(
+    @Param('id') organizationId: string
+  ): Promise<MemberInvitationToken> {
+    const token = await cryptoRandomString({
+      length: 128,
+      type: 'url-safe',
+    });
+
+    const invite = await this.memberInviteRepo.save({
+      token,
+      organization: { id: organizationId },
+      validUntil: addDays(Date.now(), 7),
+    });
+
+    return invite;
+  }
+
+  @Get('invitation/:token')
+  @ApiOkResponse({ type: MemberInvitationToken })
+  async getInvitation(
+    @Param('token') token: string
+  ): Promise<MemberInvitationToken | null> {
+    const invite = await this.memberInviteRepo.findOne({
+      where: { token },
+    });
+    return invite;
+  }
+
+  @Post('invitation/:token/claim')
+  @ApiCreatedResponse({ type: Member })
+  async claimInvitation(
+    @Param('token') token: string,
+    @Request() request: Express.Request
+  ): Promise<Member | null> {
+    const { organization } = await this.memberInviteRepo.findOneOrFail({
+      where: { token },
+      relations: ['organization'],
+    });
+    const user = await this.userRepo.findOneOrFail({
+      where: { id: request.user!.userId },
+    });
+
+    const member = await this.memberRepo.save({ user, organization });
+
+    return member;
   }
 }
