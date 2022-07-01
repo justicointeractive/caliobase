@@ -5,8 +5,10 @@
   "scripts": {
     "version-deploy-install": "nx g ngx-deploy-npm:install && nx g @jscutlery/semver:install",
     "prepare": "husky install",
+    "test": "nx run-many --all --target=test --parallel=100",
     "build": "nx run-many --all --target=build --parallel=100",
-    "release": "nx run-many --all --target=version --parallel=100 && git push --follow-tags"
+    "version": "nx run-many --all --target=version --parallel=100",
+    "release": "npm run test && npm run version && git push --follow-tags"
   },
   "private": true,
   "dependencies": {
@@ -68,6 +70,7 @@
     "@types/passport": "^1.0.9",
     "@types/passport-jwt": "^3.0.6",
     "@types/pluralize": "^0.0.29",
+    "@types/supertest": "^2.0.12",
     "@typescript-eslint/eslint-plugin": "~5.24.0",
     "@typescript-eslint/parser": "~5.24.0",
     "eslint": "~8.15.0",
@@ -76,6 +79,7 @@
     "jest": "27.5.1",
     "nx": "14.3.6",
     "prettier": "^2.6.2",
+    "supertest": "^6.2.3",
     "ts-jest": "27.1.4",
     "ts-node": "~10.8.0",
     "typescript": "~4.7.2"

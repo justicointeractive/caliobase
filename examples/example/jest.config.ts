@@ -9,8 +9,8 @@ export default {
   },
   testEnvironment: 'node',
   transform: {
-    '^.+\\.[tj]s$': 'ts-jest',
+    '^.+\\.[tj]sx?$': 'ts-jest',
   },
-  moduleFileExtensions: ['ts', 'js', 'html'],
+  moduleFileExtensions: ['ts', 'js', 'html', 'tsx'],
   coverageDirectory: '../../coverage/examples/example',
 };

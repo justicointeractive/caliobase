@@ -8,7 +8,6 @@ import {
 } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { ValidateNested } from 'class-validator';
-import { DataSource } from 'typeorm';
 import {
   CreateOrganizationBody,
   Member,
@@ -44,10 +43,7 @@ class GetMetaResponse {
 @ApiTags('meta')
 @Controller('meta')
 export class MetaController {
-  constructor(
-    private dataSource: DataSource,
-    private metaService: MetaService
-  ) {}
+  constructor(private metaService: MetaService) {}
 
   @Public()
   @Get()
