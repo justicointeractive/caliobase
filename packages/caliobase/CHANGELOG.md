@@ -2,6 +2,18 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.34](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.33...caliobase-0.0.1-alpha.34) (2022-07-05)
+
+
+### Features
+
+* create, describe, claim membership invitation ([4f8668e](https://github.com/justicointeractive/caliobase/commit/4f8668eee831c946d9072097c0e95c1afbc877c2))
+
+
+### Bug Fixes
+
+* do not allow un-ownable entities ([49bbaba](https://github.com/justicointeractive/caliobase/commit/49bbaba21b69675bdda0cf8d819eea77c2cb1f14))
+
 ### [0.0.1-alpha.33](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.32...caliobase-0.0.1-alpha.33) (2022-06-29)
 
 
