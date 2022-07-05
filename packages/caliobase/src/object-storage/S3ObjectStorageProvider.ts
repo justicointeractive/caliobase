@@ -5,7 +5,7 @@ import {
   DeleteResult,
   ObjectUploadRequest,
   SignedUploadUrl,
-} from './AbstractFileProvider';
+} from './AbstractObjectStorageProvider';
 
 export type S3ObjectStorageProviderOptions = {
   cdnUrlPrefix: string;

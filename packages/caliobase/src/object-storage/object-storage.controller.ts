@@ -8,7 +8,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { IsIn, IsNumber, IsString } from 'class-validator';
-import { SignedUploadUrl } from './AbstractFileProvider';
+import { SignedUploadUrl } from './AbstractObjectStorageProvider';
 import {
   ObjectStorageObject,
   ObjectStorageObjectStatus,
