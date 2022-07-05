@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.35](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.34...caliobase-0.0.1-alpha.35) (2022-07-05)
+
+
+### Features
+
+* create an implicit owner for unownable entities ([601bef0](https://github.com/justicointeractive/caliobase/commit/601bef005bf94defa54408859560c133ed44bcbc))
+
 ### [0.0.1-alpha.34](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.33...caliobase-0.0.1-alpha.34) (2022-07-05)
 
 
