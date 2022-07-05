@@ -151,13 +151,13 @@ export function createEntityServiceClass<
 }
 
 export function buildQuery<TEntity>(
-  entity: Type<TEntity>,
+  entityType: Type<TEntity>,
   entityManager: EntityManager,
   { where, order }: CaliobaseFindOptions<TEntity>,
   owner: { id: string },
   aclAccessLevels: AclAccessLevel[] = AclAccessLevels
 ) {
-  const repository = entityManager.getRepository(entity);
+  const repository = entityManager.getRepository(entityType);
 
   const query = repository.createQueryBuilder('entity');
 
@@ -168,9 +168,14 @@ export function buildQuery<TEntity>(
 
   recursiveJoinEagerRelations(query, 'entity', repository.metadata.relations);
 
-  if (getAclProperty(entity) != null) {
+  query.where({
+    ...where,
+    ...getCaliobaseOwnerOrganizationMixin(entityType, owner),
+  });
+
+  if (getAclProperty(entityType) != null) {
     query.innerJoinAndSelect(
-      `entity.${getAclProperty(entity)}`,
+      `entity.${getAclProperty(entityType)}`,
       'acl',
       `entity.id = acl.objectId AND acl.organizationId = :organizationId AND acl.access in (${inPlaceholders})`,
       {
@@ -179,8 +184,6 @@ export function buildQuery<TEntity>(
       }
     );
   }
-
-  query.where(where);
 
   if (order != null) {
     query.orderBy(

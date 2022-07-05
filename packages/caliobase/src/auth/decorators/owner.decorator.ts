@@ -16,7 +16,7 @@ function getCaliobaseOwnerOrganizationProperty(entity: Type<any>) {
 
 export function getCaliobaseOwnerOrganizationMixin(
   entity: Type<any>,
-  owner: { id: string },
+  owner: { id: string }
 ) {
   const ownerOrgPropertyName = getCaliobaseOwnerOrganizationProperty(entity);
 

@@ -8,15 +8,13 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
-import { async as cryptoRandomString } from 'crypto-random-string';
-import { addDays } from 'date-fns';
-import { DataSource } from 'typeorm';
-import { Public, User } from '.';
+import { Public } from '.';
 import { AccessTokenResponse } from './auth.controller';
-import { AuthService } from './auth.service';
 import { MemberInvitationToken } from './entities/member-invitation-token.entity';
 import { Member } from './entities/member.entity';
 import { Organization } from './entities/organization.entity';
+import { OrganizationService } from './organization.service';
+import assert = require('assert');
 
 export class CreateOrganizationBody {
   @ApiProperty()
@@ -29,44 +27,26 @@ export class CreateOrganizationBody {
 @Controller('organization')
 @ApiBearerAuth()
 export class OrganizationController {
-  private readonly userRepo = this.dataSource.getRepository(User);
-  private readonly memberRepo = this.dataSource.getRepository(Member);
-  private readonly orgRepo = this.dataSource.getRepository(Organization);
-  private readonly memberInviteRepo = this.dataSource.getRepository(
-    MemberInvitationToken
-  );
-
-  constructor(
-    private dataSource: DataSource,
-    private authService: AuthService
-  ) {}
+  constructor(private orgService: OrganizationService) {}
 
   @Get()
   @ApiOkResponse({ type: [Member] })
   async findAll(@Request() request: Express.Request) {
-    return await this.memberRepo.find({
-      where: {
-        userId: request.user?.userId,
-      },
-      relations: ['organization'],
-    });
+    const userId = request.user?.userId;
+    assert(userId);
+    return await this.orgService.findUserMemberships(userId);
   }
 
   @Post()
-  @ApiCreatedResponse({ type: Member })
+  @ApiCreatedResponse({ type: Organization })
   @ApiBody({ type: CreateOrganizationBody })
   async create(
     @Body() body: CreateOrganizationBody,
     @Request() request: Express.Request
   ) {
-    const organization = await this.orgRepo.save({ ...body });
-
-    await this.memberRepo.save({
-      userId: request.user?.userId,
-      organization,
-    });
-
-    return organization;
+    const userId = request.user?.userId;
+    assert(userId);
+    return this.orgService.createOrganization(userId, body);
   }
 
   @Post(':id/token')
@@ -75,19 +55,15 @@ export class OrganizationController {
     @Param('id') organizationId: string,
     @Request() request: Express.Request
   ): Promise<AccessTokenResponse> {
-    const member = await this.memberRepo.findOneOrFail({
-      where: {
-        userId: request.user?.userId,
-        organizationId,
-      },
-      relations: ['user', 'organization'],
-    });
+    const userId = request.user?.userId;
+    assert(userId);
+    const accessToken = await this.orgService.createMemberAccessToken(
+      userId,
+      organizationId
+    );
 
     return {
-      accessToken: await this.authService.sign({
-        userId: member.userId,
-        organizationId: member.organizationId,
-      }),
+      accessToken,
     };
   }
 
@@ -97,12 +73,12 @@ export class OrganizationController {
   async getPublicAccessToken(
     @Request() request: Express.Request
   ): Promise<AccessTokenResponse> {
+    const accessToken = await this.orgService.createPublicAccessToken(
+      request.user?.userId,
+      request.user?.organizationId
+    );
     return {
-      accessToken: await this.authService.sign({
-        organizationId: Organization.PublicId,
-        userId: request.user?.userId,
-        onBehalfOfOrganizationId: request.user?.organizationId,
-      }),
+      accessToken,
     };
   }
 
@@ -111,17 +87,7 @@ export class OrganizationController {
   async createInvitation(
     @Param('id') organizationId: string
   ): Promise<MemberInvitationToken> {
-    const token = await cryptoRandomString({
-      length: 128,
-      type: 'url-safe',
-    });
-
-    const invite = await this.memberInviteRepo.save({
-      token,
-      organization: { id: organizationId },
-      validUntil: addDays(Date.now(), 7),
-    });
-
+    const invite = await this.orgService.createInvitation(organizationId);
     return invite;
   }
 
@@ -130,9 +96,7 @@ export class OrganizationController {
   async getInvitation(
     @Param('token') token: string
   ): Promise<MemberInvitationToken | null> {
-    const invite = await this.memberInviteRepo.findOne({
-      where: { token },
-    });
+    const invite = await this.orgService.getInvitation(token);
     return invite;
   }
 
@@ -142,16 +106,9 @@ export class OrganizationController {
     @Param('token') token: string,
     @Request() request: Express.Request
   ): Promise<Member | null> {
-    const { organization } = await this.memberInviteRepo.findOneOrFail({
-      where: { token },
-      relations: ['organization'],
-    });
-    const user = await this.userRepo.findOneOrFail({
-      where: { id: request.user!.userId },
-    });
-
-    const member = await this.memberRepo.save({ user, organization });
-
+    const userId = request.user?.userId;
+    assert(userId);
+    const member = await this.orgService.claimInvitation(userId, token);
     return member;
   }
 }

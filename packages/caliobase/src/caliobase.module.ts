@@ -10,6 +10,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ValidatorOptions } from 'class-validator';
 import { Transporter } from 'nodemailer';
+import { OrganizationService } from './auth';
 import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
 import { Member } from './auth/entities/member.entity';
@@ -81,6 +82,7 @@ const builtInEntities = [
   providers: [
     JwtStrategy,
     AuthService,
+    OrganizationService,
     MetaService,
     ObjectStorageService,
     {
@@ -88,6 +90,7 @@ const builtInEntities = [
       useClass: JwtAuthGuard,
     },
   ],
+  exports: [AuthService, OrganizationService],
   controllers: [
     MetaController,
     AuthController,
