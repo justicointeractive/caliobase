@@ -12,10 +12,11 @@ import { ValidatedType } from './ValidatedType';
 
 import { createFindManyQueryParamClass, ToFindOptions } from '.';
 import { EntityOwner, getAclEntity, getOwnerProperty } from '../auth';
+import { defaultValidatorOptions } from '../defaultValidatorOptions';
 
 export function createEntityModule<TEntity>(
   entityType: Type<TEntity>,
-  validatorOptions: ValidationPipeOptions
+  validatorOptions: ValidationPipeOptions = defaultValidatorOptions
 ): ICaliobaseEntityModule<TEntity> {
   const FindManyParams = createFindManyQueryParamClass(entityType);
 

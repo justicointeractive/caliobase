@@ -1,9 +1,4 @@
-import {
-  DynamicModule,
-  Module,
-  Type,
-  ValidationPipeOptions,
-} from '@nestjs/common';
+import { DynamicModule, Module, Type } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
@@ -29,6 +24,7 @@ import {
   SocialProvidersToken,
 } from './auth/social-provider/social-provider';
 import { CaliobaseConfig } from './config/config';
+import { defaultValidatorOptions } from './defaultValidatorOptions';
 import { createEntityModule } from './entity-module/createEntityModule';
 import { MetaController } from './meta/meta.controller';
 import { MetaService } from './meta/meta.service';
@@ -109,13 +105,6 @@ export type CaliobaseModuleOptions = {
   ],
 })
 export class CaliobaseModule {
-  static defaultValidatorOptions: ValidationPipeOptions = {
-    transform: true,
-    forbidNonWhitelisted: true,
-    forbidUnknownValues: true,
-    whitelist: true,
-  };
-
   static forRoot({
     objectStorageProvider,
     socialProviders = DefaultSocialProviders,
@@ -131,7 +120,7 @@ export class CaliobaseModule {
         TypeOrmModule.forFeature([...builtInEntities, ...otherEntities]),
         ...controllerEntities.map((entity) =>
           createEntityModule(entity, {
-            ...CaliobaseModule.defaultValidatorOptions,
+            ...defaultValidatorOptions,
             ...validatorOptions,
           })
         ),

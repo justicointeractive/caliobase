@@ -31,7 +31,7 @@ describe('entity module', () => {
         organization!: Organization;
       }
 
-      const entityModule = createEntityModule(TestEntity, {});
+      const entityModule = createEntityModule(TestEntity);
 
       const module = await createTestingModule({
         imports: [entityModule],
@@ -93,7 +93,7 @@ describe('entity module', () => {
         acl!: Acl<TestEntity>;
       }
 
-      const entityModule = createEntityModule(TestEntity, {});
+      const entityModule = createEntityModule(TestEntity);
 
       const module = await createTestingModule({
         imports: [entityModule],
@@ -135,10 +135,15 @@ describe('entity module', () => {
 
       const publicAccessToken = await orgService.createPublicAccessToken();
 
-      await request
-        .get('/test')
-        .set('Authorization', `Bearer ${publicAccessToken}`)
-        .expect(200);
+      {
+        const {
+          body: { items },
+        } = await request
+          .get('/test')
+          .set('Authorization', `Bearer ${publicAccessToken}`)
+          .expect(200);
+        expect(items).toHaveLength(0);
+      }
     });
   });
 
@@ -153,7 +158,7 @@ describe('entity module', () => {
         label!: string;
       }
 
-      createEntityModule(TestEntity, {});
+      createEntityModule(TestEntity);
 
       expect(getOwnerProperty(TestEntity)).toEqual('organization');
     });
