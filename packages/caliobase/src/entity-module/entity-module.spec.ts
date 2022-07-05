@@ -7,6 +7,7 @@ import {
   createEntityModule,
   EntityAcl,
   EntityOwner,
+  getOwnerProperty,
   Organization,
   OrganizationService,
 } from '..';
@@ -137,7 +138,7 @@ describe('entity module', () => {
   });
 
   describe('without owner or acl', function () {
-    it('should not allow unownable thing to be created', async () => {
+    it('should create an implicit owner', async () => {
       @CaliobaseEntity()
       class TestEntity {
         @PrimaryGeneratedColumn()
@@ -147,7 +148,9 @@ describe('entity module', () => {
         label!: string;
       }
 
-      expect(() => createEntityModule(TestEntity, {})).toThrow();
+      createEntityModule(TestEntity, {});
+
+      expect(getOwnerProperty(TestEntity)).toEqual('organization');
     });
   });
 });
