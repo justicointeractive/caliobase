@@ -2,13 +2,14 @@ import { ModuleMetadata } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { createTestAccount, createTransport } from 'nodemailer';
+import * as supertest from 'supertest';
 import { CaliobaseModule } from '../caliobase.module';
 import { S3ObjectStorageProvider } from '../object-storage';
 
 export async function createTestingModule(metadata: ModuleMetadata) {
   const testAccount = await createTestAccount();
 
-  const app = await Test.createTestingModule({
+  const module = await Test.createTestingModule({
     ...metadata,
     imports: [
       TypeOrmModule.forRoot({
@@ -39,25 +40,41 @@ export async function createTestingModule(metadata: ModuleMetadata) {
     ],
   }).compile();
 
-  await app.init();
+  await module.init();
 
-  return app;
+  return module;
 }
 
-export function useTestingModule<T extends { app: TestingModule }>(
-  module: () => Promise<T>
-): T {
-  let result: T;
+type WithRequest<
+  T extends {
+    module: TestingModule;
+  }
+> = T & {
+  request: supertest.SuperTest<supertest.Test>;
+};
+
+export function useTestingModule<
+  T extends {
+    module: TestingModule;
+  }
+>(module: () => Promise<T>): WithRequest<T> {
+  let result: WithRequest<T>;
 
   beforeAll(async () => {
-    result = await module();
+    const moduleResult = await module();
+    const app = moduleResult.module.createNestApplication();
+    await app.init();
+    const httpServer = app.getHttpServer();
+    result = Object.assign(moduleResult, {
+      request: supertest(httpServer),
+    });
   });
 
   afterAll(async () => {
-    await result.app.close();
+    await result.module.close();
   });
 
-  return new Proxy<T>({} as any, {
+  return new Proxy<WithRequest<T>>({} as any, {
     get(target, p1, receiver) {
       return new Proxy({} as any, {
         get(target, p2, receiver) {

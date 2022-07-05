@@ -18,7 +18,7 @@ import {
 
 describe('entity module', () => {
   describe('standard', function () {
-    const { app, entityModule } = useTestingModule(async () => {
+    const { module, entityModule } = useTestingModule(async () => {
       @CaliobaseEntity()
       class TestEntity {
         @PrimaryGeneratedColumn()
@@ -33,16 +33,16 @@ describe('entity module', () => {
 
       const entityModule = createEntityModule(TestEntity, {});
 
-      const app = await createTestingModule({
+      const module = await createTestingModule({
         imports: [entityModule],
       });
 
-      return { app, entityModule };
+      return { module, entityModule };
     });
 
     it('should create entity module', async () => {
-      const orgService = app.get(OrganizationService);
-      const authService = app.get(AuthService);
+      const orgService = module.get(OrganizationService);
+      const authService = module.get(AuthService);
 
       const user = await authService.createUserWithPassword({
         email: faker.internet.email(),
@@ -56,7 +56,7 @@ describe('entity module', () => {
       });
       expect(org.id).toBeTruthy();
 
-      const entityService = app.get<
+      const entityService = module.get<
         InstanceType<typeof entityModule.EntityService>
       >(entityModule.EntityService);
 
@@ -71,14 +71,14 @@ describe('entity module', () => {
         { owner: { id: org.id } }
       );
       expect(all).toHaveLength(1);
-
-      await app.close();
     });
   });
 
   describe('acl', function () {
-    const { app, entityModule } = useTestingModule(async () => {
-      @CaliobaseEntity()
+    const { module, entityModule, request } = useTestingModule(async () => {
+      @CaliobaseEntity({
+        controller: { name: 'test' },
+      })
       class TestEntity {
         @PrimaryGeneratedColumn()
         id!: string;
@@ -95,16 +95,16 @@ describe('entity module', () => {
 
       const entityModule = createEntityModule(TestEntity, {});
 
-      const app = await createTestingModule({
+      const module = await createTestingModule({
         imports: [entityModule],
       });
 
-      return { app, entityModule };
+      return { module, entityModule };
     });
 
     it('should create entity module', async () => {
-      const authService = app.get(AuthService);
-      const orgService = app.get(OrganizationService);
+      const authService = module.get(AuthService);
+      const orgService = module.get(OrganizationService);
 
       const user = await authService.createUserWithPassword({
         email: faker.internet.email(),
@@ -118,7 +118,7 @@ describe('entity module', () => {
       });
       expect(org.id).toBeTruthy();
 
-      const entityService = app.get<
+      const entityService = module.get<
         InstanceType<typeof entityModule.EntityService>
       >(entityModule.EntityService);
 
@@ -133,7 +133,12 @@ describe('entity module', () => {
       );
       expect(all).toHaveLength(1);
 
-      await app.close();
+      const publicAccessToken = await orgService.createPublicAccessToken();
+
+      await request
+        .get('/test')
+        .set('Authorization', `Bearer ${publicAccessToken}`)
+        .expect(200);
     });
   });
 
