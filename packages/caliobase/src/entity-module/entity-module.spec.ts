@@ -1,7 +1,7 @@
 import { Test } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Column, PrimaryGeneratedColumn } from 'typeorm';
-import { CaliobaseEntity } from '..';
+import { CaliobaseEntity, EntityOwner, Organization } from '..';
 import { createEntityModule } from './createEntityModule';
 
 describe('entity module', () => {
@@ -12,25 +12,30 @@ describe('entity module', () => {
 
     @Column()
     label!: string;
+
+    @EntityOwner()
+    organization!: Organization;
   }
 
   it('should create entity module', async () => {
-    const module = createEntityModule(TestEntity, {});
+    const entityModule = createEntityModule(TestEntity, {});
+
     const app = await Test.createTestingModule({
       imports: [
         TypeOrmModule.forRoot({
           type: 'postgres',
           retryAttempts: 0,
-          entities: [TestEntity],
+          entities: [Organization, TestEntity],
           synchronize: true,
         }),
-        module,
+        entityModule,
       ],
     }).compile();
 
-    const service = app.get<InstanceType<typeof module.EntityService>>(
-      module.EntityService
+    const service = app.get<InstanceType<typeof entityModule.EntityService>>(
+      entityModule.EntityService
     );
+
     const created = await service.create(
       { label: 'test123' },
       { owner: { id: 'test123' } }
@@ -40,6 +45,6 @@ describe('entity module', () => {
       { where: {} },
       { owner: { id: 'test123' } }
     );
-    expect(all).not.toHaveLength(0);
+    expect(all).toHaveLength(1);
   });
 });
