@@ -1,5 +1,6 @@
-/* eslint-disable */
-export default {
+import type { Config } from '@jest/types';
+
+const config: Config.InitialOptions = {
   displayName: 'caliobase',
   preset: '../../jest.preset.js',
   globals: {
@@ -14,3 +15,5 @@ export default {
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
   coverageDirectory: '../../coverage/packages/caliobase',
 };
+
+export default config;
