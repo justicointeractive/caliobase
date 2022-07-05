@@ -55,6 +55,16 @@ const builtInEntities = [
   ObjectStorageObject,
 ];
 
+export type CaliobaseModuleOptions = {
+  objectStorageProvider: AbstractObjectStorageProvider;
+  socialProviders?: SocialProvider[];
+  controllerEntities: Type<unknown>[];
+  otherEntities: Type<unknown>[];
+  validatorOptions?: ValidatorOptions;
+  baseUrl: string;
+  emailTransport: Transporter;
+};
+
 @Module({
   imports: [
     ConfigModule,
@@ -114,15 +124,7 @@ export class CaliobaseModule {
     validatorOptions,
     baseUrl,
     emailTransport,
-  }: {
-    objectStorageProvider: AbstractObjectStorageProvider;
-    socialProviders?: SocialProvider[];
-    controllerEntities: Type<unknown>[];
-    otherEntities: Type<unknown>[];
-    validatorOptions?: ValidatorOptions;
-    baseUrl: string;
-    emailTransport: Transporter;
-  }): DynamicModule {
+  }: CaliobaseModuleOptions): DynamicModule {
     return {
       module: CaliobaseModule,
       imports: [
