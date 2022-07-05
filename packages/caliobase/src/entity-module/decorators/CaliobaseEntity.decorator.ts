@@ -2,7 +2,7 @@ import { applyDecorators, Controller, Type } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Entity } from 'typeorm';
 
-const METADATA_KEY = Symbol('QueryProperty');
+const METADATA_KEY = Symbol('CaliobaseEntity');
 
 export type CaliobaseEntityOptions = {
   controller?: {
