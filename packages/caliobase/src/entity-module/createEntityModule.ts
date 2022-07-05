@@ -11,7 +11,7 @@ import { ICaliobaseServiceType } from './ICaliobaseService';
 import { ValidatedType } from './ValidatedType';
 
 import { createFindManyQueryParamClass, ToFindOptions } from '.';
-import { getAclEntity } from '../auth';
+import { getAclEntity, getOwnerProperty } from '../auth';
 
 export function createEntityModule<TEntity>(
   entityType: Type<TEntity>,
@@ -46,6 +46,13 @@ export function createEntityModule<TEntity>(
   })();
 
   const aclEntity = getAclEntity(entityType);
+  const ownerRelation = getOwnerProperty(entityType);
+
+  if (aclEntity == null && ownerRelation == null) {
+    throw new Error(
+      `failed to construct module, give ${entityType.name} an Acl or EntityOwner`
+    );
+  }
 
   @Module({
     imports: [

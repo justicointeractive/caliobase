@@ -3,22 +3,24 @@ import { ManyToOne } from 'typeorm';
 
 import { Organization } from '..';
 
+const ownerKey = 'caliobase:owner';
+
 export function EntityOwner(): PropertyDecorator {
   return function (target, propertyName) {
-    Reflect.defineMetadata('caliobase:owner', propertyName, target.constructor);
+    Reflect.defineMetadata(ownerKey, propertyName, target.constructor);
     ManyToOne(() => Organization, { eager: true })(target, propertyName);
   };
 }
 
-function getCaliobaseOwnerOrganizationProperty(entity: Type<any>) {
-  return Reflect.getMetadata('caliobase:owner', entity) as string | symbol;
+export function getOwnerProperty(entity: Type<any>) {
+  return Reflect.getMetadata(ownerKey, entity) as string | symbol;
 }
 
 export function getCaliobaseOwnerOrganizationMixin(
   entity: Type<any>,
   owner: { id: string }
 ) {
-  const ownerOrgPropertyName = getCaliobaseOwnerOrganizationProperty(entity);
+  const ownerOrgPropertyName = getOwnerProperty(entity);
 
   return ownerOrgPropertyName
     ? {
