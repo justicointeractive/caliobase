@@ -11,6 +11,7 @@ import { ICaliobaseServiceType } from './ICaliobaseService';
 import { ValidatedType } from './ValidatedType';
 
 import { createFindManyQueryParamClass, ToFindOptions } from '.';
+import { getAclEntity } from '../auth';
 
 export function createEntityModule<TEntity>(
   entityType: Type<TEntity>,
@@ -44,10 +45,15 @@ export function createEntityModule<TEntity>(
     return [];
   })();
 
+  const aclEntity = getAclEntity(entityType);
+
   @Module({
-    imports: [TypeOrmModule.forFeature([entityType])],
+    imports: [
+      TypeOrmModule.forFeature([entityType, ...(aclEntity ? [aclEntity] : [])]),
+    ],
     controllers: [...controllers],
     providers: [EntityService],
+    exports: [EntityService],
   })
   @RenameClass(entityType)
   class EntityModule {

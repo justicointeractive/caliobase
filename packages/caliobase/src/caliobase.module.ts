@@ -12,7 +12,6 @@ import { ValidatorOptions } from 'class-validator';
 import { Transporter } from 'nodemailer';
 import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
-import { AclItem, getAclEntity } from './auth/entities/acl.entity';
 import { Member } from './auth/entities/member.entity';
 import { Organization } from './auth/entities/organization.entity';
 import { PasswordResetToken } from './auth/entities/password-reset-token.entity';
@@ -32,7 +31,7 @@ import { CaliobaseConfig } from './config/config';
 import { createEntityModule } from './entity-module/createEntityModule';
 import { MetaController } from './meta/meta.controller';
 import { MetaService } from './meta/meta.service';
-import { AbstractObjectStorageProvider } from './object-storage/AbstractFileProvider';
+import { AbstractObjectStorageProvider } from './object-storage/AbstractObjectStorageProvider';
 import { ObjectStorageObject } from './object-storage/object-storage-object.entity';
 import { ObjectStorageController } from './object-storage/object-storage.controller';
 import { ObjectStorageService } from './object-storage/object-storage.service';
@@ -45,7 +44,7 @@ declare global {
   }
 }
 
-const buildInEntities = [
+const builtInEntities = [
   Member,
   Organization,
   UserPassword,
@@ -108,7 +107,7 @@ export class CaliobaseModule {
     objectStorageProvider,
     socialProviders = DefaultSocialProviders,
     controllerEntities,
-    otherEntities: bridgeEntities,
+    otherEntities,
     validatorOptions,
     baseUrl,
     emailTransport,
@@ -124,25 +123,13 @@ export class CaliobaseModule {
     return {
       module: CaliobaseModule,
       imports: [
+        TypeOrmModule.forFeature([...builtInEntities, ...otherEntities]),
         ...controllerEntities.map((entity) =>
           createEntityModule(entity, {
             ...CaliobaseModule.defaultValidatorOptions,
             ...validatorOptions,
           })
         ),
-        TypeOrmModule.forFeature([
-          ...buildInEntities,
-          ...bridgeEntities,
-          ...controllerEntities
-            .map(
-              (e) =>
-                // eslint-disable-next-line @typescript-eslint/ban-types
-                getAclEntity(e) as Function & {
-                  prototype: AclItem<{ id: string }>;
-                }
-            )
-            .filter((e): e is typeof AclItem => e != null),
-        ]),
       ],
       providers: [
         {
