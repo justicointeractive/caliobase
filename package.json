@@ -5,9 +5,9 @@
   "scripts": {
     "version-deploy-install": "nx g ngx-deploy-npm:install && nx g @jscutlery/semver:install",
     "prepare": "husky install",
-    "test": "nx run-many --all --target=test --parallel=100",
-    "build": "nx run-many --all --target=build --parallel=100",
-    "version": "nx run-many --all --target=version --parallel=100",
+    "test": "nx run-many --all --target=test --parallel=100 --output-style=stream",
+    "build": "nx run-many --all --target=build --parallel=100 --output-style=stream",
+    "version": "nx run-many --all --target=version --parallel=100 --output-style=stream",
     "release": "npm run test && npm run version && git push --follow-tags"
   },
   "private": true,
@@ -31,6 +31,7 @@
     "class-validator": "^0.13.2",
     "crypto-random-string": "^3.3.1",
     "date-fns": "^2.28.0",
+    "jest-mock-axios": "^4.6.1",
     "lodash": "^4.17.21",
     "mjml": "^4.12.0",
     "mjml-react": "^2.0.8",
