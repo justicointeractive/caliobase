@@ -3,12 +3,9 @@ import { fromPairs, toPairs } from 'lodash';
 import { EntityManager, SelectQueryBuilder } from 'typeorm';
 import { RelationMetadata } from 'typeorm/metadata/RelationMetadata';
 import { CaliobaseFindOptions } from '.';
+import { AclAccessLevel, AclAccessLevels } from '../auth/acl/acl';
+import { getAclProperty } from '../auth/acl/getAclEntityAndProperty';
 import { getCaliobaseOwnerOrganizationMixin } from '../auth/decorators/owner.decorator';
-import {
-  AclAccessLevel,
-  AclAccessLevels,
-  getAclProperty,
-} from '../auth/entities/acl.entity';
 
 export function entityServiceQueryBuilder<TEntity>(
   entityType: Type<TEntity>,

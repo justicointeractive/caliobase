@@ -1,16 +1,16 @@
 import { faker } from '@faker-js/faker';
 import { Column, PrimaryGeneratedColumn } from 'typeorm';
 import {
-  Acl,
-  AuthService,
   CaliobaseEntity,
   createEntityModule,
   EntityAcl,
   EntityOwner,
   getOwnerProperty,
   Organization,
-  OrganizationService,
 } from '..';
+import { Acl } from '../auth/acl/acl';
+import { AuthService } from '../auth/auth.service';
+import { OrganizationService } from '../auth/organization.service';
 import {
   createTestingModule,
   useTestingModule,
@@ -62,18 +62,18 @@ describe('entity module', () => {
 
       const created = await entityService.create(
         { label: 'test123' },
-        { organization: { id: org.id } }
+        { organization: { id: org.id }, user: {} }
       );
       expect(created).not.toBeNull();
 
       const all = await entityService.findAll(
         { where: {} },
-        { organization: { id: org.id } }
+        { organization: { id: org.id }, user: {} }
       );
       expect(all).toHaveLength(1);
       const one = await entityService.findOne(
         { where: {} },
-        { organization: { id: org.id } }
+        { organization: { id: org.id }, user: {} }
       );
       expect(one).toBeTruthy();
     });
@@ -129,12 +129,12 @@ describe('entity module', () => {
 
       const created = await entityService.create(
         { label: 'test123' },
-        { organization: { id: org.id } }
+        { organization: { id: org.id }, user: {} }
       );
       expect(created).not.toBeNull();
       const all = await entityService.findAll(
         { where: {} },
-        { organization: { id: org.id } }
+        { organization: { id: org.id }, user: {} }
       );
       expect(all).toHaveLength(1);
 

@@ -24,7 +24,7 @@ import { fromPairs } from 'lodash';
 import { getMetadataArgsStorage } from 'typeorm';
 import { ColumnMetadataArgs } from 'typeorm/metadata-args/ColumnMetadataArgs';
 import { ToFindOptions } from '.';
-import { getAclEntity } from '../auth/entities/acl.entity';
+import { getAclEntity } from '../auth/acl/getAclEntityAndProperty';
 import { CaliobaseJwtPayload } from '../auth/jwt-payload';
 import {
   ApiCreatedItemResponse,

@@ -94,7 +94,7 @@ export function useTestingModule<
 
     result = Object.assign(moduleResult, {
       request: supertest(httpServer),
-      organization,
+      ...(organization && { organization }),
     });
   });
 

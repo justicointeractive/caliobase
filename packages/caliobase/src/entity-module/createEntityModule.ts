@@ -3,13 +3,13 @@ import { PATH_METADATA } from '@nestjs/common/constants';
 import { PartialType } from '@nestjs/swagger';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DeepPartial } from 'typeorm';
-
 import {
   createFindManyQueryParamClass,
   ICaliobaseController,
   ToFindOptions,
 } from '.';
-import { EntityOwner, getAclEntity, getOwnerProperty } from '../auth';
+import { EntityOwner, getOwnerProperty } from '../auth';
+import { getAclEntity } from '../auth/acl/getAclEntityAndProperty';
 import { defaultValidatorOptions } from '../defaultValidatorOptions';
 import { createEntityController } from './createEntityController';
 import { createEntityServiceClass } from './createEntityServiceClass';

@@ -5,7 +5,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ValidatorOptions } from 'class-validator';
 import { Transporter } from 'nodemailer';
-import { OrganizationService } from './auth';
 import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
 import { Member } from './auth/entities/member.entity';
@@ -18,6 +17,7 @@ import { JwtAuthGuard } from './auth/guards/jwt.guard';
 import { CaliobaseJwtPayload } from './auth/jwt-payload';
 import { JwtStrategy } from './auth/jwt.strategy';
 import { OrganizationController } from './auth/organization.controller';
+import { OrganizationService } from './auth/organization.service';
 import { DefaultSocialProviders } from './auth/social-provider/default-social-providers';
 import {
   SocialProvider,

@@ -1,27 +1,26 @@
 import { Type } from '@nestjs/common';
-
-import { AclAccessLevel } from '../..';
+import { AclAccessLevel } from '../../auth/acl/acl';
 
 export function RequireWriteAccessLevel(
-  level: AclAccessLevel,
+  level: AclAccessLevel
 ): PropertyDecorator {
   return (target, key) => {
     Reflect.defineMetadata(
       'caliobase:write-access-level-required',
       level,
       target,
-      key,
+      key
     );
   };
 }
 
 export function getRequiredWriteAccessLevel(
   Entity: Type<any>,
-  propertyName: string,
+  propertyName: string
 ): AclAccessLevel | undefined {
   return Reflect.getMetadata(
     'caliobase:write-access-level-required',
     Entity.prototype,
-    propertyName,
+    propertyName
   );
 }

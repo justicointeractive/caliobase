@@ -1,5 +1,8 @@
+import { faker } from '@faker-js/faker';
 import { Column, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { Member } from '../auth/entities/member.entity';
+import { User } from '../auth';
+import { AuthService } from '../auth/auth.service';
+import { OrganizationService } from '../auth/organization.service';
 import {
   createTestingModule,
   useTestingModule,
@@ -43,8 +46,6 @@ describe('access policy', () => {
         const module = await createTestingModule({
           imports: [entityModule],
         });
-
-        assert(entityModule.EntityService);
 
         const blogPostService = module.get<
           InstanceType<NonNullable<typeof entityModule['EntityService']>>
@@ -101,68 +102,144 @@ describe('access policy', () => {
           { organization, user: {} }
         )
       ).toBeNull();
+      expect(
+        await blogPostService.findAll(
+          {
+            where: { id: blogPost.id },
+          },
+          { organization, user: {} }
+        )
+      ).toHaveLength(0);
     });
-    it('should allow editor publish', () => {});
-    it('should allow guest published list/get', () => {});
+    it('should allow editor publish', async () => {
+      blogPost = (
+        await blogPostService.update(
+          { id: blogPost.id },
+          {
+            published: true,
+          },
+          {
+            organization,
+            user: { role: ['editor'] },
+          }
+        )
+      )[0];
+
+      expect(blogPost.published).toEqual(true);
+    });
+    it('should allow guest published list/get', async () => {
+      expect(
+        await blogPostService.findOne(
+          {
+            where: { id: blogPost.id },
+          },
+          { organization, user: {} }
+        )
+      ).not.toBeNull();
+      expect(
+        await blogPostService.findAll(
+          {
+            where: { id: blogPost.id },
+          },
+          { organization, user: {} }
+        )
+      ).toHaveLength(1);
+    });
   });
 
   describe('comments', () => {
-    const { commentService } = useTestingModule(async () => {
-      @CaliobaseEntity<Comment>({
-        controller: { name: 'comment' },
-        accessPolicy: [
-          {
-            effect: 'allow',
-            action: ['create', 'get', 'list'],
-          },
-          {
-            effect: 'allow',
-            action: ['update', 'delete'],
-            items: ({ user: { memberId } }) => ({
-              createdById: memberId,
-            }),
-          },
-          {
-            effect: 'allow',
-            action: ['update', 'delete'],
-            users: { role: 'moderator' },
-          },
-        ],
-      })
-      class Comment {
-        @PrimaryGeneratedColumn('uuid')
-        id!: string;
+    @CaliobaseEntity<Comment>({
+      controller: { name: 'comment' },
+      accessPolicy: [
+        {
+          effect: 'allow',
+          action: ['create', 'get', 'list'],
+        },
+        {
+          effect: 'allow',
+          action: ['update', 'delete'],
+          items: ({ user: { memberId } }) => ({
+            createdById: memberId,
+          }),
+        },
+        {
+          effect: 'allow',
+          action: ['update', 'delete'],
+          users: { role: 'moderator' },
+        },
+      ],
+    })
+    class Comment {
+      @PrimaryGeneratedColumn('uuid')
+      id!: string;
 
-        @Column()
-        title!: string;
+      @Column()
+      text!: string;
 
-        @Column()
-        createdById!: string;
+      @Column()
+      createdById!: string;
 
-        @ManyToOne(() => Member)
-        createdBy!: Member;
+      @ManyToOne(() => User)
+      createdBy!: User;
+    }
+
+    const { commentService, organization, user } = useTestingModule(
+      async () => {
+        const entityModule = createEntityModule(Comment);
+
+        const module = await createTestingModule({
+          imports: [entityModule],
+        });
+
+        const commentService = module.get<
+          InstanceType<NonNullable<typeof entityModule['EntityService']>>
+        >(entityModule.EntityService);
+
+        const userService = module.get<AuthService>(AuthService);
+        const orgService = module.get<OrganizationService>(OrganizationService);
+
+        const user = await userService.createUserWithPassword({
+          email: faker.internet.email(),
+          givenName: 'Test',
+          familyName: 'User',
+          password: 'abc123',
+        });
+
+        const organization = await orgService.createOrganization(user.id, {
+          name: 'Test Organization',
+        });
+
+        return {
+          module,
+          entityModule,
+          commentService,
+          organization,
+          user,
+        };
       }
+    );
 
-      const entityModule = createEntityModule(Comment);
+    assert(organization);
 
-      const module = await createTestingModule({
-        imports: [entityModule],
-      });
+    let comment: Comment;
 
-      assert(entityModule.EntityService);
+    it('should allow guest comment writes', async () => {
+      comment = await commentService.create(
+        {
+          text: 'test 123',
+          createdById: user.id, // TODO: enforce createdById by service
+        },
+        {
+          organization,
+          user: {
+            userId: user.id,
+            role: [],
+          },
+        }
+      );
 
-      const commentService = module.get<
-        InstanceType<NonNullable<typeof entityModule['EntityService']>>
-      >(entityModule.EntityService);
-
-      return {
-        module,
-        entityModule,
-        commentService,
-      };
+      expect(comment).not.toBeNull();
     });
-
-    it('should allow guest comment writes', () => {});
     it('should allow guest comment read', () => {});
     it('should allow guest comment updates', () => {});
     it('should allow moderator updates', () => {});
