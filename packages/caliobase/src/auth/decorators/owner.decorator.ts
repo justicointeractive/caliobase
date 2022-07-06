@@ -5,10 +5,14 @@ import { Organization } from '..';
 
 const ownerKey = 'caliobase:owner';
 
-export function EntityOwner(): PropertyDecorator {
+export function EntityOwner({
+  eager = false,
+}: {
+  eager?: boolean;
+} = {}): PropertyDecorator {
   return function (target, propertyName) {
     Reflect.defineMetadata(ownerKey, propertyName, target.constructor);
-    ManyToOne(() => Organization, { eager: true })(target, propertyName);
+    ManyToOne(() => Organization, { eager })(target, propertyName);
   };
 }
 
