@@ -14,6 +14,8 @@ const config: Config.InitialOptions = {
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
   coverageDirectory: '../../coverage/packages/caliobase',
+  coverageReporters: [['text', { skipFull: true }]],
+  collectCoverageFrom: ['./src/**'],
 };
 
 export default config;
