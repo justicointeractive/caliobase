@@ -143,6 +143,8 @@ export type CaliobaseFindOptions<TEntity> = {
 export type ToFindOptions<TEntity> = {
   listPublic?: boolean;
   toFindOptions: () => CaliobaseFindOptions<TEntity>;
+  orderBy?: string[];
+  [key: string]: any;
 };
 
 function extractArrayType<T>(typeOrArrayOf: T | T[]) {

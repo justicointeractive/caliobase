@@ -4,7 +4,7 @@ import { IsIn } from 'class-validator';
 import { Column, Entity, ManyToOne, OneToMany, PrimaryColumn } from 'typeorm';
 
 import { RenameClass } from '../..';
-import { RequireWriteAccessLevel } from '../../entity-module';
+import { RequireWriteAccessLevel } from '../../entity-module/decorators/RequireAccessLevel.decorator';
 import { decorateClass } from '../../util/decorateClass';
 
 import { Organization } from '.';
