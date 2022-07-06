@@ -19,18 +19,22 @@ export class ObjectStorageService {
   async createObject(
     file: Omit<ObjectUploadRequest, 'key'> & {
       fileName: string;
-      owner: { id: string };
+      organization: { id: string };
       uploadedBy: { id: string };
     }
   ) {
-    const { fileName, contentLength, contentType, owner, uploadedBy } = file;
+    const { fileName, contentLength, contentType, organization, uploadedBy } =
+      file;
 
-    const key = `${owner.id}/${format(new Date(), 'yyyy/MM/dd')}/${fileName}`;
+    const key = `${organization.id}/${format(
+      new Date(),
+      'yyyy/MM/dd'
+    )}/${fileName}`;
 
     const cdnUrl = `${this.objectStorage.options.cdnUrlPrefix}${key}`;
 
     const object = await this.objectRepo.save({
-      owner,
+      organization,
       uploadedBy,
       contentLength,
       contentType,

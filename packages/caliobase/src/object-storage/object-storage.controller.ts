@@ -66,7 +66,7 @@ export class ObjectStorageController {
 
     const object = await this.objectStorageService.createObject({
       ...file,
-      owner: { id: organizationId },
+      organization: { id: organizationId },
       uploadedBy: { id: userId },
     });
 
