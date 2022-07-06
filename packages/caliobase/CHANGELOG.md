@@ -2,6 +2,19 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.36](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.35...caliobase-0.0.1-alpha.36) (2022-07-06)
+
+
+### Features
+
+* extract module options type ([d8cc9d0](https://github.com/justicointeractive/caliobase/commit/d8cc9d0c2a4133eddeb62074db2fb6bc5a8db005))
+
+
+### Bug Fixes
+
+* joining one entity related in several ways through eager relations ([6a8eca5](https://github.com/justicointeractive/caliobase/commit/6a8eca53441acbb81fae848057a94e57967c3e0d))
+* symbol name ([cbf32f3](https://github.com/justicointeractive/caliobase/commit/cbf32f32df0b27c9f3e59938e236095daafceb1c))
+
 ### [0.0.1-alpha.35](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.34...caliobase-0.0.1-alpha.35) (2022-07-05)
 
 
