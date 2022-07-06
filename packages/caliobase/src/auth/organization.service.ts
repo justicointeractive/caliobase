@@ -61,14 +61,10 @@ export class OrganizationService {
     });
   }
 
-  async createPublicAccessToken(
-    userId?: string,
-    onBehalfOfOrganizationId?: string
-  ) {
+  async createPublicAccessToken(userId?: string) {
     return await this.authService.sign({
       organizationId: Organization.PublicId,
       userId,
-      onBehalfOfOrganizationId,
     });
   }
 

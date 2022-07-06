@@ -12,9 +12,9 @@ import {
   CreateOrganizationBody,
   Member,
   Organization,
-  Public,
   UserSignupBody,
 } from '../auth';
+import { Public } from '../auth/decorators/public.decorator';
 import { MetaService } from './meta.service';
 
 class CreateRoot {

@@ -1,5 +1,6 @@
 export type CaliobaseJwtPayload = {
   userId?: string;
   organizationId?: string;
-  onBehalfOfOrganizationId?: string;
+  memberId?: string;
+  role?: string[];
 };

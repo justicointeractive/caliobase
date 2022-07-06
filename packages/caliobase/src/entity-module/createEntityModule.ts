@@ -4,7 +4,11 @@ import { PartialType } from '@nestjs/swagger';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DeepPartial } from 'typeorm';
 
-import { createFindManyQueryParamClass, ToFindOptions } from '.';
+import {
+  createFindManyQueryParamClass,
+  ICaliobaseController,
+  ToFindOptions,
+} from '.';
 import { EntityOwner, getAclEntity, getOwnerProperty } from '../auth';
 import { defaultValidatorOptions } from '../defaultValidatorOptions';
 import { createEntityController } from './createEntityController';
@@ -81,7 +85,7 @@ export interface ICaliobaseEntityModule<TEntity> {
     DeepPartial<TEntity>,
     DeepPartial<TEntity>
   >;
-  EntityController?: Type<any>;
+  EntityController?: Type<ICaliobaseController<TEntity>>;
 
   // eslint-disable-next-line @typescript-eslint/ban-types
   new (): {};

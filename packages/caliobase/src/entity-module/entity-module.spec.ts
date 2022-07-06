@@ -62,18 +62,18 @@ describe('entity module', () => {
 
       const created = await entityService.create(
         { label: 'test123' },
-        { owner: { id: org.id } }
+        { organization: { id: org.id } }
       );
       expect(created).not.toBeNull();
 
       const all = await entityService.findAll(
         { where: {} },
-        { owner: { id: org.id } }
+        { organization: { id: org.id } }
       );
       expect(all).toHaveLength(1);
       const one = await entityService.findOne(
         { where: {} },
-        { owner: { id: org.id } }
+        { organization: { id: org.id } }
       );
       expect(one).toBeTruthy();
     });
@@ -124,17 +124,17 @@ describe('entity module', () => {
       expect(org.id).toBeTruthy();
 
       const entityService = module.get<
-        InstanceType<typeof entityModule.EntityService>
+        InstanceType<typeof entityModule['EntityService']>
       >(entityModule.EntityService);
 
       const created = await entityService.create(
         { label: 'test123' },
-        { owner: { id: org.id } }
+        { organization: { id: org.id } }
       );
       expect(created).not.toBeNull();
       const all = await entityService.findAll(
         { where: {} },
-        { owner: { id: org.id } }
+        { organization: { id: org.id } }
       );
       expect(all).toHaveLength(1);
 

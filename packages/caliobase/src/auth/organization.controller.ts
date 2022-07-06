@@ -8,8 +8,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
-import { Public } from '.';
 import { AccessTokenResponse } from './auth.controller';
+import { Public } from './decorators/public.decorator';
 import { MemberInvitationToken } from './entities/member-invitation-token.entity';
 import { Member } from './entities/member.entity';
 import { Organization } from './entities/organization.entity';
@@ -74,8 +74,7 @@ export class OrganizationController {
     @Request() request: Express.Request
   ): Promise<AccessTokenResponse> {
     const accessToken = await this.orgService.createPublicAccessToken(
-      request.user?.userId,
-      request.user?.organizationId
+      request.user?.userId
     );
     return {
       accessToken,

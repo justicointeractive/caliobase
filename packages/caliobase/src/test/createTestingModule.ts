@@ -3,10 +3,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { createTestAccount, createTransport } from 'nodemailer';
 import * as supertest from 'supertest';
+import { Organization } from '../auth';
 import { CaliobaseModule } from '../caliobase.module';
+import { MetaService } from '../meta/meta.service';
 import { S3ObjectStorageProvider } from '../object-storage';
 
-export async function createTestingModule(metadata: ModuleMetadata) {
+export async function createTestingModule(metadata: ModuleMetadata = {}) {
   const testAccount = await createTestAccount();
 
   const module = await Test.createTestingModule({
@@ -51,13 +53,17 @@ type WithRequest<
   }
 > = T & {
   request: supertest.SuperTest<supertest.Test>;
+  organization?: Organization;
 };
 
 export function useTestingModule<
   T extends {
     module: TestingModule;
   }
->(module: () => Promise<T>): WithRequest<T> {
+>(
+  module: () => Promise<T>,
+  options: { createRoot?: boolean } = {}
+): WithRequest<T> {
   let result: WithRequest<T>;
 
   beforeAll(async () => {
@@ -65,8 +71,30 @@ export function useTestingModule<
     const app = moduleResult.module.createNestApplication();
     await app.init();
     const httpServer = app.getHttpServer();
+
+    let organization: Organization | undefined = undefined;
+    if (options.createRoot) {
+      const metaService = moduleResult.module.get<MetaService>(MetaService);
+      if (await metaService.getHasRootMember()) {
+        organization = (await metaService.getRoot()).organization;
+      } else {
+        organization = (
+          await metaService.createRoot({
+            organization: { name: 'Test' },
+            user: {
+              email: 'test@example.org',
+              givenName: 'Given',
+              familyName: 'Family',
+              password: 'abc123',
+            },
+          })
+        ).organization;
+      }
+    }
+
     result = Object.assign(moduleResult, {
       request: supertest(httpServer),
+      organization,
     });
   });
 

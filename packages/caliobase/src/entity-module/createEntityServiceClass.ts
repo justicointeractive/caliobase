@@ -5,13 +5,9 @@ import {
   FindOptionsWhere,
   ObjectLiteral,
 } from 'typeorm';
-import { CaliobaseFindOptions, RenameClass } from '.';
-import {
-  getAclAccessLevels,
-  getAclEntity,
-  getCaliobaseOwnerOrganizationMixin,
-  ToFindOptions,
-} from '..';
+import { CaliobaseFindOptions, RenameClass, ToFindOptions } from '.';
+import { getCaliobaseOwnerOrganizationMixin } from '../auth/decorators/owner.decorator';
+import { getAclAccessLevels, getAclEntity } from '../auth/entities/acl.entity';
 import { entityServiceQueryBuilder } from './entityServiceQueryBuilder';
 import {
   ICaliobaseService,
@@ -46,14 +42,17 @@ export function createEntityServiceClass<
 
     constructor(private dataSource: DataSource) {}
 
-    async create(createDto: TCreate, { owner }: ICaliobaseServiceOptions) {
+    async create(
+      createDto: TCreate,
+      { organization }: ICaliobaseServiceOptions
+    ) {
       return await this.dataSource.transaction(async (manager) => {
         const entityRepository = manager.getRepository(entityType);
 
         const created: TEntity = await entityRepository.save(
           entityRepository.create({
             ...createDto,
-            ...getCaliobaseOwnerOrganizationMixin(entityType, owner),
+            ...getCaliobaseOwnerOrganizationMixin(entityType, organization),
           }) as TEntity & ObjectLiteral // todo more narrow type
         );
         if (AclEntity != null) {
@@ -61,7 +60,7 @@ export function createEntityServiceClass<
           const createdAcl = aclEntityRepository.create({
             access: 'owner',
             object: created as any, // todo remove any
-            organization: owner,
+            organization: organization,
           }) as ObjectLiteral; // todo more narrow type
           await aclEntityRepository.save(createdAcl);
         }
@@ -71,28 +70,28 @@ export function createEntityServiceClass<
 
     async findAll(
       { where, order }: CaliobaseFindOptions<TEntity>,
-      { owner }: ICaliobaseServiceOptions
+      { organization }: ICaliobaseServiceOptions
     ) {
       return await this.dataSource.transaction(async (manager) => {
         return await entityServiceQueryBuilder(
           entityType,
           manager,
           { where, order },
-          owner
+          organization
         ).getMany();
       });
     }
 
     async findOne(
       { where, order }: CaliobaseFindOptions<TEntity>,
-      { owner }: ICaliobaseServiceOptions
+      { organization }: ICaliobaseServiceOptions
     ) {
       return await this.dataSource.transaction(async (manager) => {
         return await entityServiceQueryBuilder(
           entityType,
           manager,
           { where, order },
-          owner
+          organization
         ).getOne();
       });
     }
@@ -100,14 +99,14 @@ export function createEntityServiceClass<
     async update(
       conditions: FindOptionsWhere<TEntity>,
       updateDto: TUpdate,
-      { owner }: ICaliobaseServiceOptions
+      { organization }: ICaliobaseServiceOptions
     ) {
       return await this.dataSource.transaction(async (manager) => {
         const allFound = await entityServiceQueryBuilder(
           entityType,
           manager,
           { where: conditions },
-          owner,
+          organization,
           getAclAccessLevels('writer')
         ).getMany();
         for (const found of allFound) {
@@ -122,14 +121,14 @@ export function createEntityServiceClass<
 
     async remove(
       conditions: FindOptionsWhere<TEntity>,
-      { owner }: ICaliobaseServiceOptions
+      { organization }: ICaliobaseServiceOptions
     ) {
       return await this.dataSource.transaction(async (manager) => {
         const allFound = await entityServiceQueryBuilder(
           entityType,
           manager,
           { where: conditions },
-          owner,
+          organization,
           getAclAccessLevels('writer')
         ).getMany();
         for (const found of allFound) {

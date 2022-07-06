@@ -24,7 +24,7 @@ import { fromPairs } from 'lodash';
 import { getMetadataArgsStorage } from 'typeorm';
 import { ColumnMetadataArgs } from 'typeorm/metadata-args/ColumnMetadataArgs';
 import { ToFindOptions } from '.';
-import { getAclEntity } from '..';
+import { getAclEntity } from '../auth/entities/acl.entity';
 import { CaliobaseJwtPayload } from '../auth/jwt-payload';
 import {
   ApiCreatedItemResponse,
@@ -40,6 +40,7 @@ import { getRelationController } from './decorators';
 import { RenameClass } from './decorators/RenameClass.decorator';
 import { ICaliobaseController } from './ICaliobaseController';
 import { ICaliobaseServiceType } from './ICaliobaseService';
+import assert = require('assert');
 
 export function createEntityController<TEntity, TCreate, TUpdate>(
   ControllerService: ICaliobaseServiceType<TEntity, TCreate, TUpdate>,
@@ -100,9 +101,11 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
         createDto: TCreate,
         @Request() { user }: Express.Request
       ) {
+        assert(user);
         return new ItemEnvelope(
           await this.service.create(createDto, {
-            owner: getOwnerIdObject(user),
+            organization: getOwnerIdObject(user),
+            user,
           })
         );
       }
@@ -124,9 +127,11 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
         )
         listOptions: ToFindOptions<TEntity>
       ) {
+        assert(user);
         return new ItemsEnvelope(
           await this.service.findAll(listOptions.toFindOptions(), {
-            owner: getOwnerIdObject(user),
+            organization: getOwnerIdObject(user),
+            user,
           })
         );
       }
@@ -143,10 +148,11 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
         @Param() params: unknown,
         @Request() { user }: Express.Request
       ) {
+        assert(user);
         return new ItemEnvelope(
           await this.service.findOne(
             { where: pickColumnProperties(primaryColumns, params) },
-            { owner: getOwnerIdObject(user) }
+            { organization: getOwnerIdObject(user), user }
           )
         );
       }
@@ -170,12 +176,14 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
         updateDto: TUpdate,
         @Request() { user }: Express.Request
       ) {
+        assert(user);
         return new ItemsEnvelope(
           await this.service.update(
             pickColumnProperties(primaryColumns, params),
             updateDto,
             {
-              owner: getOwnerIdObject(user),
+              organization: getOwnerIdObject(user),
+              user,
             }
           )
         );
@@ -190,11 +198,13 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
         @Param() params: unknown,
         @Request() { user }: Express.Request
       ) {
+        assert(user);
         return new ItemsEnvelope(
           await this.service.remove(
             pickColumnProperties(primaryColumns, params),
             {
-              owner: getOwnerIdObject(user),
+              organization: getOwnerIdObject(user),
+              user,
             }
           )
         );

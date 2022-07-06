@@ -47,6 +47,15 @@ export class MetaService {
     return true;
   }
 
+  async getRoot() {
+    const organization: Organization = await this.orgRepo.findOneOrFail({
+      where: { id: Organization.RootId },
+    });
+    return {
+      organization,
+    };
+  }
+
   async createRoot(create: {
     organization: { name?: string };
     user: {
