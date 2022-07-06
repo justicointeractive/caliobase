@@ -1,24 +1,18 @@
 import { Injectable, Type } from '@nestjs/common';
-import { fromPairs, toPairs } from 'lodash';
 import {
   DataSource,
   DeepPartial,
-  EntityManager,
   FindOptionsWhere,
   ObjectLiteral,
-  SelectQueryBuilder,
 } from 'typeorm';
-import { RelationMetadata } from 'typeorm/metadata/RelationMetadata';
 import { CaliobaseFindOptions, RenameClass } from '.';
 import {
-  AclAccessLevel,
-  AclAccessLevels,
   getAclAccessLevels,
   getAclEntity,
-  getAclProperty,
   getCaliobaseOwnerOrganizationMixin,
   ToFindOptions,
 } from '..';
+import { entityServiceQueryBuilder } from './entityServiceQueryBuilder';
 import {
   ICaliobaseService,
   ICaliobaseServiceOptions,
@@ -80,7 +74,7 @@ export function createEntityServiceClass<
       { owner }: ICaliobaseServiceOptions
     ) {
       return await this.dataSource.transaction(async (manager) => {
-        return await buildQuery(
+        return await entityServiceQueryBuilder(
           entityType,
           manager,
           { where, order },
@@ -94,7 +88,7 @@ export function createEntityServiceClass<
       { owner }: ICaliobaseServiceOptions
     ) {
       return await this.dataSource.transaction(async (manager) => {
-        return await buildQuery(
+        return await entityServiceQueryBuilder(
           entityType,
           manager,
           { where, order },
@@ -109,7 +103,7 @@ export function createEntityServiceClass<
       { owner }: ICaliobaseServiceOptions
     ) {
       return await this.dataSource.transaction(async (manager) => {
-        const allFound = await buildQuery(
+        const allFound = await entityServiceQueryBuilder(
           entityType,
           manager,
           { where: conditions },
@@ -131,7 +125,7 @@ export function createEntityServiceClass<
       { owner }: ICaliobaseServiceOptions
     ) {
       return await this.dataSource.transaction(async (manager) => {
-        const allFound = await buildQuery(
+        const allFound = await entityServiceQueryBuilder(
           entityType,
           manager,
           { where: conditions },
@@ -148,83 +142,4 @@ export function createEntityServiceClass<
   }
 
   return CaliobaseServiceClass;
-}
-
-export function buildQuery<TEntity>(
-  entityType: Type<TEntity>,
-  entityManager: EntityManager,
-  { where, order }: CaliobaseFindOptions<TEntity>,
-  owner: { id: string },
-  aclAccessLevels: AclAccessLevel[] = AclAccessLevels
-) {
-  const repository = entityManager.getRepository(entityType);
-
-  const query = repository.createQueryBuilder('entity');
-
-  const { inPlaceholders, inValues } = prepareInClause(
-    'aclAccessLevels',
-    aclAccessLevels
-  );
-
-  recursiveJoinEagerRelations(query, 'entity', repository.metadata.relations);
-
-  query.where({
-    ...where,
-    ...getCaliobaseOwnerOrganizationMixin(entityType, owner),
-  });
-
-  if (getAclProperty(entityType) != null) {
-    query.innerJoinAndSelect(
-      `entity.${getAclProperty(entityType)}`,
-      'acl',
-      `entity.id = acl.objectId AND acl.organizationId = :organizationId AND acl.access in (${inPlaceholders})`,
-      {
-        organizationId: owner.id,
-        ...inValues,
-      }
-    );
-  }
-
-  if (order != null) {
-    query.orderBy(
-      fromPairs(
-        toPairs(order).map(([key, value]) => [
-          `entity.${key}`,
-          value as 'ASC' | 'DESC',
-        ])
-      )
-    );
-  }
-
-  return query;
-}
-
-function recursiveJoinEagerRelations(
-  query: SelectQueryBuilder<unknown>,
-  prefix: string,
-  relations: RelationMetadata[]
-) {
-  relations
-    .filter((r) => r.isEager)
-    .forEach((eagerRelation) => {
-      query.leftJoinAndSelect(
-        `${prefix}.${eagerRelation.propertyName}`,
-        eagerRelation.propertyName
-      );
-      // TODO: prevent infinite recursion
-      recursiveJoinEagerRelations(
-        query,
-        eagerRelation.propertyName,
-        eagerRelation.inverseEntityMetadata.relations
-      );
-    });
-}
-
-export function prepareInClause<T extends string>(prefix: string, values: T[]) {
-  const inValues = values.reduce((agg, level, i) => {
-    agg[`${prefix}${i}`] = level;
-    return agg;
-  }, {} as Record<string, string>);
-  const inPlaceholders = values.map((_, i) => `:${prefix}${i}`).join(',');
-  return { inPlaceholders, inValues };
 }
