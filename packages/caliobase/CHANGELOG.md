@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.37](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.36...caliobase-0.0.1-alpha.37) (2022-07-06)
+
+
+### Bug Fixes
+
+* make entity owner relation not eager by default ([f316157](https://github.com/justicointeractive/caliobase/commit/f316157980f7d963601d8b22d7a1ffcee274e318))
+
 ### [0.0.1-alpha.36](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.35...caliobase-0.0.1-alpha.36) (2022-07-06)
 
 
