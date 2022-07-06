@@ -4,15 +4,14 @@ import { PartialType } from '@nestjs/swagger';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DeepPartial } from 'typeorm';
 
+import { createFindManyQueryParamClass, ToFindOptions } from '.';
+import { EntityOwner, getAclEntity, getOwnerProperty } from '../auth';
+import { defaultValidatorOptions } from '../defaultValidatorOptions';
 import { createEntityController } from './createEntityController';
 import { createEntityServiceClass } from './createEntityServiceClass';
 import { RenameClass } from './decorators/RenameClass.decorator';
 import { ICaliobaseServiceType } from './ICaliobaseService';
 import { ValidatedType } from './ValidatedType';
-
-import { createFindManyQueryParamClass, ToFindOptions } from '.';
-import { EntityOwner, getAclEntity, getOwnerProperty } from '../auth';
-import { defaultValidatorOptions } from '../defaultValidatorOptions';
 
 export function createEntityModule<TEntity>(
   entityType: Type<TEntity>,

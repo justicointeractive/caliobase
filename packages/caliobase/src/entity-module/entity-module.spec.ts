@@ -71,6 +71,11 @@ describe('entity module', () => {
         { owner: { id: org.id } }
       );
       expect(all).toHaveLength(1);
+      const one = await entityService.findOne(
+        { where: {} },
+        { owner: { id: org.id } }
+      );
+      expect(one).toBeTruthy();
     });
   });
 
