@@ -13,13 +13,15 @@ export type PolicyStatementAction =
   | 'update'
   | 'delete';
 
-export type PolicyUserCondition = {
-  [K in keyof CaliobaseJwtPayload]: NonNullable<
-    CaliobaseJwtPayload[K]
-  > extends (infer U)[]
-    ? U
-    : CaliobaseJwtPayload[K];
-};
+export type PolicyUserCondition =
+  | {
+      [K in keyof CaliobaseJwtPayload]: NonNullable<
+        CaliobaseJwtPayload[K]
+      > extends (infer U)[]
+        ? U
+        : CaliobaseJwtPayload[K];
+    }
+  | ((payload: CaliobaseJwtPayload) => boolean);
 
 export type PolicyStatement<T> = {
   effect: 'allow' | 'deny';

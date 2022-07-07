@@ -46,13 +46,20 @@ export function createEntityServiceClass<
         if (statement.effect === 'deny') {
           throw new Error('deny statements are not implemented');
         }
-        // TODO: verify role is a role for this organization
-        if (
-          statement.users &&
-          statement.users.role &&
-          !(user.role ?? []).includes(statement.users.role)
-        ) {
-          return false;
+        if (statement.users) {
+          if (typeof statement.users === 'function') {
+            if (!statement.users(user)) {
+              return false;
+            }
+          } else {
+            if (
+              // TODO: verify role is a role for this organization
+              statement.users.role &&
+              !(user.role ?? []).includes(statement.users.role)
+            ) {
+              return false;
+            }
+          }
         }
         if (statement.action !== '*' && !statement.action.includes(action)) {
           return false;

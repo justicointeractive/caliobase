@@ -1,3 +1,4 @@
+import { faker } from '@faker-js/faker';
 import { Column, In, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from '../auth';
 import { AuthService } from '../auth/auth.service';
@@ -203,7 +204,7 @@ describe('access policy', () => {
         const moderator = await userService.createUserWithPassword(fakeUser());
 
         const organization = await orgService.createOrganization(user.id, {
-          name: 'Test Organization',
+          name: faker.company.companyName(),
         });
 
         return {
@@ -436,7 +437,7 @@ describe('access policy', () => {
         const moderator = await userService.createUserWithPassword(fakeUser());
 
         const organization = await orgService.createOrganization(uploader.id, {
-          name: 'Test Organization',
+          name: faker.company.companyName(),
         });
 
         return {
@@ -612,6 +613,148 @@ describe('access policy', () => {
           }
         )
       ).toHaveLength(1);
+    });
+  });
+
+  describe('account gated download', () => {
+    @CaliobaseEntity<Downloadable>({
+      controller: { name: 'downloadable' },
+      accessPolicy: [
+        {
+          effect: 'allow',
+          action: ['create'],
+          users: { role: 'moderator' },
+        },
+        {
+          effect: 'allow',
+          action: ['get', 'list'],
+          users: ({ userId }) => userId != null,
+        },
+      ],
+    })
+    class Downloadable {
+      @PrimaryGeneratedColumn('uuid')
+      id!: string;
+
+      @Column()
+      title!: string;
+    }
+
+    const { downloadableService, organization, moderator, user } =
+      useTestingModule(async () => {
+        const entityModule = createEntityModule(Downloadable);
+
+        const module = await createTestingModule({
+          imports: [entityModule],
+        });
+
+        const downloadableService = module.get<
+          InstanceType<NonNullable<typeof entityModule['EntityService']>>
+        >(entityModule.EntityService);
+
+        const userService = module.get<AuthService>(AuthService);
+        const orgService = module.get<OrganizationService>(OrganizationService);
+
+        const moderator = await userService.createUserWithPassword(fakeUser());
+        const user = await userService.createUserWithPassword(fakeUser());
+
+        const organization = await orgService.createOrganization(moderator.id, {
+          name: faker.company.companyName(),
+        });
+
+        return {
+          module,
+          entityModule,
+          downloadableService,
+          organization,
+          user,
+          moderator,
+        };
+      });
+
+    assert(organization);
+
+    let video: Downloadable;
+
+    it('should allow moderator create', async () => {
+      video = await downloadableService.create(
+        {
+          title: 'test 123',
+        },
+        {
+          organization,
+          user: {
+            userId: moderator.id,
+            role: ['moderator'],
+          },
+        }
+      );
+
+      expect(video).not.toBeNull();
+    });
+    it('should allow user read/list', async () => {
+      expect(
+        await downloadableService.findOne(
+          {
+            where: {
+              id: video.id,
+            },
+          },
+          {
+            organization,
+            user: {
+              userId: user.id,
+              role: [],
+            },
+          }
+        )
+      ).not.toBeNull();
+      expect(
+        await downloadableService.findAll(
+          {
+            where: {
+              id: video.id,
+            },
+          },
+          {
+            organization,
+            user: {
+              userId: user.id,
+              role: [],
+            },
+          }
+        )
+      ).toHaveLength(1);
+    });
+    it('should disallow anonymous read/list', async () => {
+      await expect(
+        async () =>
+          await downloadableService.findOne(
+            {
+              where: {
+                id: video.id,
+              },
+            },
+            {
+              organization,
+              user: {},
+            }
+          )
+      ).rejects.toThrow();
+      await expect(
+        async () =>
+          await downloadableService.findAll(
+            {
+              where: {
+                id: video.id,
+              },
+            },
+            {
+              organization,
+              user: {},
+            }
+          )
+      ).rejects.toThrow();
     });
   });
 });
