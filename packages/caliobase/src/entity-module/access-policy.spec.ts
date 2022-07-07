@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker';
 import { Column, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from '../auth';
 import { AuthService } from '../auth/auth.service';
@@ -7,6 +6,7 @@ import {
   createTestingModule,
   useTestingModule,
 } from '../test/createTestingModule';
+import { fakeUser } from '../test/fakeUser';
 import { createEntityModule } from './createEntityModule';
 import { CaliobaseEntity } from './decorators';
 import assert = require('assert');
@@ -158,8 +158,8 @@ describe('access policy', () => {
         {
           effect: 'allow',
           action: ['update', 'delete'],
-          items: ({ user: { memberId } }) => ({
-            createdById: memberId,
+          items: ({ user: { userId } }) => ({
+            createdById: userId,
           }),
         },
         {
@@ -183,8 +183,8 @@ describe('access policy', () => {
       createdBy!: User;
     }
 
-    const { commentService, organization, user } = useTestingModule(
-      async () => {
+    const { commentService, organization, user, user2, moderator } =
+      useTestingModule(async () => {
         const entityModule = createEntityModule(Comment);
 
         const module = await createTestingModule({
@@ -198,12 +198,9 @@ describe('access policy', () => {
         const userService = module.get<AuthService>(AuthService);
         const orgService = module.get<OrganizationService>(OrganizationService);
 
-        const user = await userService.createUserWithPassword({
-          email: faker.internet.email(),
-          givenName: 'Test',
-          familyName: 'User',
-          password: 'abc123',
-        });
+        const user = await userService.createUserWithPassword(fakeUser());
+        const user2 = await userService.createUserWithPassword(fakeUser());
+        const moderator = await userService.createUserWithPassword(fakeUser());
 
         const organization = await orgService.createOrganization(user.id, {
           name: 'Test Organization',
@@ -215,9 +212,10 @@ describe('access policy', () => {
           commentService,
           organization,
           user,
+          user2,
+          moderator,
         };
-      }
-    );
+      });
 
     assert(organization);
 
@@ -240,9 +238,128 @@ describe('access policy', () => {
 
       expect(comment).not.toBeNull();
     });
-    it('should allow guest comment read', () => {});
-    it('should allow guest comment updates', () => {});
-    it('should allow moderator updates', () => {});
-    it('should allow moderator deletes', () => {});
+    it('should allow guest comment read', async () => {
+      expect(
+        await commentService.findOne(
+          {
+            where: {
+              id: comment.id,
+            },
+          },
+          {
+            organization,
+            user: {
+              userId: user.id,
+              role: [],
+            },
+          }
+        )
+      ).not.toBeNull();
+      expect(
+        await commentService.findOne(
+          {
+            where: {
+              id: comment.id,
+            },
+          },
+          {
+            organization,
+            user: {
+              userId: user2.id,
+              role: [],
+            },
+          }
+        )
+      ).not.toBeNull();
+    });
+    it('should allow guest comment updates', async () => {
+      expect(
+        await commentService.update(
+          {
+            id: comment.id,
+          },
+          {
+            text: 'test 234',
+          },
+          {
+            organization,
+            user: {
+              userId: user.id,
+              role: [],
+            },
+          }
+        )
+      ).toHaveLength(1);
+    });
+    it('should disallow other guest comment updates', async () => {
+      expect(
+        await commentService.update(
+          {
+            id: comment.id,
+          },
+          {
+            text: 'test 345',
+          },
+          {
+            organization,
+            user: {
+              userId: user2.id,
+              role: [],
+            },
+          }
+        )
+      ).toHaveLength(0);
+    });
+    it('should disallow other guest comment remove', async () => {
+      expect(
+        await commentService.remove(
+          {
+            id: comment.id,
+          },
+          {
+            organization,
+            user: {
+              userId: user2.id,
+              role: [],
+            },
+          }
+        )
+      ).toHaveLength(0);
+    });
+    it('should allow moderator updates', async () => {
+      expect(
+        await commentService.update(
+          {
+            id: comment.id,
+          },
+          {
+            text: 'test 456',
+          },
+          {
+            organization,
+            user: {
+              userId: moderator.id,
+              role: ['moderator'],
+            },
+          }
+        )
+      ).toHaveLength(1);
+    });
+    it('should allow moderator deletes', async () => {
+      expect(
+        await commentService.remove(
+          {
+            id: comment.id,
+          },
+          {
+            organization,
+            user: {
+              userId: moderator.id,
+              role: ['moderator'],
+            },
+          }
+        )
+      ).toHaveLength(1);
+    });
   });
 });

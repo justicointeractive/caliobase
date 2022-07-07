@@ -15,6 +15,7 @@ import {
   createTestingModule,
   useTestingModule,
 } from '../test/createTestingModule';
+import { fakeUser } from '../test/fakeUser';
 
 describe('entity module', () => {
   describe('standard', function () {
@@ -44,12 +45,7 @@ describe('entity module', () => {
       const orgService = module.get(OrganizationService);
       const authService = module.get(AuthService);
 
-      const user = await authService.createUserWithPassword({
-        email: faker.internet.email(),
-        familyName: faker.name.lastName(),
-        givenName: faker.name.firstName(),
-        password: faker.internet.password(),
-      });
+      const user = await authService.createUserWithPassword(fakeUser());
 
       const org = await orgService.createOrganization(user.id, {
         name: faker.company.companyName(),
@@ -111,12 +107,7 @@ describe('entity module', () => {
       const authService = module.get(AuthService);
       const orgService = module.get(OrganizationService);
 
-      const user = await authService.createUserWithPassword({
-        email: faker.internet.email(),
-        familyName: faker.name.lastName(),
-        givenName: faker.name.firstName(),
-        password: faker.internet.password(),
-      });
+      const user = await authService.createUserWithPassword(fakeUser());
 
       const org = await orgService.createOrganization(user.id, {
         name: faker.company.companyName(),

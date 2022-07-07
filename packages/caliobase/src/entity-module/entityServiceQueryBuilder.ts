@@ -11,7 +11,7 @@ export function entityServiceQueryBuilder<TEntity>(
   entityType: Type<TEntity>,
   entityManager: EntityManager,
   { where, order }: CaliobaseFindOptions<TEntity>,
-  owner: { id: string },
+  organization: { id: string },
   aclAccessLevels: AclAccessLevel[] = AclAccessLevels
 ) {
   const repository = entityManager.getRepository(entityType);
@@ -32,7 +32,7 @@ export function entityServiceQueryBuilder<TEntity>(
 
   query.where({
     ...where,
-    ...getCaliobaseOwnerOrganizationMixin(entityType, owner),
+    ...getCaliobaseOwnerOrganizationMixin(entityType, organization),
   });
 
   if (getAclProperty(entityType) != null) {
@@ -41,7 +41,7 @@ export function entityServiceQueryBuilder<TEntity>(
       'acl',
       `entity.id = acl.objectId AND acl.organizationId = :organizationId AND acl.access in (${inPlaceholders})`,
       {
-        organizationId: owner.id,
+        organizationId: organization.id,
         ...inValues,
       }
     );

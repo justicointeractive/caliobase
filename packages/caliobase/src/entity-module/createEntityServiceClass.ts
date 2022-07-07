@@ -56,6 +56,7 @@ export function createEntityServiceClass<
           return {
             ...filter,
             ...statement,
+            item: statementItems(statement, user),
           };
         },
         <PolicyStatement<TEntity>>{ effect: 'deny' }
@@ -123,7 +124,7 @@ export function createEntityServiceClass<
         return await entityServiceQueryBuilder(
           entityType,
           manager,
-          { where: { ...where, ...policy?.items }, order },
+          { where: { ...where, ...statementItems(policy, user) }, order },
           organization
         ).getMany();
       });
@@ -139,7 +140,7 @@ export function createEntityServiceClass<
         return await entityServiceQueryBuilder(
           entityType,
           manager,
-          { where: { ...where, ...policy?.items }, order },
+          { where: { ...where, ...statementItems(policy, user) }, order },
           organization
         ).getOne();
       });
@@ -156,7 +157,7 @@ export function createEntityServiceClass<
         const allFound = await entityServiceQueryBuilder(
           entityType,
           manager,
-          { where: { ...conditions, ...policy?.items } },
+          { where: { ...conditions, ...statementItems(policy, user) } },
           organization,
           getAclAccessLevels('writer')
         ).getMany();
@@ -180,7 +181,7 @@ export function createEntityServiceClass<
         const allFound = await entityServiceQueryBuilder(
           entityType,
           manager,
-          { where: { ...conditions, ...policy?.items } },
+          { where: { ...conditions, ...statementItems(policy, user) } },
           organization,
           getAclAccessLevels('writer')
         ).getMany();
@@ -193,4 +194,13 @@ export function createEntityServiceClass<
   }
 
   return CaliobaseServiceClass;
+}
+
+function statementItems<T>(
+  statement: PolicyStatement<T> | undefined,
+  user: CaliobaseJwtPayload
+) {
+  return typeof statement?.items === 'function'
+    ? statement.items({ user })
+    : statement?.items;
 }

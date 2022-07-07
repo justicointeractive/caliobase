@@ -14,6 +14,14 @@ import {
   SocialProvidersToken,
   SocialValidation,
 } from './social-provider/social-provider';
+
+export type CreateUserRequest = {
+  email: string;
+  givenName: string;
+  familyName: string;
+  password: string;
+};
+
 @Injectable()
 export class AuthService {
   providers: Map<string, SocialProvider>;
@@ -88,17 +96,12 @@ export class AuthService {
     return user;
   }
 
-  async createUserWithPassword(request: {
-    email: string;
-    givenName: string;
-    familyName: string;
-    password: string;
-  }) {
+  async createUserWithPassword({ password, ...createUser }: CreateUserRequest) {
     const user = await this.userRepo.save({
-      ...request,
+      ...createUser,
     });
 
-    await this.userPasswordRepo.setUserPassword(user, request.password);
+    await this.userPasswordRepo.setUserPassword(user, password);
 
     return user;
   }

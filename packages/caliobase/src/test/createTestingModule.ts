@@ -1,4 +1,5 @@
 import { ModuleMetadata } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { createTestAccount, createTransport } from 'nodemailer';
@@ -14,11 +15,28 @@ export async function createTestingModule(metadata: ModuleMetadata = {}) {
   const module = await Test.createTestingModule({
     ...metadata,
     imports: [
-      TypeOrmModule.forRoot({
-        type: 'postgres',
-        retryAttempts: 0,
-        synchronize: true,
-        autoLoadEntities: true,
+      TypeOrmModule.forRootAsync({
+        imports: [ConfigModule],
+        inject: [ConfigService],
+        useFactory: async (config: ConfigService) => {
+          let pgConnectionString = config.get('PG_CONNECTION_STRING');
+          if (config.get('PG_CONNECTION_JSON')) {
+            const { host, port, username, password } = JSON.parse(
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              config.get('PG_CONNECTION_JSON')!
+            );
+            pgConnectionString = `postgresql://${username}:${password}@${host}:${port}/postgres`;
+          }
+
+          return {
+            type: 'postgres',
+            retryAttempts: 0,
+            synchronize: true,
+            autoLoadEntities: true,
+            url: pgConnectionString,
+            logging: process.env.TYPEORM_LOGGING === '1',
+          };
+        },
       }),
       CaliobaseModule.forRoot({
         baseUrl: '',
