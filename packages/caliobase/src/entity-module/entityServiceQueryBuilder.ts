@@ -5,7 +5,7 @@ import { RelationMetadata } from 'typeorm/metadata/RelationMetadata';
 import { CaliobaseFindOptions } from '.';
 import { AclAccessLevel, AclAccessLevels } from '../auth/acl/acl';
 import { getAclProperty } from '../auth/acl/getAclEntityAndProperty';
-import { getCaliobaseOwnerOrganizationMixin } from '../auth/decorators/owner.decorator';
+import { getOrganizationFilter } from '../auth/decorators/owner.decorator';
 
 export function entityServiceQueryBuilder<TEntity>(
   entityType: Type<TEntity>,
@@ -32,7 +32,7 @@ export function entityServiceQueryBuilder<TEntity>(
 
   query.where({
     ...where,
-    ...getCaliobaseOwnerOrganizationMixin(entityType, organization),
+    ...getOrganizationFilter(entityType, organization),
   });
 
   if (getAclProperty(entityType) != null) {

@@ -20,7 +20,7 @@ export function getOwnerProperty(entity: Type<any>) {
   return Reflect.getMetadata(ownerKey, entity) as string | symbol;
 }
 
-export function getCaliobaseOwnerOrganizationMixin(
+export function getOrganizationFilter(
   entity: Type<any>,
   owner: { id: string }
 ) {
