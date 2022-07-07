@@ -27,7 +27,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate({
     userId,
     organizationId,
+    roles,
   }: CaliobaseJwtPayload): Promise<CaliobaseJwtPayload> {
-    return { userId, organizationId };
+    return { userId, organizationId, roles };
   }
 }

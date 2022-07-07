@@ -15,11 +15,7 @@ export type PolicyStatementAction =
 
 export type PolicyUserCondition =
   | {
-      [K in keyof CaliobaseJwtPayload]: NonNullable<
-        CaliobaseJwtPayload[K]
-      > extends (infer U)[]
-        ? U
-        : CaliobaseJwtPayload[K];
+      role: string;
     }
   | ((payload: CaliobaseJwtPayload) => boolean);
 

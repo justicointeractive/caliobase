@@ -73,7 +73,7 @@ describe('access policy', () => {
         },
         {
           organization,
-          user: { role: ['editor'] },
+          user: { roles: ['editor'] },
         }
       );
 
@@ -89,7 +89,7 @@ describe('access policy', () => {
             },
             {
               organization,
-              user: { role: [] },
+              user: { roles: [] },
             }
           )
       ).rejects.toThrow();
@@ -121,7 +121,7 @@ describe('access policy', () => {
           },
           {
             organization,
-            user: { role: ['editor'] },
+            user: { roles: ['editor'] },
           }
         )
       )[0];
@@ -232,7 +232,7 @@ describe('access policy', () => {
           organization,
           user: {
             userId: user.id,
-            role: [],
+            roles: [],
           },
         }
       );
@@ -251,7 +251,7 @@ describe('access policy', () => {
             organization,
             user: {
               userId: user.id,
-              role: [],
+              roles: [],
             },
           }
         )
@@ -267,7 +267,7 @@ describe('access policy', () => {
             organization,
             user: {
               userId: user2.id,
-              role: [],
+              roles: [],
             },
           }
         )
@@ -286,7 +286,7 @@ describe('access policy', () => {
             organization,
             user: {
               userId: user.id,
-              role: [],
+              roles: [],
             },
           }
         )
@@ -305,7 +305,7 @@ describe('access policy', () => {
             organization,
             user: {
               userId: user2.id,
-              role: [],
+              roles: [],
             },
           }
         )
@@ -321,7 +321,7 @@ describe('access policy', () => {
             organization,
             user: {
               userId: user2.id,
-              role: [],
+              roles: [],
             },
           }
         )
@@ -340,7 +340,7 @@ describe('access policy', () => {
             organization,
             user: {
               userId: moderator.id,
-              role: ['moderator'],
+              roles: ['moderator'],
             },
           }
         )
@@ -356,7 +356,7 @@ describe('access policy', () => {
             organization,
             user: {
               userId: moderator.id,
-              role: ['moderator'],
+              roles: ['moderator'],
             },
           }
         )
@@ -466,7 +466,7 @@ describe('access policy', () => {
           organization,
           user: {
             userId: uploader.id,
-            role: [],
+            roles: [],
           },
         }
       );
@@ -485,7 +485,7 @@ describe('access policy', () => {
             organization,
             user: {
               userId: uploader.id,
-              role: [],
+              roles: [],
             },
           }
         )
@@ -501,7 +501,7 @@ describe('access policy', () => {
             organization,
             user: {
               userId: viewer.id,
-              role: [],
+              roles: [],
             },
           }
         )
@@ -520,7 +520,7 @@ describe('access policy', () => {
             organization,
             user: {
               userId: uploader.id,
-              role: [],
+              roles: [],
             },
           }
         )
@@ -538,7 +538,7 @@ describe('access policy', () => {
             organization,
             user: {
               userId: viewer.id,
-              role: [],
+              roles: [],
             },
           }
         )
@@ -557,7 +557,7 @@ describe('access policy', () => {
             organization,
             user: {
               userId: viewer.id,
-              role: [],
+              roles: [],
             },
           }
         )
@@ -573,7 +573,7 @@ describe('access policy', () => {
             organization,
             user: {
               userId: viewer.id,
-              role: [],
+              roles: [],
             },
           }
         )
@@ -592,7 +592,7 @@ describe('access policy', () => {
             organization,
             user: {
               userId: moderator.id,
-              role: ['moderator'],
+              roles: ['moderator'],
             },
           }
         )
@@ -608,7 +608,7 @@ describe('access policy', () => {
             organization,
             user: {
               userId: moderator.id,
-              role: ['moderator'],
+              roles: ['moderator'],
             },
           }
         )
@@ -685,7 +685,7 @@ describe('access policy', () => {
           organization,
           user: {
             userId: moderator.id,
-            role: ['moderator'],
+            roles: ['moderator'],
           },
         }
       );
@@ -704,7 +704,7 @@ describe('access policy', () => {
             organization,
             user: {
               userId: user.id,
-              role: [],
+              roles: [],
             },
           }
         )
@@ -720,7 +720,7 @@ describe('access policy', () => {
             organization,
             user: {
               userId: user.id,
-              role: [],
+              roles: [],
             },
           }
         )
@@ -839,7 +839,7 @@ describe('access policy', () => {
           organization,
           user: {
             userId: moderator.id,
-            role: ['moderator'],
+            roles: ['moderator'],
           },
         }
       );
@@ -858,7 +858,7 @@ describe('access policy', () => {
             organization,
             user: {
               userId: ownerUser.id,
-              role: [],
+              roles: [],
             },
           }
         )
@@ -874,7 +874,7 @@ describe('access policy', () => {
             organization,
             user: {
               userId: ownerUser.id,
-              role: [],
+              roles: [],
             },
           }
         )

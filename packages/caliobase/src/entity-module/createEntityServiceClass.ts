@@ -55,7 +55,7 @@ export function createEntityServiceClass<
             if (
               // TODO: verify role is a role for this organization
               statement.users.role &&
-              !(user.role ?? []).includes(statement.users.role)
+              !(user.roles ?? []).includes(statement.users.role)
             ) {
               return false;
             }
