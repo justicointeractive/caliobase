@@ -1,4 +1,4 @@
-import { Column, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, In, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from '../auth';
 import { AuthService } from '../auth/auth.service';
 import { OrganizationService } from '../auth/organization.service';
@@ -350,6 +350,258 @@ describe('access policy', () => {
         await commentService.remove(
           {
             id: comment.id,
+          },
+          {
+            organization,
+            user: {
+              userId: moderator.id,
+              role: ['moderator'],
+            },
+          }
+        )
+      ).toHaveLength(1);
+    });
+  });
+
+  describe('video sharing', () => {
+    @CaliobaseEntity<Video>({
+      controller: { name: 'video' },
+      accessPolicy: [
+        {
+          effect: 'allow',
+          action: ['create'],
+        },
+        {
+          effect: 'allow',
+          action: ['get'],
+          items: {
+            visibility: In(['public', 'unlisted']),
+          },
+        },
+        {
+          effect: 'allow',
+          action: ['list'],
+          items: {
+            visibility: In(['public']),
+          },
+        },
+        {
+          effect: 'allow',
+          action: '*',
+          items: ({ user: { userId } }) => ({
+            createdById: userId,
+          }),
+        },
+        {
+          effect: 'allow',
+          action: '*',
+          users: { role: 'moderator' },
+        },
+      ],
+    })
+    class Video {
+      @PrimaryGeneratedColumn('uuid')
+      id!: string;
+
+      @Column()
+      title!: string;
+
+      @Column()
+      visibility!: 'private' | 'unlisted' | 'public';
+
+      @Column()
+      createdById!: string;
+
+      @ManyToOne(() => User)
+      createdBy!: User;
+    }
+
+    const { videoService, organization, uploader, viewer, moderator } =
+      useTestingModule(async () => {
+        const entityModule = createEntityModule(Video);
+
+        const module = await createTestingModule({
+          imports: [entityModule],
+        });
+
+        const videoService = module.get<
+          InstanceType<NonNullable<typeof entityModule['EntityService']>>
+        >(entityModule.EntityService);
+
+        const userService = module.get<AuthService>(AuthService);
+        const orgService = module.get<OrganizationService>(OrganizationService);
+
+        const uploader = await userService.createUserWithPassword(fakeUser());
+        const viewer = await userService.createUserWithPassword(fakeUser());
+        const moderator = await userService.createUserWithPassword(fakeUser());
+
+        const organization = await orgService.createOrganization(uploader.id, {
+          name: 'Test Organization',
+        });
+
+        return {
+          module,
+          entityModule,
+          videoService,
+          organization,
+          uploader,
+          viewer,
+          moderator,
+        };
+      });
+
+    assert(organization);
+
+    let video: Video;
+
+    it('should allow guest video writes', async () => {
+      video = await videoService.create(
+        {
+          title: 'test 123',
+          createdById: uploader.id, // TODO: enforce createdById by service
+          visibility: 'unlisted',
+        },
+        {
+          organization,
+          user: {
+            userId: uploader.id,
+            role: [],
+          },
+        }
+      );
+
+      expect(video).not.toBeNull();
+    });
+    it('should allow guest video read', async () => {
+      expect(
+        await videoService.findOne(
+          {
+            where: {
+              id: video.id,
+            },
+          },
+          {
+            organization,
+            user: {
+              userId: uploader.id,
+              role: [],
+            },
+          }
+        )
+      ).not.toBeNull();
+      expect(
+        await videoService.findOne(
+          {
+            where: {
+              id: video.id,
+            },
+          },
+          {
+            organization,
+            user: {
+              userId: viewer.id,
+              role: [],
+            },
+          }
+        )
+      ).not.toBeNull();
+    });
+    it('should allow guest video updates', async () => {
+      expect(
+        await videoService.update(
+          {
+            id: video.id,
+          },
+          {
+            title: 'test 234',
+          },
+          {
+            organization,
+            user: {
+              userId: uploader.id,
+              role: [],
+            },
+          }
+        )
+      ).toHaveLength(1);
+    });
+    it('should disallow viewer video list unlisted', async () => {
+      expect(
+        await videoService.findAll(
+          {
+            where: {
+              id: video.id,
+            },
+          },
+          {
+            organization,
+            user: {
+              userId: viewer.id,
+              role: [],
+            },
+          }
+        )
+      ).toHaveLength(0);
+    });
+    it('should disallow viewer video updates', async () => {
+      expect(
+        await videoService.update(
+          {
+            id: video.id,
+          },
+          {
+            title: 'test 345',
+          },
+          {
+            organization,
+            user: {
+              userId: viewer.id,
+              role: [],
+            },
+          }
+        )
+      ).toHaveLength(0);
+    });
+    it('should disallow viewer video remove', async () => {
+      expect(
+        await videoService.remove(
+          {
+            id: video.id,
+          },
+          {
+            organization,
+            user: {
+              userId: viewer.id,
+              role: [],
+            },
+          }
+        )
+      ).toHaveLength(0);
+    });
+    it('should allow moderator updates', async () => {
+      expect(
+        await videoService.update(
+          {
+            id: video.id,
+          },
+          {
+            title: 'test 456',
+          },
+          {
+            organization,
+            user: {
+              userId: moderator.id,
+              role: ['moderator'],
+            },
+          }
+        )
+      ).toHaveLength(1);
+    });
+    it('should allow moderator deletes', async () => {
+      expect(
+        await videoService.remove(
+          {
+            id: video.id,
           },
           {
             organization,

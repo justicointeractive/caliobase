@@ -46,6 +46,7 @@ export function createEntityServiceClass<
         if (statement.effect === 'deny') {
           throw new Error('deny statements are not implemented');
         }
+        // TODO: verify role is a role for this organization
         if (
           statement.users &&
           statement.users.role &&
