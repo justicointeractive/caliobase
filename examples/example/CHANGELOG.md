@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.3.3](https://github.com/justicointeractive/caliobase/compare/example-0.3.2...example-0.3.3) (2022-07-07)
+
+
+### Bug Fixes
+
+* synchronize example app schema ([3cb4c80](https://github.com/justicointeractive/caliobase/commit/3cb4c80ea430437db172e3d3a129874c254a138e))
+
 ### [0.3.2](https://github.com/justicointeractive/caliobase/compare/example-0.3.1...example-0.3.2) (2022-07-06)
 
 ### [0.3.1](https://github.com/justicointeractive/caliobase/compare/example-0.3.0...example-0.3.1) (2022-07-05)
