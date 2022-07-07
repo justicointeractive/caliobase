@@ -2,6 +2,14 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.43](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.42...caliobase-0.0.1-alpha.43) (2022-07-07)
+
+
+### Bug Fixes
+
+* if a route is public then still run jwt parser on it but don't throw ([4cb0311](https://github.com/justicointeractive/caliobase/commit/4cb03116a7b5c625419655bab5b766e0d5644e10))
+* user is false rather than null for no auth ([16260e6](https://github.com/justicointeractive/caliobase/commit/16260e6a8bb15513883b95429c59f62d088a4d51))
+
 ### [0.0.1-alpha.42](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.41...caliobase-0.0.1-alpha.42) (2022-07-07)
 
 
