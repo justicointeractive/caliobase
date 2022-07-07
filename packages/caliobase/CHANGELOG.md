@@ -2,6 +2,18 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.40](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.39...caliobase-0.0.1-alpha.40) (2022-07-07)
+
+
+### Features
+
+* user roles ([fb02d73](https://github.com/justicointeractive/caliobase/commit/fb02d738d7115048b7794ff273166526e478e948))
+
+
+### Bug Fixes
+
+* user role in access token ([4d2c31b](https://github.com/justicointeractive/caliobase/commit/4d2c31be18154ebfd1b70c67f92b3142632d68ba))
+
 ### [0.0.1-alpha.39](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.38...caliobase-0.0.1-alpha.39) (2022-07-07)
 
 
