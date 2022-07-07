@@ -9,10 +9,11 @@ import { CaliobaseFindOptions, RenameClass, ToFindOptions } from '.';
 import { CaliobaseJwtPayload } from '../auth';
 import { getAclAccessLevels } from '../auth/acl/acl';
 import { getAclEntity } from '../auth/acl/getAclEntityAndProperty';
-import { getCaliobaseOwnerOrganizationMixin } from '../auth/decorators/owner.decorator';
+import { getOrganizationFilter } from '../auth/decorators/owner.decorator';
+import { unwrapValueWithContext } from '../lib/unwrapValueWithContext';
 import {
   AccessPolicies,
-  PolicyStatement,
+  EffectivePolicy,
   PolicyStatementAction,
 } from './decorators/AccessPolicies.decorator';
 import { entityServiceQueryBuilder } from './entityServiceQueryBuilder';
@@ -36,9 +37,15 @@ export function createEntityServiceClass<
 
   const policyStatements = AccessPolicies.get(entityType);
 
-  function getPolicy(user: CaliobaseJwtPayload, action: PolicyStatementAction) {
+  function getUserPolicy(
+    user: CaliobaseJwtPayload,
+    action: PolicyStatementAction
+  ) {
     const policy = policyStatements
       ?.filter((statement) => {
+        if (statement.effect === 'deny') {
+          throw new Error('deny statements are not implemented');
+        }
         if (
           statement.users &&
           statement.users.role &&
@@ -46,20 +53,23 @@ export function createEntityServiceClass<
         ) {
           return false;
         }
-        if (!statement.action.includes(action)) {
+        if (statement.action !== '*' && !statement.action.includes(action)) {
           return false;
         }
         return true;
       })
       .reduce(
-        (filter, statement) => {
+        (agg, { effect, items }) => {
           return {
-            ...filter,
-            ...statement,
-            item: statementItems(statement, user),
+            ...agg,
+            effect,
+            itemFilters: [
+              ...agg.itemFilters,
+              items ? unwrapValueWithContext(items, { user }) : {},
+            ],
           };
         },
-        <PolicyStatement<TEntity>>{ effect: 'deny' }
+        <EffectivePolicy<TEntity>>{ effect: 'deny', itemFilters: [] }
       );
     if (policy?.effect === 'deny') {
       throw new UnauthorizedException(
@@ -91,12 +101,12 @@ export function createEntityServiceClass<
       return await this.dataSource.transaction(async (manager) => {
         const entityRepository = manager.getRepository(entityType);
 
-        getPolicy(user, 'create');
+        getUserPolicy(user, 'create');
 
         const created: TEntity = await entityRepository.save(
           entityRepository.create({
             ...createDto,
-            ...getCaliobaseOwnerOrganizationMixin(entityType, organization),
+            ...getOrganizationFilter(entityType, organization),
           }) as TEntity & ObjectLiteral // todo more narrow type
         );
 
@@ -118,14 +128,14 @@ export function createEntityServiceClass<
       { where, order }: CaliobaseFindOptions<TEntity>,
       { organization, user }: ICaliobaseServiceOptions
     ) {
-      const policy = getPolicy(user, 'list');
+      const policy = getUserPolicy(user, 'list');
 
       return await this.dataSource.transaction(async (manager) => {
         return await entityServiceQueryBuilder(
           entityType,
           manager,
-          { where: { ...where, ...statementItems(policy, user) }, order },
-          organization
+          { where, order },
+          { organization, itemFilters: policy?.itemFilters }
         ).getMany();
       });
     }
@@ -134,32 +144,35 @@ export function createEntityServiceClass<
       { where, order }: CaliobaseFindOptions<TEntity>,
       { organization, user }: ICaliobaseServiceOptions
     ) {
-      const policy = getPolicy(user, 'get');
+      const policy = getUserPolicy(user, 'get');
 
       return await this.dataSource.transaction(async (manager) => {
         return await entityServiceQueryBuilder(
           entityType,
           manager,
-          { where: { ...where, ...statementItems(policy, user) }, order },
-          organization
+          { where, order },
+          { organization, itemFilters: policy?.itemFilters }
         ).getOne();
       });
     }
 
     async update(
-      conditions: FindOptionsWhere<TEntity>,
+      where: FindOptionsWhere<TEntity>,
       updateDto: TUpdate,
       { organization, user }: ICaliobaseServiceOptions
     ) {
-      const policy = getPolicy(user, 'update');
+      const policy = getUserPolicy(user, 'update');
 
       return await this.dataSource.transaction(async (manager) => {
         const allFound = await entityServiceQueryBuilder(
           entityType,
           manager,
-          { where: { ...conditions, ...statementItems(policy, user) } },
-          organization,
-          getAclAccessLevels('writer')
+          { where },
+          {
+            organization,
+            itemFilters: policy?.itemFilters,
+            aclAccessLevels: getAclAccessLevels('writer'),
+          }
         ).getMany();
         for (const found of allFound) {
           Object.assign(found, updateDto);
@@ -172,18 +185,21 @@ export function createEntityServiceClass<
     }
 
     async remove(
-      conditions: FindOptionsWhere<TEntity>,
+      where: FindOptionsWhere<TEntity>,
       { organization, user }: ICaliobaseServiceOptions
     ) {
-      const policy = getPolicy(user, 'delete');
+      const policy = getUserPolicy(user, 'delete');
 
       return await this.dataSource.transaction(async (manager) => {
         const allFound = await entityServiceQueryBuilder(
           entityType,
           manager,
-          { where: { ...conditions, ...statementItems(policy, user) } },
-          organization,
-          getAclAccessLevels('writer')
+          { where },
+          {
+            organization,
+            itemFilters: policy?.itemFilters,
+            aclAccessLevels: getAclAccessLevels('writer'),
+          }
         ).getMany();
         for (const found of allFound) {
           await manager.getRepository(entityType).remove(found);
@@ -194,13 +210,4 @@ export function createEntityServiceClass<
   }
 
   return CaliobaseServiceClass;
-}
-
-function statementItems<T>(
-  statement: PolicyStatement<T> | undefined,
-  user: CaliobaseJwtPayload
-) {
-  return typeof statement?.items === 'function'
-    ? statement.items({ user })
-    : statement?.items;
 }

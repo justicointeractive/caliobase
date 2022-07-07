@@ -1,6 +1,6 @@
 import { Type } from '@nestjs/common';
 import { fromPairs, toPairs } from 'lodash';
-import { EntityManager, SelectQueryBuilder } from 'typeorm';
+import { EntityManager, FindOptionsWhere, SelectQueryBuilder } from 'typeorm';
 import { RelationMetadata } from 'typeorm/metadata/RelationMetadata';
 import { CaliobaseFindOptions } from '.';
 import { AclAccessLevel, AclAccessLevels } from '../auth/acl/acl';
@@ -11,8 +11,15 @@ export function entityServiceQueryBuilder<TEntity>(
   entityType: Type<TEntity>,
   entityManager: EntityManager,
   { where, order }: CaliobaseFindOptions<TEntity>,
-  organization: { id: string },
-  aclAccessLevels: AclAccessLevel[] = AclAccessLevels
+  {
+    itemFilters,
+    organization,
+    aclAccessLevels = AclAccessLevels,
+  }: {
+    itemFilters: FindOptionsWhere<TEntity>[] | undefined;
+    organization: { id: string };
+    aclAccessLevels?: AclAccessLevel[];
+  }
 ) {
   const repository = entityManager.getRepository(entityType);
 
@@ -30,10 +37,13 @@ export function entityServiceQueryBuilder<TEntity>(
     []
   );
 
-  query.where({
-    ...where,
-    ...getOrganizationFilter(entityType, organization),
-  });
+  query.andWhere(where);
+
+  query.andWhere(getOrganizationFilter(entityType, organization));
+
+  if (itemFilters && itemFilters.length > 0) {
+    query.andWhere(itemFilters);
+  }
 
   if (getAclProperty(entityType) != null) {
     query.innerJoinAndSelect(

@@ -23,11 +23,16 @@ export type PolicyUserCondition = {
 
 export type PolicyStatement<T> = {
   effect: 'allow' | 'deny';
-  action: PolicyStatementAction[];
+  action: '*' | PolicyStatementAction[];
   users?: PolicyUserCondition;
   items?:
     | ((context: { user: CaliobaseJwtPayload }) => FindOptionsWhere<T>)
     | FindOptionsWhere<T>;
+};
+
+export type EffectivePolicy<TEntity> = {
+  effect: 'allow' | 'deny';
+  itemFilters: FindOptionsWhere<TEntity>[];
 };
 
 export const AccessPolicies = Object.assign(

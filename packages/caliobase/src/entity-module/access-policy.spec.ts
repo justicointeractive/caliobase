@@ -23,7 +23,7 @@ describe('access policy', () => {
         },
         {
           effect: 'allow',
-          action: ['create', 'update', 'delete'],
+          action: '*',
           users: { role: 'editor' },
         },
       ],
@@ -157,14 +157,14 @@ describe('access policy', () => {
         },
         {
           effect: 'allow',
-          action: ['update', 'delete'],
+          action: '*',
           items: ({ user: { userId } }) => ({
             createdById: userId,
           }),
         },
         {
           effect: 'allow',
-          action: ['update', 'delete'],
+          action: '*',
           users: { role: 'moderator' },
         },
       ],
