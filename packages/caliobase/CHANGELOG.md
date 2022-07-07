@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.44](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.43...caliobase-0.0.1-alpha.44) (2022-07-07)
+
+
+### Features
+
+* decorate member invitation token with swagger ([0a09c55](https://github.com/justicointeractive/caliobase/commit/0a09c556988a6469022acd08eb91d0faa718e8a4))
+
 ### [0.0.1-alpha.43](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.42...caliobase-0.0.1-alpha.43) (2022-07-07)
 
 
