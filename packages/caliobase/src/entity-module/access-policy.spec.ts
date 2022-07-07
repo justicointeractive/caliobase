@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { Column, In, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { User } from '../auth';
+import { AclItem, EntityAcl, User } from '../auth';
 import { AuthService } from '../auth/auth.service';
 import { OrganizationService } from '../auth/organization.service';
 import {
@@ -757,6 +757,150 @@ describe('access policy', () => {
       ).rejects.toThrow();
     });
   });
+
+  xdescribe('document sharing', () => {
+    @CaliobaseEntity<Document>({
+      controller: { name: 'downloadable' },
+      accessPolicy: [
+        {
+          effect: 'allow',
+          action: '*',
+          users: { role: 'moderator' },
+        },
+      ],
+    })
+    class Document {
+      @PrimaryGeneratedColumn('uuid')
+      id!: string;
+
+      @Column()
+      title!: string;
+
+      @EntityAcl(Document)
+      acl!: AclItem<Document>[];
+    }
+
+    const {
+      documentService,
+      organization,
+      moderator,
+      ownerUser,
+      sharedWithUser,
+      notSharedWithUser,
+    } = useTestingModule(async () => {
+      const entityModule = createEntityModule(Document);
+
+      const module = await createTestingModule({
+        imports: [entityModule],
+      });
+
+      const documentService = module.get<
+        InstanceType<NonNullable<typeof entityModule['EntityService']>>
+      >(entityModule.EntityService);
+
+      const userService = module.get<AuthService>(AuthService);
+      const orgService = module.get<OrganizationService>(OrganizationService);
+
+      const moderator = await userService.createUserWithPassword(fakeUser());
+      const ownerUser = await userService.createUserWithPassword(fakeUser());
+      const sharedWithUser = await userService.createUserWithPassword(
+        fakeUser()
+      );
+      const notSharedWithUser = await userService.createUserWithPassword(
+        fakeUser()
+      );
+
+      const organization = await orgService.createOrganization(moderator.id, {
+        name: faker.company.companyName(),
+      });
+
+      return {
+        module,
+        entityModule,
+        documentService,
+        organization,
+        ownerUser,
+        moderator,
+        sharedWithUser,
+        notSharedWithUser,
+      };
+    });
+
+    assert(organization);
+
+    let document: Document;
+
+    it('should allow user to create', async () => {
+      document = await documentService.create(
+        {
+          title: 'test 123',
+        },
+        {
+          organization,
+          user: {
+            userId: moderator.id,
+            role: ['moderator'],
+          },
+        }
+      );
+
+      expect(document).not.toBeNull();
+    });
+    it('should allow user read/list', async () => {
+      expect(
+        await documentService.findOne(
+          {
+            where: {
+              id: document.id,
+            },
+          },
+          {
+            organization,
+            user: {
+              userId: ownerUser.id,
+              role: [],
+            },
+          }
+        )
+      ).not.toBeNull();
+      expect(
+        await documentService.findAll(
+          {
+            where: {
+              id: document.id,
+            },
+          },
+          {
+            organization,
+            user: {
+              userId: ownerUser.id,
+              role: [],
+            },
+          }
+        )
+      ).toHaveLength(1);
+    });
+    it('should disallow anonymous read/list', async () => {
+      await expect(
+        async () =>
+          await documentService.findOne(
+            {
+              where: {
+                id: document.id,
+              },
+            },
+            {
+              organization,
+              user: {},
+            }
+          )
+      ).rejects.toThrow();
+      await expect(
+        async () =>
+          await documentService.findAll(
+            {
+              where: {
+                id: document.id,
               },
             },
             {

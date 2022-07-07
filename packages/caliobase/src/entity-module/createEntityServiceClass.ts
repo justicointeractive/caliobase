@@ -77,11 +77,14 @@ export function createEntityServiceClass<
             ],
           };
         },
-        <EffectivePolicy<TEntity>>{ effect: 'deny', itemFilters: [] }
+        <EffectivePolicy<TEntity>>{
+          effect: getAclEntity(entityType) ? 'allow' : 'deny',
+          itemFilters: [],
+        }
       );
     if (policy?.effect === 'deny') {
       throw new UnauthorizedException(
-        `user is not authorized to perform ${action} on ${entityType.name}`
+        `user is not authorized to perform '${action}' on '${entityType.name}'`
       );
     }
     return policy;

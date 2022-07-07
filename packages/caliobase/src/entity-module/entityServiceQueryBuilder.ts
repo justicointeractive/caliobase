@@ -1,10 +1,15 @@
 import { Type } from '@nestjs/common';
 import { fromPairs, toPairs } from 'lodash';
-import { EntityManager, FindOptionsWhere, SelectQueryBuilder } from 'typeorm';
+import {
+  Brackets,
+  EntityManager,
+  FindOptionsWhere,
+  SelectQueryBuilder,
+} from 'typeorm';
 import { RelationMetadata } from 'typeorm/metadata/RelationMetadata';
 import { CaliobaseFindOptions } from '.';
 import { AclAccessLevel, AclAccessLevels } from '../auth/acl/acl';
-import { getAclProperty } from '../auth/acl/getAclEntityAndProperty';
+import { getAclEntity } from '../auth/acl/getAclEntityAndProperty';
 import { getOrganizationFilter } from '../auth/decorators/owner.decorator';
 
 export function entityServiceQueryBuilder<TEntity>(
@@ -25,11 +30,6 @@ export function entityServiceQueryBuilder<TEntity>(
 
   const query = repository.createQueryBuilder('entity');
 
-  const { inPlaceholders, inValues } = prepareInClause(
-    'aclAccessLevels',
-    aclAccessLevels
-  );
-
   recursiveJoinEagerRelations(
     query,
     'entity',
@@ -39,23 +39,42 @@ export function entityServiceQueryBuilder<TEntity>(
 
   query.andWhere(where);
 
-  query.andWhere(getOrganizationFilter(entityType, organization));
+  query.andWhere(
+    new Brackets((qb) => {
+      qb.andWhere(getOrganizationFilter(entityType, organization));
 
-  if (itemFilters && itemFilters.length > 0) {
-    query.andWhere(itemFilters);
-  }
+      qb.andWhere(
+        new Brackets((qb) => {
+          if (itemFilters && itemFilters.length > 0) {
+            qb.orWhere(itemFilters);
+          }
 
-  if (getAclProperty(entityType) != null) {
-    query.innerJoinAndSelect(
-      `entity.${getAclProperty(entityType)}`,
-      'acl',
-      `entity.id = acl.objectId AND acl.organizationId = :organizationId AND acl.access in (${inPlaceholders})`,
-      {
-        organizationId: organization.id,
-        ...inValues,
-      }
-    );
-  }
+          const AclEntity = getAclEntity(entityType);
+          if (AclEntity != null) {
+            const { inPlaceholders, inValues } = prepareInClause(
+              'aclAccessLevels',
+              aclAccessLevels
+            );
+
+            qb.orWhere(
+              `EXISTS(${query
+                .subQuery()
+                .from(AclEntity, 'acl')
+                .select('id')
+                .where(
+                  `entity.id = acl.objectId AND acl.organizationId = :organizationId AND acl.access in (${inPlaceholders})`,
+                  {
+                    organizationId: organization.id,
+                    ...inValues,
+                  }
+                )
+                .getQuery()})`
+            );
+          }
+        })
+      );
+    })
+  );
 
   if (order != null) {
     query.orderBy(
@@ -67,6 +86,8 @@ export function entityServiceQueryBuilder<TEntity>(
       )
     );
   }
+
+  // console.log(query.getQueryAndParameters());
 
   return query;
 }
