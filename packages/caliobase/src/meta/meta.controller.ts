@@ -51,7 +51,6 @@ export class MetaController {
   async getMeta() {
     return <GetMetaResponse>{
       hasRootMember: await this.metaService.getHasRootMember(),
-      publicOrgId: Organization.PublicId,
       rootOrgId: Organization.RootId,
     };
   }
