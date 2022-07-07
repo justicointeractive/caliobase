@@ -50,6 +50,25 @@ export class OrganizationController {
   }
 
   @Public()
+  @Post('token')
+  @ApiCreatedResponse({ type: AccessTokenResponse })
+  async getRootOrganizationToken(
+    @Request() request: Express.Request
+  ): Promise<AccessTokenResponse> {
+    const userId = request.user?.userId;
+    const organizationId = Organization.RootId;
+
+    const accessToken =
+      userId != null
+        ? await this.orgService.createMemberAccessToken(userId, organizationId)
+        : await this.orgService.createGuestAccessToken(organizationId);
+
+    return {
+      accessToken,
+    };
+  }
+
+  @Public()
   @Post(':id/token')
   @ApiCreatedResponse({ type: AccessTokenResponse })
   async getOrganizationToken(
