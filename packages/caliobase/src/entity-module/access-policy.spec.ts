@@ -616,13 +616,13 @@ describe('access policy', () => {
     });
   });
 
-  describe('account gated download', () => {
+  describe('no anonymous access', () => {
     @CaliobaseEntity<Downloadable>({
       controller: { name: 'downloadable' },
       accessPolicy: [
         {
           effect: 'allow',
-          action: ['create'],
+          action: '*',
           users: { role: 'moderator' },
         },
         {
@@ -674,10 +674,10 @@ describe('access policy', () => {
 
     assert(organization);
 
-    let video: Downloadable;
+    let downloadable: Downloadable;
 
     it('should allow moderator create', async () => {
-      video = await downloadableService.create(
+      downloadable = await downloadableService.create(
         {
           title: 'test 123',
         },
@@ -690,14 +690,14 @@ describe('access policy', () => {
         }
       );
 
-      expect(video).not.toBeNull();
+      expect(downloadable).not.toBeNull();
     });
     it('should allow user read/list', async () => {
       expect(
         await downloadableService.findOne(
           {
             where: {
-              id: video.id,
+              id: downloadable.id,
             },
           },
           {
@@ -713,7 +713,7 @@ describe('access policy', () => {
         await downloadableService.findAll(
           {
             where: {
-              id: video.id,
+              id: downloadable.id,
             },
           },
           {
@@ -732,7 +732,7 @@ describe('access policy', () => {
           await downloadableService.findOne(
             {
               where: {
-                id: video.id,
+                id: downloadable.id,
               },
             },
             {
@@ -746,7 +746,17 @@ describe('access policy', () => {
           await downloadableService.findAll(
             {
               where: {
-                id: video.id,
+                id: downloadable.id,
+              },
+            },
+            {
+              organization,
+              user: {},
+            }
+          )
+      ).rejects.toThrow();
+    });
+  });
               },
             },
             {
