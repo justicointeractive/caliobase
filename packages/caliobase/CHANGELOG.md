@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.42](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.41...caliobase-0.0.1-alpha.42) (2022-07-07)
+
+
+### Features
+
+* helper for getting root access token ([4fc7d08](https://github.com/justicointeractive/caliobase/commit/4fc7d088964ba8f157c52effabba3d846e1e1782))
+
 ### [0.0.1-alpha.41](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.40...caliobase-0.0.1-alpha.41) (2022-07-07)
 
 
