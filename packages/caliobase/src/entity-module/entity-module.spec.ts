@@ -1,6 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { Column, PrimaryGeneratedColumn } from 'typeorm';
 import {
+  Acl,
   CaliobaseEntity,
   createEntityModule,
   EntityAcl,
@@ -8,7 +9,6 @@ import {
   getOwnerProperty,
   Organization,
 } from '..';
-import { Acl } from '../auth/acl/acl';
 import { AuthService } from '../auth/auth.service';
 import { OrganizationService } from '../auth/organization.service';
 import {

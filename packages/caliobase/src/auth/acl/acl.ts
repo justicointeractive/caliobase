@@ -1,5 +1,3 @@
-import type { AclItem } from '../entities/acl.entity';
-
 export const EntityAclMetadataKey = Symbol('entity_acl');
 export const EntityAclPropertyMetadataKey = Symbol('entity_acl_property');
 
@@ -14,5 +12,3 @@ export function getAclAccessLevels(minLevel: AclAccessLevel) {
   );
   return allowedLevels;
 }
-
-export type Acl<T> = AclItem<T>[];

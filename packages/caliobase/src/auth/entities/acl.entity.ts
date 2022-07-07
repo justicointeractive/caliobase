@@ -5,6 +5,8 @@ import { Organization } from '.';
 import { RequireWriteAccessLevel } from '../../entity-module/decorators/RequireAccessLevel.decorator';
 import { AclAccessLevel, AclAccessLevels } from '../acl/acl';
 
+export type Acl<T> = AclItem<T>[];
+
 export abstract class AclItem<T> {
   @PrimaryColumn()
   objectId!: string;
