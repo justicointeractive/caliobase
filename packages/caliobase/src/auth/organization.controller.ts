@@ -9,7 +9,7 @@ import {
 } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
 import { AccessTokenResponse } from './auth.controller';
-import { Public } from './decorators/public.decorator';
+import { Public } from './decorators';
 import { MemberInvitationToken } from './entities/member-invitation-token.entity';
 import { Member } from './entities/member.entity';
 import { Organization } from './entities/organization.entity';
@@ -49,6 +49,7 @@ export class OrganizationController {
     return this.orgService.createOrganization(userId, body);
   }
 
+  @Public()
   @Post(':id/token')
   @ApiCreatedResponse({ type: AccessTokenResponse })
   async getOrganizationToken(
@@ -56,26 +57,12 @@ export class OrganizationController {
     @Request() request: Express.Request
   ): Promise<AccessTokenResponse> {
     const userId = request.user?.userId;
-    assert(userId);
-    const accessToken = await this.orgService.createMemberAccessToken(
-      userId,
-      organizationId
-    );
 
-    return {
-      accessToken,
-    };
-  }
+    const accessToken =
+      userId != null
+        ? await this.orgService.createMemberAccessToken(userId, organizationId)
+        : await this.orgService.createGuestAccessToken(organizationId);
 
-  @Public()
-  @Post('token/public')
-  @ApiCreatedResponse({ type: AccessTokenResponse })
-  async getPublicAccessToken(
-    @Request() request: Express.Request
-  ): Promise<AccessTokenResponse> {
-    const accessToken = await this.orgService.createPublicAccessToken(
-      request.user?.userId
-    );
     return {
       accessToken,
     };

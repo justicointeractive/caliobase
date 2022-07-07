@@ -8,6 +8,7 @@ import { Organization } from '../auth';
 import { CaliobaseModule } from '../caliobase.module';
 import { MetaService } from '../meta/meta.service';
 import { S3ObjectStorageProvider } from '../object-storage';
+import { fakeUser } from './fakeUser';
 
 export async function createTestingModule(metadata: ModuleMetadata = {}) {
   const testAccount = await createTestAccount();
@@ -99,12 +100,7 @@ export function useTestingModule<
         organization = (
           await metaService.createRoot({
             organization: { name: 'Test' },
-            user: {
-              email: 'test@example.org',
-              givenName: 'Given',
-              familyName: 'Family',
-              password: 'abc123',
-            },
+            user: fakeUser(),
           })
         ).organization;
       }
