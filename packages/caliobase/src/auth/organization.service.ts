@@ -58,6 +58,7 @@ export class OrganizationService {
     return await this.authService.sign({
       userId: member.userId,
       organizationId: member.organizationId,
+      roles: member.roles,
     });
   }
 
