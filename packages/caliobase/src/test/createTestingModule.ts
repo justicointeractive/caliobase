@@ -4,6 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { createTestAccount, createTransport } from 'nodemailer';
 import * as supertest from 'supertest';
+import { DataSource } from 'typeorm';
 import { Organization } from '../auth';
 import { CaliobaseModule } from '../caliobase.module';
 import { MetaService } from '../meta/meta.service';
@@ -32,7 +33,7 @@ export async function createTestingModule(metadata: ModuleMetadata = {}) {
           return {
             type: 'postgres',
             retryAttempts: 0,
-            synchronize: true,
+            synchronize: false,
             autoLoadEntities: true,
             url: pgConnectionString,
             logging: process.env.TYPEORM_LOGGING === '1',
@@ -62,6 +63,8 @@ export async function createTestingModule(metadata: ModuleMetadata = {}) {
   }).compile();
 
   await module.init();
+
+  await module.get(DataSource).synchronize();
 
   return module;
 }
