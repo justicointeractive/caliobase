@@ -24,8 +24,8 @@ import { fromPairs } from 'lodash';
 import { getMetadataArgsStorage } from 'typeorm';
 import { ColumnMetadataArgs } from 'typeorm/metadata-args/ColumnMetadataArgs';
 import { ToFindOptions } from '.';
+import { CaliobaseRequestUser } from '../auth';
 import { getAclEntity } from '../auth/acl/getAclEntityAndProperty';
-import { CaliobaseJwtPayload } from '../auth/jwt-payload';
 import {
   ApiCreatedItemResponse,
   ApiOkItemResponse,
@@ -49,8 +49,8 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
 ): Type<unknown>[] {
   const Entity = ControllerService.Entity;
 
-  function getOwnerIdObject(jwt?: CaliobaseJwtPayload) {
-    const id = jwt && jwt.organizationId;
+  function getOwnerIdObject(jwt?: CaliobaseRequestUser) {
+    const id = jwt?.member?.organizationId;
     if (id == null) {
       throw new Error(
         'supplied access token does not provide an appropriate owner id'

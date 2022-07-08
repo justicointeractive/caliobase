@@ -1,30 +1,24 @@
 import { applyDecorators, Type } from '@nestjs/common';
 import { FindOptionsWhere } from 'typeorm';
-import { CaliobaseJwtPayload } from '../../auth/jwt-payload';
+import { CaliobaseRequestUser } from '../../auth';
+import { EntityActions, Role } from '../roles';
 
 const METADATA_KEY = Symbol('caliobase:access-policy-statements');
 
 export type PolicyStatements<T> = PolicyStatement<T>[];
 
-export type PolicyStatementAction =
-  | 'create'
-  | 'get'
-  | 'list'
-  | 'update'
-  | 'delete';
-
 export type PolicyUserCondition =
   | {
-      role: string;
+      role: Role | Role[];
     }
-  | ((payload: CaliobaseJwtPayload) => boolean);
+  | ((payload: CaliobaseRequestUser) => boolean);
 
 export type PolicyStatement<T> = {
   effect: 'allow' | 'deny';
-  action: '*' | PolicyStatementAction[];
+  action: '*' | EntityActions[];
   users?: PolicyUserCondition;
   items?:
-    | ((context: { user: CaliobaseJwtPayload }) => FindOptionsWhere<T>)
+    | ((context: { user: CaliobaseRequestUser }) => FindOptionsWhere<T>)
     | FindOptionsWhere<T>;
 };
 

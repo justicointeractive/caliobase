@@ -8,9 +8,9 @@ import {
 } from 'typeorm';
 import { RelationMetadata } from 'typeorm/metadata/RelationMetadata';
 import { CaliobaseFindOptions } from '.';
-import { AclAccessLevel, AclAccessLevels } from '../auth/acl/acl';
 import { getAclEntity } from '../auth/acl/getAclEntityAndProperty';
 import { getOrganizationFilter } from '../auth/decorators/owner.decorator';
+import { AllRoles, Role } from './roles';
 
 export function entityServiceQueryBuilder<TEntity>(
   entityType: Type<TEntity>,
@@ -19,11 +19,11 @@ export function entityServiceQueryBuilder<TEntity>(
   {
     itemFilters,
     organization,
-    aclAccessLevels = AclAccessLevels,
+    aclAccessLevels = AllRoles,
   }: {
     itemFilters: FindOptionsWhere<TEntity>[] | undefined;
     organization: { id: string };
-    aclAccessLevels?: AclAccessLevel[];
+    aclAccessLevels?: Role[];
   }
 ) {
   const repository = entityManager.getRepository(entityType);

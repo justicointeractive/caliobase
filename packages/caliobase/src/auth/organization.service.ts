@@ -1,8 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { async as cryptoRandomString } from 'crypto-random-string';
 import { addDays } from 'date-fns';
 import { DataSource } from 'typeorm';
 import { User } from '.';
+import { CaliobaseConfig } from '../config/config';
+import { Role, Roles } from '../entity-module/roles';
 import { AuthService } from './auth.service';
 import { MemberInvitationToken } from './entities/member-invitation-token.entity';
 import { Member } from './entities/member.entity';
@@ -20,7 +22,8 @@ export class OrganizationService {
 
   constructor(
     private dataSource: DataSource,
-    private authService: AuthService
+    private authService: AuthService,
+    private caliobaseConfig: CaliobaseConfig
   ) {}
 
   async findUserMemberships(userId: string) {
@@ -29,6 +32,16 @@ export class OrganizationService {
         userId,
       },
       relations: ['organization'],
+    });
+  }
+
+  async getMember(userId: string, organizationId: string) {
+    return await this.memberRepo.findOneOrFail({
+      where: {
+        userId,
+        organizationId,
+      },
+      relations: ['user', 'organization'],
     });
   }
 
@@ -41,6 +54,7 @@ export class OrganizationService {
     await this.memberRepo.save({
       userId,
       organization,
+      roles: ['owner'],
     });
 
     return organization;
@@ -58,7 +72,6 @@ export class OrganizationService {
     return await this.authService.sign({
       userId: member.userId,
       organizationId: member.organizationId,
-      roles: member.roles,
     });
   }
 
@@ -68,16 +81,30 @@ export class OrganizationService {
     });
   }
 
-  async createInvitation(organizationId: string) {
+  async createInvitation(
+    organizationId: string,
+    invitedBy: Member,
+    roles: Role[]
+  ) {
     const token = await cryptoRandomString({
       length: 128,
       type: 'url-safe',
     });
 
+    const allowedToGrantRoles = [
+      ...new Set(invitedBy.roles.flatMap((role) => Roles.fromMaxLevel(role))),
+    ];
+
+    if (roles.some((role) => !allowedToGrantRoles.includes(role))) {
+      throw new UnauthorizedException('user is not allowed to grant this role');
+    }
+
     const invite = await this.memberInviteRepo.save({
       token,
       organization: { id: organizationId },
       validUntil: addDays(Date.now(), 7),
+      roles,
+      invitedBy: invitedBy.user,
     });
 
     return invite;
@@ -92,7 +119,7 @@ export class OrganizationService {
   }
 
   async claimInvitation(userId: string, token: string) {
-    const { organization } = await this.memberInviteRepo.findOneOrFail({
+    const { organization, roles } = await this.memberInviteRepo.findOneOrFail({
       where: { token },
       relations: ['organization'],
     });
@@ -100,7 +127,27 @@ export class OrganizationService {
       where: { id: userId },
     });
 
-    const member = await this.memberRepo.save({ user, organization });
+    const member = await this.memberRepo.save({ user, organization, roles });
+
+    return member;
+  }
+
+  async joinAsGuest(organization: Organization, user: User) {
+    const role = this.caliobaseConfig.guestRole;
+
+    if (!role) {
+      throw new UnauthorizedException(
+        'guests are not allowed to join organizations'
+      );
+    }
+
+    const roles = [role];
+
+    const member = await this.memberRepo.save({
+      user,
+      organization,
+      roles,
+    });
 
     return member;
   }

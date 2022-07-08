@@ -1,3 +1,4 @@
+import { faker } from '@faker-js/faker';
 import { ModuleMetadata } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -5,9 +6,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { createTestAccount, createTransport } from 'nodemailer';
 import * as supertest from 'supertest';
 import { DataSource } from 'typeorm';
-import { Organization } from '../auth';
+import {
+  AuthService,
+  CaliobaseRequestUser,
+  Member,
+  Organization,
+  OrganizationService,
+} from '../auth';
 import { CaliobaseModule } from '../caliobase.module';
-import { MetaService } from '../meta/meta.service';
+import { Role } from '../entity-module/roles';
 import { S3ObjectStorageProvider } from '../object-storage';
 import { fakeUser } from './fakeUser';
 
@@ -75,17 +82,13 @@ type WithRequest<
   }
 > = T & {
   request: supertest.SuperTest<supertest.Test>;
-  organization?: Organization;
 };
 
 export function useTestingModule<
   T extends {
     module: TestingModule;
   }
->(
-  module: () => Promise<T>,
-  options: { createRoot?: boolean } = {}
-): WithRequest<T> {
+>(module: () => Promise<T>): WithRequest<T> {
   let result: WithRequest<T>;
 
   beforeAll(async () => {
@@ -94,24 +97,8 @@ export function useTestingModule<
     await app.init();
     const httpServer = app.getHttpServer();
 
-    let organization: Organization | undefined = undefined;
-    if (options.createRoot) {
-      const metaService = moduleResult.module.get<MetaService>(MetaService);
-      if (await metaService.getHasRootMember()) {
-        organization = (await metaService.getRoot()).organization;
-      } else {
-        organization = (
-          await metaService.createRoot({
-            organization: { name: 'Test' },
-            user: fakeUser(),
-          })
-        ).organization;
-      }
-    }
-
     result = Object.assign(moduleResult, {
       request: supertest(httpServer),
-      ...(organization && { organization }),
     });
   });
 
@@ -128,4 +115,61 @@ export function useTestingModule<
       });
     },
   });
+}
+
+export async function createTestOrganization(app: TestingModule) {
+  const authService = app.get(AuthService);
+  const orgService = app.get(OrganizationService);
+
+  const owner = await authService.createUserWithPassword(fakeUser());
+  const organization = await orgService.createOrganization(owner.id, {
+    name: faker.company.companyName(),
+  });
+  const member = await orgService.getMember(owner.id, organization.id);
+
+  return {
+    owner: { user: member.user, member, organization: member.organization },
+    organization,
+  };
+}
+
+export async function createTestUserWithRole(
+  app: TestingModule,
+  owner: Member,
+  roles: Role[]
+) {
+  const authService = app.get(AuthService);
+  const orgService = app.get(OrganizationService);
+
+  const otherUser = await authService.createUserWithPassword(fakeUser());
+
+  const invitation = await orgService.createInvitation(
+    owner.organizationId,
+    owner,
+    roles
+  );
+
+  const member = await orgService.claimInvitation(
+    otherUser.id,
+    invitation.token
+  );
+
+  return { user: member.user, member };
+}
+
+export async function createGuestUser(
+  app: TestingModule,
+  org: Organization
+): Promise<CaliobaseRequestUser> {
+  const userService = app.get<AuthService>(AuthService);
+  const orgService = app.get<OrganizationService>(OrganizationService);
+  const guest = await userService.createUserWithPassword(fakeUser());
+  const member = await orgService.joinAsGuest(org, guest);
+  return { user: member.user, member, organization: member.organization };
+}
+
+export function testAnonymousUser(
+  organization: Organization
+): CaliobaseRequestUser {
+  return { user: null, member: null, organization };
 }

@@ -7,7 +7,8 @@ import {
   ApiProperty,
   ApiTags,
 } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { IsIn, IsOptional, IsString } from 'class-validator';
+import { AllRoles, Role } from '../entity-module/roles';
 import { AccessTokenResponse } from './auth.controller';
 import { Public } from './decorators';
 import { MemberInvitationToken } from './entities/member-invitation-token.entity';
@@ -15,6 +16,11 @@ import { Member } from './entities/member.entity';
 import { Organization } from './entities/organization.entity';
 import { OrganizationService } from './organization.service';
 import assert = require('assert');
+
+class CreateInvitationRequest {
+  @IsIn(AllRoles)
+  roles!: Role[];
+}
 
 export class CreateOrganizationBody {
   @ApiProperty()
@@ -32,7 +38,7 @@ export class OrganizationController {
   @Get()
   @ApiOkResponse({ type: [Member] })
   async findAll(@Request() request: Express.Request) {
-    const userId = request.user?.userId;
+    const userId = request.user?.user?.id;
     assert(userId);
     return await this.orgService.findUserMemberships(userId);
   }
@@ -44,7 +50,7 @@ export class OrganizationController {
     @Body() body: CreateOrganizationBody,
     @Request() request: Express.Request
   ) {
-    const userId = request.user?.userId;
+    const userId = request.user?.user?.id;
     assert(userId);
     return this.orgService.createOrganization(userId, body);
   }
@@ -55,7 +61,7 @@ export class OrganizationController {
   async getRootOrganizationToken(
     @Request() request: Express.Request
   ): Promise<AccessTokenResponse> {
-    const userId = request.user?.userId;
+    const userId = request.user?.user?.id;
     const organizationId = Organization.RootId;
 
     const accessToken =
@@ -75,7 +81,7 @@ export class OrganizationController {
     @Param('id') organizationId: string,
     @Request() request: Express.Request
   ): Promise<AccessTokenResponse> {
-    const userId = request.user?.userId;
+    const userId = request.user?.user?.id;
 
     const accessToken =
       userId != null
@@ -90,9 +96,17 @@ export class OrganizationController {
   @Post(':id/invitation')
   @ApiCreatedResponse({ type: MemberInvitationToken })
   async createInvitation(
-    @Param('id') organizationId: string
+    @Param('id') organizationId: string,
+    @Body() createInvitationRequest: CreateInvitationRequest,
+    @Request() request: Express.Request
   ): Promise<MemberInvitationToken> {
-    const invite = await this.orgService.createInvitation(organizationId);
+    const member = request.user?.member;
+    assert(member);
+    const invite = await this.orgService.createInvitation(
+      organizationId,
+      member,
+      createInvitationRequest.roles
+    );
     return invite;
   }
 
@@ -111,7 +125,7 @@ export class OrganizationController {
     @Param('token') token: string,
     @Request() request: Express.Request
   ): Promise<Member | null> {
-    const userId = request.user?.userId;
+    const userId = request.user?.user?.id;
     assert(userId);
     const member = await this.orgService.claimInvitation(userId, token);
     return member;

@@ -6,15 +6,13 @@ import {
   ObjectLiteral,
 } from 'typeorm';
 import { CaliobaseFindOptions, RenameClass, ToFindOptions } from '.';
-import { CaliobaseJwtPayload } from '../auth';
-import { getAclAccessLevels } from '../auth/acl/acl';
+import { CaliobaseRequestUser, Organization } from '../auth';
 import { getAclEntity } from '../auth/acl/getAclEntityAndProperty';
 import { getOrganizationFilter } from '../auth/decorators/owner.decorator';
 import { unwrapValueWithContext } from '../lib/unwrapValueWithContext';
 import {
   AccessPolicies,
   EffectivePolicy,
-  PolicyStatementAction,
 } from './decorators/AccessPolicies.decorator';
 import { entityServiceQueryBuilder } from './entityServiceQueryBuilder';
 import {
@@ -22,6 +20,7 @@ import {
   ICaliobaseServiceOptions,
   ICaliobaseServiceType,
 } from './ICaliobaseService';
+import { EntityActions, Roles } from './roles';
 
 export function createEntityServiceClass<
   TEntity,
@@ -38,26 +37,40 @@ export function createEntityServiceClass<
   const policyStatements = AccessPolicies.get(entityType);
 
   function getUserPolicy(
-    user: CaliobaseJwtPayload,
-    action: PolicyStatementAction
+    user: CaliobaseRequestUser,
+    action: EntityActions,
+    organization: Pick<Organization, 'id'>
   ) {
+    if (user.organization?.id !== organization.id) {
+      throw new UnauthorizedException(
+        'access token supplied is not applicable to this organization context'
+      );
+    }
+
+    // TODO: verify role is a role for this organization
     const policy = policyStatements
       ?.filter((statement) => {
         if (statement.effect === 'deny') {
           throw new Error('deny statements are not implemented');
         }
         if (statement.users) {
-          if (typeof statement.users === 'function') {
-            if (!statement.users(user)) {
+          const statementUsers = statement.users;
+          if (typeof statementUsers === 'function') {
+            if (!statementUsers(user)) {
               return false;
             }
           } else {
-            if (
-              // TODO: verify role is a role for this organization
-              statement.users.role &&
-              !(user.roles ?? []).includes(statement.users.role)
-            ) {
-              return false;
+            if (statementUsers.role) {
+              const allowedRoles = Array.isArray(statementUsers.role)
+                ? statementUsers.role
+                : Roles.fromMiniumLevel(statementUsers.role);
+              const someUserRoleIsAllowed =
+                user?.member?.roles?.some((role) =>
+                  allowedRoles.includes(role)
+                ) ?? false;
+              if (!someUserRoleIsAllowed) {
+                return false;
+              }
             }
           }
         }
@@ -112,7 +125,7 @@ export function createEntityServiceClass<
       return await this.dataSource.transaction(async (manager) => {
         const entityRepository = manager.getRepository(entityType);
 
-        getUserPolicy(user, 'create');
+        getUserPolicy(user, 'create', organization);
 
         const created: TEntity = await entityRepository.save(
           entityRepository.create({
@@ -139,7 +152,7 @@ export function createEntityServiceClass<
       { where, order }: CaliobaseFindOptions<TEntity>,
       { organization, user }: ICaliobaseServiceOptions
     ) {
-      const policy = getUserPolicy(user, 'list');
+      const policy = getUserPolicy(user, 'list', organization);
 
       return await this.dataSource.transaction(async (manager) => {
         return await entityServiceQueryBuilder(
@@ -155,7 +168,7 @@ export function createEntityServiceClass<
       { where, order }: CaliobaseFindOptions<TEntity>,
       { organization, user }: ICaliobaseServiceOptions
     ) {
-      const policy = getUserPolicy(user, 'get');
+      const policy = getUserPolicy(user, 'get', organization);
 
       return await this.dataSource.transaction(async (manager) => {
         return await entityServiceQueryBuilder(
@@ -172,7 +185,7 @@ export function createEntityServiceClass<
       updateDto: TUpdate,
       { organization, user }: ICaliobaseServiceOptions
     ) {
-      const policy = getUserPolicy(user, 'update');
+      const policy = getUserPolicy(user, 'update', organization);
 
       return await this.dataSource.transaction(async (manager) => {
         const allFound = await entityServiceQueryBuilder(
@@ -182,7 +195,7 @@ export function createEntityServiceClass<
           {
             organization,
             itemFilters: policy?.itemFilters,
-            aclAccessLevels: getAclAccessLevels('writer'),
+            aclAccessLevels: Roles.fromMiniumLevel('writer'),
           }
         ).getMany();
         for (const found of allFound) {
@@ -199,7 +212,7 @@ export function createEntityServiceClass<
       where: FindOptionsWhere<TEntity>,
       { organization, user }: ICaliobaseServiceOptions
     ) {
-      const policy = getUserPolicy(user, 'delete');
+      const policy = getUserPolicy(user, 'delete', organization);
 
       return await this.dataSource.transaction(async (manager) => {
         const allFound = await entityServiceQueryBuilder(
@@ -209,7 +222,7 @@ export function createEntityServiceClass<
           {
             organization,
             itemFilters: policy?.itemFilters,
-            aclAccessLevels: getAclAccessLevels('writer'),
+            aclAccessLevels: Roles.fromMiniumLevel('writer'),
           }
         ).getMany();
         for (const found of allFound) {

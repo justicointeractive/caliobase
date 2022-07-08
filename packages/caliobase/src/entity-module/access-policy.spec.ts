@@ -1,13 +1,13 @@
 import { faker } from '@faker-js/faker';
 import { Column, In, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { AclItem, EntityAcl, User } from '../auth';
-import { AuthService } from '../auth/auth.service';
-import { OrganizationService } from '../auth/organization.service';
 import {
+  createGuestUser,
   createTestingModule,
+  createTestOrganization,
+  testAnonymousUser,
   useTestingModule,
 } from '../test/createTestingModule';
-import { fakeUser } from '../test/fakeUser';
 import { createEntityModule } from './createEntityModule';
 import { CaliobaseEntity } from './decorators';
 import assert = require('assert');
@@ -25,7 +25,7 @@ describe('access policy', () => {
         {
           effect: 'allow',
           action: '*',
-          users: { role: 'editor' },
+          users: { role: 'manager' },
         },
       ],
     })
@@ -40,8 +40,8 @@ describe('access policy', () => {
       published!: boolean;
     }
 
-    const { blogPostService, organization } = useTestingModule(
-      async () => {
+    const { blogPostService, createdOrganization, otherOrganization } =
+      useTestingModule(async () => {
         const entityModule = createEntityModule(BlogPost);
 
         const module = await createTestingModule({
@@ -52,16 +52,26 @@ describe('access policy', () => {
           InstanceType<NonNullable<typeof entityModule['EntityService']>>
         >(entityModule.EntityService);
 
+        const createdOrganization = await createTestOrganization(module);
+
+        const otherOrganization = await createTestOrganization(module);
+
         return {
           module,
           entityModule,
           blogPostService,
+          otherOrganization,
+          createdOrganization: {
+            ...createdOrganization,
+            readerUser: await createGuestUser(
+              module,
+              createdOrganization.organization
+            ),
+          },
         };
-      },
-      { createRoot: true }
-    );
+      });
 
-    assert(organization);
+    assert(createdOrganization);
 
     let blogPost: BlogPost;
 
@@ -72,8 +82,8 @@ describe('access policy', () => {
           published: false,
         },
         {
-          organization,
-          user: { roles: ['editor'] },
+          organization: createdOrganization.organization,
+          user: createdOrganization.owner,
         }
       );
 
@@ -88,8 +98,23 @@ describe('access policy', () => {
               published: false,
             },
             {
-              organization,
-              user: { roles: [] },
+              organization: createdOrganization.organization,
+              user: createdOrganization.readerUser,
+            }
+          )
+      ).rejects.toThrow();
+    });
+    it('should disallow other organization owner write draft', async () => {
+      await expect(
+        async () =>
+          await blogPostService.create(
+            {
+              title: 'test 123',
+              published: false,
+            },
+            {
+              organization: createdOrganization.organization,
+              user: otherOrganization.owner,
             }
           )
       ).rejects.toThrow();
@@ -100,7 +125,10 @@ describe('access policy', () => {
           {
             where: { id: blogPost.id },
           },
-          { organization, user: {} }
+          {
+            organization: createdOrganization.organization,
+            user: testAnonymousUser(createdOrganization.organization),
+          }
         )
       ).toBeNull();
       expect(
@@ -108,7 +136,10 @@ describe('access policy', () => {
           {
             where: { id: blogPost.id },
           },
-          { organization, user: {} }
+          {
+            organization: createdOrganization.organization,
+            user: testAnonymousUser(createdOrganization.organization),
+          }
         )
       ).toHaveLength(0);
     });
@@ -120,8 +151,8 @@ describe('access policy', () => {
             published: true,
           },
           {
-            organization,
-            user: { roles: ['editor'] },
+            organization: createdOrganization.organization,
+            user: createdOrganization.owner,
           }
         )
       )[0];
@@ -134,7 +165,10 @@ describe('access policy', () => {
           {
             where: { id: blogPost.id },
           },
-          { organization, user: {} }
+          {
+            organization: createdOrganization.organization,
+            user: testAnonymousUser(createdOrganization.organization),
+          }
         )
       ).not.toBeNull();
       expect(
@@ -142,7 +176,10 @@ describe('access policy', () => {
           {
             where: { id: blogPost.id },
           },
-          { organization, user: {} }
+          {
+            organization: createdOrganization.organization,
+            user: testAnonymousUser(createdOrganization.organization),
+          }
         )
       ).toHaveLength(1);
     });
@@ -159,8 +196,8 @@ describe('access policy', () => {
         {
           effect: 'allow',
           action: '*',
-          items: ({ user: { userId } }) => ({
-            createdById: userId,
+          items: ({ user: { user } }) => ({
+            createdBy: user ?? undefined,
           }),
         },
         {
@@ -184,7 +221,7 @@ describe('access policy', () => {
       createdBy!: User;
     }
 
-    const { commentService, organization, user, user2, moderator } =
+    const { commentService, organization, owner, guest1, guest2 } =
       useTestingModule(async () => {
         const entityModule = createEntityModule(Comment);
 
@@ -196,25 +233,19 @@ describe('access policy', () => {
           InstanceType<NonNullable<typeof entityModule['EntityService']>>
         >(entityModule.EntityService);
 
-        const userService = module.get<AuthService>(AuthService);
-        const orgService = module.get<OrganizationService>(OrganizationService);
+        const { organization, owner } = await createTestOrganization(module);
 
-        const user = await userService.createUserWithPassword(fakeUser());
-        const user2 = await userService.createUserWithPassword(fakeUser());
-        const moderator = await userService.createUserWithPassword(fakeUser());
-
-        const organization = await orgService.createOrganization(user.id, {
-          name: faker.company.companyName(),
-        });
+        const guest1 = await createGuestUser(module, organization);
+        const guest2 = await createGuestUser(module, organization);
 
         return {
           module,
           entityModule,
           commentService,
           organization,
-          user,
-          user2,
-          moderator,
+          guest1,
+          guest2,
+          owner,
         };
       });
 
@@ -226,14 +257,11 @@ describe('access policy', () => {
       comment = await commentService.create(
         {
           text: 'test 123',
-          createdById: user.id, // TODO: enforce createdById by service
+          createdById: guest1.user?.id, // TODO: enforce createdById by service
         },
         {
           organization,
-          user: {
-            userId: user.id,
-            roles: [],
-          },
+          user: guest1,
         }
       );
 
@@ -249,10 +277,7 @@ describe('access policy', () => {
           },
           {
             organization,
-            user: {
-              userId: user.id,
-              roles: [],
-            },
+            user: guest1,
           }
         )
       ).not.toBeNull();
@@ -265,10 +290,7 @@ describe('access policy', () => {
           },
           {
             organization,
-            user: {
-              userId: user2.id,
-              roles: [],
-            },
+            user: guest2,
           }
         )
       ).not.toBeNull();
@@ -284,10 +306,7 @@ describe('access policy', () => {
           },
           {
             organization,
-            user: {
-              userId: user.id,
-              roles: [],
-            },
+            user: guest1,
           }
         )
       ).toHaveLength(1);
@@ -303,10 +322,7 @@ describe('access policy', () => {
           },
           {
             organization,
-            user: {
-              userId: user2.id,
-              roles: [],
-            },
+            user: guest2,
           }
         )
       ).toHaveLength(0);
@@ -319,10 +335,7 @@ describe('access policy', () => {
           },
           {
             organization,
-            user: {
-              userId: user2.id,
-              roles: [],
-            },
+            user: guest2,
           }
         )
       ).toHaveLength(0);
@@ -338,10 +351,7 @@ describe('access policy', () => {
           },
           {
             organization,
-            user: {
-              userId: moderator.id,
-              roles: ['moderator'],
-            },
+            user: owner,
           }
         )
       ).toHaveLength(1);
@@ -354,10 +364,7 @@ describe('access policy', () => {
           },
           {
             organization,
-            user: {
-              userId: moderator.id,
-              roles: ['moderator'],
-            },
+            user: owner,
           }
         )
       ).toHaveLength(1);
@@ -389,8 +396,8 @@ describe('access policy', () => {
         {
           effect: 'allow',
           action: '*',
-          items: ({ user: { userId } }) => ({
-            createdById: userId,
+          items: ({ user: { user } }) => ({
+            createdBy: user ?? undefined,
           }),
         },
         {
@@ -417,7 +424,7 @@ describe('access policy', () => {
       createdBy!: User;
     }
 
-    const { videoService, organization, uploader, viewer, moderator } =
+    const { videoService, organization, uploader, viewer, owner } =
       useTestingModule(async () => {
         const entityModule = createEntityModule(Video);
 
@@ -429,16 +436,10 @@ describe('access policy', () => {
           InstanceType<NonNullable<typeof entityModule['EntityService']>>
         >(entityModule.EntityService);
 
-        const userService = module.get<AuthService>(AuthService);
-        const orgService = module.get<OrganizationService>(OrganizationService);
+        const { owner, organization } = await createTestOrganization(module);
 
-        const uploader = await userService.createUserWithPassword(fakeUser());
-        const viewer = await userService.createUserWithPassword(fakeUser());
-        const moderator = await userService.createUserWithPassword(fakeUser());
-
-        const organization = await orgService.createOrganization(uploader.id, {
-          name: faker.company.companyName(),
-        });
+        const uploader = await createGuestUser(module, organization);
+        const viewer = await createGuestUser(module, organization);
 
         return {
           module,
@@ -447,7 +448,7 @@ describe('access policy', () => {
           organization,
           uploader,
           viewer,
-          moderator,
+          owner,
         };
       });
 
@@ -459,15 +460,12 @@ describe('access policy', () => {
       video = await videoService.create(
         {
           title: 'test 123',
-          createdById: uploader.id, // TODO: enforce createdById by service
+          createdById: uploader.user?.id, // TODO: enforce createdById by service
           visibility: 'unlisted',
         },
         {
           organization,
-          user: {
-            userId: uploader.id,
-            roles: [],
-          },
+          user: uploader,
         }
       );
 
@@ -483,10 +481,7 @@ describe('access policy', () => {
           },
           {
             organization,
-            user: {
-              userId: uploader.id,
-              roles: [],
-            },
+            user: uploader,
           }
         )
       ).not.toBeNull();
@@ -499,10 +494,7 @@ describe('access policy', () => {
           },
           {
             organization,
-            user: {
-              userId: viewer.id,
-              roles: [],
-            },
+            user: viewer,
           }
         )
       ).not.toBeNull();
@@ -518,10 +510,7 @@ describe('access policy', () => {
           },
           {
             organization,
-            user: {
-              userId: uploader.id,
-              roles: [],
-            },
+            user: uploader,
           }
         )
       ).toHaveLength(1);
@@ -536,10 +525,7 @@ describe('access policy', () => {
           },
           {
             organization,
-            user: {
-              userId: viewer.id,
-              roles: [],
-            },
+            user: viewer,
           }
         )
       ).toHaveLength(0);
@@ -555,10 +541,7 @@ describe('access policy', () => {
           },
           {
             organization,
-            user: {
-              userId: viewer.id,
-              roles: [],
-            },
+            user: viewer,
           }
         )
       ).toHaveLength(0);
@@ -571,10 +554,7 @@ describe('access policy', () => {
           },
           {
             organization,
-            user: {
-              userId: viewer.id,
-              roles: [],
-            },
+            user: viewer,
           }
         )
       ).toHaveLength(0);
@@ -590,10 +570,7 @@ describe('access policy', () => {
           },
           {
             organization,
-            user: {
-              userId: moderator.id,
-              roles: ['moderator'],
-            },
+            user: owner,
           }
         )
       ).toHaveLength(1);
@@ -606,10 +583,7 @@ describe('access policy', () => {
           },
           {
             organization,
-            user: {
-              userId: moderator.id,
-              roles: ['moderator'],
-            },
+            user: owner,
           }
         )
       ).toHaveLength(1);
@@ -628,7 +602,7 @@ describe('access policy', () => {
         {
           effect: 'allow',
           action: ['get', 'list'],
-          users: ({ userId }) => userId != null,
+          users: ({ user }) => user != null,
         },
       ],
     })
@@ -640,8 +614,8 @@ describe('access policy', () => {
       title!: string;
     }
 
-    const { downloadableService, organization, moderator, user } =
-      useTestingModule(async () => {
+    const { downloadableService, organization, owner, user } = useTestingModule(
+      async () => {
         const entityModule = createEntityModule(Downloadable);
 
         const module = await createTestingModule({
@@ -652,15 +626,9 @@ describe('access policy', () => {
           InstanceType<NonNullable<typeof entityModule['EntityService']>>
         >(entityModule.EntityService);
 
-        const userService = module.get<AuthService>(AuthService);
-        const orgService = module.get<OrganizationService>(OrganizationService);
+        const { organization, owner } = await createTestOrganization(module);
 
-        const moderator = await userService.createUserWithPassword(fakeUser());
-        const user = await userService.createUserWithPassword(fakeUser());
-
-        const organization = await orgService.createOrganization(moderator.id, {
-          name: faker.company.companyName(),
-        });
+        const user = await createGuestUser(module, organization);
 
         return {
           module,
@@ -668,9 +636,10 @@ describe('access policy', () => {
           downloadableService,
           organization,
           user,
-          moderator,
+          owner,
         };
-      });
+      }
+    );
 
     assert(organization);
 
@@ -683,10 +652,7 @@ describe('access policy', () => {
         },
         {
           organization,
-          user: {
-            userId: moderator.id,
-            roles: ['moderator'],
-          },
+          user: owner,
         }
       );
 
@@ -702,10 +668,7 @@ describe('access policy', () => {
           },
           {
             organization,
-            user: {
-              userId: user.id,
-              roles: [],
-            },
+            user: user,
           }
         )
       ).not.toBeNull();
@@ -718,10 +681,7 @@ describe('access policy', () => {
           },
           {
             organization,
-            user: {
-              userId: user.id,
-              roles: [],
-            },
+            user: user,
           }
         )
       ).toHaveLength(1);
@@ -737,7 +697,7 @@ describe('access policy', () => {
             },
             {
               organization,
-              user: {},
+              user: testAnonymousUser(organization),
             }
           )
       ).rejects.toThrow();
@@ -751,7 +711,7 @@ describe('access policy', () => {
             },
             {
               organization,
-              user: {},
+              user: testAnonymousUser(organization),
             }
           )
       ).rejects.toThrow();
@@ -784,7 +744,7 @@ describe('access policy', () => {
       documentService,
       organization,
       moderator,
-      ownerUser,
+      documentOwner,
       sharedWithUser,
       notSharedWithUser,
     } = useTestingModule(async () => {
@@ -798,29 +758,21 @@ describe('access policy', () => {
         InstanceType<NonNullable<typeof entityModule['EntityService']>>
       >(entityModule.EntityService);
 
-      const userService = module.get<AuthService>(AuthService);
-      const orgService = module.get<OrganizationService>(OrganizationService);
-
-      const moderator = await userService.createUserWithPassword(fakeUser());
-      const ownerUser = await userService.createUserWithPassword(fakeUser());
-      const sharedWithUser = await userService.createUserWithPassword(
-        fakeUser()
-      );
-      const notSharedWithUser = await userService.createUserWithPassword(
-        fakeUser()
+      const { organization, owner: moderator } = await createTestOrganization(
+        module
       );
 
-      const organization = await orgService.createOrganization(moderator.id, {
-        name: faker.company.companyName(),
-      });
+      const documentOwner = await createGuestUser(module, organization);
+      const sharedWithUser = await createGuestUser(module, organization);
+      const notSharedWithUser = await createGuestUser(module, organization);
 
       return {
         module,
         entityModule,
         documentService,
         organization,
-        ownerUser,
         moderator,
+        documentOwner,
         sharedWithUser,
         notSharedWithUser,
       };
@@ -837,10 +789,7 @@ describe('access policy', () => {
         },
         {
           organization,
-          user: {
-            userId: moderator.id,
-            roles: ['moderator'],
-          },
+          user: documentOwner,
         }
       );
 
@@ -856,10 +805,7 @@ describe('access policy', () => {
           },
           {
             organization,
-            user: {
-              userId: ownerUser.id,
-              roles: [],
-            },
+            user: documentOwner,
           }
         )
       ).not.toBeNull();
@@ -872,10 +818,7 @@ describe('access policy', () => {
           },
           {
             organization,
-            user: {
-              userId: ownerUser.id,
-              roles: [],
-            },
+            user: documentOwner,
           }
         )
       ).toHaveLength(1);
@@ -891,7 +834,7 @@ describe('access policy', () => {
             },
             {
               organization,
-              user: {},
+              user: testAnonymousUser(organization),
             }
           )
       ).rejects.toThrow();
@@ -905,7 +848,129 @@ describe('access policy', () => {
             },
             {
               organization,
-              user: {},
+              user: testAnonymousUser(organization),
+            }
+          )
+      ).rejects.toThrow();
+    });
+  });
+
+  xdescribe('many video channel organization', () => {
+    @CaliobaseEntity<Channel>({
+      controller: { name: 'downloadable' },
+      accessPolicy: [
+        {
+          effect: 'allow',
+          action: '*',
+          users: { role: 'moderator' },
+        },
+      ],
+    })
+    class Channel {
+      @PrimaryGeneratedColumn('uuid')
+      id!: string;
+
+      @Column()
+      name!: string;
+    }
+
+    const { channelService, organization, owner, otherUser } = useTestingModule(
+      async () => {
+        const entityModule = createEntityModule(Channel);
+
+        const module = await createTestingModule({
+          imports: [entityModule],
+        });
+
+        const channelService = module.get<
+          InstanceType<NonNullable<typeof entityModule['EntityService']>>
+        >(entityModule.EntityService);
+
+        const { organization, owner } = await createTestOrganization(module);
+        const otherUser = await createGuestUser(module, organization);
+
+        return {
+          module,
+          entityModule,
+          channelService,
+          organization,
+          owner,
+          otherUser,
+        };
+      }
+    );
+
+    assert(organization);
+
+    let channel: Channel;
+
+    it('should allow user to create', async () => {
+      channel = await channelService.create(
+        {
+          name: faker.commerce.productName(),
+        },
+        {
+          organization,
+          user: owner,
+        }
+      );
+
+      expect(channel).not.toBeNull();
+    });
+    it('should allow user read/list', async () => {
+      expect(
+        await channelService.findOne(
+          {
+            where: {
+              id: channel.id,
+            },
+          },
+          {
+            organization,
+            user: otherUser,
+          }
+        )
+      ).not.toBeNull();
+      expect(
+        await channelService.findAll(
+          {
+            where: {
+              id: channel.id,
+            },
+          },
+          {
+            organization,
+            user: otherUser,
+          }
+        )
+      ).toHaveLength(1);
+    });
+    it('should disallow anonymous read/list', async () => {
+      await expect(
+        async () =>
+          await channelService.findOne(
+            {
+              where: {
+                id: channel.id,
+              },
+            },
+            {
+              organization,
+              user: testAnonymousUser(organization),
+            }
+          )
+      ).rejects.toThrow();
+      await expect(
+        async () =>
+          await channelService.findAll(
+            {
+              where: {
+                id: channel.id,
+              },
+            },
+            {
+              organization,
+              user: testAnonymousUser(organization),
             }
           )
       ).rejects.toThrow();

@@ -2,11 +2,11 @@ import { Type } from '@nestjs/common';
 import { FindOptionsWhere } from 'typeorm';
 
 import { CaliobaseFindOptions } from '.';
-import { CaliobaseJwtPayload } from '../auth';
+import { CaliobaseRequestUser } from '../auth';
 
 export interface ICaliobaseServiceOptions {
   organization: { id: string };
-  user: CaliobaseJwtPayload;
+  user: CaliobaseRequestUser;
 }
 
 export interface ICaliobaseService<TEntity, TCreate, TUpdate> {

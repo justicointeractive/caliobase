@@ -60,14 +60,14 @@ export class ObjectStorageController {
     @Body() file: ObjectStorageCreateRequest,
     @Request() request: Express.Request
   ): Promise<ObjectStorageCreateResponse> {
-    const { userId, organizationId } = request.user ?? {};
-    assert(userId);
-    assert(organizationId);
+    const member = request.user?.member;
+    assert(member);
+    const { user, organization } = member;
 
     const object = await this.objectStorageService.createObject({
       ...file,
-      organization: { id: organizationId },
-      uploadedBy: { id: userId },
+      organization,
+      uploadedBy: user,
     });
 
     return object;
@@ -83,10 +83,13 @@ export class ObjectStorageController {
     @Body() file: ObjectStorageUpdateRequest,
     @Request() request: Express.Request
   ): Promise<ObjectStorageObject> {
-    const { userId, organizationId } = request.user ?? {};
+    const member = request.user?.member;
+    assert(member);
+    const { userId, organizationId } = member;
     assert(userId);
     assert(organizationId);
 
+    // TODO assert permission to update object
     const object = await this.objectStorageService.updateObject(objectId, {
       ...file,
     });

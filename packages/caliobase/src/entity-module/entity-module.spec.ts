@@ -56,18 +56,31 @@ describe('entity module', () => {
 
       const created = await entityService.create(
         { label: 'test123' },
-        { organization: { id: org.id }, user: {} }
+        {
+          organization: { id: org.id },
+          user: {
+            user: null,
+            member: null,
+            organization: org,
+          },
+        }
       );
       expect(created).not.toBeNull();
 
       const all = await entityService.findAll(
         { where: {} },
-        { organization: { id: org.id }, user: {} }
+        {
+          organization: { id: org.id },
+          user: { user: null, member: null, organization: org },
+        }
       );
       expect(all).toHaveLength(1);
       const one = await entityService.findOne(
         { where: {} },
-        { organization: { id: org.id }, user: {} }
+        {
+          organization: { id: org.id },
+          user: { user: null, member: null, organization: org },
+        }
       );
       expect(one).toBeTruthy();
     });

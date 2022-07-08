@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Role } from '../../entity-module/roles';
 import { Organization } from './organization.entity';
+import { User } from './user.entity';
 
 @Entity()
 export class MemberInvitationToken {
@@ -13,6 +15,14 @@ export class MemberInvitationToken {
   validUntil!: Date;
 
   @ApiProperty()
-  @ManyToOne(() => Organization)
+  @ManyToOne(() => Organization, { nullable: false })
   organization!: Organization;
+
+  @ApiProperty()
+  @ManyToOne(() => User, { nullable: false })
+  invitedBy!: User;
+
+  @ApiProperty()
+  @Column({ type: 'jsonb', default: [] })
+  roles!: Role[];
 }

@@ -1,10 +1,10 @@
 import { Type, UnauthorizedException } from '@nestjs/common';
 import { DataSource, getMetadataArgsStorage, In } from 'typeorm';
 import { getRequiredWriteAccessLevel } from '.';
-import { CaliobaseJwtPayload } from '..';
-import { AclAccessLevel, getAclAccessLevels } from '../auth/acl/acl';
+import { CaliobaseRequestUser } from '..';
 import { getAclEntity } from '../auth/acl/getAclEntityAndProperty';
 import { relationColumnPropertyName } from './createOneToManyController';
+import { Role, Roles } from './roles';
 
 export class RelationPermissionChecker {
   constructor(private dataSource: DataSource, private ManyEntity: Type<any>) {}
@@ -36,7 +36,7 @@ export class RelationPermissionChecker {
               this.ManyEntity,
               relation.propertyName
             ) ?? 'writer',
-          read: 'reader',
+          read: 'guest',
         } as const,
         extractAclPrimaryKey: (manyInstance: any) => {
           const key: Record<string, any> = {};
@@ -51,7 +51,7 @@ export class RelationPermissionChecker {
   async checkPermissions<T>(
     operationLevel: 'read' | 'write',
     instance: T,
-    user?: CaliobaseJwtPayload
+    user?: CaliobaseRequestUser
   ) {
     if (user == null) {
       throw new UnauthorizedException();
@@ -70,15 +70,15 @@ export class RelationPermissionChecker {
   private async checkPermission(
     entity: Type<any>,
     primaryKey: any,
-    requiredLevel: AclAccessLevel,
-    user: CaliobaseJwtPayload
+    requiredLevel: Role,
+    user: CaliobaseRequestUser
   ) {
     const AclEntity = getAclEntity(entity);
     const result = await this.dataSource.getRepository(AclEntity).findOne({
       where: {
         ...primaryKey,
-        access: In(getAclAccessLevels(requiredLevel)),
-        organizationId: user.organizationId,
+        access: In(Roles.fromMiniumLevel(requiredLevel)),
+        organizationId: user?.member?.organization?.id,
       },
     });
     if (result == null) {

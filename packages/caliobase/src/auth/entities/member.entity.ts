@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
-import { AclAccessLevel } from '../acl/acl';
-
+import { Role } from '../../entity-module/roles';
 import { Organization } from './organization.entity';
 import { User } from './user.entity';
 
@@ -25,5 +24,5 @@ export class Member {
 
   @ApiProperty()
   @Column({ type: 'jsonb', default: [] })
-  roles!: AclAccessLevel[];
+  roles!: Role[];
 }

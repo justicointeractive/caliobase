@@ -7,6 +7,7 @@ import { ValidatorOptions } from 'class-validator';
 import { Transporter } from 'nodemailer';
 import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
+import { MemberInvitationToken } from './auth/entities/member-invitation-token.entity';
 import { Member } from './auth/entities/member.entity';
 import { Organization } from './auth/entities/organization.entity';
 import { PasswordResetToken } from './auth/entities/password-reset-token.entity';
@@ -14,7 +15,6 @@ import { UserPassword } from './auth/entities/user-password.entity';
 import { UserSocialLogin } from './auth/entities/user-social-login.entity';
 import { User } from './auth/entities/user.entity';
 import { JwtAuthGuard } from './auth/guards/jwt.guard';
-import { CaliobaseJwtPayload } from './auth/jwt-payload';
 import { JwtStrategy } from './auth/jwt.strategy';
 import { OrganizationController } from './auth/organization.controller';
 import { OrganizationService } from './auth/organization.service';
@@ -26,20 +26,13 @@ import {
 import { CaliobaseConfig } from './config/config';
 import { defaultValidatorOptions } from './defaultValidatorOptions';
 import { createEntityModule } from './entity-module/createEntityModule';
+import { Role } from './entity-module/roles';
 import { MetaController } from './meta/meta.controller';
 import { MetaService } from './meta/meta.service';
 import { AbstractObjectStorageProvider } from './object-storage/AbstractObjectStorageProvider';
 import { ObjectStorageObject } from './object-storage/object-storage-object.entity';
 import { ObjectStorageController } from './object-storage/object-storage.controller';
 import { ObjectStorageService } from './object-storage/object-storage.service';
-
-declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace Express {
-    // eslint-disable-next-line @typescript-eslint/no-empty-interface
-    interface User extends CaliobaseJwtPayload {}
-  }
-}
 
 const builtInEntities = [
   Member,
@@ -49,6 +42,7 @@ const builtInEntities = [
   User,
   PasswordResetToken,
   ObjectStorageObject,
+  MemberInvitationToken,
 ];
 
 export type CaliobaseModuleOptions = {
@@ -59,6 +53,7 @@ export type CaliobaseModuleOptions = {
   validatorOptions?: ValidatorOptions;
   baseUrl: string;
   emailTransport: Transporter;
+  guestRole?: Role | false;
 };
 
 @Module({
@@ -113,6 +108,7 @@ export class CaliobaseModule {
     validatorOptions,
     baseUrl,
     emailTransport,
+    guestRole = 'guest',
   }: CaliobaseModuleOptions): DynamicModule {
     return {
       module: CaliobaseModule,
@@ -139,6 +135,7 @@ export class CaliobaseModule {
           useValue: new CaliobaseConfig({
             baseUrl,
             emailTransport,
+            guestRole,
           }),
         },
       ],

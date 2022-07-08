@@ -3,7 +3,7 @@ import { IsIn } from 'class-validator';
 import { Column, ManyToOne, PrimaryColumn } from 'typeorm';
 import { Organization } from '.';
 import { RequireWriteAccessLevel } from '../../entity-module/decorators/RequireAccessLevel.decorator';
-import { AclAccessLevel, AclAccessLevels } from '../acl/acl';
+import { AllRoles, Role } from '../../entity-module/roles';
 
 export type Acl<T> = AclItem<T>[];
 
@@ -17,10 +17,10 @@ export abstract class AclItem<T> {
   @Column({ type: String })
   @ApiProperty({
     type: String,
-    enum: AclAccessLevels,
+    enum: AllRoles,
   })
-  @IsIn(AclAccessLevels)
-  access!: AclAccessLevel;
+  @IsIn(AllRoles)
+  access!: Role;
 
   @PrimaryColumn()
   @ApiProperty()
