@@ -55,6 +55,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (userId && organizationId) {
       const member = await this.memberRepo.findOneOrFail({
         where: { userId, organizationId },
+        relations: ['user', 'organization'],
       });
       return { user: member.user, organization: member.organization, member };
     }

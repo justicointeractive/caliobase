@@ -12,6 +12,8 @@ import { createEntityModule } from './createEntityModule';
 import { CaliobaseEntity } from './decorators';
 import assert = require('assert');
 
+// TODO check public access through controller
+
 describe('access policy', () => {
   describe('blog posts', () => {
     @CaliobaseEntity<BlogPost>({
