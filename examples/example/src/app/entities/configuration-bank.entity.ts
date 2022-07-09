@@ -28,7 +28,7 @@ export class ConfigurationBank {
 
   @ApiHideProperty()
   @ManyToOne(() => Bank, { onDelete: 'CASCADE' })
-  @RequireWriteAccessLevel('reader')
+  @RequireWriteAccessLevel('guest')
   bank!: Bank;
 
   @Column({ default: 1 })
