@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.46](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.45...caliobase-0.0.1-alpha.46) (2022-07-09)
+
+
+### Bug Fixes
+
+* swagger decorators for create invitation ([1565e4a](https://github.com/justicointeractive/caliobase/commit/1565e4ab9c27076f3137455d7f1688716e9c9e3d))
+
 ### [0.0.1-alpha.45](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.44...caliobase-0.0.1-alpha.45) (2022-07-09)
 
 
