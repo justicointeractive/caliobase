@@ -50,8 +50,8 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
 ): { controllers: Type<unknown>[]; otherEntities: Type<unknown>[] } {
   const Entity = ControllerService.Entity;
 
-  function getOwnerIdObject(jwt?: CaliobaseRequestUser) {
-    const id = jwt?.member?.organizationId;
+  function getOwnerIdObject(user?: CaliobaseRequestUser) {
+    const id = user?.organization?.id;
     if (id == null) {
       throw new Error(
         'supplied access token does not provide an appropriate owner id'
