@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.3.4](https://github.com/justicointeractive/caliobase/compare/example-0.3.3...example-0.3.4) (2022-07-09)
+
+
+### Bug Fixes
+
+* read level needed for one to many ([c51c8cd](https://github.com/justicointeractive/caliobase/commit/c51c8cd1adba997065edeb326c5a2d3a676b96e5))
+
 ### [0.3.3](https://github.com/justicointeractive/caliobase/compare/example-0.3.2...example-0.3.3) (2022-07-07)
 
 
