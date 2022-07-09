@@ -4,12 +4,12 @@ import {
   ApiBody,
   ApiCreatedResponse,
   ApiOkResponse,
-  ApiProperty,
   ApiTags,
 } from '@nestjs/swagger';
-import { IsIn, IsOptional, IsString } from 'class-validator';
+import { IsIn } from 'class-validator';
 import { AllRoles, Role } from '../entity-module/roles';
 import { AccessTokenResponse } from './auth.controller';
+import { CreateOrganizationRequest } from './CreateOrganizationRequest';
 import { Public } from './decorators';
 import { MemberInvitationToken } from './entities/member-invitation-token.entity';
 import { Member } from './entities/member.entity';
@@ -20,13 +20,6 @@ import assert = require('assert');
 class CreateInvitationRequest {
   @IsIn(AllRoles)
   roles!: Role[];
-}
-
-export class CreateOrganizationBody {
-  @ApiProperty()
-  @IsString()
-  @IsOptional()
-  name?: string;
 }
 
 @ApiTags('organization')
@@ -45,9 +38,9 @@ export class OrganizationController {
 
   @Post()
   @ApiCreatedResponse({ type: Organization })
-  @ApiBody({ type: CreateOrganizationBody })
+  @ApiBody({ type: CreateOrganizationRequest })
   async create(
-    @Body() body: CreateOrganizationBody,
+    @Body() body: CreateOrganizationRequest,
     @Request() request: Express.Request
   ) {
     const userId = request.user?.user?.id;

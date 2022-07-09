@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { ModuleMetadata } from '@nestjs/common';
+import { INestApplication, ModuleMetadata } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -80,9 +80,7 @@ type WithRequest<
   T extends {
     module: TestingModule;
   }
-> = T & {
-  request: supertest.SuperTest<supertest.Test>;
-};
+> = T & { app: INestApplication; request: supertest.SuperTest<supertest.Test> };
 
 export function useTestingModule<
   T extends {
@@ -98,6 +96,7 @@ export function useTestingModule<
     const httpServer = app.getHttpServer();
 
     result = Object.assign(moduleResult, {
+      app,
       request: supertest(httpServer),
     });
   });

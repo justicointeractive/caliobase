@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { AuthService, Member, Organization, User } from '../auth';
+import { CreateRootRequest } from './CreateRootRequest';
 
 @Injectable()
 export class MetaService {
@@ -56,15 +57,7 @@ export class MetaService {
     };
   }
 
-  async createRoot(create: {
-    organization: { name?: string };
-    user: {
-      email: string;
-      givenName: string;
-      familyName: string;
-      password: string;
-    };
-  }) {
+  async createRoot(create: CreateRootRequest) {
     await this.assertHasNoRootMember();
 
     const user: User = await this.authService.createUserWithPassword({

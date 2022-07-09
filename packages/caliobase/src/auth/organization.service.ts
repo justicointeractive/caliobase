@@ -2,14 +2,14 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { async as cryptoRandomString } from 'crypto-random-string';
 import { addDays } from 'date-fns';
 import { DataSource } from 'typeorm';
-import { User } from '.';
 import { CaliobaseConfig } from '../config/config';
 import { Role, Roles } from '../entity-module/roles';
 import { AuthService } from './auth.service';
+import { CreateOrganizationRequest } from './CreateOrganizationRequest';
 import { MemberInvitationToken } from './entities/member-invitation-token.entity';
 import { Member } from './entities/member.entity';
 import { Organization } from './entities/organization.entity';
-import { CreateOrganizationBody } from './organization.controller';
+import { User } from './entities/user.entity';
 
 @Injectable()
 export class OrganizationService {
@@ -47,7 +47,7 @@ export class OrganizationService {
 
   async createOrganization(
     userId: string,
-    createRequest: CreateOrganizationBody
+    createRequest: CreateOrganizationRequest
   ) {
     const organization = await this.orgRepo.save({ ...createRequest });
 

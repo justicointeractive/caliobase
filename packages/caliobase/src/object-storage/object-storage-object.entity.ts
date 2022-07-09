@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { Organization, User } from '../auth';
 import { EntityOwner } from '../auth/decorators/owner.decorator';
+import { Organization } from '../auth/entities/organization.entity';
+import { User } from '../auth/entities/user.entity';
 
 @Entity()
 export class ObjectStorageObject {

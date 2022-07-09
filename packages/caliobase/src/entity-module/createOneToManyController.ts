@@ -13,6 +13,7 @@ import {
   ApiBearerAuth,
   ApiCreatedResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiParamOptions,
   PartialType,
 } from '@nestjs/swagger';
@@ -31,10 +32,14 @@ import {
   isGenerated,
   toColumnRoutePath,
 } from './createEntityController';
-import { RenameClass } from './decorators/RenameClass.decorator';
+import {
+  getNamedEntityClassName,
+  RenameClass,
+} from './decorators/RenameClass.decorator';
 import { RelationPermissionChecker } from './RelationPermissionChecker';
 
 import { ValidatedType } from '.';
+import { ApiOkPaginatedResponse } from '../lib/envelopes';
 
 export function createOneToManyController<T>(
   OneEntity: Type<T>,
@@ -134,7 +139,10 @@ export function createOneToManyController<T>(
       type: ManyEntity,
     })
     @ApiParams(bothSideColumnParams)
-    [toMethodName('create', oneToManyRelationPropertyName)](
+    @ApiOperation({
+      operationId: formatOperationId('create'),
+    })
+    create(
       @Body(
         new ValidationPipe({
           expectedType: CreateEntityRelationDto,
@@ -162,13 +170,41 @@ export function createOneToManyController<T>(
     }
 
     @Get(
+      `${oneSidePathParams}/${oneToManyRelationPropertyName}/${manyEntityPrimaryNonGeneratedPathParams}`
+    )
+    @ApiOkPaginatedResponse({
+      type: ManyEntity,
+    })
+    @ApiParams(bothSideColumnParams)
+    @ApiOperation({
+      operationId: formatOperationId('findAll'),
+    })
+    findAll(
+      @Param(new ValidationPipe({ expectedType: CreateEntityRelationParams }))
+      params: CreateEntityRelationParams,
+      @Request() { user }: Express.Request
+    ) {
+      return this.dataSource.transaction(async (entityManager) => {
+        await this.relationPermissionChecker.checkPermissions(
+          'read',
+          { ...params },
+          user
+        );
+        return await entityManager.find(ManyEntity, params);
+      });
+    }
+
+    @Get(
       `${oneSidePathParams}/${oneToManyRelationPropertyName}/${manyEntityPrimaryPathParams}`
     )
     @ApiOkResponse({
       type: ManyEntity,
     })
     @ApiParams(bothSideColumnParams)
-    [toMethodName('get', oneToManyRelationPropertyName)](
+    @ApiOperation({
+      operationId: formatOperationId('findOne'),
+    })
+    findOne(
       @Param(new ValidationPipe({ expectedType: UpdateEntityRelationParams }))
       params: UpdateEntityRelationParams,
       @Request() { user }: Express.Request
@@ -190,7 +226,10 @@ export function createOneToManyController<T>(
       type: ManyEntity,
     })
     @ApiParams(bothSideColumnParams)
-    [toMethodName('update', oneToManyRelationPropertyName)](
+    @ApiOperation({
+      operationId: formatOperationId('update'),
+    })
+    update(
       @Body(
         new ValidationPipe({
           expectedType: UpdateEntityRelationDto,
@@ -219,7 +258,10 @@ export function createOneToManyController<T>(
       type: ManyEntity,
     })
     @ApiParams(bothSideColumnParams)
-    [toMethodName('remove', oneToManyRelationPropertyName)](
+    @ApiOperation({
+      operationId: formatOperationId('remove'),
+    })
+    remove(
       @Param(new ValidationPipe({ expectedType: UpdateEntityRelationParams }))
       params: UpdateEntityRelationParams,
       @Request() { user }: Express.Request
@@ -236,6 +278,18 @@ export function createOneToManyController<T>(
   }
 
   cloneMetadata(OneEntity, EntityRelationController);
+
+  function formatOperationId(method: string) {
+    const methodKey = camelCase(
+      `${method} ${singular(sentenceCase(oneToManyRelationPropertyName))}`
+    );
+    const controllerKey = getNamedEntityClassName(
+      EntityRelationController,
+      'Entity',
+      relationEntityName
+    );
+    return `${controllerKey}_${methodKey}`;
+  }
 
   return {
     controller: EntityRelationController,
@@ -297,8 +351,4 @@ function createShallowRelationPropertyMap(ManyEntity: any) {
       map[relation.propertyName] = relation;
       return map;
     }, {} as Record<string, RelationMetadataArgs>);
-}
-
-function toMethodName(method: string, type: string) {
-  return camelCase(`${method} ${singular(sentenceCase(type))}`);
 }

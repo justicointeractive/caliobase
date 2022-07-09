@@ -6,28 +6,10 @@ import {
   ApiProperty,
   ApiTags,
 } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { ValidateNested } from 'class-validator';
-import {
-  CreateOrganizationBody,
-  Member,
-  Organization,
-  UserSignupBody,
-} from '../auth';
+import { Member, Organization } from '../auth';
 import { Public } from '../auth/decorators/public.decorator';
+import { CreateRootRequest } from './CreateRootRequest';
 import { MetaService } from './meta.service';
-
-class CreateRoot {
-  @ValidateNested()
-  @Type(() => UserSignupBody)
-  @ApiProperty()
-  user!: UserSignupBody;
-
-  @ValidateNested()
-  @Type(() => CreateOrganizationBody)
-  @ApiProperty()
-  organization!: CreateOrganizationBody;
-}
 
 class GetMetaResponse {
   @ApiProperty()
@@ -47,7 +29,7 @@ export class MetaController {
 
   @Public()
   @Get()
-  @ApiOkResponse({ type: GetMetaResponse })
+  @ApiOkResponse({ type: () => GetMetaResponse })
   async getMeta() {
     return <GetMetaResponse>{
       hasRootMember: await this.metaService.getHasRootMember(),
@@ -57,9 +39,9 @@ export class MetaController {
 
   @Public()
   @Post()
-  @ApiBody({ type: CreateRoot })
+  @ApiBody({ type: () => CreateRootRequest })
   @ApiCreatedResponse({ type: Member })
-  async createRoot(@Body() body: CreateRoot) {
+  async createRoot(@Body() body: CreateRootRequest) {
     return this.metaService.createRoot(body);
   }
 }

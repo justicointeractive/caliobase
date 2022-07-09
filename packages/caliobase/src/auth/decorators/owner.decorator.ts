@@ -1,7 +1,6 @@
 import { Type } from '@nestjs/common';
 import { ManyToOne } from 'typeorm';
-
-import { Organization } from '..';
+import { Organization } from '../entities/organization.entity';
 
 const ownerKey = 'caliobase:owner';
 
