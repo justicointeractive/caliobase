@@ -3,13 +3,13 @@ import { PickType } from '@nestjs/swagger';
 import { getMetadataStorage } from 'class-validator';
 
 function getValidatedProperties<T>(
-  type: new (...args: any[]) => T,
+  type: new (...args: unknown[]) => T
 ): (keyof T)[] {
   return [
     ...new Set(
       getMetadataStorage()
         .getTargetValidationMetadatas(type, type.name, true, false)
-        .map((metadata) => metadata.propertyName as keyof T),
+        .map((metadata) => metadata.propertyName as keyof T)
     ),
   ];
 }
@@ -19,7 +19,7 @@ export function ValidatedType<TEntity>(
   {
     exclude,
     include,
-  }: { exclude?: (keyof TEntity)[]; include?: (keyof TEntity)[] } = {},
+  }: { exclude?: (keyof TEntity)[]; include?: (keyof TEntity)[] } = {}
 ) {
   return PickType(
     type,
@@ -31,6 +31,6 @@ export function ValidatedType<TEntity>(
         return false;
       }
       return true;
-    }),
+    })
   );
 }

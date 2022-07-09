@@ -6,7 +6,7 @@ import { createOneToManyController } from './createOneToManyController';
 export function createAclController(
   Entity: Type<any>,
   options: { validatorOptions: ValidatorOptions }
-): Type<any> {
+): { controller: Type<any>; manyEntity: Type<any> } {
   const aclProperty = getAclProperty(Entity);
 
   return createOneToManyController(Entity, aclProperty, options);

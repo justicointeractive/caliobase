@@ -46,7 +46,7 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
   ControllerService: ICaliobaseServiceType<TEntity, TCreate, TUpdate>,
   findManyOptions: Type<ToFindOptions<TEntity>>,
   validatorOptions: ValidatorOptions
-): Type<unknown>[] {
+): { controllers: Type<unknown>[]; otherEntities: Type<unknown>[] } {
   const Entity = ControllerService.Entity;
 
   function getOwnerIdObject(jwt?: CaliobaseRequestUser) {
@@ -70,7 +70,9 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
 
   const primaryColumnRoutePath = toColumnRoutePath(primaryColumns);
 
+  const otherEntities: Type<unknown>[] = [];
   const controllers: Type<unknown>[] = [];
+
   {
     @RenameClass(ControllerService.Entity)
     @ApiBearerAuth()
@@ -216,23 +218,26 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
   }
 
   if (AclEntity != null) {
-    const ShareEntityController = createAclController(Entity, {
+    const { controller, manyEntity } = createAclController(Entity, {
       validatorOptions,
     });
-    controllers.push(ShareEntityController);
+    controllers.push(controller);
+    otherEntities.push(manyEntity);
   }
 
   getRelationController(Entity)?.properties.forEach((propertyName) => {
-    const EntityRelationController = createOneToManyController(
+    const { controller, manyEntity } = createOneToManyController(
       Entity,
       String(propertyName),
       {
         validatorOptions,
       }
     );
-    controllers.push(EntityRelationController);
+    controllers.push(controller);
+    otherEntities.push(manyEntity);
   });
-  return controllers;
+
+  return { controllers, otherEntities };
 }
 
 export function getPrimaryColumns<TEntity>(entity: Type<TEntity>) {

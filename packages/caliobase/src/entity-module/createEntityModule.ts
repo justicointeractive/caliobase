@@ -3,11 +3,7 @@ import { PATH_METADATA } from '@nestjs/common/constants';
 import { PartialType } from '@nestjs/swagger';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DeepPartial } from 'typeorm';
-import {
-  createFindManyQueryParamClass,
-  ICaliobaseController,
-  ToFindOptions,
-} from '.';
+import { createFindManyQueryParamClass, ToFindOptions } from '.';
 import { EntityOwner, getOwnerProperty } from '../auth';
 import { getAclEntity } from '../auth/acl/getAclEntityAndProperty';
 import { defaultValidatorOptions } from '../defaultValidatorOptions';
@@ -36,7 +32,7 @@ export function createEntityModule<TEntity>(
     UpdateEntityDto as Type<DeepPartial<TEntity>>
   );
 
-  const controllers = (() => {
+  const { controllers, otherEntities } = (() => {
     if (Reflect.getMetadata(PATH_METADATA, entityType)) {
       const controllers = createEntityController(
         EntityService,
@@ -46,7 +42,7 @@ export function createEntityModule<TEntity>(
 
       return controllers;
     }
-    return [];
+    return { controllers: [], otherEntities: [] };
   })();
 
   const aclEntity = getAclEntity(entityType);
@@ -58,7 +54,11 @@ export function createEntityModule<TEntity>(
 
   @Module({
     imports: [
-      TypeOrmModule.forFeature([entityType, ...(aclEntity ? [aclEntity] : [])]),
+      TypeOrmModule.forFeature([
+        entityType,
+        ...otherEntities,
+        ...(aclEntity ? [aclEntity] : []),
+      ]),
     ],
     controllers: [...controllers],
     providers: [EntityService],
@@ -85,7 +85,7 @@ export interface ICaliobaseEntityModule<TEntity> {
     DeepPartial<TEntity>,
     DeepPartial<TEntity>
   >;
-  EntityController?: Type<ICaliobaseController<TEntity>>;
+  EntityControllers?: Type<unknown>[];
 
   // eslint-disable-next-line @typescript-eslint/ban-types
   new (): {};

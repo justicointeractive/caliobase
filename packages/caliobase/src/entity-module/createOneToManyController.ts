@@ -40,7 +40,7 @@ export function createOneToManyController<T>(
   OneEntity: Type<T>,
   oneToManyRelationPropertyName: string,
   options: { validatorOptions: ValidatorOptions }
-): Type<any> {
+): { controller: Type<any>; manyEntity: Type<any> } {
   const oneToManyRelation = findRelationMetadataArgs(
     OneEntity,
     oneToManyRelationPropertyName
@@ -237,7 +237,10 @@ export function createOneToManyController<T>(
 
   cloneMetadata(OneEntity, EntityRelationController);
 
-  return EntityRelationController;
+  return {
+    controller: EntityRelationController,
+    manyEntity: ManyEntity,
+  };
 }
 
 function getRelatedTypeFromRelationMetadataArgs(
