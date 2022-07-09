@@ -1,3 +1,5 @@
+import { faker } from '@faker-js/faker';
+import { omit } from 'lodash';
 import {
   Column,
   Entity,
@@ -5,27 +7,34 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { createEntityModule } from '.';
+import { createEntityModule, ICaliobaseController } from '.';
 import {
   createTestingModule,
+  createTestOrganization,
   useTestingModule,
 } from '../test/createTestingModule';
 import { CaliobaseEntity, RelationController } from './decorators';
+import { IEntityRelationController } from './IEntityRelationController';
+import assert = require('assert');
 
 describe('one to many relationships', () => {
   @CaliobaseEntity({
+    entity: { name: 'one_to_many_card' },
     controller: { name: 'one' },
   })
   class Card {
     @PrimaryGeneratedColumn('uuid')
     id!: string;
 
+    @Column()
+    title!: string;
+
     @RelationController()
-    @OneToMany(() => Note, (n) => n.one)
+    @OneToMany(() => Note, (n) => n.card, { eager: true })
     notes!: Note[];
   }
 
-  @Entity()
+  @Entity({ name: 'one_to_many_card_note' })
   class Note {
     @PrimaryGeneratedColumn('uuid')
     id!: string;
@@ -33,32 +42,79 @@ describe('one to many relationships', () => {
     @Column()
     text!: string;
 
+    @Column()
+    cardId!: string;
+
     @ManyToOne(() => Card)
-    one!: Card;
+    card!: Card;
   }
 
-  const { module, entityModule } = useTestingModule(async () => {
-    const entityModule = createEntityModule(Card);
+  const { cardController, noteController, owner } = useTestingModule(
+    async () => {
+      const entityModule = createEntityModule(Card);
 
-    const module = await createTestingModule({
-      imports: [entityModule],
-    });
+      const module = await createTestingModule({
+        imports: [entityModule],
+      });
 
-    const noteController = entityModule.EntityControllers?.find(
-      (c) => c.name === 'CardNoteRelationController'
-    );
+      const cardControllerType = entityModule.EntityControllers?.find(
+        (c) => c.name === 'CardController'
+      );
+      assert(cardControllerType);
+      const cardController = module.get(
+        cardControllerType
+      ) as ICaliobaseController<Card>;
+      assert(cardController);
 
-    console.log(
-      noteController &&
-        Object.getOwnPropertyNames(
-          Object.getPrototypeOf(module.get<any>(noteController))
-        )
-    );
+      const noteControllerType = entityModule.EntityControllers?.find(
+        (c) => c.name === 'CardNoteRelationController'
+      );
+      assert(noteControllerType);
+      const noteController = module.get(
+        noteControllerType
+      ) as IEntityRelationController<Note>;
+      assert(noteController);
 
-    return { module, entityModule };
+      const createOrganization = await createTestOrganization(module);
+
+      return {
+        module,
+        entityModule,
+        cardController,
+        noteController,
+        ...createOrganization,
+      };
+    }
+  );
+
+  it('should create relation controller', async () => {
+    expect(noteController).not.toBeNull();
   });
 
-  it('should allow one to many relationships', async () => {
-    expect(entityModule.EntityControllers).toHaveLength(2);
+  it('should create related content', async () => {
+    const { item: card } = await cardController.create(
+      { title: faker.commerce.product() },
+      { user: owner }
+    );
+
+    const { item: note } = await noteController.create(
+      {
+        text: faker.lorem.sentence(),
+      },
+      { card },
+      { user: owner }
+    );
+
+    expect(note).not.toBeNull();
+
+    expect(
+      (await noteController.findOne(note, { user: owner })).item
+    ).toMatchObject(omit(note, ['card']));
+
+    expect(
+      (await cardController.findOne(card, { user: owner })).item?.notes
+    ).toHaveLength(1);
+
+    expect(note).not.toBeNull();
   });
 });

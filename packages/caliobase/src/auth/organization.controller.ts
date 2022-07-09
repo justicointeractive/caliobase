@@ -7,6 +7,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { IsIn } from 'class-validator';
+import { RequestUser } from '../entity-module/RequestUser';
 import { AllRoles, Role } from '../entity-module/roles';
 import { AccessTokenResponse } from './auth.controller';
 import { CreateOrganizationRequest } from './CreateOrganizationRequest';
@@ -30,7 +31,7 @@ export class OrganizationController {
 
   @Get()
   @ApiOkResponse({ type: [Member] })
-  async findAll(@Request() request: Express.Request) {
+  async findAll(@Request() request: RequestUser) {
     const userId = request.user?.user?.id;
     assert(userId);
     return await this.orgService.findUserMemberships(userId);
@@ -41,7 +42,7 @@ export class OrganizationController {
   @ApiBody({ type: CreateOrganizationRequest })
   async create(
     @Body() body: CreateOrganizationRequest,
-    @Request() request: Express.Request
+    @Request() request: RequestUser
   ) {
     const userId = request.user?.user?.id;
     assert(userId);
@@ -52,7 +53,7 @@ export class OrganizationController {
   @Post('token')
   @ApiCreatedResponse({ type: AccessTokenResponse })
   async getRootOrganizationToken(
-    @Request() request: Express.Request
+    @Request() request: RequestUser
   ): Promise<AccessTokenResponse> {
     const userId = request.user?.user?.id;
     const organizationId = Organization.RootId;
@@ -72,7 +73,7 @@ export class OrganizationController {
   @ApiCreatedResponse({ type: AccessTokenResponse })
   async getOrganizationToken(
     @Param('id') organizationId: string,
-    @Request() request: Express.Request
+    @Request() request: RequestUser
   ): Promise<AccessTokenResponse> {
     const userId = request.user?.user?.id;
 
@@ -91,7 +92,7 @@ export class OrganizationController {
   async createInvitation(
     @Param('id') organizationId: string,
     @Body() createInvitationRequest: CreateInvitationRequest,
-    @Request() request: Express.Request
+    @Request() request: RequestUser
   ): Promise<MemberInvitationToken> {
     const member = request.user?.member;
     assert(member);
@@ -116,7 +117,7 @@ export class OrganizationController {
   @ApiCreatedResponse({ type: Member })
   async claimInvitation(
     @Param('token') token: string,
-    @Request() request: Express.Request
+    @Request() request: RequestUser
   ): Promise<Member | null> {
     const userId = request.user?.user?.id;
     assert(userId);

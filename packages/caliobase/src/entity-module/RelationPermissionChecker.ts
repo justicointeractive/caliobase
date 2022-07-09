@@ -74,6 +74,9 @@ export class RelationPermissionChecker {
     user: CaliobaseRequestUser
   ) {
     const AclEntity = getAclEntity(entity);
+    if (AclEntity == null) {
+      return true;
+    }
     const result = await this.dataSource.getRepository(AclEntity).findOne({
       where: {
         ...primaryKey,

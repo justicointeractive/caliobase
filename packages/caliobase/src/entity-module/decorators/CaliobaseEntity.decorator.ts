@@ -1,11 +1,12 @@
 import { applyDecorators, Controller, Type } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Entity } from 'typeorm';
+import { Entity, EntityOptions } from 'typeorm';
 import { AccessPolicies, PolicyStatements } from './AccessPolicies.decorator';
 
 const METADATA_KEY = Symbol('caliobase:entity');
 
 export type CaliobaseEntityOptions<T> = {
+  entity?: EntityOptions;
   controller?: {
     name: string;
     defaultOrderBy?: string[];
@@ -19,7 +20,7 @@ export const CaliobaseEntity = Object.assign(
     options: CaliobaseEntityOptions<TFunction> = {}
   ): ((target: new (...args: any[]) => TFunction) => void) => {
     return applyDecorators(
-      Entity(),
+      Entity(options.entity),
       ...(options.controller
         ? [
             Controller(options.controller.name),

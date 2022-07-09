@@ -30,8 +30,8 @@ import {
   ApiCreatedItemResponse,
   ApiOkItemResponse,
   ApiOkPaginatedResponse,
-  ItemEnvelope,
-  ItemsEnvelope,
+  PaginationItemResponse,
+  PaginationItemsResponse,
 } from '../lib/envelopes';
 import { cloneMetadata } from '../util/cloneMetadata';
 import { createAclController } from './createAclController';
@@ -40,6 +40,7 @@ import { getRelationController } from './decorators';
 import { RenameClass } from './decorators/RenameClass.decorator';
 import { ICaliobaseController } from './ICaliobaseController';
 import { ICaliobaseServiceType } from './ICaliobaseService';
+import { RequestUser } from './RequestUser';
 import assert = require('assert');
 
 export function createEntityController<TEntity, TCreate, TUpdate>(
@@ -101,10 +102,10 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
           })
         )
         createDto: TCreate,
-        @Request() { user }: Express.Request
+        @Request() { user }: RequestUser
       ) {
         assert(user);
-        return new ItemEnvelope(
+        return new PaginationItemResponse(
           await this.service.create(createDto, {
             organization: getOwnerIdObject(user),
             user,
@@ -120,17 +121,17 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
         type: ControllerService.Entity,
       })
       async findAll(
-        @Request() { user }: Express.Request,
         @Query(
           new ValidationPipe({
             expectedType: findManyOptions,
             ...validatorOptions,
           })
         )
-        listOptions: ToFindOptions<TEntity>
+        listOptions: ToFindOptions<TEntity>,
+        @Request() { user }: RequestUser
       ) {
         assert(user);
-        return new ItemsEnvelope(
+        return new PaginationItemsResponse(
           await this.service.findAll(listOptions.toFindOptions(), {
             organization: getOwnerIdObject(user),
             user,
@@ -147,13 +148,13 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
       )
       @ApiParams(primaryColumnParams)
       async findOne(
-        @Param() params: unknown,
-        @Request() { user }: Express.Request
+        @Param() params: Partial<TEntity>,
+        @Request() { user }: RequestUser
       ) {
         assert(user);
-        return new ItemEnvelope(
+        return new PaginationItemResponse(
           await this.service.findOne(
-            { where: pickColumnProperties(primaryColumns, params) },
+            { where: pickColumnProperties(primaryColumns, params as unknown) },
             { organization: getOwnerIdObject(user), user }
           )
         );
@@ -168,7 +169,7 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
         type: ControllerService.Entity,
       })
       async update(
-        @Param() params: unknown,
+        @Param() params: Partial<TEntity>,
         @Body(
           new ValidationPipe({
             expectedType: ControllerService.UpdateDto,
@@ -176,12 +177,12 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
           })
         )
         updateDto: TUpdate,
-        @Request() { user }: Express.Request
+        @Request() { user }: RequestUser
       ) {
         assert(user);
-        return new ItemsEnvelope(
+        return new PaginationItemsResponse(
           await this.service.update(
-            pickColumnProperties(primaryColumns, params),
+            pickColumnProperties(primaryColumns, params as unknown),
             updateDto,
             {
               organization: getOwnerIdObject(user),
@@ -196,12 +197,9 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
       @ApiOkPaginatedResponse({
         type: ControllerService.Entity,
       })
-      async remove(
-        @Param() params: unknown,
-        @Request() { user }: Express.Request
-      ) {
+      async remove(@Param() params: unknown, @Request() { user }: RequestUser) {
         assert(user);
-        return new ItemsEnvelope(
+        return new PaginationItemsResponse(
           await this.service.remove(
             pickColumnProperties(primaryColumns, params),
             {

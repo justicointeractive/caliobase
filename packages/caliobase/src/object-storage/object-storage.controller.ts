@@ -8,6 +8,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { IsIn, IsNumber, IsString } from 'class-validator';
+import { RequestUser } from '../entity-module/RequestUser';
 import { SignedUploadUrl } from './AbstractObjectStorageProvider';
 import {
   ObjectStorageObject,
@@ -58,7 +59,7 @@ export class ObjectStorageController {
   })
   async createObjectStorageObject(
     @Body() file: ObjectStorageCreateRequest,
-    @Request() request: Express.Request
+    @Request() request: RequestUser
   ): Promise<ObjectStorageCreateResponse> {
     const member = request.user?.member;
     assert(member);
@@ -81,7 +82,7 @@ export class ObjectStorageController {
   async updateObjectStorageObject(
     @Param('objectId') objectId: string,
     @Body() file: ObjectStorageUpdateRequest,
-    @Request() request: Express.Request
+    @Request() request: RequestUser
   ): Promise<ObjectStorageObject> {
     const member = request.user?.member;
     assert(member);

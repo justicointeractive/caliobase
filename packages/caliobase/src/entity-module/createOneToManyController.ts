@@ -20,7 +20,7 @@ import {
 import { camelCase, sentenceCase } from 'change-case';
 import { ValidatorOptions } from 'class-validator';
 import { singular } from 'pluralize';
-import { DataSource, getMetadataArgsStorage } from 'typeorm';
+import { DataSource, getMetadataArgsStorage, Repository } from 'typeorm';
 import { ColumnMetadataArgs } from 'typeorm/metadata-args/ColumnMetadataArgs';
 import { RelationMetadataArgs } from 'typeorm/metadata-args/RelationMetadataArgs';
 
@@ -38,8 +38,15 @@ import {
 } from './decorators/RenameClass.decorator';
 import { RelationPermissionChecker } from './RelationPermissionChecker';
 
+import { InjectRepository } from '@nestjs/typeorm';
 import { ValidatedType } from '.';
-import { ApiOkPaginatedResponse } from '../lib/envelopes';
+import {
+  ApiOkPaginatedResponse,
+  PaginationItemResponse,
+  PaginationItemsResponse,
+} from '../lib/envelopes';
+import { IEntityRelationController } from './IEntityRelationController';
+import { RequestUser } from './RequestUser';
 
 export function createOneToManyController<T>(
   OneEntity: Type<T>,
@@ -124,13 +131,19 @@ export function createOneToManyController<T>(
 
   @RenameClass(relationEntityName)
   @ApiBearerAuth()
-  class EntityRelationController {
+  class EntityRelationController
+    implements IEntityRelationController<typeof ManyEntity>
+  {
     relationPermissionChecker = new RelationPermissionChecker(
       this.dataSource,
       ManyEntity
     );
 
-    constructor(private dataSource: DataSource) {}
+    constructor(
+      private dataSource: DataSource,
+      @InjectRepository(ManyEntity)
+      private manyRepo: Repository<typeof ManyEntity>
+    ) {}
 
     @Post(
       `${oneSidePathParams}/${oneToManyRelationPropertyName}/${manyEntityPrimaryNonGeneratedPathParams}`
@@ -142,7 +155,7 @@ export function createOneToManyController<T>(
     @ApiOperation({
       operationId: formatOperationId('create'),
     })
-    create(
+    async create(
       @Body(
         new ValidationPipe({
           expectedType: CreateEntityRelationDto,
@@ -152,21 +165,19 @@ export function createOneToManyController<T>(
       body: CreateEntityRelationDto,
       @Param(new ValidationPipe({ expectedType: CreateEntityRelationParams }))
       params: CreateEntityRelationParams,
-      @Request() { user }: Express.Request
+      @Request() { user }: RequestUser
     ) {
-      return this.dataSource.transaction(async (entityManager) => {
-        await this.relationPermissionChecker.checkPermissions(
-          'write',
-          { ...params, ...body },
-          user
-        );
-        return await entityManager.save(
-          entityManager.create(ManyEntity, {
-            ...params,
-            ...body,
-          })
-        );
-      });
+      await this.relationPermissionChecker.checkPermissions(
+        'write',
+        { ...params, ...body },
+        user
+      );
+      return new PaginationItemResponse(
+        await this.manyRepo.save({
+          ...params,
+          ...body,
+        })
+      );
     }
 
     @Get(
@@ -179,19 +190,17 @@ export function createOneToManyController<T>(
     @ApiOperation({
       operationId: formatOperationId('findAll'),
     })
-    findAll(
+    async findAll(
       @Param(new ValidationPipe({ expectedType: CreateEntityRelationParams }))
       params: CreateEntityRelationParams,
-      @Request() { user }: Express.Request
+      @Request() { user }: RequestUser
     ) {
-      return this.dataSource.transaction(async (entityManager) => {
-        await this.relationPermissionChecker.checkPermissions(
-          'read',
-          { ...params },
-          user
-        );
-        return await entityManager.find(ManyEntity, params);
-      });
+      await this.relationPermissionChecker.checkPermissions(
+        'read',
+        { ...params },
+        user
+      );
+      return new PaginationItemsResponse(await this.manyRepo.findBy(params));
     }
 
     @Get(
@@ -204,19 +213,17 @@ export function createOneToManyController<T>(
     @ApiOperation({
       operationId: formatOperationId('findOne'),
     })
-    findOne(
+    async findOne(
       @Param(new ValidationPipe({ expectedType: UpdateEntityRelationParams }))
       params: UpdateEntityRelationParams,
-      @Request() { user }: Express.Request
+      @Request() { user }: RequestUser
     ) {
-      return this.dataSource.transaction(async (entityManager) => {
-        await this.relationPermissionChecker.checkPermissions(
-          'read',
-          { ...params },
-          user
-        );
-        return await entityManager.findOne(ManyEntity, params);
-      });
+      await this.relationPermissionChecker.checkPermissions(
+        'read',
+        { ...params },
+        user
+      );
+      return new PaginationItemResponse(await this.manyRepo.findOneBy(params));
     }
 
     @Patch(
@@ -229,7 +236,7 @@ export function createOneToManyController<T>(
     @ApiOperation({
       operationId: formatOperationId('update'),
     })
-    update(
+    async update(
       @Body(
         new ValidationPipe({
           expectedType: UpdateEntityRelationDto,
@@ -239,16 +246,16 @@ export function createOneToManyController<T>(
       body: UpdateEntityRelationDto,
       @Param(new ValidationPipe({ expectedType: UpdateEntityRelationParams }))
       params: UpdateEntityRelationParams,
-      @Request() { user }: Express.Request
+      @Request() { user }: RequestUser
     ) {
-      return this.dataSource.transaction(async (entityManager) => {
-        await this.relationPermissionChecker.checkPermissions(
-          'write',
-          { ...params, ...body },
-          user
-        );
-        return await entityManager.update(ManyEntity, params, body);
-      });
+      await this.relationPermissionChecker.checkPermissions(
+        'write',
+        { ...params, ...body },
+        user
+      );
+      return new PaginationItemResponse(
+        await this.manyRepo.update(params, body)
+      );
     }
 
     @Delete(
@@ -261,19 +268,17 @@ export function createOneToManyController<T>(
     @ApiOperation({
       operationId: formatOperationId('remove'),
     })
-    remove(
+    async remove(
       @Param(new ValidationPipe({ expectedType: UpdateEntityRelationParams }))
       params: UpdateEntityRelationParams,
-      @Request() { user }: Express.Request
+      @Request() { user }: RequestUser
     ) {
-      return this.dataSource.transaction(async (entityManager) => {
-        await this.relationPermissionChecker.checkPermissions(
-          'write',
-          { ...params },
-          user
-        );
-        return await entityManager.remove(ManyEntity, params);
-      });
+      await this.relationPermissionChecker.checkPermissions(
+        'write',
+        { ...params },
+        user
+      );
+      return new PaginationItemResponse(await this.manyRepo.remove(params));
     }
   }
 

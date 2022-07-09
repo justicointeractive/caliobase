@@ -116,9 +116,9 @@ export function useTestingModule<
   });
 }
 
-export async function createTestOrganization(app: TestingModule) {
-  const authService = app.get(AuthService);
-  const orgService = app.get(OrganizationService);
+export async function createTestOrganization(module: TestingModule) {
+  const authService = module.get(AuthService);
+  const orgService = module.get(OrganizationService);
 
   const owner = await authService.createUserWithPassword(fakeUser());
   const organization = await orgService.createOrganization(owner.id, {
@@ -133,12 +133,12 @@ export async function createTestOrganization(app: TestingModule) {
 }
 
 export async function createTestUserWithRole(
-  app: TestingModule,
+  module: TestingModule,
   owner: Member,
   roles: Role[]
 ) {
-  const authService = app.get(AuthService);
-  const orgService = app.get(OrganizationService);
+  const authService = module.get(AuthService);
+  const orgService = module.get(OrganizationService);
 
   const otherUser = await authService.createUserWithPassword(fakeUser());
 
@@ -157,11 +157,11 @@ export async function createTestUserWithRole(
 }
 
 export async function createGuestUser(
-  app: TestingModule,
+  module: TestingModule,
   org: Organization
 ): Promise<CaliobaseRequestUser> {
-  const userService = app.get<AuthService>(AuthService);
-  const orgService = app.get<OrganizationService>(OrganizationService);
+  const userService = module.get<AuthService>(AuthService);
+  const orgService = module.get<OrganizationService>(OrganizationService);
   const guest = await userService.createUserWithPassword(fakeUser());
   const member = await orgService.joinAsGuest(org, guest);
   return { user: member.user, member, organization: member.organization };

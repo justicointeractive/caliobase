@@ -6,11 +6,11 @@ import {
   getSchemaPath,
 } from '@nestjs/swagger';
 
-export class ItemEnvelope<T> {
+export class PaginationItemResponse<T> {
   constructor(public item: T) {}
 }
 
-export class ItemsEnvelope<T> {
+export class PaginationItemsResponse<T> {
   constructor(public items: T[]) {}
 }
 
