@@ -4,6 +4,7 @@ import {
   ApiBody,
   ApiCreatedResponse,
   ApiOkResponse,
+  ApiProperty,
   ApiTags,
 } from '@nestjs/swagger';
 import { IsIn } from 'class-validator';
@@ -19,6 +20,7 @@ import { OrganizationService } from './organization.service';
 import assert = require('assert');
 
 class CreateInvitationRequest {
+  @ApiProperty()
   @IsIn(AllRoles)
   roles!: Role[];
 }
@@ -89,6 +91,7 @@ export class OrganizationController {
 
   @Post(':id/invitation')
   @ApiCreatedResponse({ type: MemberInvitationToken })
+  @ApiBody({ type: CreateInvitationRequest })
   async createInvitation(
     @Param('id') organizationId: string,
     @Body() createInvitationRequest: CreateInvitationRequest,
