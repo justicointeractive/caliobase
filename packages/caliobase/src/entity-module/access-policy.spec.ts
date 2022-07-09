@@ -40,36 +40,39 @@ describe('access policy', () => {
       published!: boolean;
     }
 
-    const { blogPostService, createdOrganization, otherOrganization } =
-      useTestingModule(async () => {
-        const entityModule = createEntityModule(BlogPost);
+    const {
+      blogPostService,
+      createdOrganization,
+      otherOrganization,
+      readerUser,
+    } = useTestingModule(async () => {
+      const entityModule = createEntityModule(BlogPost);
 
-        const module = await createTestingModule({
-          imports: [entityModule],
-        });
-
-        const blogPostService = module.get<
-          InstanceType<NonNullable<typeof entityModule['EntityService']>>
-        >(entityModule.EntityService);
-
-        const createdOrganization = await createTestOrganization(module);
-
-        const otherOrganization = await createTestOrganization(module);
-
-        return {
-          module,
-          entityModule,
-          blogPostService,
-          otherOrganization,
-          createdOrganization: {
-            ...createdOrganization,
-            readerUser: await createGuestUser(
-              module,
-              createdOrganization.organization
-            ),
-          },
-        };
+      const module = await createTestingModule({
+        imports: [entityModule],
       });
+
+      const blogPostService = module.get<
+        InstanceType<NonNullable<typeof entityModule['EntityService']>>
+      >(entityModule.EntityService);
+
+      const createdOrganization = await createTestOrganization(module);
+
+      const otherOrganization = await createTestOrganization(module);
+
+      const readerUser = await createGuestUser(
+        module,
+        createdOrganization.organization
+      );
+      return {
+        module,
+        entityModule,
+        blogPostService,
+        otherOrganization,
+        createdOrganization,
+        readerUser,
+      };
+    });
 
     assert(createdOrganization);
 
@@ -99,7 +102,7 @@ describe('access policy', () => {
             },
             {
               organization: createdOrganization.organization,
-              user: createdOrganization.readerUser,
+              user: readerUser,
             }
           )
       ).rejects.toThrow();
