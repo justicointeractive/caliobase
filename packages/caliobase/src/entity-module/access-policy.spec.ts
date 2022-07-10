@@ -44,7 +44,8 @@ describe('access policy', () => {
 
     const {
       blogPostService,
-      createdOrganization,
+      organization,
+      owner,
       otherOrganization,
       readerUser,
     } = useTestingModule(async () => {
@@ -71,12 +72,10 @@ describe('access policy', () => {
         entityModule,
         blogPostService,
         otherOrganization,
-        createdOrganization,
+        ...createdOrganization,
         readerUser,
       };
     });
-
-    assert(createdOrganization);
 
     let blogPost: BlogPost;
 
@@ -87,8 +86,8 @@ describe('access policy', () => {
           published: false,
         },
         {
-          organization: createdOrganization.organization,
-          user: createdOrganization.owner,
+          organization,
+          user: owner,
         }
       );
 
@@ -103,7 +102,7 @@ describe('access policy', () => {
               published: false,
             },
             {
-              organization: createdOrganization.organization,
+              organization,
               user: readerUser,
             }
           )
@@ -118,7 +117,7 @@ describe('access policy', () => {
               published: false,
             },
             {
-              organization: createdOrganization.organization,
+              organization,
               user: otherOrganization.owner,
             }
           )
@@ -131,8 +130,8 @@ describe('access policy', () => {
             where: { id: blogPost.id },
           },
           {
-            organization: createdOrganization.organization,
-            user: testAnonymousUser(createdOrganization.organization),
+            organization,
+            user: testAnonymousUser(organization),
           }
         )
       ).toBeNull();
@@ -142,8 +141,8 @@ describe('access policy', () => {
             where: { id: blogPost.id },
           },
           {
-            organization: createdOrganization.organization,
-            user: testAnonymousUser(createdOrganization.organization),
+            organization,
+            user: testAnonymousUser(organization),
           }
         )
       ).toHaveLength(0);
@@ -156,8 +155,8 @@ describe('access policy', () => {
             published: true,
           },
           {
-            organization: createdOrganization.organization,
-            user: createdOrganization.owner,
+            organization,
+            user: owner,
           }
         )
       )[0];
@@ -171,8 +170,8 @@ describe('access policy', () => {
             where: { id: blogPost.id },
           },
           {
-            organization: createdOrganization.organization,
-            user: testAnonymousUser(createdOrganization.organization),
+            organization,
+            user: testAnonymousUser(organization),
           }
         )
       ).not.toBeNull();
@@ -182,8 +181,32 @@ describe('access policy', () => {
             where: { id: blogPost.id },
           },
           {
-            organization: createdOrganization.organization,
-            user: testAnonymousUser(createdOrganization.organization),
+            organization,
+            user: testAnonymousUser(organization),
+          }
+        )
+      ).toHaveLength(1);
+    });
+    it('should allow editor list/get published', async () => {
+      expect(
+        await blogPostService.findOne(
+          {
+            where: { id: blogPost.id },
+          },
+          {
+            organization,
+            user: owner,
+          }
+        )
+      ).not.toBeNull();
+      expect(
+        await blogPostService.findAll(
+          {
+            where: { id: blogPost.id },
+          },
+          {
+            organization,
+            user: owner,
           }
         )
       ).toHaveLength(1);
