@@ -1,9 +1,14 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { async as cryptoRandomString } from 'crypto-random-string';
 import { addDays } from 'date-fns';
-import { DataSource } from 'typeorm';
+import { DataSource, MoreThanOrEqual } from 'typeorm';
 import { CaliobaseConfig } from '../config/config';
 import { Role, Roles } from '../entity-module/roles';
+import { assert } from '../lib/assert';
 import { AuthService } from './auth.service';
 import { CreateOrganizationRequest } from './CreateOrganizationRequest';
 import { MemberInvitationToken } from './entities/member-invitation-token.entity';
@@ -112,22 +117,31 @@ export class OrganizationService {
 
   async getInvitation(token: string) {
     const invite = await this.memberInviteRepo.findOne({
-      where: { token },
+      where: { token, validUntil: MoreThanOrEqual(new Date()) },
     });
 
     return invite;
   }
 
   async claimInvitation(userId: string, token: string) {
+    const invitation = await this.getInvitation(token);
+
+    assert(invitation, undefined, NotFoundException);
+
     const { organization, roles } = await this.memberInviteRepo.findOneOrFail({
       where: { token },
       relations: ['organization'],
     });
+
     const user = await this.userRepo.findOneOrFail({
       where: { id: userId },
     });
 
     const member = await this.memberRepo.save({ user, organization, roles });
+
+    invitation.validUntil = new Date();
+
+    await this.memberInviteRepo.save(invitation);
 
     return member;
   }
