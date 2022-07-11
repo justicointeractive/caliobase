@@ -173,7 +173,12 @@ export class OrganizationService {
       where: { id: userId },
     });
 
-    const member = await this.memberRepo.save({ user, organization, roles });
+    await this.memberRepo.insert({ user, organization, roles });
+
+    const member = await this.memberRepo.findOneByOrFail({
+      user,
+      organization,
+    });
 
     invitation.validUntil = new Date();
 
