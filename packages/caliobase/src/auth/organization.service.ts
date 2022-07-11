@@ -96,11 +96,7 @@ export class OrganizationService {
     });
   }
 
-  async createInvitation(
-    organizationId: string,
-    invitedBy: Member,
-    roles: Role[]
-  ) {
+  async createInvitation(invitedBy: Member, roles: Role[]) {
     const token = await cryptoRandomString({
       length: 128,
       type: 'url-safe',
@@ -116,7 +112,7 @@ export class OrganizationService {
 
     const invite = await this.memberInviteRepo.save({
       token,
-      organization: { id: organizationId },
+      organization: { id: invitedBy.organizationId },
       validUntil: addDays(Date.now(), 7),
       roles,
       invitedBy: invitedBy.user,

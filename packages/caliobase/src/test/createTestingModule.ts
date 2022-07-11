@@ -145,11 +145,7 @@ export async function createTestUserWithRole(
 
   const otherUser = await authService.createUserWithPassword(fakeUser());
 
-  const invitation = await orgService.createInvitation(
-    owner.organizationId,
-    owner,
-    roles
-  );
+  const invitation = await orgService.createInvitation(owner, roles);
 
   const member = await orgService.claimInvitation(
     otherUser.id,

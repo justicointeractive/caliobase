@@ -34,11 +34,7 @@ describe('auth', () => {
       organization = created.organization;
 
       const otherUser = await userService.createUserWithPassword(fakeUser());
-      const invitation = await orgService.createInvitation(
-        organization.id,
-        owner,
-        ['writer']
-      );
+      const invitation = await orgService.createInvitation(owner, ['writer']);
       otherMember = await orgService.claimInvitation(
         otherUser.id,
         invitation.token
@@ -54,9 +50,7 @@ describe('auth', () => {
 
     it('should not allow users to grant higher levels of access than themselves', async () => {
       await expect(async () => {
-        await orgService.createInvitation(organization.id, otherMember, [
-          'manager',
-        ]);
+        await orgService.createInvitation(otherMember, ['manager']);
       }).rejects.toThrow(UnauthorizedException);
     });
 

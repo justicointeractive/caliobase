@@ -91,18 +91,16 @@ export class OrganizationController {
     };
   }
 
-  @Post(':id/invitation')
+  @Post('invitation')
   @ApiCreatedResponse({ type: MemberInvitationToken })
   @ApiBody({ type: CreateInvitationRequest })
   async createInvitation(
-    @Param('id') organizationId: string,
     @Body() createInvitationRequest: CreateInvitationRequest,
     @Request() request: RequestUser
   ): Promise<MemberInvitationToken> {
     const member = request.user?.member;
     assert(member, UnauthorizedException);
     const invite = await this.orgService.createInvitation(
-      organizationId,
       member,
       createInvitationRequest.roles
     );
