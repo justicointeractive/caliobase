@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.53](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.52...caliobase-0.0.1-alpha.53) (2022-07-11)
+
+
+### Features
+
+* add a method to get a member of an organzation ([a4c514d](https://github.com/justicointeractive/caliobase/commit/a4c514dd72e264912a013ad548b8e033f7b0f0c7))
+
 ### [0.0.1-alpha.52](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.51...caliobase-0.0.1-alpha.52) (2022-07-11)
 
 
