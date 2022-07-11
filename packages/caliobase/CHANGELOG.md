@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.56](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.55...caliobase-0.0.1-alpha.56) (2022-07-11)
+
+
+### Bug Fixes
+
+* perform an insert rather than update when claiming invitation ([b6847bd](https://github.com/justicointeractive/caliobase/commit/b6847bd5482e0153bc3414242f0281da6fc33cd3))
+
 ### [0.0.1-alpha.55](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.54...caliobase-0.0.1-alpha.55) (2022-07-11)
 
 
