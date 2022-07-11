@@ -41,14 +41,6 @@ class CreateInvitationRequest {
 export class OrganizationController {
   constructor(private orgService: OrganizationService) {}
 
-  @Get()
-  @ApiOkResponse({ type: [Member] })
-  async listOrganizationMembers(@Request() request: RequestUser) {
-    const orgId = request.user?.organization?.id;
-    assert(orgId, UnauthorizedException);
-    return await this.orgService.findOrganizationMembers(orgId);
-  }
-
   @Post()
   @ApiCreatedResponse({ type: Organization })
   @ApiBody({ type: CreateOrganizationRequest })
@@ -136,6 +128,29 @@ export class OrganizationController {
     assert(userId, UnauthorizedException);
     const member = await this.orgService.claimInvitation(userId, token);
     return member;
+  }
+
+  @Get('member')
+  @ApiOkResponse({ type: [Member] })
+  async listMembers(@Request() request: RequestUser) {
+    const orgId = request.user?.organization?.id;
+    assert(orgId, UnauthorizedException);
+    return await this.orgService.findOrganizationMembers(orgId);
+  }
+
+  @Get('member/:userId')
+  @ApiOkResponse({ type: Member })
+  async getMember(
+    @Param('userId') targetUserId: string,
+    @Request() request: RequestUser
+  ): Promise<Member | null> {
+    const actingMember = request.user?.member;
+    assert(actingMember, UnauthorizedException);
+    const targetMember = await this.orgService.getMember(
+      targetUserId,
+      actingMember.organizationId
+    );
+    return targetMember;
   }
 
   @Patch('member/:userId')
