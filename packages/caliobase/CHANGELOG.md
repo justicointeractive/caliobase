@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.58](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.57...caliobase-0.0.1-alpha.58) (2022-07-11)
+
+
+### Bug Fixes
+
+* make get invitation api public ([832e808](https://github.com/justicointeractive/caliobase/commit/832e808bf489bb6bf650070d7707f322783d5802))
+
 ### [0.0.1-alpha.57](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.56...caliobase-0.0.1-alpha.57) (2022-07-11)
 
 ### [0.0.1-alpha.56](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.55...caliobase-0.0.1-alpha.56) (2022-07-11)
