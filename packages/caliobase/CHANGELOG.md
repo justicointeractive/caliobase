@@ -2,6 +2,14 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.52](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.51...caliobase-0.0.1-alpha.52) (2022-07-11)
+
+
+### Features
+
+* allow updating user roles ([e11568f](https://github.com/justicointeractive/caliobase/commit/e11568fbeefc934a6a7a0200cff20ea1f794034e))
+* track email verified state ([467cc62](https://github.com/justicointeractive/caliobase/commit/467cc620899c83f90eabfa8514deff382541db43))
+
 ### [0.0.1-alpha.51](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.50...caliobase-0.0.1-alpha.51) (2022-07-11)
 
 
