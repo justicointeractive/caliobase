@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.55](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.54...caliobase-0.0.1-alpha.55) (2022-07-11)
+
+
+### Features
+
+* include organization details when describing invitation ([a8208d8](https://github.com/justicointeractive/caliobase/commit/a8208d89f49de2516662cb5542442ba0364350fa))
+
 ### [0.0.1-alpha.54](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.53...caliobase-0.0.1-alpha.54) (2022-07-11)
 
 ### [0.0.1-alpha.53](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.52...caliobase-0.0.1-alpha.53) (2022-07-11)
