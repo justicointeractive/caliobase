@@ -11,7 +11,7 @@ export function useSuperTestRequest(module: ModuleMetadata) {
     await moduleRef.get(DataSource).synchronize();
     app = moduleRef.createNestApplication();
     await app.init();
-  }, 10_000);
+  });
 
   afterAll(async () => {
     await app.close();

@@ -102,7 +102,7 @@ export function useTestingModule<
       app,
       request: supertest(httpServer),
     });
-  }, 10_000);
+  });
 
   afterAll(async () => {
     await result.module.close();
