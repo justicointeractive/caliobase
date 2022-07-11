@@ -1,4 +1,4 @@
-import { Injectable, Type, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Type } from '@nestjs/common';
 import {
   DataSource,
   DeepPartial,
@@ -9,13 +9,9 @@ import { CaliobaseFindOptions, RenameClass, ToFindOptions } from '.';
 import { CaliobaseRequestUser, Organization } from '../auth';
 import { getAclEntity } from '../auth/acl/getAclEntityAndProperty';
 import { getOrganizationFilter } from '../auth/decorators/owner.decorator';
-import { unwrapValueWithContext } from '../lib/unwrapValueWithContext';
-import {
-  AccessPolicies,
-  EffectivePolicy,
-  PolicyStatements,
-} from './decorators/AccessPolicies.decorator';
+import { AccessPolicies } from './decorators/AccessPolicies.decorator';
 import { entityServiceQueryBuilder } from './entityServiceQueryBuilder';
+import { getPolicyFromStatements } from './getPolicyFromStatements';
 import {
   ICaliobaseService,
   ICaliobaseServiceOptions,
@@ -42,22 +38,13 @@ export function createEntityServiceClass<
     user: CaliobaseRequestUser,
     organization: Pick<Organization, 'id'>
   ) {
-    const policy = getEffectivePolicy<TEntity>(
+    return getPolicyFromStatements<TEntity>({
       entityType,
       action,
       policyStatements,
-      {
-        organization,
-        user,
-      }
-    );
-
-    if (policy?.effect === 'deny') {
-      throw new UnauthorizedException(
-        `user is not authorized to perform '${action}' on '${entityType.name}'`
-      );
-    }
-    return policy;
+      organization,
+      user,
+    });
   }
 
   @Injectable()
@@ -191,70 +178,4 @@ export function createEntityServiceClass<
   }
 
   return CaliobaseServiceClass;
-}
-
-function getEffectivePolicy<TEntity>(
-  entityType: Type<TEntity>,
-  action: EntityActions,
-  policyStatements: PolicyStatements<TEntity> | undefined,
-  {
-    organization,
-    user,
-  }: {
-    organization: Pick<Organization, 'id'>;
-    user: CaliobaseRequestUser;
-  }
-) {
-  if (user.organization?.id !== organization.id) {
-    throw new UnauthorizedException(
-      'access token supplied is not applicable to this organization context'
-    );
-  }
-  return policyStatements
-    ?.filter((statement) => {
-      if (statement.effect === 'deny') {
-        throw new Error('deny statements are not implemented');
-      }
-      if (statement.users) {
-        const statementUsers = statement.users;
-        if (typeof statementUsers === 'function') {
-          if (!statementUsers(user)) {
-            return false;
-          }
-        } else {
-          if (statementUsers.role) {
-            const allowedRoles = Array.isArray(statementUsers.role)
-              ? statementUsers.role
-              : Roles.fromMiniumLevel(statementUsers.role);
-            const someUserRoleIsAllowed =
-              user?.member?.roles?.some((role) =>
-                allowedRoles.includes(role)
-              ) ?? false;
-            if (!someUserRoleIsAllowed) {
-              return false;
-            }
-          }
-        }
-      }
-      if (statement.action !== '*' && !statement.action.includes(action)) {
-        return false;
-      }
-      return true;
-    })
-    .reduce(
-      (agg, { effect, items }) => {
-        return {
-          ...agg,
-          effect,
-          itemFilters: [
-            ...agg.itemFilters,
-            items ? unwrapValueWithContext(items, { user }) : {},
-          ],
-        };
-      },
-      <EffectivePolicy<TEntity>>{
-        effect: getAclEntity(entityType) ? 'allow' : 'deny',
-        itemFilters: [],
-      }
-    );
 }
