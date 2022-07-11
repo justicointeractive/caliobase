@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.51](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.50...caliobase-0.0.1-alpha.51) (2022-07-11)
+
+
+### Features
+
+* add a way to list members of organization ([beac6b0](https://github.com/justicointeractive/caliobase/commit/beac6b03e51f590b71365a2badf7f43bfea578e1))
+
 ### [0.0.1-alpha.50](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.49...caliobase-0.0.1-alpha.50) (2022-07-11)
 
 
