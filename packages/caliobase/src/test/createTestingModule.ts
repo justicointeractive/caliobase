@@ -17,6 +17,7 @@ import { CaliobaseModule } from '../caliobase.module';
 import { Role } from '../entity-module/roles';
 import { S3ObjectStorageProvider } from '../object-storage';
 import { fakeUser } from './fakeUser';
+import { mutex } from './mutex';
 
 export async function createTestingModule(metadata: ModuleMetadata = {}) {
   const testAccount = await createTestAccount();
@@ -71,7 +72,9 @@ export async function createTestingModule(metadata: ModuleMetadata = {}) {
 
   await module.init();
 
-  await module.get(DataSource).synchronize();
+  await mutex('caliobase-testing-module-synchronize', async () => {
+    await module.get(DataSource).synchronize();
+  });
 
   return module;
 }
@@ -99,7 +102,7 @@ export function useTestingModule<
       app,
       request: supertest(httpServer),
     });
-  });
+  }, 10_000);
 
   afterAll(async () => {
     await result.module.close();
