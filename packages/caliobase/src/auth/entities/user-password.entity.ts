@@ -30,7 +30,7 @@ export class UserPasswordRepository {
     return dataSource.getRepository(UserPassword).extend({
       async setUserPassword(user: User, password: string) {
         const hashed = await hash(password, 10);
-        this.manager.connection.transaction(async (manager) => {
+        await this.manager.connection.transaction(async (manager) => {
           await manager.delete(UserPassword, { user });
           await manager.save(UserPassword, { user, hash: hashed });
         });
