@@ -5,11 +5,35 @@ import {
   useTestingModule,
 } from '../test/createTestingModule';
 import { fakeUser } from '../test/fakeUser';
+import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { Member, Organization } from './entities';
 import { OrganizationService } from './organization.service';
 
 describe('auth', () => {
+  describe('get me', () => {
+    const { userService } = useTestingModule(async () => {
+      const module = await createTestingModule();
+      const userService = module.get(AuthController);
+      return { module, userService };
+    });
+
+    it('should get me properly', async () => {
+      const user1 = await userService.createUserWithPassword(fakeUser());
+      expect(
+        await userService.getMe({
+          user: { user: user1.user, organization: null, member: null },
+        })
+      ).toMatchObject(user1.user);
+      const user2 = await userService.createUserWithPassword(fakeUser());
+      expect(
+        await userService.getMe({
+          user: { user: user2.user, organization: null, member: null },
+        })
+      ).toMatchObject(user2.user);
+    });
+  });
+
   describe('organization membership', () => {
     const { module, userService, orgService } = useTestingModule(async () => {
       const module = await createTestingModule({});

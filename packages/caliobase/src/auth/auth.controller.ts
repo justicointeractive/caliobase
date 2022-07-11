@@ -130,6 +130,7 @@ export class AuthController {
     const user = await this.authService.createUserWithPassword(body);
 
     return {
+      user,
       accessToken: await this.authService.sign({
         userId: user.id,
       }),
@@ -152,20 +153,21 @@ export class AuthController {
 
   @Get('me')
   @ApiCreatedResponse({ type: User })
-  async getMe(
-    @Request() { user: { id } }: { user: { id: string } }
-  ): Promise<User> {
-    return await this.authService.getUserById({ userId: id });
+  async getMe(@Request() { user }: RequestUser): Promise<User> {
+    const userId = user?.user?.id;
+    assert(userId);
+    return await this.authService.getUserById({ userId });
   }
 
   @Patch('me/password')
   @ApiOkResponse({ type: UpdatePasswordResponse })
   async updatePassword(
     @Body() body: UpdatePasswordBody,
-    @Request() { user: { id } }: { user: { id: string } }
+    @Request() { user }: RequestUser
   ): Promise<UpdatePasswordResponse> {
-    await this.authService.setUserPassword(id, body);
-
+    const userId = user?.user?.id;
+    assert(userId);
+    await this.authService.setUserPassword(userId, body);
     return { success: true };
   }
 
