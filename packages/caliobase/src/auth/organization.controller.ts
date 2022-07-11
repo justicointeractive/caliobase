@@ -107,6 +107,7 @@ export class OrganizationController {
     return invite;
   }
 
+  @Public()
   @Get('invitation/:token')
   @ApiOkResponse({ type: MemberInvitationToken })
   async getInvitation(
