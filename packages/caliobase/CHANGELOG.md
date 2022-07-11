@@ -2,6 +2,8 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.49](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.48...caliobase-0.0.1-alpha.49) (2022-07-11)
+
 ### [0.0.1-alpha.48](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.47...caliobase-0.0.1-alpha.48) (2022-07-09)
 
 
