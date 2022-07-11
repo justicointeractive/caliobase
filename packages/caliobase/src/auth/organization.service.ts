@@ -153,6 +153,7 @@ export class OrganizationService {
   async getInvitation(token: string) {
     const invite = await this.memberInviteRepo.findOne({
       where: { token, validUntil: MoreThanOrEqual(new Date()) },
+      relations: ['organization'],
     });
 
     return invite;
