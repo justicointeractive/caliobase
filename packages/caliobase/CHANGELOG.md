@@ -2,6 +2,14 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.60](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.59...caliobase-0.0.1-alpha.60) (2022-07-11)
+
+
+### Bug Fixes
+
+* fix getMe ([68a49f2](https://github.com/justicointeractive/caliobase/commit/68a49f26343d403fca641e135f900e910d1531c6))
+* floating transaction promise ([3bf8707](https://github.com/justicointeractive/caliobase/commit/3bf870785116ad042c1149d75668a93f91fd4209))
+
 ### [0.0.1-alpha.59](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.58...caliobase-0.0.1-alpha.59) (2022-07-11)
 
 
