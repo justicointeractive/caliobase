@@ -43,12 +43,11 @@ describe('auth', () => {
         otherUser.id,
         invitation.token
       );
-      expect(await orgService.findUserMemberships(otherUser.id)).toEqual([
+      expect(await orgService.findUserMemberships(otherUser.id)).toMatchObject([
         {
-          organization: organization,
           organizationId: organization.id,
-          roles: ['writer'],
           userId: otherUser.id,
+          roles: ['writer'],
         },
       ]);
     });
@@ -59,6 +58,27 @@ describe('auth', () => {
           'manager',
         ]);
       }).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('should be allowed to demote another user', async () => {
+      expect(
+        await orgService.updateMember(owner, otherMember, {
+          roles: ['moderator'],
+        })
+      ).toMatchObject({
+        organizationId: organization.id,
+        userId: otherMember.userId,
+        roles: ['moderator'],
+      });
+    });
+
+    it('should not be allowed to demote a user higher than self', async () => {
+      await expect(
+        async () =>
+          await orgService.updateMember(otherMember, owner, {
+            roles: ['guest'],
+          })
+      ).rejects.toThrow(UnauthorizedException);
     });
   });
 });

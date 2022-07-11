@@ -2,7 +2,9 @@ import {
   Body,
   Controller,
   Get,
+  NotFoundException,
   Param,
+  Patch,
   Post,
   Request,
   UnauthorizedException,
@@ -134,5 +136,27 @@ export class OrganizationController {
     assert(userId, UnauthorizedException);
     const member = await this.orgService.claimInvitation(userId, token);
     return member;
+  }
+
+  @Patch('member/:userId')
+  @ApiOkResponse({ type: Member })
+  @ApiBody({ type: CreateInvitationRequest })
+  async updateMember(
+    @Param('userId') targetUserId: string,
+    @Request() request: RequestUser,
+    @Body() updateRequest: CreateInvitationRequest
+  ): Promise<Member | null> {
+    const actingMember = request.user?.member;
+    assert(actingMember, UnauthorizedException);
+    const targetMember = await this.orgService.getMember(
+      targetUserId,
+      actingMember.organizationId
+    );
+    assert(targetMember, NotFoundException);
+    return await this.orgService.updateMember(
+      actingMember,
+      targetMember,
+      updateRequest
+    );
   }
 }

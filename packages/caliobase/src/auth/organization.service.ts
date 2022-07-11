@@ -125,6 +125,35 @@ export class OrganizationService {
     return invite;
   }
 
+  async updateMember(
+    actingMember: Member,
+    targetMember: Member,
+    update: { roles: Role[] }
+  ) {
+    const allowedToGrantRoles = [
+      ...new Set(
+        actingMember.roles.flatMap((role) => Roles.fromMaxLevel(role))
+      ),
+    ];
+
+    if (update.roles.some((role) => !allowedToGrantRoles.includes(role))) {
+      throw new UnauthorizedException('user is not allowed to grant this role');
+    }
+
+    if (
+      targetMember.roles.some((role) => !allowedToGrantRoles.includes(role))
+    ) {
+      throw new UnauthorizedException('not allowed to demote user');
+    }
+
+    targetMember = await this.memberRepo.save({
+      ...targetMember,
+      ...update,
+    });
+
+    return targetMember;
+  }
+
   async getInvitation(token: string) {
     const invite = await this.memberInviteRepo.findOne({
       where: { token, validUntil: MoreThanOrEqual(new Date()) },
