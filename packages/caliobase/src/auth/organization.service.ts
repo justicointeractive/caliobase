@@ -126,7 +126,7 @@ export class OrganizationService {
   async claimInvitation(userId: string, token: string) {
     const invitation = await this.getInvitation(token);
 
-    assert(invitation, undefined, NotFoundException);
+    assert(invitation, NotFoundException);
 
     const { organization, roles } = await this.memberInviteRepo.findOneOrFail({
       where: { token },

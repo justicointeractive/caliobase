@@ -1,6 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { Column, In, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { AclItem, EntityAcl, User } from '../auth';
+import { assert } from '../lib/assert';
 import {
   createGuestUser,
   createTestingModule,
@@ -10,7 +11,6 @@ import {
 } from '../test/createTestingModule';
 import { createEntityModule } from './createEntityModule';
 import { CaliobaseEntity } from './decorators';
-import assert = require('assert');
 
 // TODO check public access through controller
 

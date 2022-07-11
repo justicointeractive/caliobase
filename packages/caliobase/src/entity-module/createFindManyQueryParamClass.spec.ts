@@ -1,5 +1,5 @@
-import assert = require('assert');
 import { FindOperator } from 'typeorm';
+import { assert } from '../lib/assert';
 import { createFindManyQueryParamClass } from './createFindManyQueryParamClass';
 import { QueryProperty } from './decorators';
 

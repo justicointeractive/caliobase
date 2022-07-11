@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { createEntityModule, ICaliobaseController } from '.';
+import { assert } from '../lib/assert';
 import {
   createTestingModule,
   createTestOrganization,
@@ -15,7 +16,6 @@ import {
 } from '../test/createTestingModule';
 import { CaliobaseEntity, RelationController } from './decorators';
 import { IEntityRelationController } from './IEntityRelationController';
-import assert = require('assert');
 
 describe('one to many relationships', () => {
   @CaliobaseEntity({

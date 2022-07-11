@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, Request } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Request,
+  UnauthorizedException,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -10,6 +18,7 @@ import {
 import { IsIn } from 'class-validator';
 import { RequestUser } from '../entity-module/RequestUser';
 import { AllRoles, Role } from '../entity-module/roles';
+import { assert } from '../lib/assert';
 import { AccessTokenResponse } from './auth.controller';
 import { CreateOrganizationRequest } from './CreateOrganizationRequest';
 import { Public } from './decorators';
@@ -17,7 +26,6 @@ import { MemberInvitationToken } from './entities/member-invitation-token.entity
 import { Member } from './entities/member.entity';
 import { Organization } from './entities/organization.entity';
 import { OrganizationService } from './organization.service';
-import assert = require('assert');
 
 class CreateInvitationRequest {
   @ApiProperty()
@@ -35,7 +43,7 @@ export class OrganizationController {
   @ApiOkResponse({ type: [Member] })
   async findAll(@Request() request: RequestUser) {
     const userId = request.user?.user?.id;
-    assert(userId);
+    assert(userId, UnauthorizedException);
     return await this.orgService.findUserMemberships(userId);
   }
 
@@ -47,7 +55,7 @@ export class OrganizationController {
     @Request() request: RequestUser
   ) {
     const userId = request.user?.user?.id;
-    assert(userId);
+    assert(userId, UnauthorizedException);
     return this.orgService.createOrganization(userId, body);
   }
 
@@ -98,7 +106,7 @@ export class OrganizationController {
     @Request() request: RequestUser
   ): Promise<MemberInvitationToken> {
     const member = request.user?.member;
-    assert(member);
+    assert(member, UnauthorizedException);
     const invite = await this.orgService.createInvitation(
       organizationId,
       member,
@@ -123,7 +131,7 @@ export class OrganizationController {
     @Request() request: RequestUser
   ): Promise<Member | null> {
     const userId = request.user?.user?.id;
-    assert(userId);
+    assert(userId, UnauthorizedException);
     const member = await this.orgService.claimInvitation(userId, token);
     return member;
   }

@@ -9,6 +9,7 @@ import {
   Query,
   Request,
   Type,
+  UnauthorizedException,
   ValidationPipe,
 } from '@nestjs/common';
 import {
@@ -26,6 +27,7 @@ import { ColumnMetadataArgs } from 'typeorm/metadata-args/ColumnMetadataArgs';
 import { ToFindOptions } from '.';
 import { CaliobaseRequestUser } from '../auth';
 import { getAclEntity } from '../auth/acl/getAclEntityAndProperty';
+import { assert } from '../lib/assert';
 import {
   ApiCreatedItemResponse,
   ApiOkItemResponse,
@@ -41,7 +43,6 @@ import { RenameClass } from './decorators/RenameClass.decorator';
 import { ICaliobaseController } from './ICaliobaseController';
 import { ICaliobaseServiceType } from './ICaliobaseService';
 import { RequestUser } from './RequestUser';
-import assert = require('assert');
 
 export function createEntityController<TEntity, TCreate, TUpdate>(
   ControllerService: ICaliobaseServiceType<TEntity, TCreate, TUpdate>,
@@ -104,7 +105,7 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
         createDto: TCreate,
         @Request() { user }: RequestUser
       ) {
-        assert(user);
+        assert(user, UnauthorizedException);
         return new PaginationItemResponse(
           await this.service.create(createDto, {
             organization: getOwnerIdObject(user),
@@ -130,7 +131,7 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
         listOptions: ToFindOptions<TEntity>,
         @Request() { user }: RequestUser
       ) {
-        assert(user);
+        assert(user, UnauthorizedException);
         return new PaginationItemsResponse(
           await this.service.findAll(listOptions.toFindOptions(), {
             organization: getOwnerIdObject(user),
@@ -151,7 +152,7 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
         @Param() params: Partial<TEntity>,
         @Request() { user }: RequestUser
       ) {
-        assert(user);
+        assert(user, UnauthorizedException);
         return new PaginationItemResponse(
           await this.service.findOne(
             { where: pickColumnProperties(primaryColumns, params as unknown) },
@@ -179,7 +180,7 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
         updateDto: TUpdate,
         @Request() { user }: RequestUser
       ) {
-        assert(user);
+        assert(user, UnauthorizedException);
         return new PaginationItemsResponse(
           await this.service.update(
             pickColumnProperties(primaryColumns, params as unknown),
@@ -198,7 +199,7 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
         type: ControllerService.Entity,
       })
       async remove(@Param() params: unknown, @Request() { user }: RequestUser) {
-        assert(user);
+        assert(user, UnauthorizedException);
         return new PaginationItemsResponse(
           await this.service.remove(
             pickColumnProperties(primaryColumns, params),
