@@ -70,5 +70,5 @@ describe('swagger', () => {
     expect(
       document.paths['/card/{cardId}/notes/{id}'].get?.operationId
     ).toEqual('CardNoteRelationController_findOneNote');
-  });
+  }, 10_000);
 });
