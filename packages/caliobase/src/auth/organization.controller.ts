@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   NotFoundException,
   Param,
@@ -172,5 +173,21 @@ export class OrganizationController {
       targetMember,
       updateRequest
     );
+  }
+
+  @Delete('member/:userId')
+  @ApiOkResponse({ type: Member })
+  async removeMember(
+    @Param('userId') targetUserId: string,
+    @Request() request: RequestUser
+  ): Promise<Member | null> {
+    const actingMember = request.user?.member;
+    assert(actingMember, UnauthorizedException);
+    const targetMember = await this.orgService.getMember(
+      targetUserId,
+      actingMember.organizationId
+    );
+    assert(targetMember, NotFoundException);
+    return await this.orgService.removeMember(actingMember, targetMember);
   }
 }

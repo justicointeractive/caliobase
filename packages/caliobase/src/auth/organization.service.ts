@@ -150,6 +150,28 @@ export class OrganizationService {
     return targetMember;
   }
 
+  async removeMember(actingMember: Member, targetMember: Member) {
+    const allowedToGrantRoles = [
+      ...new Set(
+        actingMember.roles.flatMap((role) => Roles.fromMaxLevel(role))
+      ),
+    ];
+
+    if (
+      targetMember.roles.some((role) => !allowedToGrantRoles.includes(role))
+    ) {
+      throw new UnauthorizedException(
+        'not allowed to remove user with higher role'
+      );
+    }
+
+    targetMember = await this.memberRepo.remove({
+      ...targetMember,
+    });
+
+    return targetMember;
+  }
+
   async getInvitation(token: string) {
     const invite = await this.memberInviteRepo.findOne({
       where: { token, validUntil: MoreThanOrEqual(new Date()) },

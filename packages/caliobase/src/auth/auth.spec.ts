@@ -74,5 +74,21 @@ describe('auth', () => {
           })
       ).rejects.toThrow(UnauthorizedException);
     });
+
+    it('should not be allowed to remove a user higher than self', async () => {
+      await expect(
+        async () => await orgService.removeMember(otherMember, owner)
+      ).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('should be allowed to remove a user lower than self', async () => {
+      expect(await orgService.removeMember(owner, otherMember)).not.toBeNull();
+    });
+
+    it('removed user should not be in member list', async () => {
+      expect(
+        await orgService.findOrganizationMembers(owner.organizationId)
+      ).toHaveLength(1);
+    });
   });
 });
