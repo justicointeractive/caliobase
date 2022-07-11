@@ -11,6 +11,10 @@ export class User {
   @ApiProperty()
   email!: string;
 
+  @Column({ default: false })
+  @ApiProperty()
+  emailVerified!: boolean;
+
   @Column()
   @ApiProperty()
   givenName!: string;
