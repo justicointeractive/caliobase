@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.59](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.58...caliobase-0.0.1-alpha.59) (2022-07-11)
+
+
+### Features
+
+* allow removing members from organization ([94f87a0](https://github.com/justicointeractive/caliobase/commit/94f87a03ae933445b2c9a7955c86eb16192ea80a))
+
 ### [0.0.1-alpha.58](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.57...caliobase-0.0.1-alpha.58) (2022-07-11)
 
 
