@@ -13,6 +13,7 @@ import { unwrapValueWithContext } from '../lib/unwrapValueWithContext';
 import {
   AccessPolicies,
   EffectivePolicy,
+  PolicyStatements,
 } from './decorators/AccessPolicies.decorator';
 import { entityServiceQueryBuilder } from './entityServiceQueryBuilder';
 import {
@@ -37,64 +38,20 @@ export function createEntityServiceClass<
   const policyStatements = AccessPolicies.get(entityType);
 
   function getUserPolicy(
-    user: CaliobaseRequestUser,
     action: EntityActions,
+    user: CaliobaseRequestUser,
     organization: Pick<Organization, 'id'>
   ) {
-    if (user.organization?.id !== organization.id) {
-      throw new UnauthorizedException(
-        'access token supplied is not applicable to this organization context'
-      );
-    }
+    const policy = getEffectivePolicy<TEntity>(
+      entityType,
+      action,
+      policyStatements,
+      {
+        organization,
+        user,
+      }
+    );
 
-    // TODO: verify role is a role for this organization
-    const policy = policyStatements
-      ?.filter((statement) => {
-        if (statement.effect === 'deny') {
-          throw new Error('deny statements are not implemented');
-        }
-        if (statement.users) {
-          const statementUsers = statement.users;
-          if (typeof statementUsers === 'function') {
-            if (!statementUsers(user)) {
-              return false;
-            }
-          } else {
-            if (statementUsers.role) {
-              const allowedRoles = Array.isArray(statementUsers.role)
-                ? statementUsers.role
-                : Roles.fromMiniumLevel(statementUsers.role);
-              const someUserRoleIsAllowed =
-                user?.member?.roles?.some((role) =>
-                  allowedRoles.includes(role)
-                ) ?? false;
-              if (!someUserRoleIsAllowed) {
-                return false;
-              }
-            }
-          }
-        }
-        if (statement.action !== '*' && !statement.action.includes(action)) {
-          return false;
-        }
-        return true;
-      })
-      .reduce(
-        (agg, { effect, items }) => {
-          return {
-            ...agg,
-            effect,
-            itemFilters: [
-              ...agg.itemFilters,
-              items ? unwrapValueWithContext(items, { user }) : {},
-            ],
-          };
-        },
-        <EffectivePolicy<TEntity>>{
-          effect: getAclEntity(entityType) ? 'allow' : 'deny',
-          itemFilters: [],
-        }
-      );
     if (policy?.effect === 'deny') {
       throw new UnauthorizedException(
         `user is not authorized to perform '${action}' on '${entityType.name}'`
@@ -125,7 +82,7 @@ export function createEntityServiceClass<
       return await this.dataSource.transaction(async (manager) => {
         const entityRepository = manager.getRepository(entityType);
 
-        getUserPolicy(user, 'create', organization);
+        getUserPolicy('create', user, organization);
 
         const created: TEntity = await entityRepository.save(
           entityRepository.create({
@@ -152,7 +109,7 @@ export function createEntityServiceClass<
       { where, order }: CaliobaseFindOptions<TEntity>,
       { organization, user }: ICaliobaseServiceOptions
     ) {
-      const policy = getUserPolicy(user, 'list', organization);
+      const policy = getUserPolicy('list', user, organization);
 
       return await this.dataSource.transaction(async (manager) => {
         return await entityServiceQueryBuilder(
@@ -168,7 +125,7 @@ export function createEntityServiceClass<
       { where, order }: CaliobaseFindOptions<TEntity>,
       { organization, user }: ICaliobaseServiceOptions
     ) {
-      const policy = getUserPolicy(user, 'get', organization);
+      const policy = getUserPolicy('get', user, organization);
 
       return await this.dataSource.transaction(async (manager) => {
         return await entityServiceQueryBuilder(
@@ -185,7 +142,7 @@ export function createEntityServiceClass<
       updateDto: TUpdate,
       { organization, user }: ICaliobaseServiceOptions
     ) {
-      const policy = getUserPolicy(user, 'update', organization);
+      const policy = getUserPolicy('update', user, organization);
 
       return await this.dataSource.transaction(async (manager) => {
         const allFound = await entityServiceQueryBuilder(
@@ -212,7 +169,7 @@ export function createEntityServiceClass<
       where: FindOptionsWhere<TEntity>,
       { organization, user }: ICaliobaseServiceOptions
     ) {
-      const policy = getUserPolicy(user, 'delete', organization);
+      const policy = getUserPolicy('delete', user, organization);
 
       return await this.dataSource.transaction(async (manager) => {
         const allFound = await entityServiceQueryBuilder(
@@ -234,4 +191,70 @@ export function createEntityServiceClass<
   }
 
   return CaliobaseServiceClass;
+}
+
+function getEffectivePolicy<TEntity>(
+  entityType: Type<TEntity>,
+  action: EntityActions,
+  policyStatements: PolicyStatements<TEntity> | undefined,
+  {
+    organization,
+    user,
+  }: {
+    organization: Pick<Organization, 'id'>;
+    user: CaliobaseRequestUser;
+  }
+) {
+  if (user.organization?.id !== organization.id) {
+    throw new UnauthorizedException(
+      'access token supplied is not applicable to this organization context'
+    );
+  }
+  return policyStatements
+    ?.filter((statement) => {
+      if (statement.effect === 'deny') {
+        throw new Error('deny statements are not implemented');
+      }
+      if (statement.users) {
+        const statementUsers = statement.users;
+        if (typeof statementUsers === 'function') {
+          if (!statementUsers(user)) {
+            return false;
+          }
+        } else {
+          if (statementUsers.role) {
+            const allowedRoles = Array.isArray(statementUsers.role)
+              ? statementUsers.role
+              : Roles.fromMiniumLevel(statementUsers.role);
+            const someUserRoleIsAllowed =
+              user?.member?.roles?.some((role) =>
+                allowedRoles.includes(role)
+              ) ?? false;
+            if (!someUserRoleIsAllowed) {
+              return false;
+            }
+          }
+        }
+      }
+      if (statement.action !== '*' && !statement.action.includes(action)) {
+        return false;
+      }
+      return true;
+    })
+    .reduce(
+      (agg, { effect, items }) => {
+        return {
+          ...agg,
+          effect,
+          itemFilters: [
+            ...agg.itemFilters,
+            items ? unwrapValueWithContext(items, { user }) : {},
+          ],
+        };
+      },
+      <EffectivePolicy<TEntity>>{
+        effect: getAclEntity(entityType) ? 'allow' : 'deny',
+        itemFilters: [],
+      }
+    );
 }
