@@ -123,10 +123,10 @@ export class AuthController {
   }
 
   @Public()
-  @Post('user/signup')
+  @Post('user/create')
   @ApiBody({ type: UserSignupBody })
   @ApiCreatedResponse({ type: AccessTokenResponse })
-  async signupUser(@Body() body: UserSignupBody) {
+  async createUserWithPassword(@Body() body: UserSignupBody) {
     const user = await this.authService.createUserWithPassword(body);
 
     return {
