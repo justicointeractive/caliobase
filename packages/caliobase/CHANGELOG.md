@@ -2,6 +2,14 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.50](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.49...caliobase-0.0.1-alpha.50) (2022-07-11)
+
+
+### Bug Fixes
+
+* assertions ([1cf9dfc](https://github.com/justicointeractive/caliobase/commit/1cf9dfcf2851c228112d8c8f250faa27abba9f70))
+* don't allow invitations to be claimed multiple times or after they expire ([2f135ef](https://github.com/justicointeractive/caliobase/commit/2f135ef495ef76022fcdf397314637e9d66c4d49))
+
 ### [0.0.1-alpha.49](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.48...caliobase-0.0.1-alpha.49) (2022-07-11)
 
 ### [0.0.1-alpha.48](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.47...caliobase-0.0.1-alpha.48) (2022-07-09)
