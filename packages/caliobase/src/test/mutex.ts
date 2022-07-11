@@ -1,4 +1,4 @@
-import { open, rm } from 'fs/promises';
+import { open, rm, stat } from 'fs/promises';
 import { tmpdir } from 'os';
 import { setTimeout } from 'timers/promises';
 
@@ -6,19 +6,33 @@ export async function mutex(
   name: string,
   action: () => Promise<void>,
   reaquireDelay = 250,
-  reaquireTimeout = 15000
+  reaquireTimeout = 15_000
 ) {
+  const staleTime = reaquireTimeout * 2;
+  const updateMtimeInterval = reaquireTimeout * 0.5;
+
   async function acquireLock() {
+    const path = `${tmpdir()}/${name}.lock`;
     try {
-      const path = `${tmpdir()}/${name}.lock`;
       const handle = await open(path, 'wx');
+      const updateInterval = setInterval(async () => {
+        await handle.write(new Date().toISOString());
+      }, updateMtimeInterval);
       return {
-        close: async () => {
+        release: async () => {
+          clearInterval(updateInterval);
           await handle.close();
           await rm(path);
         },
       };
     } catch (err) {
+      try {
+        const fileStat = await stat(path);
+        if (fileStat.mtimeMs < Date.now() - staleTime) {
+          await rm(path);
+        }
+        // eslint-disable-next-line no-empty
+      } catch (err) {}
       return false;
     }
   }
@@ -26,8 +40,13 @@ export async function mutex(
   do {
     const lock = await acquireLock();
     if (lock) {
-      await action();
-      await lock.close();
+      try {
+        await action();
+        await lock.release();
+      } catch (err) {
+        await lock.release();
+        throw err;
+      }
       return;
     }
     await setTimeout(reaquireDelay);
