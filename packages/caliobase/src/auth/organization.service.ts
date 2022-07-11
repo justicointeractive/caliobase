@@ -40,6 +40,16 @@ export class OrganizationService {
     });
   }
 
+  async findOrganizationMembers(organizationId: string) {
+    // todo: should require role that allows User:list permission
+    return await this.memberRepo.find({
+      where: {
+        organizationId,
+      },
+      relations: ['user'],
+    });
+  }
+
   async getMember(userId: string, organizationId: string) {
     return await this.memberRepo.findOneOrFail({
       where: {

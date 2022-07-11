@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Patch, Post, Request } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Patch,
+  Post,
+  Request,
+  UnauthorizedException,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -8,10 +16,14 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
+import { RequestUser } from '../entity-module/RequestUser';
+import { assert } from '../lib/assert';
 
 import { AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator';
+import { Member } from './entities/member.entity';
 import { User } from './entities/user.entity';
+import { OrganizationService } from './organization.service';
 
 export class SocialValidateBody {
   @IsString()
@@ -89,7 +101,10 @@ export class UpdatePasswordResponse {
 @Controller('auth')
 @ApiBearerAuth()
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private orgService: OrganizationService
+  ) {}
 
   @Public()
   @Post('social/validate')
@@ -176,5 +191,13 @@ export class AuthController {
     return {
       success: true,
     };
+  }
+
+  @Get()
+  @ApiOkResponse({ type: [Member] })
+  async listUserMemberships(@Request() request: RequestUser) {
+    const userId = request.user?.user?.id;
+    assert(userId, UnauthorizedException);
+    return await this.orgService.findUserMemberships(userId);
   }
 }

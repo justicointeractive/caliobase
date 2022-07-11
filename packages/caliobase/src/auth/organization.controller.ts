@@ -41,10 +41,10 @@ export class OrganizationController {
 
   @Get()
   @ApiOkResponse({ type: [Member] })
-  async findAll(@Request() request: RequestUser) {
-    const userId = request.user?.user?.id;
-    assert(userId, UnauthorizedException);
-    return await this.orgService.findUserMemberships(userId);
+  async listOrganizationMembers(@Request() request: RequestUser) {
+    const orgId = request.user?.organization?.id;
+    assert(orgId, UnauthorizedException);
+    return await this.orgService.findOrganizationMembers(orgId);
   }
 
   @Post()
