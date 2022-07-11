@@ -59,20 +59,18 @@ describe('access policy', () => {
         InstanceType<NonNullable<typeof entityModule['EntityService']>>
       >(entityModule.EntityService);
 
-      const createdOrganization = await createTestOrganization(module);
+      const { organization, owner } = await createTestOrganization(module);
 
       const otherOrganization = await createTestOrganization(module);
 
-      const readerUser = await createGuestUser(
-        module,
-        createdOrganization.organization
-      );
+      const readerUser = await createGuestUser(module, organization);
       return {
         module,
         entityModule,
         blogPostService,
         otherOrganization,
-        ...createdOrganization,
+        organization,
+        owner,
         readerUser,
       };
     });
@@ -277,8 +275,6 @@ describe('access policy', () => {
         };
       });
 
-    assert(organization);
-
     let comment: Comment;
 
     it('should allow guest comment writes', async () => {
@@ -480,8 +476,6 @@ describe('access policy', () => {
         };
       });
 
-    assert(organization);
-
     let video: Video;
 
     it('should allow guest video writes', async () => {
@@ -669,8 +663,6 @@ describe('access policy', () => {
       }
     );
 
-    assert(organization);
-
     let downloadable: Downloadable;
 
     it('should allow moderator create', async () => {
@@ -806,8 +798,6 @@ describe('access policy', () => {
       };
     });
 
-    assert(organization);
-
     let document: Document;
 
     it('should allow user to create', async () => {
@@ -927,8 +917,6 @@ describe('access policy', () => {
         };
       }
     );
-
-    assert(organization);
 
     let channel: Channel;
 

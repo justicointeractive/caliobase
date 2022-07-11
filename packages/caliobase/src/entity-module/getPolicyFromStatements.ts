@@ -1,6 +1,7 @@
 import { Type, UnauthorizedException } from '@nestjs/common';
 import { CaliobaseRequestUser, Organization } from '../auth';
 import { getAclEntity } from '../auth/acl/getAclEntityAndProperty';
+import { assert } from '../lib/assert';
 import { unwrapValueWithContext } from '../lib/unwrapValueWithContext';
 import {
   EffectivePolicy,
@@ -75,11 +76,11 @@ export function getPolicyFromStatements<TEntity>({
       }
     );
 
-  if (policy?.effect === 'deny') {
-    throw new UnauthorizedException(
-      `user is not authorized to perform '${action}' on '${entityType.name}'`
-    );
-  }
+  assert(
+    policy?.effect !== 'deny',
+    UnauthorizedException,
+    `user is not authorized to perform '${action}' on '${entityType.name}'`
+  );
 
   return policy;
 }
