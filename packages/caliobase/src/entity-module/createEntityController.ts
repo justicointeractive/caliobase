@@ -65,11 +65,19 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
 
   const primaryColumns = getPrimaryColumns(ControllerService.Entity);
 
+  const primaryUngeneratedColumnParams: ApiParamOptions[] = primaryColumns
+    .filter((col) => !col.options.generated)
+    .map((col) => ({
+      name: col.propertyName,
+      required: true,
+    }));
+
   const primaryColumnParams: ApiParamOptions[] = primaryColumns.map((col) => ({
     name: col.propertyName,
     required: true,
   }));
 
+  const primaryUngeneratedColumnRoutePath = toColumnRoutePath(primaryColumns);
   const primaryColumnRoutePath = toColumnRoutePath(primaryColumns);
 
   const otherEntities: Type<unknown>[] = [];
@@ -85,7 +93,7 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
         public readonly service: InstanceType<typeof ControllerService>
       ) {}
 
-      @Post()
+      @Post(primaryUngeneratedColumnRoutePath)
       @ApiBody({
         type: ControllerService.CreateDto,
       })
@@ -95,6 +103,7 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
         },
         { nullable: false }
       )
+      @ApiParams(primaryUngeneratedColumnParams)
       async create(
         @Body(
           new ValidationPipe({
@@ -103,6 +112,7 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
           })
         )
         createDto: TCreate,
+        @Param() params: Partial<TEntity>,
         @Request() { user }: RequestUser
       ) {
         assert(user, UnauthorizedException);
@@ -110,6 +120,7 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
           await this.service.create(createDto, {
             organization: getOwnerIdObject(user),
             user,
+            ...params,
           })
         );
       }

@@ -94,6 +94,7 @@ describe('one to many relationships', () => {
   it('should create related content', async () => {
     const { item: card } = await cardController.create(
       { title: faker.commerce.product() },
+      {},
       { user: owner }
     );
 
