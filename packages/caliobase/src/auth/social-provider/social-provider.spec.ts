@@ -46,8 +46,6 @@ describe('social provider', () => {
       );
       expect(await result).toMatchObject({
         email: user.email,
-        givenName: user.first_name,
-        familyName: user.last_name,
       });
     });
   });

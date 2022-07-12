@@ -54,13 +54,10 @@ export class MetaService {
     const user: User = await this.authService.createUserWithPassword({
       email: create.user.email,
       password: create.user.password,
-      givenName: create.user.givenName,
-      familyName: create.user.familyName,
     });
 
     const organization: Organization = await this.orgRepo.save({
       id: Organization.RootId,
-      name: create.organization.name,
     });
 
     const member: Member = await this.memberRepo.save({ user, organization });

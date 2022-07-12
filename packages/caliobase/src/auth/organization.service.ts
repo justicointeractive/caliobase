@@ -64,7 +64,9 @@ export class OrganizationService {
     userId: string,
     createRequest: CreateOrganizationRequest
   ) {
-    const organization = await this.orgRepo.save({ ...createRequest });
+    const organization = await this.orgRepo.save(
+      this.orgRepo.create({ ...createRequest })
+    );
 
     await this.memberRepo.save({
       userId,

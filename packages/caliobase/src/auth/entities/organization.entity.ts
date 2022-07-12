@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Organization {
@@ -8,8 +8,4 @@ export class Organization {
   @PrimaryGeneratedColumn('uuid')
   @ApiProperty()
   id!: string;
-
-  @Column({ default: '' })
-  @ApiProperty()
-  name!: string;
 }

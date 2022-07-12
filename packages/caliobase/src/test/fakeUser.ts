@@ -9,8 +9,6 @@ export function fakeUser(): CreateUserRequest {
     email: faker.internet
       .email(firstName, lastName)
       .replace(/\d*@/, `${cryptoRandomString({ length: 10 })}@`),
-    givenName: firstName,
-    familyName: lastName,
     password: faker.internet.password(),
   };
   return fakeUser;

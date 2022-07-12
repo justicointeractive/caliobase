@@ -14,12 +14,4 @@ export class User {
   @Column({ default: false })
   @ApiProperty()
   emailVerified!: boolean;
-
-  @Column()
-  @ApiProperty()
-  givenName!: string;
-
-  @Column()
-  @ApiProperty()
-  familyName!: string;
 }

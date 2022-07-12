@@ -38,14 +38,6 @@ export class SocialValidateBody {
 export class UserSignupBody {
   @IsString()
   @ApiProperty()
-  givenName!: string;
-
-  @IsString()
-  @ApiProperty()
-  familyName!: string;
-
-  @IsString()
-  @ApiProperty()
   email!: string;
 
   @IsString()

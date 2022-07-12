@@ -17,8 +17,6 @@ import {
 
 export type CreateUserRequest = {
   email: string;
-  givenName: string;
-  familyName: string;
   password: string;
 };
 
@@ -57,7 +55,7 @@ export class AuthService {
 
     const profile = await socialProvider.validate(request);
 
-    const { providerUserId, provider, name, email } = profile;
+    const { providerUserId, provider, email } = profile;
 
     const socialLogin = await this.socialLoginRepo.findOne({
       where: {
@@ -70,11 +68,8 @@ export class AuthService {
     let user = socialLogin?.user;
 
     if (user == null) {
-      const { givenName, familyName } = name;
       user = await this.userRepo.save({
         email,
-        givenName,
-        familyName,
       });
       await this.socialLoginRepo.save({
         user,
