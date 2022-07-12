@@ -2,6 +2,17 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.75](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.74...caliobase-0.0.1-alpha.75) (2022-07-12)
+
+
+### Bug Fixes
+
+* can't create an acl with no owner ([b2f71d5](https://github.com/justicointeractive/caliobase/commit/b2f71d5372f1fdd944bdcfa5dcebb8962fe611d7))
+* maria db doesn't like default value on simple-json column ([0a3f5a4](https://github.com/justicointeractive/caliobase/commit/0a3f5a43bb3185b5d0213aa4901304c75e295358))
+* need to create uuid extension in testing sometimes ([c8e4a8e](https://github.com/justicointeractive/caliobase/commit/c8e4a8e8dca217f6415f99428a274eed8aba3733))
+* objects that are not owned by an organization (user profiles) ([68fdd99](https://github.com/justicointeractive/caliobase/commit/68fdd99e3bd19d715200d94c5324a4ce255123bc))
+* organization mixin ([13264bd](https://github.com/justicointeractive/caliobase/commit/13264bdd04da7af543a1a9e9fe77d308f1f10b8a))
+
 ### [0.0.1-alpha.74](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.73...caliobase-0.0.1-alpha.74) (2022-07-12)
 
 ### [0.0.1-alpha.73](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.72...caliobase-0.0.1-alpha.73) (2022-07-12)
