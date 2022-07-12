@@ -19,6 +19,9 @@ async function bootstrap() {
   SwaggerModule.setup('swagger', app, document);
 
   const dataSource = app.get(DataSource);
+  if (dataSource.options.type === 'postgres') {
+    await dataSource.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
+  }
   await dataSource.synchronize();
 
   const port = process.env.PORT || 3333;
