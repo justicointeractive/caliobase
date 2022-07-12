@@ -12,6 +12,7 @@ export type CaliobaseEntityOptions<T> = {
     defaultOrderBy?: string[];
   };
   accessPolicy?: PolicyStatements<T>;
+  organizationOwner?: false;
 };
 
 export const CaliobaseEntity = Object.assign(

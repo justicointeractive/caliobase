@@ -3,7 +3,11 @@ import { PATH_METADATA } from '@nestjs/common/constants';
 import { PartialType } from '@nestjs/swagger';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DeepPartial } from 'typeorm';
-import { createFindManyQueryParamClass, ToFindOptions } from '.';
+import {
+  CaliobaseEntity,
+  createFindManyQueryParamClass,
+  ToFindOptions,
+} from '.';
 import { EntityOwner, getOwnerProperty } from '../auth';
 import { getAclEntity } from '../auth/acl/getAclEntityAndProperty';
 import { defaultValidatorOptions } from '../defaultValidatorOptions';
@@ -48,7 +52,11 @@ export function createEntityModule<TEntity>(
   const aclEntity = getAclEntity(entityType);
   const ownerRelation = getOwnerProperty(entityType);
 
-  if (aclEntity == null && ownerRelation == null) {
+  if (
+    aclEntity == null &&
+    ownerRelation == null &&
+    CaliobaseEntity.get(entityType)?.organizationOwner !== false
+  ) {
     EntityOwner()(entityType.prototype, 'organization');
   }
 
