@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.67](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.66...caliobase-0.0.1-alpha.67) (2022-07-12)
+
+
+### Features
+
+* auth results should also return authed user info ([21822c2](https://github.com/justicointeractive/caliobase/commit/21822c2bca38192ca86de11b86cad7a373e8b16f))
+
 ### [0.0.1-alpha.66](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.65...caliobase-0.0.1-alpha.66) (2022-07-12)
 
 
