@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.72](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.71...caliobase-0.0.1-alpha.72) (2022-07-12)
+
+
+### Bug Fixes
+
+* missing request user property types ([43f30bb](https://github.com/justicointeractive/caliobase/commit/43f30bbccfc8293bfa698ecf3ac1242e2d37d3f4))
+
 ### [0.0.1-alpha.71](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.70...caliobase-0.0.1-alpha.71) (2022-07-12)
 
 
