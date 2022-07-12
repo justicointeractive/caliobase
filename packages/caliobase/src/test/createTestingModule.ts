@@ -79,7 +79,11 @@ export async function createTestingModule({
   await module.init();
 
   await mutex('caliobase-testing-module-synchronize', async () => {
-    await module.get(DataSource).synchronize();
+    const dataSource = module.get(DataSource);
+    if (dataSource.options.type === 'postgres') {
+      await dataSource.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
+    }
+    await dataSource.synchronize();
   });
 
   return module;

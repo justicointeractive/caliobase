@@ -8,7 +8,11 @@ export function useSuperTestRequest(module: ModuleMetadata) {
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule(module).compile();
-    await moduleRef.get(DataSource).synchronize();
+    const dataSource = moduleRef.get(DataSource);
+    if (dataSource.options.type === 'postgres') {
+      await dataSource.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
+    }
+    await dataSource.synchronize();
     app = moduleRef.createNestApplication();
     await app.init();
   });
