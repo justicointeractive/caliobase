@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.71](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.70...caliobase-0.0.1-alpha.71) (2022-07-12)
+
+
+### Bug Fixes
+
+* missing api property decorators ([37dd359](https://github.com/justicointeractive/caliobase/commit/37dd359b6acf4d70d3003a1a796ac4b09ec27c61))
+
 ### [0.0.1-alpha.70](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.69...caliobase-0.0.1-alpha.70) (2022-07-12)
 
 
