@@ -78,7 +78,7 @@ export function createEntityServiceClass<
           }) as TEntity & ObjectLiteral // todo more narrow type
         );
 
-        if (AclEntity != null) {
+        if (AclEntity != null && organization) {
           const aclEntityRepository = manager.getRepository(AclEntity);
           const createdAcl = aclEntityRepository.create({
             access: 'owner',
