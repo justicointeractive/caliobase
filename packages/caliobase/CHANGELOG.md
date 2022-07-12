@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.61](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.60...caliobase-0.0.1-alpha.61) (2022-07-12)
+
+
+### Features
+
+* include all roles in meta response ([dca08f6](https://github.com/justicointeractive/caliobase/commit/dca08f60dc7d3fad2c98aadfc46575a5100c17a5))
+
 ### [0.0.1-alpha.60](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.59...caliobase-0.0.1-alpha.60) (2022-07-11)
 
 
