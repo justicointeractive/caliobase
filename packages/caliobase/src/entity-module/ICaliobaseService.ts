@@ -14,7 +14,7 @@ export interface ICaliobaseService<TEntity, TCreate, TUpdate> {
   findAll(
     listOptions: CaliobaseFindOptions<TEntity>,
     options: ICaliobaseServiceOptions
-  ): Promise<TEntity[]>;
+  ): Promise<{ items: TEntity[]; total: number }>;
   findOne(
     findOptions: CaliobaseFindOptions<TEntity>,
     options: ICaliobaseServiceOptions

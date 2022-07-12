@@ -11,7 +11,7 @@ export class PaginationItemResponse<T> {
 }
 
 export class PaginationItemsResponse<T> {
-  constructor(public items: T[]) {}
+  constructor(public items: T[], public count?: number) {}
 }
 
 export const ApiPaginatedResponse =

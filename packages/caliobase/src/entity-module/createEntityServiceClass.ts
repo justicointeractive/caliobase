@@ -99,12 +99,13 @@ export function createEntityServiceClass<
       const policy = getUserPolicy('list', user, organization);
 
       return await this.dataSource.transaction(async (manager) => {
-        return await entityServiceQueryBuilder(
+        const [items, total] = await entityServiceQueryBuilder(
           entityType,
           manager,
           { where, order },
           { organization, itemFilters: policy?.itemFilters }
-        ).getMany();
+        ).getManyAndCount();
+        return { items, total };
       });
     }
 

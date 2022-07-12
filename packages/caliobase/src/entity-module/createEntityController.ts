@@ -10,7 +10,7 @@ import {
   Request,
   Type,
   UnauthorizedException,
-  ValidationPipe,
+  ValidationPipe
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -18,7 +18,7 @@ import {
   ApiExtraModels,
   ApiParam,
   ApiParamOptions,
-  ApiQuery,
+  ApiQuery
 } from '@nestjs/swagger';
 import { ValidatorOptions } from 'class-validator';
 import { ToFindOptions } from '.';
@@ -26,17 +26,17 @@ import { CaliobaseRequestUser } from '../auth';
 import { getAclEntity } from '../auth/acl/getAclEntityAndProperty';
 import { assert } from '../lib/assert';
 import {
+  getPrimaryColumns,
   isGenerated,
   pickColumnProperties,
-  toColumnRoutePath,
-  getPrimaryColumns,
+  toColumnRoutePath
 } from '../lib/columnUtils';
 import {
   ApiCreatedItemResponse,
   ApiOkItemResponse,
   ApiOkPaginatedResponse,
   PaginationItemResponse,
-  PaginationItemsResponse,
+  PaginationItemsResponse
 } from '../lib/envelopes';
 import { cloneMetadata } from '../util/cloneMetadata';
 import { createAclController } from './createAclController';
@@ -151,12 +151,14 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
         @Request() { user }: RequestUser
       ) {
         assert(user, UnauthorizedException);
-        return new PaginationItemsResponse(
-          await this.service.findAll(listOptions.toFindOptions(), {
+        const { items, total } = await this.service.findAll(
+          listOptions.toFindOptions(),
+          {
             organization: getOwnerIdObject(user),
             user,
-          })
+          }
         );
+        return new PaginationItemsResponse(items, total);
       }
 
       @Get(primaryColumnRoutePath)

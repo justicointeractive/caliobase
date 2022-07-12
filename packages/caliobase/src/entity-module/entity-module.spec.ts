@@ -74,7 +74,7 @@ describe('entity module', () => {
           user: { user: null, member: null, organization: org },
         }
       );
-      expect(all).toHaveLength(1);
+      expect(all.items).toHaveLength(1);
       const one = await entityService.findOne(
         { where: {} },
         {

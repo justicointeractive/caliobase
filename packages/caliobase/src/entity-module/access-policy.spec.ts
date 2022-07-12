@@ -1,3 +1,4 @@
+import { omit } from 'lodash';
 import { Column, In, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from '../auth';
 import {
@@ -141,7 +142,7 @@ describe('access policy', () => {
             user: testAnonymousUser(organization),
           }
         )
-      ).toHaveLength(0);
+      ).toEqual({ items: [], total: 0 });
     });
     it('should allow editor publish', async () => {
       blogPost = (
@@ -181,7 +182,7 @@ describe('access policy', () => {
             user: testAnonymousUser(organization),
           }
         )
-      ).toHaveLength(1);
+      ).toEqual({ items: [blogPost], total: 1 });
     });
     it('should allow editor list/get published', async () => {
       expect(
@@ -205,7 +206,7 @@ describe('access policy', () => {
             user: owner,
           }
         )
-      ).toHaveLength(1);
+      ).toEqual({ items: [blogPost], total: 1 });
     });
   });
 
@@ -548,7 +549,7 @@ describe('access policy', () => {
             user: viewer,
           }
         )
-      ).toHaveLength(0);
+      ).toEqual({ items: [], total: 0 });
     });
     it('should disallow viewer video updates', async () => {
       expect(
@@ -702,7 +703,10 @@ describe('access policy', () => {
             user: user,
           }
         )
-      ).toHaveLength(1);
+      ).toMatchObject({
+        items: [omit(downloadable, ['organization'])],
+        total: 1,
+      });
     });
     it('should disallow anonymous read/list', async () => {
       await expect(
