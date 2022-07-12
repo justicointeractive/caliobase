@@ -8,6 +8,7 @@ import {
 } from '@nestjs/swagger';
 import { Member, Organization } from '../auth';
 import { Public } from '../auth/decorators/public.decorator';
+import { AllRoles, Role } from '../entity-module/roles';
 import { CreateRootRequest } from './CreateRootRequest';
 import { MetaService } from './meta.service';
 
@@ -20,6 +21,9 @@ class GetMetaResponse {
 
   @ApiProperty()
   rootOrgId!: string;
+
+  @ApiProperty()
+  allRoles!: Role[];
 }
 
 @ApiTags('meta')
@@ -34,6 +38,7 @@ export class MetaController {
     return <GetMetaResponse>{
       hasRootMember: await this.metaService.getHasRootMember(),
       rootOrgId: Organization.RootId,
+      allRoles: AllRoles,
     };
   }
 
