@@ -23,6 +23,6 @@ export class MemberInvitationToken {
   invitedBy!: User;
 
   @ApiProperty()
-  @Column({ type: 'simple-json', default: '[]' })
+  @Column({ type: 'simple-json' })
   roles!: Role[];
 }
