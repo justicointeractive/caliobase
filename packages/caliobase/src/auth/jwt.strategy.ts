@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
+import { ApiProperty } from '@nestjs/swagger';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   ExtractJwt,
@@ -14,8 +15,13 @@ import { Member, Organization, User } from './entities';
 import { CaliobaseJwtPayload } from './jwt-payload';
 
 export class CaliobaseRequestUser {
+  @ApiProperty()
   user!: User | null;
+
+  @ApiProperty()
   organization!: Organization | null;
+
+  @ApiProperty()
   member!: Member | null;
 }
 
