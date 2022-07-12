@@ -70,7 +70,7 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
       );
     }
 
-    return { organiation: { id: organizationId } };
+    return { organization: { id: organizationId } };
   }
 
   const AclEntity = getAclEntity(ControllerService.Entity);
