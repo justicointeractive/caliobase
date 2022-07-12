@@ -17,6 +17,7 @@ import {
   ApiParamOptions,
   PartialType,
 } from '@nestjs/swagger';
+import { InjectRepository } from '@nestjs/typeorm';
 import { camelCase, sentenceCase } from 'change-case';
 import { ValidatorOptions } from 'class-validator';
 import { singular } from 'pluralize';
@@ -28,29 +29,25 @@ import {
 } from 'typeorm';
 import { ColumnMetadataArgs } from 'typeorm/metadata-args/ColumnMetadataArgs';
 import { RelationMetadataArgs } from 'typeorm/metadata-args/RelationMetadataArgs';
-
-import { cloneMetadata } from '../util/cloneMetadata';
-
+import { ValidatedType } from '.';
 import {
-  ApiParams,
   getPrimaryColumns,
   isGenerated,
   toColumnRoutePath,
-} from './createEntityController';
-import {
-  getNamedEntityClassName,
-  RenameClass,
-} from './decorators/RenameClass.decorator';
-import { RelationPermissionChecker } from './RelationPermissionChecker';
-
-import { InjectRepository } from '@nestjs/typeorm';
-import { ValidatedType } from '.';
+} from '../lib/columnUtils';
 import {
   ApiOkPaginatedResponse,
   PaginationItemResponse,
   PaginationItemsResponse,
 } from '../lib/envelopes';
+import { cloneMetadata } from '../util/cloneMetadata';
+import { ApiParams } from './createEntityController';
+import {
+  getNamedEntityClassName,
+  RenameClass,
+} from './decorators/RenameClass.decorator';
 import { IEntityRelationController } from './IEntityRelationController';
+import { RelationPermissionChecker } from './RelationPermissionChecker';
 import { RequestUser } from './RequestUser';
 
 export function createOneToManyController<T>(

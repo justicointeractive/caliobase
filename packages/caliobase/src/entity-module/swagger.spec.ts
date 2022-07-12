@@ -2,8 +2,11 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import {
   Column,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
+  PrimaryColumn,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { createTestingModule } from '../test/createTestingModule';
@@ -13,15 +16,27 @@ import { CaliobaseEntity, RelationController } from './decorators';
 describe('swagger', () => {
   it('should generate swagger file', async () => {
     @CaliobaseEntity({
-      controller: { name: 'card' },
+      controller: { name: 'person' },
     })
-    class Card {
+    class Person {
       @PrimaryGeneratedColumn('uuid')
       id!: string;
 
       @RelationController()
-      @OneToMany(() => Note, (n) => n.card)
+      @OneToMany(() => Note, (n) => n.person)
       notes!: Note[];
+    }
+
+    @CaliobaseEntity({
+      controller: { name: 'person_profile' },
+    })
+    class PersonProfile {
+      @PrimaryColumn()
+      id!: string;
+
+      @OneToOne(() => Person)
+      @JoinColumn({})
+      person!: Person;
     }
 
     @Entity()
@@ -32,14 +47,15 @@ describe('swagger', () => {
       @Column()
       text!: string;
 
-      @ManyToOne(() => Card)
-      card!: Card;
+      @ManyToOne(() => Person)
+      person!: Person;
     }
 
-    const entityModule = createEntityModule(Card);
+    const entityModule = createEntityModule(Person);
+    const profileModule = createEntityModule(PersonProfile);
 
     const module = await createTestingModule({
-      imports: [entityModule],
+      imports: [entityModule, profileModule],
     });
 
     const config = new DocumentBuilder()
@@ -60,15 +76,21 @@ describe('swagger', () => {
 
     const document = SwaggerModule.createDocument(app, config);
 
-    expect(document.paths['/card'].get).not.toBeNull();
-    expect(document.paths['/card'].get?.operationId).toEqual(
-      'CardController_findAll'
+    expect(document.paths['/person'].post).toBeTruthy();
+    expect(document.paths['/person/{id}'].post).toBeFalsy();
+    expect(document.paths['/person'].get).toBeTruthy();
+    expect(document.paths['/person'].get?.operationId).toEqual(
+      'PersonController_findAll'
     );
-    expect(document.paths['/card/{cardId}/notes'].get?.operationId).toEqual(
-      'CardNoteRelationController_findAllNote'
+
+    expect(document.paths['/person_profile'].post).toBeFalsy();
+    expect(document.paths['/person_profile/{id}'].post).toBeTruthy();
+
+    expect(document.paths['/person/{personId}/notes'].get?.operationId).toEqual(
+      'PersonNoteRelationController_findAllNote'
     );
     expect(
-      document.paths['/card/{cardId}/notes/{id}'].get?.operationId
-    ).toEqual('CardNoteRelationController_findOneNote');
+      document.paths['/person/{personId}/notes/{id}'].get?.operationId
+    ).toEqual('PersonNoteRelationController_findOneNote');
   });
 });

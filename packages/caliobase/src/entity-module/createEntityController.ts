@@ -21,13 +21,16 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { ValidatorOptions } from 'class-validator';
-import { fromPairs } from 'lodash';
-import { getMetadataArgsStorage } from 'typeorm';
-import { ColumnMetadataArgs } from 'typeorm/metadata-args/ColumnMetadataArgs';
 import { ToFindOptions } from '.';
 import { CaliobaseRequestUser } from '../auth';
 import { getAclEntity } from '../auth/acl/getAclEntityAndProperty';
 import { assert } from '../lib/assert';
+import {
+  isGenerated,
+  pickColumnProperties,
+  toColumnRoutePath,
+  getPrimaryColumns,
+} from '../lib/columnUtils';
 import {
   ApiCreatedItemResponse,
   ApiOkItemResponse,
@@ -65,9 +68,12 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
 
   const primaryColumns = getPrimaryColumns(ControllerService.Entity);
 
-  const primaryUngeneratedColumnParams: ApiParamOptions[] = primaryColumns
-    .filter((col) => !col.options.generated)
-    .map((col) => ({
+  const primaryUngeneratedColumns = primaryColumns.filter(
+    (col) => !isGenerated(col)
+  );
+
+  const primaryUngeneratedColumnParams: ApiParamOptions[] =
+    primaryUngeneratedColumns.map((col) => ({
       name: col.propertyName,
       required: true,
     }));
@@ -77,7 +83,9 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
     required: true,
   }));
 
-  const primaryUngeneratedColumnRoutePath = toColumnRoutePath(primaryColumns);
+  const primaryUngeneratedColumnRoutePath = toColumnRoutePath(
+    primaryUngeneratedColumns
+  );
   const primaryColumnRoutePath = toColumnRoutePath(primaryColumns);
 
   const otherEntities: Type<unknown>[] = [];
@@ -248,41 +256,6 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
   });
 
   return { controllers, otherEntities };
-}
-
-export function getPrimaryColumns<TEntity>(entity: Type<TEntity>) {
-  const primaryColumns = getMetadataArgsStorage().columns.filter(
-    (col) =>
-      typeof col.target !== 'string' &&
-      (entity === col.target || entity.prototype instanceof col.target) &&
-      col.options.primary
-  );
-
-  return primaryColumns;
-}
-
-export function pickColumnProperties<T>(
-  primaryColumns: ColumnMetadataArgs[],
-  params: T
-) {
-  return fromPairs(
-    primaryColumns.map((col) => [
-      col.propertyName,
-      params[col.propertyName as keyof T],
-    ])
-  ) as Record<keyof T, unknown>;
-}
-
-export function toColumnRoutePath(columns: (string | ColumnMetadataArgs)[]) {
-  return columns
-    .map((col) => `:${typeof col === 'string' ? col : col.propertyName}`)
-    .join('/');
-}
-
-export function isGenerated(col: ColumnMetadataArgs): boolean {
-  return (
-    getMetadataArgsStorage().findGenerated(col.target, col.propertyName) != null
-  );
 }
 
 export const ApiParams: (
