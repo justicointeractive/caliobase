@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.68](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.67...caliobase-0.0.1-alpha.68) (2022-07-12)
+
+
+### Features
+
+* require primary ungenerated columns to be in create path ([b06575c](https://github.com/justicointeractive/caliobase/commit/b06575c7ee759973bd74d63f40c28f98bc87e5f4))
+
 ### [0.0.1-alpha.67](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.66...caliobase-0.0.1-alpha.67) (2022-07-12)
 
 
