@@ -2,6 +2,14 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.3.8](https://github.com/justicointeractive/caliobase/compare/example-0.3.7...example-0.3.8) (2022-07-12)
+
+
+### Bug Fixes
+
+* need to create uuid extension in testing sometimes ([c8e4a8e](https://github.com/justicointeractive/caliobase/commit/c8e4a8e8dca217f6415f99428a274eed8aba3733))
+* only need to create uuid ext for postgres ([9ded513](https://github.com/justicointeractive/caliobase/commit/9ded51361ecbf4a2b9c891915632e2bf35019958))
+
 ### [0.3.7](https://github.com/justicointeractive/caliobase/compare/example-0.3.6...example-0.3.7) (2022-07-12)
 
 ### [0.3.6](https://github.com/justicointeractive/caliobase/compare/example-0.3.5...example-0.3.6) (2022-07-11)
