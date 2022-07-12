@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.63](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.62...caliobase-0.0.1-alpha.63) (2022-07-12)
+
+
+### Bug Fixes
+
+* all roles is an array of enum ([95d70fc](https://github.com/justicointeractive/caliobase/commit/95d70fc4a63055fc6069b76f15fb88556c0562b9))
+
 ### [0.0.1-alpha.62](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.61...caliobase-0.0.1-alpha.62) (2022-07-12)
 
 
