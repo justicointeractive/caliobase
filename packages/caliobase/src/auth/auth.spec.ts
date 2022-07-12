@@ -24,13 +24,13 @@ describe('auth', () => {
         await userService.getMe({
           user: { user: user1.user, organization: null, member: null },
         })
-      ).toMatchObject(user1.user);
+      ).toMatchObject({ user: user1.user, organization: null, member: null });
       const user2 = await userService.createUserWithPassword(fakeUser());
       expect(
         await userService.getMe({
           user: { user: user2.user, organization: null, member: null },
         })
-      ).toMatchObject(user2.user);
+      ).toMatchObject({ user: user2.user, organization: null, member: null });
     });
   });
 

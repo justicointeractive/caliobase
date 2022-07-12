@@ -13,10 +13,10 @@ import { Member, Organization, User } from './entities';
 
 import { CaliobaseJwtPayload } from './jwt-payload';
 
-export interface CaliobaseRequestUser {
-  user: User | null;
-  organization: Organization | null;
-  member: Member | null;
+export class CaliobaseRequestUser {
+  user!: User | null;
+  organization!: Organization | null;
+  member!: Member | null;
 }
 
 declare global {

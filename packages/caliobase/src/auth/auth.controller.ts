@@ -23,6 +23,7 @@ import { AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator';
 import { Member } from './entities/member.entity';
 import { User } from './entities/user.entity';
+import { CaliobaseRequestUser } from './jwt.strategy';
 import { OrganizationService } from './organization.service';
 
 export class SocialValidateBody {
@@ -158,11 +159,10 @@ export class AuthController {
   }
 
   @Get('me')
-  @ApiCreatedResponse({ type: User })
-  async getMe(@Request() { user }: RequestUser): Promise<User> {
-    const userId = user?.user?.id;
-    assert(userId);
-    return await this.authService.getUserById({ userId });
+  @ApiCreatedResponse({ type: CaliobaseRequestUser })
+  async getMe(@Request() { user }: RequestUser): Promise<CaliobaseRequestUser> {
+    assert(user);
+    return user;
   }
 
   @Patch('me/password')
