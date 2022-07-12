@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.65](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.64...caliobase-0.0.1-alpha.65) (2022-07-12)
+
+
+### Bug Fixes
+
+* remove names (first, last, organization) ([b8ea236](https://github.com/justicointeractive/caliobase/commit/b8ea2362bb8dc051a441ca934f813a4992b0f0f5))
+
 ### [0.0.1-alpha.64](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.63...caliobase-0.0.1-alpha.64) (2022-07-12)
 
 ### [0.0.1-alpha.63](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.62...caliobase-0.0.1-alpha.63) (2022-07-12)
