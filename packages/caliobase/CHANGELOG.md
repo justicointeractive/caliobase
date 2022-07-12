@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.62](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.61...caliobase-0.0.1-alpha.62) (2022-07-12)
+
+
+### Features
+
+* enum swagger for all roles ([746b383](https://github.com/justicointeractive/caliobase/commit/746b383195ad87679b213cd9ad52cb18572939cf))
+
 ### [0.0.1-alpha.61](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.60...caliobase-0.0.1-alpha.61) (2022-07-12)
 
 
