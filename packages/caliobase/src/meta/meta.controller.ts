@@ -22,7 +22,11 @@ class GetMetaResponse {
   @ApiProperty()
   rootOrgId!: string;
 
-  @ApiProperty({ enum: AllRoles })
+  @ApiProperty({
+    enum: AllRoles,
+    enumName: 'Role',
+    isArray: true,
+  })
   allRoles!: Role[];
 }
 
