@@ -76,6 +76,14 @@ export class AccessTokenResponse {
   accessToken!: string;
 }
 
+export class AuthenticationResponse {
+  @ApiProperty()
+  user!: User;
+
+  @ApiProperty()
+  accessToken!: string;
+}
+
 export class UpdatePasswordBody {
   @ApiProperty()
   currentPassword!: string;
@@ -101,13 +109,14 @@ export class AuthController {
   @Public()
   @Post('social/validate')
   @ApiBody({ type: SocialValidateBody })
-  @ApiCreatedResponse({ type: AccessTokenResponse })
+  @ApiCreatedResponse({ type: AuthenticationResponse })
   async socialValidate(
     @Body() body: SocialValidateBody
-  ): Promise<AccessTokenResponse> {
+  ): Promise<AuthenticationResponse> {
     const user = await this.authService.validateSocial(body);
 
     return {
+      user,
       accessToken: await this.authService.sign({
         userId: user.id,
       }),
@@ -117,8 +126,10 @@ export class AuthController {
   @Public()
   @Post('user/create')
   @ApiBody({ type: UserSignupBody })
-  @ApiCreatedResponse({ type: AccessTokenResponse })
-  async createUserWithPassword(@Body() body: UserSignupBody) {
+  @ApiCreatedResponse({ type: AuthenticationResponse })
+  async createUserWithPassword(
+    @Body() body: UserSignupBody
+  ): Promise<AuthenticationResponse> {
     const user = await this.authService.createUserWithPassword(body);
 
     return {
@@ -132,11 +143,14 @@ export class AuthController {
   @Public()
   @Post('user/login')
   @ApiBody({ type: UserLoginBody })
-  @ApiCreatedResponse({ type: AccessTokenResponse })
-  async loginUser(@Body() body: UserLoginBody) {
+  @ApiCreatedResponse({ type: AuthenticationResponse })
+  async loginUser(
+    @Body() body: UserLoginBody
+  ): Promise<AuthenticationResponse> {
     const user = await this.authService.validatePassword(body);
 
     return {
+      user,
       accessToken: await this.authService.sign({
         userId: user.id,
       }),
