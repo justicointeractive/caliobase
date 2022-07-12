@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.66](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.65...caliobase-0.0.1-alpha.66) (2022-07-12)
+
+
+### Features
+
+* add a way to disable automatic organization owner ([eaf9cef](https://github.com/justicointeractive/caliobase/commit/eaf9cefc2fce05edf8bd003b082494323d7273ef))
+
 ### [0.0.1-alpha.65](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.64...caliobase-0.0.1-alpha.65) (2022-07-12)
 
 
