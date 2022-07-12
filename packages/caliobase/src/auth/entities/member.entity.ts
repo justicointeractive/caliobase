@@ -23,6 +23,6 @@ export class Member {
   user!: User;
 
   @ApiProperty()
-  @Column({ type: 'jsonb', default: [] })
+  @Column({ type: 'simple-json', default: '[]' })
   roles!: Role[];
 }

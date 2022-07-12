@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker';
 import { INestApplication, ModuleMetadata } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { createTestAccount, createTransport } from 'nodemailer';
 import * as supertest from 'supertest';
 import { DataSource } from 'typeorm';
@@ -19,7 +19,10 @@ import { S3ObjectStorageProvider } from '../object-storage';
 import { fakeUser } from './fakeUser';
 import { mutex } from './mutex';
 
-export async function createTestingModule(metadata: ModuleMetadata = {}) {
+export async function createTestingModule({
+  typeormOptions,
+  ...metadata
+}: ModuleMetadata & { typeormOptions?: TypeOrmModuleOptions } = {}) {
   const testAccount = await createTestAccount();
 
   const module = await Test.createTestingModule({
@@ -30,6 +33,7 @@ export async function createTestingModule(metadata: ModuleMetadata = {}) {
         inject: [ConfigService],
         useFactory: async (config: ConfigService) => {
           let pgConnectionString = config.get('PG_CONNECTION_STRING');
+
           if (config.get('PG_CONNECTION_JSON')) {
             const { host, port, username, password } = JSON.parse(
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -39,12 +43,14 @@ export async function createTestingModule(metadata: ModuleMetadata = {}) {
           }
 
           return {
-            type: 'postgres',
             retryAttempts: 0,
             synchronize: false,
             autoLoadEntities: true,
-            url: pgConnectionString,
             logging: process.env.TYPEORM_LOGGING === '1',
+            ...(typeormOptions ?? {
+              type: 'postgres',
+              url: pgConnectionString,
+            }),
           };
         },
       }),
