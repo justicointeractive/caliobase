@@ -108,10 +108,13 @@ export function useTestingModule<
     await result.module.close();
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return new Proxy<WithRequest<T>>({} as any, {
-    get(target, p1, receiver) {
+    get(_target, p1) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return new Proxy({} as any, {
-        get(target, p2, receiver) {
+        get(_target, p2) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           return (result as any)[p1][p2];
         },
       });

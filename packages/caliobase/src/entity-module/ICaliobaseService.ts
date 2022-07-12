@@ -1,5 +1,5 @@
 import { Type } from '@nestjs/common';
-import { FindOptionsWhere } from 'typeorm';
+import { DataSource, FindOptionsWhere } from 'typeorm';
 
 import { CaliobaseFindOptions } from '.';
 import { CaliobaseRequestUser } from '../auth';
@@ -31,7 +31,7 @@ export interface ICaliobaseService<TEntity, TCreate, TUpdate> {
 }
 
 export interface ICaliobaseServiceType<TEntity, TCreate, TUpdate> {
-  new (...args: any[]): ICaliobaseService<TEntity, TCreate, TUpdate>;
+  new (dataSource: DataSource): ICaliobaseService<TEntity, TCreate, TUpdate>;
   Entity: Type<TEntity>;
   CreateDto: Type<TCreate>;
   UpdateDto: Type<TUpdate>;

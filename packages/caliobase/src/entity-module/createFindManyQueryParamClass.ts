@@ -36,6 +36,7 @@ class Operator<T> {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const filterOperators: Array<Operator<any>> = [
   new Operator({
     symbol: '',
@@ -144,7 +145,7 @@ export type ToFindOptions<TEntity> = {
   listPublic?: boolean;
   toFindOptions: () => CaliobaseFindOptions<TEntity>;
   orderBy?: string[];
-  [key: string]: any;
+  [key: string]: unknown;
 };
 
 function extractArrayType<T>(typeOrArrayOf: T | T[]) {
@@ -216,7 +217,7 @@ export function createFindManyQueryParamClass<TEntity>(
 
   interface FindManyParams {
     orderBy?: string[];
-    [key: string]: any;
+    [key: string]: unknown;
   }
 
   keys.forEach(({ key, type: propertyType }) => {

@@ -1,7 +1,7 @@
 import { Type } from '@nestjs/common';
 
 export function RenameClass(
-  type: Type<any> | string,
+  type: Type<unknown> | string,
   replaceString = 'Entity'
 ): ClassDecorator {
   return (target) => {

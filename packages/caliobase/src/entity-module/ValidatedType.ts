@@ -20,7 +20,7 @@ export function ValidatedType<TEntity>(
     exclude,
     include,
   }: { exclude?: (keyof TEntity)[]; include?: (keyof TEntity)[] } = {}
-) {
+): Type<Partial<TEntity>> {
   return PickType(
     type,
     getValidatedProperties(type).filter((prop) => {

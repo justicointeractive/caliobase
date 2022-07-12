@@ -1,8 +1,8 @@
 import Axios from 'axios';
 
 import {
-  SocialProvider,
   SocialProfile,
+  SocialProvider,
   SocialValidation,
 } from './social-provider';
 

@@ -2,10 +2,14 @@
   "root": true,
   "ignorePatterns": ["**/*"],
   "plugins": ["@nrwl/nx"],
+  "parserOptions": {
+    "project": ["./tsconfig.base.json"]
+  },
   "overrides": [
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
       "rules": {
+        "@typescript-eslint/no-floating-promises": "error",
         "@nrwl/nx/enforce-module-boundaries": [
           "error",
           {
@@ -24,7 +28,12 @@
     {
       "files": ["*.ts", "*.tsx"],
       "extends": ["plugin:@nrwl/nx/typescript"],
-      "rules": {}
+      "rules": {
+        "@typescript-eslint/no-unused-vars": [
+          "error",
+          { "destructuredArrayIgnorePattern": "^_" }
+        ]
+      }
     },
     {
       "files": ["*.js", "*.jsx"],

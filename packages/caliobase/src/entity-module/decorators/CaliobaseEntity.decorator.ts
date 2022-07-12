@@ -18,7 +18,7 @@ export const CaliobaseEntity = Object.assign(
   // eslint-disable-next-line @typescript-eslint/ban-types
   <TFunction>(
     options: CaliobaseEntityOptions<TFunction> = {}
-  ): ((target: new (...args: any[]) => TFunction) => void) => {
+  ): ((target: new (...args: unknown[]) => TFunction) => void) => {
     return applyDecorators(
       Entity(options.entity),
       ...(options.controller

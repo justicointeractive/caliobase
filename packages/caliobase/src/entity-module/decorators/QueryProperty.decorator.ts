@@ -4,7 +4,7 @@ const METADATA_KEY = Symbol('QueryProperty');
 
 export type QueryPropertyItem = {
   key: string | symbol;
-  type: Type<any>;
+  type: Type<unknown>;
 };
 
 function QueryPropertyDecorator(): PropertyDecorator {
@@ -24,7 +24,7 @@ function QueryPropertyDecorator(): PropertyDecorator {
 }
 
 export const QueryProperty = Object.assign(QueryPropertyDecorator, {
-  getKeys(target: any): Array<QueryPropertyItem> {
+  getKeys(target: object): Array<QueryPropertyItem> {
     return Reflect.getMetadata(METADATA_KEY, target) ?? [];
   },
 });

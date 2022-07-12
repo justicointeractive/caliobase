@@ -20,7 +20,12 @@ import {
 import { camelCase, sentenceCase } from 'change-case';
 import { ValidatorOptions } from 'class-validator';
 import { singular } from 'pluralize';
-import { DataSource, getMetadataArgsStorage, Repository } from 'typeorm';
+import {
+  DataSource,
+  FindOptionsWhere,
+  getMetadataArgsStorage,
+  Repository,
+} from 'typeorm';
 import { ColumnMetadataArgs } from 'typeorm/metadata-args/ColumnMetadataArgs';
 import { RelationMetadataArgs } from 'typeorm/metadata-args/RelationMetadataArgs';
 
@@ -52,7 +57,7 @@ export function createOneToManyController<T>(
   OneEntity: Type<T>,
   oneToManyRelationPropertyName: string,
   options: { validatorOptions: ValidatorOptions }
-): { controller: Type<any>; manyEntity: Type<any> } {
+): { controller: Type<unknown>; manyEntity: Type<unknown> } {
   const oneToManyRelation = findRelationMetadataArgs(
     OneEntity,
     oneToManyRelationPropertyName
@@ -106,25 +111,34 @@ export function createOneToManyController<T>(
   const relationEntityName = `${OneEntity.name}${ManyEntity.name}`;
 
   @RenameClass(relationEntityName)
-  class CreateEntityRelationParams extends ValidatedType(ManyEntity, {
-    include: [
-      ...manyToOneReferencingColumns,
-      ...manyEntityPrimaryNonGeneratedColumns,
-    ],
-  }) {}
+  class CreateEntityRelationParams extends ValidatedType(
+    ManyEntity as Type<Record<string, unknown>>,
+    {
+      include: [
+        ...manyToOneReferencingColumns,
+        ...manyEntityPrimaryNonGeneratedColumns,
+      ],
+    }
+  ) {}
 
   @RenameClass(relationEntityName)
-  class UpdateEntityRelationParams extends ValidatedType(ManyEntity, {
-    include: [...manyToOneReferencingColumns, ...manyEntityPrimaryColumns],
-  }) {}
+  class UpdateEntityRelationParams extends ValidatedType(
+    ManyEntity as Type<Record<string, unknown>>,
+    {
+      include: [...manyToOneReferencingColumns, ...manyEntityPrimaryColumns],
+    }
+  ) {}
 
   @RenameClass(relationEntityName)
-  class CreateEntityRelationDto extends ValidatedType(ManyEntity, {
-    exclude: [
-      ...manyToOneReferencingColumns,
-      ...manyEntityPrimaryNonGeneratedColumns,
-    ],
-  }) {}
+  class CreateEntityRelationDto extends ValidatedType(
+    ManyEntity as Type<Record<string, unknown>>,
+    {
+      exclude: [
+        ...manyToOneReferencingColumns,
+        ...manyEntityPrimaryNonGeneratedColumns,
+      ],
+    }
+  ) {}
 
   @RenameClass(relationEntityName)
   class UpdateEntityRelationDto extends PartialType(CreateEntityRelationDto) {}
@@ -200,7 +214,9 @@ export function createOneToManyController<T>(
         { ...params },
         user
       );
-      return new PaginationItemsResponse(await this.manyRepo.findBy(params));
+      return new PaginationItemsResponse(
+        await this.manyRepo.findBy(params as FindOptionsWhere<unknown>)
+      );
     }
 
     @Get(
@@ -223,7 +239,9 @@ export function createOneToManyController<T>(
         { ...params },
         user
       );
-      return new PaginationItemResponse(await this.manyRepo.findOneBy(params));
+      return new PaginationItemResponse(
+        await this.manyRepo.findOneByOrFail(params as FindOptionsWhere<unknown>)
+      );
     }
 
     @Patch(
@@ -253,9 +271,14 @@ export function createOneToManyController<T>(
         { ...params, ...body },
         user
       );
-      return new PaginationItemResponse(
-        await this.manyRepo.update(params, body)
+      const found = await this.manyRepo.findBy(
+        params as FindOptionsWhere<unknown>
       );
+      for (const item of found) {
+        Object.assign(item, body);
+        await this.manyRepo.save(item);
+      }
+      return new PaginationItemsResponse(found);
     }
 
     @Delete(
@@ -278,7 +301,13 @@ export function createOneToManyController<T>(
         { ...params },
         user
       );
-      return new PaginationItemResponse(await this.manyRepo.remove(params));
+      const found = await this.manyRepo.findBy(
+        params as FindOptionsWhere<unknown>
+      );
+      for (const item of found) {
+        await this.manyRepo.remove(item);
+      }
+      return new PaginationItemsResponse(found);
     }
   }
 
@@ -307,7 +336,7 @@ function getRelatedTypeFromRelationMetadataArgs(
 ) {
   const ManyEntity =
     oneToManyRelation.type instanceof Function &&
-    (oneToManyRelation.type as () => any)();
+    (oneToManyRelation.type as () => Type<unknown>)();
 
   if (!(ManyEntity instanceof Function)) {
     throw new TypeError(`could not get type on 'many' side of one to many`);
@@ -328,7 +357,7 @@ function findRelationMetadataArgs<T>(OneEntity: Type<T>, propertyName: string) {
 
 function getInverseRelation(
   oneToManyRelation: RelationMetadataArgs,
-  ManyEntity: Type<any>
+  ManyEntity: Type<unknown>
 ) {
   const manyEntityPropertyMap = createShallowRelationPropertyMap(ManyEntity);
   const inverseRelation: RelationMetadataArgs =
@@ -349,7 +378,7 @@ export function relationColumnPropertyName(
   return camelCase(`${relationPropertyName} ${col.propertyName}`);
 }
 
-function createShallowRelationPropertyMap(ManyEntity: any) {
+function createShallowRelationPropertyMap(ManyEntity: Type<unknown>) {
   return getMetadataArgsStorage()
     .filterRelations(ManyEntity)
     .reduce((map, relation) => {

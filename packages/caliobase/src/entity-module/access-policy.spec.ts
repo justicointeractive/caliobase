@@ -1,7 +1,5 @@
-import { faker } from '@faker-js/faker';
 import { Column, In, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { AclItem, EntityAcl, User } from '../auth';
-import { assert } from '../lib/assert';
+import { User } from '../auth';
 import {
   createGuestUser,
   createTestingModule,
@@ -738,7 +736,7 @@ describe('access policy', () => {
     });
   });
 
-  xdescribe('document sharing', () => {
+  /*   xdescribe('document sharing', () => {
     @CaliobaseEntity<Document>({
       controller: { name: 'downloadable' },
       accessPolicy: [
@@ -991,5 +989,5 @@ describe('access policy', () => {
           )
       ).rejects.toThrow();
     });
-  });
+  }); */
 });

@@ -24,7 +24,7 @@ import { AllRoles, Role } from '../entity-module/roles';
 import { assert } from '../lib/assert';
 import { AccessTokenResponse } from './auth.controller';
 import { CreateOrganizationRequest } from './CreateOrganizationRequest';
-import { Public } from './decorators';
+import { Public } from './decorators/public.decorator';
 import { MemberInvitationToken } from './entities/member-invitation-token.entity';
 import { Member } from './entities/member.entity';
 import { Organization } from './entities/organization.entity';

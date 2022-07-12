@@ -3,7 +3,7 @@ import { createAclForEntity } from '../acl/createAclForEntity';
 
 export function EntityAcl<T>(entityClass: Type<T>) {
   return function (
-    targetEntityPrototype: any,
+    targetEntityPrototype: unknown,
     targetEntityAclProperty: string | symbol
   ) {
     if (entityClass.prototype !== targetEntityPrototype) {

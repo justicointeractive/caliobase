@@ -20,10 +20,10 @@ export function createEntityModule<TEntity>(
   const FindManyParams = createFindManyQueryParamClass(entityType);
 
   @RenameClass(entityType)
-  class CreateEntityDto extends (ValidatedType(entityType) as any) {}
+  class CreateEntityDto extends (ValidatedType(entityType) as Type<object>) {}
 
   @RenameClass(entityType)
-  class UpdateEntityDto extends (PartialType(CreateEntityDto) as any) {}
+  class UpdateEntityDto extends PartialType(CreateEntityDto) {}
 
   const EntityService = createEntityServiceClass(
     entityType,

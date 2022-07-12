@@ -82,9 +82,9 @@ export function createEntityServiceClass<
           const aclEntityRepository = manager.getRepository(AclEntity);
           const createdAcl = aclEntityRepository.create({
             access: 'owner',
-            object: created as any, // todo remove any
+            object: created as TEntity,
             organization: organization,
-          }) as ObjectLiteral; // todo more narrow type
+          });
           await aclEntityRepository.save(createdAcl);
         }
 

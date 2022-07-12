@@ -15,12 +15,12 @@ export function EntityOwner({
   };
 }
 
-export function getOwnerProperty(entity: Type<any>) {
+export function getOwnerProperty(entity: Type<unknown>) {
   return Reflect.getMetadata(ownerKey, entity) as string | symbol;
 }
 
 export function getOrganizationFilter(
-  entity: Type<any>,
+  entity: Type<unknown>,
   owner: { id: string }
 ) {
   const ownerOrgPropertyName = getOwnerProperty(entity);

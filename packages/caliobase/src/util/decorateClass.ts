@@ -3,7 +3,7 @@ import { Type } from '@nestjs/common';
 export function decorateClass<T>(
   type: Type<T>,
   classDecorators: ClassDecorator[],
-  propertyDecorators?: ReadonlyArray<[keyof T, PropertyDecorator[]]>,
+  propertyDecorators?: ReadonlyArray<[keyof T, PropertyDecorator[]]>
 ) {
   Reflect.decorate(classDecorators, type);
 
@@ -15,7 +15,7 @@ export function decorateClass<T>(
       Reflect.decorate(
         decorators,
         type.prototype,
-        propertyName as string | symbol,
+        propertyName as string | symbol
       );
     }
   }

@@ -25,10 +25,10 @@ export interface IEntityRelationController<TMany> {
     body: Partial<TMany>,
     params: Partial<TMany>,
     req: RequestUser
-  ): Promise<PaginationItemResponse<TMany>>;
+  ): Promise<PaginationItemsResponse<TMany>>;
 
   remove(
     params: Partial<TMany>,
     req: RequestUser
-  ): Promise<PaginationItemResponse<TMany>>;
+  ): Promise<PaginationItemsResponse<TMany>>;
 }

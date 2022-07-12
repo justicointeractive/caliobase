@@ -13,7 +13,7 @@ export function RequireWriteAccessLevel(level: Role): PropertyDecorator {
 }
 
 export function getRequiredWriteAccessLevel(
-  Entity: Type<any>,
+  Entity: Type<unknown>,
   propertyName: string
 ): Role | undefined {
   return Reflect.getMetadata(

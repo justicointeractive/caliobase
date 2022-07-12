@@ -7,15 +7,19 @@ import { relationColumnPropertyName } from './createOneToManyController';
 import { Role, Roles } from './roles';
 
 export class RelationPermissionChecker {
-  constructor(private dataSource: DataSource, private ManyEntity: Type<any>) {}
+  constructor(
+    private dataSource: DataSource,
+    private ManyEntity: Type<unknown>
+  ) {}
 
   manySideRelationAccessRequired = getMetadataArgsStorage()
     .filterRelations(this.ManyEntity)
     .map((relation) => {
       const OneEntity =
-        relation.type instanceof Function && (relation.type as () => any)();
+        relation.type instanceof Function &&
+        (relation.type as () => Type<unknown>)();
 
-      if (OneEntity == null) {
+      if (!OneEntity) {
         throw new Error("could not get 'one' side of 'many to one' relation");
       }
 
@@ -38,8 +42,8 @@ export class RelationPermissionChecker {
             ) ?? 'writer',
           read: 'guest',
         } as const,
-        extractAclPrimaryKey: (manyInstance: any) => {
-          const key: Record<string, any> = {};
+        extractAclPrimaryKey: (manyInstance: Record<string, unknown>) => {
+          const key: Record<string, unknown> = {};
           mapManySideToAclSide.forEach(([manySide, oneSide]) => {
             key[oneSide] = manyInstance[manySide];
           });
@@ -48,7 +52,7 @@ export class RelationPermissionChecker {
       };
     });
 
-  async checkPermissions<T>(
+  async checkPermissions<T extends Record<string, unknown>>(
     operationLevel: 'read' | 'write',
     instance: T,
     user?: CaliobaseRequestUser
@@ -68,8 +72,8 @@ export class RelationPermissionChecker {
   }
 
   private async checkPermission(
-    entity: Type<any>,
-    primaryKey: any,
+    entity: Type<unknown>,
+    primaryKey: object,
     requiredLevel: Role,
     user: CaliobaseRequestUser
   ) {
