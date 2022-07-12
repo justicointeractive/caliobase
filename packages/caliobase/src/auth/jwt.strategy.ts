@@ -15,13 +15,13 @@ import { Member, Organization, User } from './entities';
 import { CaliobaseJwtPayload } from './jwt-payload';
 
 export class CaliobaseRequestUser {
-  @ApiProperty()
+  @ApiProperty({ type: () => User })
   user!: User | null;
 
-  @ApiProperty()
+  @ApiProperty({ type: () => Organization })
   organization!: Organization | null;
 
-  @ApiProperty()
+  @ApiProperty({ type: () => Member })
   member!: Member | null;
 }
 
