@@ -10,7 +10,7 @@ import {
   Request,
   Type,
   UnauthorizedException,
-  ValidationPipe
+  ValidationPipe,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -18,7 +18,7 @@ import {
   ApiExtraModels,
   ApiParam,
   ApiParamOptions,
-  ApiQuery
+  ApiQuery,
 } from '@nestjs/swagger';
 import { ValidatorOptions } from 'class-validator';
 import { ToFindOptions } from '.';
@@ -29,19 +29,19 @@ import {
   getPrimaryColumns,
   isGenerated,
   pickColumnProperties,
-  toColumnRoutePath
+  toColumnRoutePath,
 } from '../lib/columnUtils';
 import {
   ApiCreatedItemResponse,
   ApiOkItemResponse,
   ApiOkPaginatedResponse,
   PaginationItemResponse,
-  PaginationItemsResponse
+  PaginationItemsResponse,
 } from '../lib/envelopes';
 import { cloneMetadata } from '../util/cloneMetadata';
 import { createAclController } from './createAclController';
 import { createOneToManyController } from './createOneToManyController';
-import { getRelationController } from './decorators';
+import { CaliobaseEntity, getRelationController } from './decorators';
 import { RenameClass } from './decorators/RenameClass.decorator';
 import { ICaliobaseController } from './ICaliobaseController';
 import { ICaliobaseServiceType } from './ICaliobaseService';
@@ -54,14 +54,23 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
 ): { controllers: Type<unknown>[]; otherEntities: Type<unknown>[] } {
   const Entity = ControllerService.Entity;
 
-  function getOwnerIdObject(user?: CaliobaseRequestUser) {
-    const id = user?.organization?.id;
-    if (id == null) {
+  const entityHasOrganizationOwner =
+    CaliobaseEntity.get(Entity)?.organizationOwner !== false;
+
+  function getOwnerIdMixIn(user?: CaliobaseRequestUser) {
+    if (!entityHasOrganizationOwner) {
+      return {};
+    }
+
+    const organizationId = user?.organization?.id;
+
+    if (organizationId == null) {
       throw new Error(
         'supplied access token does not provide an appropriate owner id'
       );
     }
-    return { id };
+
+    return { organiation: { id: organizationId } };
   }
 
   const AclEntity = getAclEntity(ControllerService.Entity);
@@ -126,9 +135,9 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
         assert(user, UnauthorizedException);
         return new PaginationItemResponse(
           await this.service.create(createDto, {
-            organization: getOwnerIdObject(user),
             user,
             ...params,
+            ...getOwnerIdMixIn(user),
           })
         );
       }
@@ -154,8 +163,8 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
         const { items, total } = await this.service.findAll(
           listOptions.toFindOptions(),
           {
-            organization: getOwnerIdObject(user),
             user,
+            ...getOwnerIdMixIn(user),
           }
         );
         return new PaginationItemsResponse(items, total);
@@ -177,7 +186,10 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
         return new PaginationItemResponse(
           await this.service.findOne(
             { where: pickColumnProperties(primaryColumns, params as unknown) },
-            { organization: getOwnerIdObject(user), user }
+            {
+              user,
+              ...getOwnerIdMixIn(user),
+            }
           )
         );
       }
@@ -207,8 +219,8 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
             pickColumnProperties(primaryColumns, params as unknown),
             updateDto,
             {
-              organization: getOwnerIdObject(user),
               user,
+              ...getOwnerIdMixIn(user),
             }
           )
         );
@@ -225,8 +237,8 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
           await this.service.remove(
             pickColumnProperties(primaryColumns, params),
             {
-              organization: getOwnerIdObject(user),
               user,
+              ...getOwnerIdMixIn(user),
             }
           )
         );

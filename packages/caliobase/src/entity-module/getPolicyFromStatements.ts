@@ -19,10 +19,10 @@ export function getPolicyFromStatements<TEntity>({
   entityType: Type<TEntity>;
   action: EntityActions;
   policyStatements: PolicyStatements<TEntity> | undefined;
-  organization: Pick<Organization, 'id'>;
+  organization?: Pick<Organization, 'id'>;
   user: CaliobaseRequestUser;
 }) {
-  if (user.organization?.id !== organization.id) {
+  if (user.organization?.id !== organization?.id) {
     throw new UnauthorizedException(
       'access token supplied is not applicable to this organization context'
     );

@@ -22,7 +22,7 @@ export function entityServiceQueryBuilder<TEntity>(
     aclAccessLevels = AllRoles,
   }: {
     itemFilters: FindOptionsWhere<TEntity>[] | undefined;
-    organization: { id: string };
+    organization?: { id: string };
     aclAccessLevels?: Role[];
   }
 ) {
@@ -64,7 +64,7 @@ export function entityServiceQueryBuilder<TEntity>(
                 .where(
                   `entity.id = acl.objectId AND acl.organizationId = :organizationId AND acl.access in (${inPlaceholders})`,
                   {
-                    organizationId: organization.id,
+                    organizationId: organization?.id,
                     ...inValues,
                   }
                 )

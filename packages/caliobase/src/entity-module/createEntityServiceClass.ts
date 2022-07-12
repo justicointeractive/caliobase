@@ -36,7 +36,7 @@ export function createEntityServiceClass<
   function getUserPolicy(
     action: EntityActions,
     user: CaliobaseRequestUser,
-    organization: Pick<Organization, 'id'>
+    organization?: Pick<Organization, 'id'>
   ) {
     return getPolicyFromStatements<TEntity>({
       entityType,
