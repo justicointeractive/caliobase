@@ -63,7 +63,7 @@ export class MetaService {
     const member: Member = await this.memberRepo.save({
       user,
       organization,
-      role: ['owner'],
+      roles: ['owner'],
     });
 
     return member;
