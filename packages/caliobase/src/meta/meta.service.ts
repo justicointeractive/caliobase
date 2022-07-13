@@ -60,7 +60,11 @@ export class MetaService {
       id: Organization.RootId,
     });
 
-    const member: Member = await this.memberRepo.save({ user, organization });
+    const member: Member = await this.memberRepo.save({
+      user,
+      organization,
+      role: ['owner'],
+    });
 
     return member;
   }
