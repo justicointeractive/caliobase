@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.78](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.77...caliobase-0.0.1-alpha.78) (2022-07-13)
+
+
+### Bug Fixes
+
+* creating instance with non generated primary key ([670834d](https://github.com/justicointeractive/caliobase/commit/670834defed4b5a60f895d28d9a62c74f04d2a03))
+
 ### [0.0.1-alpha.77](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.76...caliobase-0.0.1-alpha.77) (2022-07-13)
 
 
