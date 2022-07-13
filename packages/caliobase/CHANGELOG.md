@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.76](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.75...caliobase-0.0.1-alpha.76) (2022-07-13)
+
+
+### Bug Fixes
+
+* create owner role when creating root ([fbcd989](https://github.com/justicointeractive/caliobase/commit/fbcd989a8535116f824aefe9748934dd56daec1a))
+
 ### [0.0.1-alpha.75](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.74...caliobase-0.0.1-alpha.75) (2022-07-12)
 
 
