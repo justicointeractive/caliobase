@@ -3,6 +3,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { Entity, EntityOptions } from 'typeorm';
 import { EntityControllerConstructor } from '../createEntityController';
 import { ICaliobaseController } from '../ICaliobaseController';
+import { ICaliobaseServiceType } from '../ICaliobaseService';
 import { AccessPolicies, PolicyStatements } from './AccessPolicies.decorator';
 
 const METADATA_KEY = Symbol('caliobase:entity');
@@ -13,7 +14,12 @@ export type CaliobaseEntityOptions<TEntity> = {
     name: string;
     defaultOrderBy?: string[];
     extend?: (
-      controllerClass: EntityControllerConstructor<TEntity>
+      controllerClass: EntityControllerConstructor<TEntity>,
+      serviceClass: ICaliobaseServiceType<
+        TEntity,
+        Partial<TEntity>,
+        Partial<TEntity>
+      >
     ) => Type<ICaliobaseController<TEntity>>;
   };
   accessPolicy?: PolicyStatements<TEntity>;

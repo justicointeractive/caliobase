@@ -254,7 +254,10 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
     cloneMetadata(ControllerService.Entity, EntityController);
 
     const extend = entityOptions?.controller?.extend ?? ((c) => c);
-    const ExtendedEntityController = extend(EntityController);
+    const ExtendedEntityController = extend(
+      EntityController,
+      ControllerService
+    );
     cloneMetadata(EntityController, ExtendedEntityController);
 
     controllers.push(ExtendedEntityController);
