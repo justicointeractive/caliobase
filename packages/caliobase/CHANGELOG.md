@@ -2,6 +2,14 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.83](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.82...caliobase-0.0.1-alpha.83) (2022-07-14)
+
+
+### Bug Fixes
+
+* controller extender needs to know what types to pass down to base controller ([a07d749](https://github.com/justicointeractive/caliobase/commit/a07d74991dc59664a3b219b1873b010f134ef2d1))
+* extended controller also needs to know which service class to request ([03b4fee](https://github.com/justicointeractive/caliobase/commit/03b4fee9f7c4c2c353e2bf5249a800f8de8ecc89))
+
 ### [0.0.1-alpha.82](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.81...caliobase-0.0.1-alpha.82) (2022-07-14)
 
 
