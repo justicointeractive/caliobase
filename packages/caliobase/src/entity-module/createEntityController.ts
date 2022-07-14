@@ -54,8 +54,8 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
 ): { controllers: Type<unknown>[]; otherEntities: Type<unknown>[] } {
   const Entity = ControllerService.Entity;
 
-  const entityHasOrganizationOwner =
-    CaliobaseEntity.get(Entity)?.organizationOwner !== false;
+  const entityOptions = CaliobaseEntity.get(Entity);
+  const entityHasOrganizationOwner = entityOptions?.organizationOwner !== false;
 
   function getOwnerIdMixIn(user?: CaliobaseRequestUser) {
     if (!entityHasOrganizationOwner) {
@@ -248,7 +248,10 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
     }
 
     cloneMetadata(ControllerService.Entity, EntityController);
-    controllers.push(EntityController);
+
+    const extend = entityOptions?.controller?.extend ?? ((c) => c);
+
+    controllers.push(extend(EntityController));
   }
 
   if (AclEntity != null) {
