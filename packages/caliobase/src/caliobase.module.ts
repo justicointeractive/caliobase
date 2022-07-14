@@ -21,7 +21,7 @@ import { OrganizationService } from './auth/organization.service';
 import { DefaultSocialProviders } from './auth/social-provider/default-social-providers';
 import {
   SocialProvider,
-  SocialProvidersToken,
+  SocialProvidersToken
 } from './auth/social-provider/social-provider';
 import { CaliobaseConfig } from './config/config';
 import { defaultValidatorOptions } from './defaultValidatorOptions';

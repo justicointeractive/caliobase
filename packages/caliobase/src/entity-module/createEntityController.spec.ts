@@ -1,4 +1,4 @@
-import { Get, Inject, Injectable } from '@nestjs/common';
+import { Get, Inject, Injectable, Module } from '@nestjs/common';
 import { PrimaryColumn } from 'typeorm';
 import { createEntityModule } from '..';
 import { createTestingModule } from '../test/createTestingModule';
@@ -9,19 +9,25 @@ describe('createEntityController', () => {
     @Injectable()
     class InjectableService {}
 
+    @Module({
+      providers: [InjectableService],
+      exports: [InjectableService],
+    })
+    class InjectableModule {}
+
     @CaliobaseEntity({
+      imports: [InjectableModule],
       controller: {
         name: 'foo',
         extend(BaseClass, ServiceClass) {
           class ExtendedClass extends BaseClass {
             constructor(
-              @Inject('example') public value: string,
-              @Inject(InjectableService)
-              public injectableService: InjectableService,
+              public injectable: InjectableService,
               @Inject(ServiceClass) service: InstanceType<typeof ServiceClass>
             ) {
               super(service);
             }
+
             @Get()
             newEndpoint() {
               return {};
@@ -36,20 +42,16 @@ describe('createEntityController', () => {
       id!: string;
     }
 
-    const entityModule = createEntityModule(FooEntity, undefined, [
-      InjectableService,
-      { provide: 'example', useValue: 'example' },
-    ]);
+    const entityModule = createEntityModule(FooEntity);
 
     const module = await createTestingModule({
-      imports: [entityModule],
+      imports: [InjectableModule, entityModule],
     });
 
     const controller = module.get<any>(entityModule.EntityControllers![0]);
 
     expect(controller).toHaveProperty('newEndpoint');
-    expect(controller.value).toEqual('example');
-    expect(controller.injectableService).toBeInstanceOf(InjectableService);
+    expect(controller.injectable).toBeInstanceOf(InjectableService);
     expect(controller.service).toBeInstanceOf(entityModule.EntityService);
   });
 });

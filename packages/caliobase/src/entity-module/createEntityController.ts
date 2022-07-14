@@ -257,6 +257,8 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
 
     const ExtendedEntityController = extend
       ? (() => {
+          Reflect.deleteMetadata('design:paramtypes', EntityController);
+          Reflect.deleteMetadata('self:paramtypes', EntityController);
           return extend(EntityController, ControllerService);
         })()
       : EntityController;

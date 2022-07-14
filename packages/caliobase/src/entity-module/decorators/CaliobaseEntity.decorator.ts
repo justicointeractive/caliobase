@@ -1,4 +1,9 @@
-import { applyDecorators, Controller, Type } from '@nestjs/common';
+import {
+  applyDecorators,
+  Controller,
+  ModuleMetadata,
+  Type,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Entity, EntityOptions } from 'typeorm';
 import { EntityControllerConstructor } from '../createEntityController';
@@ -9,6 +14,7 @@ import { AccessPolicies, PolicyStatements } from './AccessPolicies.decorator';
 const METADATA_KEY = Symbol('caliobase:entity');
 
 export type CaliobaseEntityOptions<TEntity> = {
+  imports?: ModuleMetadata['imports'];
   entity?: EntityOptions;
   controller?: {
     name: string;
