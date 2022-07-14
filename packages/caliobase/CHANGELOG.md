@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.82](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.81...caliobase-0.0.1-alpha.82) (2022-07-14)
+
+
+### Features
+
+* expose service to controller ([85305f0](https://github.com/justicointeractive/caliobase/commit/85305f0c42e6116213dd8e8c558cf32e36985ff1))
+
 ### [0.0.1-alpha.81](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.80...caliobase-0.0.1-alpha.81) (2022-07-14)
 
 
