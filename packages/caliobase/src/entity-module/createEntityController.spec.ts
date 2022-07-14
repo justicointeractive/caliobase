@@ -15,6 +15,7 @@ describe('createEntityController', () => {
         extend(BaseClass, ServiceClass) {
           class ExtendedClass extends BaseClass {
             constructor(
+              @Inject('example') public value: string,
               @Inject(InjectableService)
               public injectableService: InjectableService,
               @Inject(ServiceClass) service: InstanceType<typeof ServiceClass>
@@ -37,6 +38,7 @@ describe('createEntityController', () => {
 
     const entityModule = createEntityModule(FooEntity, undefined, [
       InjectableService,
+      { provide: 'example', useValue: 'example' },
     ]);
 
     const module = await createTestingModule({
@@ -46,6 +48,7 @@ describe('createEntityController', () => {
     const controller = module.get<any>(entityModule.EntityControllers![0]);
 
     expect(controller).toHaveProperty('newEndpoint');
+    expect(controller.value).toEqual('example');
     expect(controller.injectableService).toBeInstanceOf(InjectableService);
     expect(controller.service).toBeInstanceOf(entityModule.EntityService);
   });
