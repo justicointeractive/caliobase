@@ -2,12 +2,12 @@ import { open, rm, stat } from 'fs/promises';
 import { tmpdir } from 'os';
 import { setTimeout } from 'timers/promises';
 
-export async function mutex(
+export async function mutex<T>(
   name: string,
-  action: () => Promise<void>,
+  action: () => Promise<T>,
   reaquireDelay = 250,
   reaquireTimeout = 15_000
-) {
+): Promise<T> {
   const staleTime = reaquireTimeout * 2;
   const updateMtimeInterval = reaquireTimeout * 0.5;
 
@@ -41,13 +41,10 @@ export async function mutex(
     const lock = await acquireLock();
     if (lock) {
       try {
-        await action();
+        return await action();
+      } finally {
         await lock.release();
-      } catch (err) {
-        await lock.release();
-        throw err;
       }
-      return;
     }
     await setTimeout(reaquireDelay);
   } while (Date.now() - start < reaquireTimeout);

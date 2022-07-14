@@ -1,10 +1,11 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { async as cryptoRandomString } from 'crypto-random-string';
 import { addHours } from 'date-fns';
 import { DataSource, MoreThanOrEqual } from 'typeorm';
 import { CaliobaseConfig } from '../config/config';
 import { forgotPasswordEmail } from '../emails/forgotPasswordEmail';
+import { assert } from '../lib/assert';
 import { User, UserPasswordRepository, UserSocialLogin } from './entities';
 import { PasswordResetToken } from './entities/password-reset-token.entity';
 
@@ -81,12 +82,24 @@ export class AuthService {
     return user;
   }
 
-  async validatePassword(request: { email: string; password: string }) {
-    const user = await this.userRepo.findOneOrFail({
-      where: { email: request.email },
+  async validatePassword({
+    email,
+    password,
+  }: {
+    email: string;
+    password: string;
+  }) {
+    if (!email || !password) {
+      throw new BadRequestException('email and password required');
+    }
+
+    const user = await this.userRepo.findOne({
+      where: { email },
     });
 
-    await this.userPasswordRepo.compareUserPassword(user, request.password);
+    await this.userPasswordRepo.assertCurrentPassword(user, password);
+
+    assert(user);
 
     return user;
   }
@@ -107,20 +120,16 @@ export class AuthService {
 
   async setUserPassword(
     id: string,
-    request: { currentPassword: string; newPassword: string }
+    {
+      currentPassword,
+      newPassword,
+    }: { currentPassword: string; newPassword: string }
   ) {
     const user = await this.userRepo.findOneByOrFail({ id });
 
-    if (
-      !(await this.userPasswordRepo.compareUserPassword(
-        user,
-        request.currentPassword
-      ))
-    ) {
-      throw new Error('current password does not match');
-    }
+    await this.userPasswordRepo.assertCurrentPassword(user, currentPassword);
 
-    await this.userPasswordRepo.setUserPassword(user, request.newPassword);
+    await this.userPasswordRepo.setUserPassword(user, newPassword);
   }
 
   async createAndEmailPasswordResetLink(userEmail: string) {

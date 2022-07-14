@@ -3,7 +3,7 @@ import { INestApplication, ModuleMetadata } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { createTestAccount, createTransport } from 'nodemailer';
+import { createTransport } from 'nodemailer';
 import * as supertest from 'supertest';
 import { DataSource } from 'typeorm';
 import {
@@ -23,8 +23,6 @@ export async function createTestingModule({
   typeormOptions,
   ...metadata
 }: ModuleMetadata & { typeormOptions?: TypeOrmModuleOptions } = {}) {
-  const testAccount = await createTestAccount();
-
   const module = await Test.createTestingModule({
     ...metadata,
     imports: [
@@ -58,13 +56,7 @@ export async function createTestingModule({
         baseUrl: '',
         controllerEntities: [],
         otherEntities: [],
-        emailTransport: createTransport({
-          ...testAccount.smtp,
-          auth: {
-            user: testAccount.user,
-            pass: testAccount.pass,
-          },
-        }),
+        emailTransport: createTransport({}),
         objectStorageProvider: new S3ObjectStorageProvider({
           bucket: 'test',
           cdnUrlPrefix: '',

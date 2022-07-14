@@ -15,10 +15,9 @@ import {
   ApiProperty,
   ApiTags,
 } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { IsString, MinLength } from 'class-validator';
 import { RequestUser } from '../entity-module/RequestUser';
 import { assert } from '../lib/assert';
-
 import { AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator';
 import { Member } from './entities/member.entity';
@@ -64,10 +63,12 @@ export class ResetWithTokenBody {
 
 export class UserLoginBody {
   @IsString()
+  @MinLength(1)
   @ApiProperty()
   email!: string;
 
   @IsString()
+  @MinLength(1)
   @ApiProperty()
   password!: string;
 }
@@ -129,7 +130,8 @@ export class AuthController {
   @ApiBody({ type: UserSignupBody })
   @ApiCreatedResponse({ type: AuthenticationResponse })
   async createUserWithPassword(
-    @Body() body: UserSignupBody
+    @Body()
+    body: UserSignupBody
   ): Promise<AuthenticationResponse> {
     const user = await this.authService.createUserWithPassword(body);
 
@@ -146,7 +148,8 @@ export class AuthController {
   @ApiBody({ type: UserLoginBody })
   @ApiCreatedResponse({ type: AuthenticationResponse })
   async loginUser(
-    @Body() body: UserLoginBody
+    @Body()
+    body: UserLoginBody
   ): Promise<AuthenticationResponse> {
     const user = await this.authService.validatePassword(body);
 

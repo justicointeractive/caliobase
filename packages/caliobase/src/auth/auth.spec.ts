@@ -1,4 +1,4 @@
-import { UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import {
   createTestingModule,
   createTestOrganization,
@@ -11,13 +11,50 @@ import { Member, Organization } from './entities';
 import { OrganizationService } from './organization.service';
 
 describe('auth', () => {
-  describe('get me', () => {
-    const { userService } = useTestingModule(async () => {
-      const module = await createTestingModule();
-      const userService = module.get(AuthController);
-      return { module, userService };
-    });
+  const { userService } = useTestingModule(async () => {
+    const module = await createTestingModule();
+    const userService = module.get(AuthController);
+    return { module, userService };
+  });
 
+  it('should login user with password', async () => {
+    const userDetails = fakeUser();
+    const user = await userService.createUserWithPassword(userDetails);
+    expect(await userService.loginUser(userDetails)).toMatchObject({
+      accessToken: expect.stringContaining(''),
+      user: user.user,
+    });
+    await expect(
+      async () =>
+        await userService.loginUser({
+          email: userDetails.email,
+          password: 'not the right password',
+        })
+    ).rejects.toThrow(UnauthorizedException);
+    await expect(
+      async () =>
+        await userService.loginUser({
+          email: '',
+          password: userDetails.password,
+        })
+    ).rejects.toThrow(BadRequestException);
+    await expect(
+      async () =>
+        await userService.loginUser({
+          email: 'not the right email@foo.com',
+          password: 'not the right password',
+        })
+    ).rejects.toThrow(UnauthorizedException);
+    await expect(
+      async () =>
+        await userService.loginUser({
+          email: userDetails.email,
+          password: '',
+        })
+    ).rejects.toThrow(BadRequestException);
+  });
+
+  describe('get me', () => {
     it('should get me properly', async () => {
       const user1 = await userService.createUserWithPassword(fakeUser());
       expect(

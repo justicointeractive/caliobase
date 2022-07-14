@@ -1,3 +1,4 @@
+import { UnauthorizedException } from '@nestjs/common';
 import { compare, hash } from 'bcrypt';
 import {
   Column,
@@ -36,13 +37,28 @@ export class UserPasswordRepository {
         });
       },
 
-      async compareUserPassword(user: User, password: string) {
+      async assertCurrentPassword(user: User | null, password: string) {
+        const matches = await this.compareUserPassword(user, password);
+
+        if (!matches) {
+          throw new UnauthorizedException('passwords do not match');
+        }
+      },
+
+      async compareUserPassword(user: User | null, password: string) {
         const { hash } = (await this.findOne({
-          where: { user },
+          where: { user: user ?? undefined },
         })) ?? {
           hash: null,
         };
-        return await compare(password, hash ?? '');
+
+        const result = await compare(password, hash ?? '');
+
+        if (user == null) {
+          return false;
+        }
+
+        return result;
       },
     });
   }
