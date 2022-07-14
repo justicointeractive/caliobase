@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.80](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.79...caliobase-0.0.1-alpha.80) (2022-07-14)
+
+
+### Features
+
+* add a way to extend the generated controller ([bf28c0c](https://github.com/justicointeractive/caliobase/commit/bf28c0c1591037cb5e430ddd1c0084f45a9419d0))
+
 ### [0.0.1-alpha.79](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.78...caliobase-0.0.1-alpha.79) (2022-07-14)
 
 
