@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.85](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.84...caliobase-0.0.1-alpha.85) (2022-07-14)
+
+
+### Bug Fixes
+
+* injecting into entity modules ([25da6e5](https://github.com/justicointeractive/caliobase/commit/25da6e559753d7a95cdf4e2e9c2d4601c530cbd3))
+
 ### [0.0.1-alpha.84](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.83...caliobase-0.0.1-alpha.84) (2022-07-14)
 
 ### [0.0.1-alpha.83](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.82...caliobase-0.0.1-alpha.83) (2022-07-14)
