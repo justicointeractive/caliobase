@@ -1,7 +1,8 @@
-import { ToFindOptions } from '.';
+import { ICaliobaseService, ToFindOptions } from '.';
 import { RequestUser } from './RequestUser';
 
 export interface ICaliobaseController<TEntity> {
+  service: ICaliobaseService<TEntity, Partial<TEntity>, Partial<TEntity>>;
   create(
     body: Partial<TEntity>,
     params: Partial<TEntity>,
