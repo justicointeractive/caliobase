@@ -44,8 +44,12 @@ import { createOneToManyController } from './createOneToManyController';
 import { CaliobaseEntity, getRelationController } from './decorators';
 import { RenameClass } from './decorators/RenameClass.decorator';
 import { ICaliobaseController } from './ICaliobaseController';
-import { ICaliobaseServiceType } from './ICaliobaseService';
+import { ICaliobaseService, ICaliobaseServiceType } from './ICaliobaseService';
 import { RequestUser } from './RequestUser';
+
+export type EntityControllerConstructor<TEntity> = new (
+  service: ICaliobaseService<TEntity, Partial<TEntity>, Partial<TEntity>>
+) => ICaliobaseController<TEntity>;
 
 export function createEntityController<TEntity, TCreate, TUpdate>(
   ControllerService: ICaliobaseServiceType<TEntity, TCreate, TUpdate>,
@@ -54,7 +58,7 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
 ): { controllers: Type<unknown>[]; otherEntities: Type<unknown>[] } {
   const Entity = ControllerService.Entity;
 
-  const entityOptions = CaliobaseEntity.get(Entity);
+  const entityOptions = CaliobaseEntity.get<TEntity>(Entity);
   const entityHasOrganizationOwner = entityOptions?.organizationOwner !== false;
 
   function getOwnerIdMixIn(user?: CaliobaseRequestUser) {
