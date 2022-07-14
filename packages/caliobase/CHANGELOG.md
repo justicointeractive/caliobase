@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.81](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.80...caliobase-0.0.1-alpha.81) (2022-07-14)
+
+
+### Bug Fixes
+
+* clone metadata to extended controller ([44a0d78](https://github.com/justicointeractive/caliobase/commit/44a0d781a78539675207c1887942a4114b7a2423))
+
 ### [0.0.1-alpha.80](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.79...caliobase-0.0.1-alpha.80) (2022-07-14)
 
 
