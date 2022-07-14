@@ -1,4 +1,4 @@
-import { Module, Type, ValidationPipeOptions } from '@nestjs/common';
+import { Module, Provider, Type, ValidationPipeOptions } from '@nestjs/common';
 import { PATH_METADATA } from '@nestjs/common/constants';
 import { PartialType } from '@nestjs/swagger';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -19,7 +19,8 @@ import { ValidatedType } from './ValidatedType';
 
 export function createEntityModule<TEntity>(
   entityType: Type<TEntity>,
-  validatorOptions: ValidationPipeOptions = defaultValidatorOptions
+  validatorOptions: ValidationPipeOptions = defaultValidatorOptions,
+  providers: Provider<any>[] = []
 ): ICaliobaseEntityModule<TEntity> {
   const FindManyParams = createFindManyQueryParamClass(entityType);
 
@@ -69,7 +70,7 @@ export function createEntityModule<TEntity>(
       ]),
     ],
     controllers: [...controllers],
-    providers: [EntityService],
+    providers: [EntityService, ...providers],
     exports: [EntityService],
   })
   @RenameClass(entityType)
