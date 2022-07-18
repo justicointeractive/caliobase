@@ -145,20 +145,18 @@ export class AuthController {
   async socialAuthUrlReturn(): Promise<string> {
     return html`
       <!DOCTYPE html>
-      <head>
-        <script>
-          var data = {};
-          new URLSearchParams(
-            [location.search, location.hash]
-              .map((str) => str.substring(1))
-              .join('&')
-          ).forEach((value, key) => {
-            data[key] = value;
-          });
-          // TODO shouldn't send the token to '*'
-          window.opener.postMessage({ type: 'resolve', data: data }, '*');
-        </script>
-      </head>
+      <script>
+        var data = {};
+        new URLSearchParams(
+          [location.search, location.hash]
+            .map((str) => str.substring(1))
+            .join('&')
+        ).forEach((value, key) => {
+          data[key] = value;
+        });
+        // TODO shouldn't send the token to '*'
+        window.opener.postMessage({ type: 'resolve', data: data }, '*');
+      </script>
     `;
   }
 
