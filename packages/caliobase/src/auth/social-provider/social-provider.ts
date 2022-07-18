@@ -1,3 +1,5 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 export const SocialProvidersToken = Symbol('SOCIAL_PROVIDERS');
 
 export type SocialProvider = {
@@ -7,17 +9,33 @@ export type SocialProvider = {
   init?: () => Promise<void>;
 };
 
-export type SocialProfile = {
-  provider: string;
-  providerUserId: string;
-  accessToken: string;
-  name: {
-    givenName?: string;
-    familyName?: string;
-  };
-  email: string;
+export class SocialProfileName {
+  @ApiProperty()
+  givenName?: string;
+
+  @ApiProperty()
+  familyName?: string;
+}
+
+export class SocialProfile {
+  @ApiProperty()
+  provider!: string;
+
+  @ApiProperty()
+  providerUserId!: string;
+
+  @ApiProperty()
+  accessToken!: string;
+
+  @ApiProperty()
+  name!: SocialProfileName;
+
+  @ApiProperty()
+  email?: string;
+
+  @ApiProperty()
   emailVerified?: boolean;
-};
+}
 
 export type SocialValidation = SocialRequest & {
   accessToken: string;

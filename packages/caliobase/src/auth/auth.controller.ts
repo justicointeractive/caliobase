@@ -26,6 +26,7 @@ import { Member } from './entities/member.entity';
 import { User } from './entities/user.entity';
 import { CaliobaseRequestUser } from './jwt.strategy';
 import { OrganizationService } from './organization.service';
+import { SocialProfile } from './social-provider';
 
 export class SocialRequestBody {
   @IsString()
@@ -89,6 +90,11 @@ export class AuthenticationResponse {
 
   @ApiProperty()
   accessToken!: string;
+}
+
+export class SocialAuthenticationResponse extends AuthenticationResponse {
+  @ApiProperty()
+  profile!: SocialProfile;
 }
 
 export class SocialAuthUrlResponse {
@@ -158,14 +164,15 @@ export class AuthController {
   @Public()
   @Post('social/validate')
   @ApiBody({ type: SocialValidateBody })
-  @ApiCreatedResponse({ type: AuthenticationResponse })
+  @ApiCreatedResponse({ type: SocialAuthenticationResponse })
   async socialValidate(
     @Body() body: SocialValidateBody
-  ): Promise<AuthenticationResponse> {
-    const user = await this.authService.validateSocial(body);
+  ): Promise<SocialAuthenticationResponse> {
+    const { user, profile } = await this.authService.validateSocial(body);
 
     return {
       user,
+      profile,
       accessToken: await this.authService.sign({
         userId: user.id,
       }),

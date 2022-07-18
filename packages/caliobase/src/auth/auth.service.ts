@@ -100,7 +100,10 @@ export class AuthService {
       );
     }
 
-    return user;
+    return {
+      user,
+      profile,
+    };
   }
 
   async validatePassword({
