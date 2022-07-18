@@ -92,6 +92,7 @@ export class AuthService {
         })
       );
       // TODO hook in here to create user profile
+      // TODO hook in here or somewhere else to create org member (ie: Azure AD SSO)
       await this.socialLoginRepo.save(
         this.socialLoginRepo.create({
           user,
