@@ -36,7 +36,7 @@ export class OpenIdConnectSocialProvider implements SocialProvider {
 
     const nonce = generators.nonce();
     const authUrl = client.authorizationUrl({
-      response_type: 'id_token',
+      response_type: 'id_token token',
       redirect_uri: this.options.redirectUri,
       scope: 'openid email profile',
       nonce,
