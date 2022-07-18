@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.4.1](https://github.com/justicointeractive/caliobase/compare/example-0.4.0...example-0.4.1) (2022-07-18)
+
+
+### Bug Fixes
+
+* make caliobase module async and initialize social providers if needed ([c4306f3](https://github.com/justicointeractive/caliobase/commit/c4306f3812d983aababd96b6b44eafaf415ce14f))
+
 ## [0.4.0](https://github.com/justicointeractive/caliobase/compare/example-0.3.8...example-0.4.0) (2022-07-18)
 
 
