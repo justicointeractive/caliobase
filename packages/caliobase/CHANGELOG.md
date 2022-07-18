@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.93](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.92...caliobase-0.0.1-alpha.93) (2022-07-18)
+
+
+### Bug Fixes
+
+* name of createAuthorizationUrl method in openid connect provider ([d79ea96](https://github.com/justicointeractive/caliobase/commit/d79ea96535bd14dcafd1715761b56f96cfc1f921))
+
 ### [0.0.1-alpha.92](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.91...caliobase-0.0.1-alpha.92) (2022-07-18)
 
 
