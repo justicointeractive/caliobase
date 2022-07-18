@@ -4,7 +4,7 @@ import { PrimaryGeneratedPrefixedNanoIdColumn } from '../../entity-module/decora
 
 @Entity()
 export class Organization {
-  static RootId = 'org_00000000000000000000000000000000';
+  static RootId = 'org_0';
 
   @PrimaryGeneratedPrefixedNanoIdColumn('org')
   @ApiProperty()
