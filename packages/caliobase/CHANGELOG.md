@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.95](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.94...caliobase-0.0.1-alpha.95) (2022-07-18)
+
+
+### Features
+
+* add social auth return method ([f3f189b](https://github.com/justicointeractive/caliobase/commit/f3f189ba12a542defdb7eccd92cd66311a43e011))
+
 ### [0.0.1-alpha.94](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.93...caliobase-0.0.1-alpha.94) (2022-07-18)
 
 
