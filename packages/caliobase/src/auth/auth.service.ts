@@ -54,13 +54,11 @@ export class AuthService {
       );
     }
 
-    const { createAuthorizationUrl } = socialProvider;
-
-    if (createAuthorizationUrl == null) {
+    if (socialProvider.createAuthorizationUrl == null) {
       throw new Error('selected provider does not offer auth url creation');
     }
 
-    return await createAuthorizationUrl();
+    return await socialProvider.createAuthorizationUrl();
   }
 
   async validateSocial(request: SocialValidation) {
