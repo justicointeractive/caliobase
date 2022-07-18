@@ -10,10 +10,11 @@ export type SocialProfile = {
   providerUserId: string;
   accessToken: string;
   name: {
-    givenName: string;
-    familyName: string;
+    givenName?: string;
+    familyName?: string;
   };
   email: string;
+  emailVerified?: boolean;
 };
 
 export type SocialValidation = {
