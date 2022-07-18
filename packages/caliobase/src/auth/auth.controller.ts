@@ -19,6 +19,7 @@ import {
 import { IsString, MinLength } from 'class-validator';
 import { RequestUser } from '../entity-module/RequestUser';
 import { assert } from '../lib/assert';
+import { html } from '../lib/html';
 import { AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator';
 import { Member } from './entities/member.entity';
@@ -136,21 +137,22 @@ export class AuthController {
   @ApiOkResponse()
   @Header('Content-Type', 'text/html')
   async socialAuthUrlReturn(): Promise<string> {
-    return /* html */ `
+    return html`
       <!DOCTYPE html>
       <head>
         <script>
           var data = {};
-          new URLSearchParams(location.search.substring(1)).forEach((value, key, parent) => {
+          new URLSearchParams(
+            [location.search, location.hash]
+              .map((str) => str.substring(1))
+              .join('&')
+          ).forEach((value, key) => {
             data[key] = value;
           });
-          new URLSearchParams(location.hash.substring(1)).forEach((value, key, parent) => {
-            data[key] = value;
-          });
-          window.opener.postMessage({ type: "resolve", data: data }, "*");
+          window.opener.postMessage({ type: 'resolve', data: data }, '*');
         </script>
       </head>
-`;
+    `;
   }
 
   @Public()
