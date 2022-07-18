@@ -155,6 +155,7 @@ export class AuthController {
           ).forEach((value, key) => {
             data[key] = value;
           });
+          // TODO shouldn't send the token to '*'
           window.opener.postMessage({ type: 'resolve', data: data }, '*');
         </script>
       </head>
