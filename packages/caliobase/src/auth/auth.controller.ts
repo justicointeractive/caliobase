@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Header,
   Patch,
   Post,
   Request,
@@ -128,6 +129,28 @@ export class AuthController {
   ): Promise<SocialAuthUrlResponse> {
     const authUrl = await this.authService.getSocialAuthUrl(body);
     return authUrl;
+  }
+
+  @Public()
+  @Get('social/authUrl/return')
+  @ApiOkResponse()
+  @Header('Content-Type', 'text/html')
+  async socialAuthUrlReturn(): Promise<string> {
+    return /* html */ `
+      <!DOCTYPE html>
+      <head>
+        <script>
+          var data = {};
+          new URLSearchParams(location.search.substring(1)).forEach((value, key, parent) => {
+            data[key] = value;
+          });
+          new URLSearchParams(location.hash.substring(1)).forEach((value, key, parent) => {
+            data[key] = value;
+          });
+          window.opener.postMessage({ type: "resolve", data: data }, "*");
+        </script>
+      </head>
+`;
   }
 
   @Public()
