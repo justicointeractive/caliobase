@@ -41,7 +41,7 @@ export class OrganizationService {
   }
 
   async findOrganizationMembers(organizationId: string) {
-    // todo: should require role that allows User:list permission
+    // TODO: should require role that allows User:list permission
     return await this.memberRepo.find({
       where: {
         organizationId,
