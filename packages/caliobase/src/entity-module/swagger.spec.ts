@@ -7,11 +7,14 @@ import {
   OneToMany,
   OneToOne,
   PrimaryColumn,
-  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { createTestingModule } from '../test/createTestingModule';
 import { createEntityModule } from './createEntityModule';
-import { CaliobaseEntity, RelationController } from './decorators';
+import {
+  CaliobaseEntity,
+  PrimaryGeneratedPrefixedNanoIdColumn,
+  RelationController,
+} from './decorators';
 
 describe('swagger', () => {
   it('should generate swagger file', async () => {
@@ -19,7 +22,7 @@ describe('swagger', () => {
       controller: { name: 'person' },
     })
     class Person {
-      @PrimaryGeneratedColumn('uuid')
+      @PrimaryGeneratedPrefixedNanoIdColumn('person')
       id!: string;
 
       @RelationController()
@@ -41,7 +44,7 @@ describe('swagger', () => {
 
     @Entity()
     class Note {
-      @PrimaryGeneratedColumn('uuid')
+      @PrimaryGeneratedPrefixedNanoIdColumn('note')
       id!: string;
 
       @Column()

@@ -1,12 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne } from 'typeorm';
 import { EntityOwner } from '../auth/decorators/owner.decorator';
 import { Organization } from '../auth/entities/organization.entity';
 import { User } from '../auth/entities/user.entity';
+import { PrimaryGeneratedPrefixedNanoIdColumn } from '../entity-module/decorators/PrimaryGeneratedPrefixedNanoIdColumn.decorator';
 
 @Entity()
 export class ObjectStorageObject {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedPrefixedNanoIdColumn('blob')
   @ApiProperty()
   id!: string;
 

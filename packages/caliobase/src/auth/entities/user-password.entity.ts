@@ -33,7 +33,10 @@ export class UserPasswordRepository {
         const hashed = await hash(password, 10);
         await this.manager.connection.transaction(async (manager) => {
           await manager.delete(UserPassword, { user });
-          await manager.save(UserPassword, { user, hash: hashed });
+          await manager.save(
+            UserPassword,
+            manager.create(UserPassword, { user, hash: hashed })
+          );
         });
       },
 

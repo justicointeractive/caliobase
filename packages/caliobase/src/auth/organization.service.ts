@@ -68,11 +68,13 @@ export class OrganizationService {
       this.orgRepo.create({ ...createRequest })
     );
 
-    await this.memberRepo.save({
-      userId,
-      organization,
-      roles: ['owner'],
-    });
+    await this.memberRepo.save(
+      this.memberRepo.create({
+        userId,
+        organization,
+        roles: ['owner'],
+      })
+    );
 
     return organization;
   }
@@ -112,13 +114,15 @@ export class OrganizationService {
       throw new UnauthorizedException('user is not allowed to grant this role');
     }
 
-    const invite = await this.memberInviteRepo.save({
-      token,
-      organization: { id: invitedBy.organizationId },
-      validUntil: addDays(Date.now(), 7),
-      roles,
-      invitedBy: invitedBy.user,
-    });
+    const invite = await this.memberInviteRepo.save(
+      this.memberInviteRepo.create({
+        token,
+        organization: { id: invitedBy.organizationId },
+        validUntil: addDays(Date.now(), 7),
+        roles,
+        invitedBy: invitedBy.user,
+      })
+    );
 
     return invite;
   }
@@ -144,10 +148,12 @@ export class OrganizationService {
       throw new UnauthorizedException('not allowed to demote user');
     }
 
-    targetMember = await this.memberRepo.save({
-      ...targetMember,
-      ...update,
-    });
+    targetMember = await this.memberRepo.save(
+      this.memberRepo.create({
+        ...targetMember,
+        ...update,
+      })
+    );
 
     return targetMember;
   }
@@ -222,11 +228,13 @@ export class OrganizationService {
 
     const roles = [role];
 
-    const member = await this.memberRepo.save({
-      user,
-      organization,
-      roles,
-    });
+    const member = await this.memberRepo.save(
+      this.memberRepo.create({
+        user,
+        organization,
+        roles,
+      })
+    );
 
     return member;
   }

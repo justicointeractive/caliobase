@@ -1,5 +1,5 @@
 import { omit } from 'lodash';
-import { Column, In, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, In, ManyToOne } from 'typeorm';
 import { User } from '../auth';
 import {
   createGuestUser,
@@ -9,7 +9,10 @@ import {
   useTestingModule,
 } from '../test/createTestingModule';
 import { createEntityModule } from './createEntityModule';
-import { CaliobaseEntity } from './decorators';
+import {
+  CaliobaseEntity,
+  PrimaryGeneratedPrefixedNanoIdColumn,
+} from './decorators';
 
 // TODO check public access through controller
 
@@ -31,7 +34,7 @@ describe('access policy', () => {
       ],
     })
     class BlogPost {
-      @PrimaryGeneratedColumn('uuid')
+      @PrimaryGeneratedPrefixedNanoIdColumn('blogpost')
       id!: string;
 
       @Column()
@@ -233,7 +236,7 @@ describe('access policy', () => {
       ],
     })
     class Comment {
-      @PrimaryGeneratedColumn('uuid')
+      @PrimaryGeneratedPrefixedNanoIdColumn('comment')
       id!: string;
 
       @Column()
@@ -431,7 +434,7 @@ describe('access policy', () => {
       ],
     })
     class Video {
-      @PrimaryGeneratedColumn('uuid')
+      @PrimaryGeneratedPrefixedNanoIdColumn('video')
       id!: string;
 
       @Column()
@@ -628,7 +631,7 @@ describe('access policy', () => {
       ],
     })
     class Downloadable {
-      @PrimaryGeneratedColumn('uuid')
+      @PrimaryGeneratedPrefixedNanoIdColumn('downloadable')
       id!: string;
 
       @Column()
@@ -752,7 +755,7 @@ describe('access policy', () => {
       ],
     })
     class Document {
-      @PrimaryGeneratedColumn('uuid')
+      @PrimaryGeneratedPrefixedNanoIdColumn()
       id!: string;
 
       @Column()
@@ -887,7 +890,7 @@ describe('access policy', () => {
       ],
     })
     class Channel {
-      @PrimaryGeneratedColumn('uuid')
+      @PrimaryGeneratedPrefixedNanoIdColumn()
       id!: string;
 
       @Column()

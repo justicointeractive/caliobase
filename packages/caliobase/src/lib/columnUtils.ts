@@ -2,6 +2,7 @@ import { Type } from '@nestjs/common';
 import { fromPairs } from 'lodash';
 import { getMetadataArgsStorage } from 'typeorm';
 import { ColumnMetadataArgs } from 'typeorm/metadata-args/ColumnMetadataArgs';
+import { PrimaryGeneratedPrefixedNanoIdColumn } from '../entity-module/decorators/PrimaryGeneratedPrefixedNanoIdColumn.decorator';
 
 export function getPrimaryColumns<TEntity>(entity: Type<TEntity>) {
   const primaryColumns = getMetadataArgsStorage().columns.filter(
@@ -28,6 +29,8 @@ export function pickColumnProperties<T>(
 
 export function isGenerated(col: ColumnMetadataArgs): boolean {
   return (
+    PrimaryGeneratedPrefixedNanoIdColumn.get(col.target)?.propertyName ===
+      col.propertyName ||
     getMetadataArgsStorage().findGenerated(col.target, col.propertyName) != null
   );
 }

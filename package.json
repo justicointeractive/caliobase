@@ -36,6 +36,7 @@
     "lodash": "^4.17.21",
     "mjml": "^4.12.0",
     "mjml-react": "^2.0.8",
+    "nanoid": "^3.3.4",
     "ngx-deploy-npm": "^4.1.0",
     "nodemailer": "^6.7.5",
     "passport-jwt": "^4.0.0",

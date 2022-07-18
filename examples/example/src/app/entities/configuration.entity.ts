@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsString } from 'class-validator';
-import { Column, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, OneToMany } from 'typeorm';
 
 import {
   Acl,
@@ -8,6 +8,7 @@ import {
   EntityAcl,
   EntityOwner,
   Organization,
+  PrimaryGeneratedPrefixedNanoIdColumn,
   QueryProperty,
   RelationController,
 } from '@caliobase/caliobase';
@@ -17,7 +18,7 @@ import { Note } from './note.entity';
 
 @CaliobaseEntity({ controller: { name: 'configuration' } })
 export class Configuration {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedPrefixedNanoIdColumn('conf')
   @ApiProperty()
   id!: string;
 

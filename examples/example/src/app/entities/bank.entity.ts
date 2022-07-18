@@ -9,7 +9,7 @@ import {
   Matches,
   ValidateNested,
 } from 'class-validator';
-import { Column, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, ManyToOne } from 'typeorm';
 
 import {
   Acl,
@@ -17,13 +17,14 @@ import {
   EntityAcl,
   EntityOwner,
   Organization,
+  PrimaryGeneratedPrefixedNanoIdColumn,
   QueryProperty,
 } from '@caliobase/caliobase';
 
 @CaliobaseEntity({ controller: { name: 'bank' } })
 export class Bank {
   @ApiProperty()
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedPrefixedNanoIdColumn('bank')
   id!: string;
 
   @ApiProperty()

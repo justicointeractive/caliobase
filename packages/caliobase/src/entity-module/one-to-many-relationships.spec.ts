@@ -1,12 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { omit } from 'lodash';
-import {
-  Column,
-  Entity,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { createEntityModule, ICaliobaseController } from '.';
 import { assert } from '../lib/assert';
 import {
@@ -14,7 +8,11 @@ import {
   createTestOrganization,
   useTestingModule,
 } from '../test/createTestingModule';
-import { CaliobaseEntity, RelationController } from './decorators';
+import {
+  CaliobaseEntity,
+  PrimaryGeneratedPrefixedNanoIdColumn,
+  RelationController,
+} from './decorators';
 import { IEntityRelationController } from './IEntityRelationController';
 
 describe('one to many relationships', () => {
@@ -23,7 +21,7 @@ describe('one to many relationships', () => {
     controller: { name: 'one' },
   })
   class Card {
-    @PrimaryGeneratedColumn('uuid')
+    @PrimaryGeneratedPrefixedNanoIdColumn('card')
     id!: string;
 
     @Column()
@@ -36,7 +34,7 @@ describe('one to many relationships', () => {
 
   @Entity({ name: 'one_to_many_card_note' })
   class Note {
-    @PrimaryGeneratedColumn('uuid')
+    @PrimaryGeneratedPrefixedNanoIdColumn('note')
     id!: string;
 
     @Column()

@@ -184,10 +184,12 @@ export function createOneToManyController<T>(
         user
       );
       return new PaginationItemResponse(
-        await this.manyRepo.save({
-          ...params,
-          ...body,
-        })
+        await this.manyRepo.save(
+          this.manyRepo.create({
+            ...params,
+            ...body,
+          })
+        )
       );
     }
 

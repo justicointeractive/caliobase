@@ -69,14 +69,18 @@ export class AuthService {
     let user = socialLogin?.user;
 
     if (user == null) {
-      user = await this.userRepo.save({
-        email,
-      });
-      await this.socialLoginRepo.save({
-        user,
-        provider,
-        providerUserId,
-      });
+      user = await this.userRepo.save(
+        this.userRepo.create({
+          email,
+        })
+      );
+      await this.socialLoginRepo.save(
+        this.socialLoginRepo.create({
+          user,
+          provider,
+          providerUserId,
+        })
+      );
     }
 
     return user;
@@ -105,9 +109,11 @@ export class AuthService {
   }
 
   async createUserWithPassword({ password, ...createUser }: CreateUserRequest) {
-    const user = await this.userRepo.save({
-      ...createUser,
-    });
+    const user = await this.userRepo.save(
+      this.userRepo.create({
+        ...createUser,
+      })
+    );
 
     await this.userPasswordRepo.setUserPassword(user, password);
 
@@ -144,11 +150,13 @@ export class AuthService {
           type: 'url-safe',
         });
 
-        await this.passwordResetTokenRepo.save({
-          user,
-          token,
-          validUntil: addHours(Date.now(), 1),
-        });
+        await this.passwordResetTokenRepo.save(
+          this.passwordResetTokenRepo.create({
+            user,
+            token,
+            validUntil: addHours(Date.now(), 1),
+          })
+        );
 
         const html = forgotPasswordEmail({
           accountExists: true,

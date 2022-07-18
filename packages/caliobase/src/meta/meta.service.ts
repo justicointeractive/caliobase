@@ -56,15 +56,19 @@ export class MetaService {
       password: create.user.password,
     });
 
-    const organization: Organization = await this.orgRepo.save({
-      id: Organization.RootId,
-    });
+    const organization: Organization = await this.orgRepo.save(
+      this.orgRepo.create({
+        id: Organization.RootId,
+      })
+    );
 
-    const member: Member = await this.memberRepo.save({
-      user,
-      organization,
-      roles: ['owner'],
-    });
+    const member: Member = await this.memberRepo.save(
+      this.memberRepo.create({
+        user,
+        organization,
+        roles: ['owner'],
+      })
+    );
 
     return member;
   }

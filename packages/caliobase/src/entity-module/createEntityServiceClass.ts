@@ -80,12 +80,13 @@ export function createEntityServiceClass<
 
         if (AclEntity != null && organization) {
           const aclEntityRepository = manager.getRepository(AclEntity);
-          const createdAcl = aclEntityRepository.create({
-            access: 'owner',
-            object: created as TEntity,
-            organization: organization,
-          });
-          await aclEntityRepository.save(createdAcl);
+          await aclEntityRepository.save(
+            aclEntityRepository.create({
+              access: 'owner',
+              object: created as TEntity,
+              organization: organization,
+            })
+          );
         }
 
         return created;

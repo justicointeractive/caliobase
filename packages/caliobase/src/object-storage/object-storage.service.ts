@@ -33,15 +33,17 @@ export class ObjectStorageService {
 
     const cdnUrl = `${this.objectStorage.options.cdnUrlPrefix}${key}`;
 
-    const object = await this.objectRepo.save({
-      organization,
-      uploadedBy,
-      contentLength,
-      contentType,
-      key,
-      cdnUrl,
-      status: 'pending',
-    });
+    const object = await this.objectRepo.save(
+      this.objectRepo.create({
+        organization,
+        uploadedBy,
+        contentLength,
+        contentType,
+        key,
+        cdnUrl,
+        status: 'pending',
+      })
+    );
 
     const signedUrl = await this.objectStorage.createSignedUploadUrl(object);
 
