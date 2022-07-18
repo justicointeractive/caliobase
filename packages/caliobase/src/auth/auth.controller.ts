@@ -25,11 +25,13 @@ import { User } from './entities/user.entity';
 import { CaliobaseRequestUser } from './jwt.strategy';
 import { OrganizationService } from './organization.service';
 
-export class SocialValidateBody {
+export class SocialRequestBody {
   @IsString()
   @ApiProperty()
   provider!: string;
+}
 
+export class SocialValidateBody extends SocialRequestBody {
   @IsString()
   @ApiProperty()
   accessToken!: string;
@@ -86,6 +88,14 @@ export class AuthenticationResponse {
   accessToken!: string;
 }
 
+export class SocialAuthUrlResponse {
+  @ApiProperty()
+  authUrl!: string;
+
+  @ApiProperty()
+  nonce!: string;
+}
+
 export class UpdatePasswordBody {
   @ApiProperty()
   currentPassword!: string;
@@ -107,6 +117,17 @@ export class AuthController {
     private authService: AuthService,
     private orgService: OrganizationService
   ) {}
+
+  @Public()
+  @Post('social/authUrl')
+  @ApiBody({ type: SocialValidateBody })
+  @ApiCreatedResponse({ type: SocialAuthUrlResponse })
+  async socialAuthUrl(
+    @Body() body: SocialValidateBody
+  ): Promise<SocialAuthUrlResponse> {
+    const authUrl = await this.authService.getSocialAuthUrl(body);
+    return authUrl;
+  }
 
   @Public()
   @Post('social/validate')

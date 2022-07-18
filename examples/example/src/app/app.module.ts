@@ -34,7 +34,7 @@ import { Bank, Configuration, ConfigurationBank, Note } from './entities';
         };
       },
     }),
-    CaliobaseModule.forRoot({
+    CaliobaseModule.forRootAsync({
       objectStorageProvider: new S3ObjectStorageProvider({
         bucket: 'bucket',
         keyPrefix: '',

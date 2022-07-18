@@ -21,7 +21,7 @@ import { OrganizationService } from './auth/organization.service';
 import { DefaultSocialProviders } from './auth/social-provider/default-social-providers';
 import {
   SocialProvider,
-  SocialProvidersToken
+  SocialProvidersToken,
 } from './auth/social-provider/social-provider';
 import { CaliobaseConfig } from './config/config';
 import { defaultValidatorOptions } from './defaultValidatorOptions';
@@ -100,7 +100,7 @@ export type CaliobaseModuleOptions = {
   ],
 })
 export class CaliobaseModule {
-  static forRoot({
+  static async forRootAsync({
     objectStorageProvider,
     socialProviders = DefaultSocialProviders,
     controllerEntities,
@@ -109,7 +109,10 @@ export class CaliobaseModule {
     baseUrl,
     emailTransport,
     guestRole = 'guest',
-  }: CaliobaseModuleOptions): DynamicModule {
+  }: CaliobaseModuleOptions): Promise<DynamicModule> {
+    for (const socialProvider of socialProviders) {
+      await socialProvider.init?.();
+    }
     return {
       module: CaliobaseModule,
       imports: [

@@ -52,7 +52,7 @@ export async function createTestingModule({
           };
         },
       }),
-      CaliobaseModule.forRoot({
+      CaliobaseModule.forRootAsync({
         baseUrl: '',
         controllerEntities: [],
         otherEntities: [],

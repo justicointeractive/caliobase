@@ -1,4 +1,4 @@
-import { BaseClient, Issuer } from 'openid-client';
+import { BaseClient, generators, Issuer } from 'openid-client';
 import { SocialProvider } from '..';
 import { assert } from '../../lib/assert';
 import { SocialProfile, SocialValidation } from './social-provider';
@@ -13,25 +13,46 @@ export type OpenIdConnectSocialProviderOptions = {
 
 export class OpenIdConnectSocialProvider implements SocialProvider {
   name: string;
-  client: Promise<BaseClient>;
+  client?: BaseClient;
 
-  constructor(options: OpenIdConnectSocialProviderOptions) {
+  constructor(private options: OpenIdConnectSocialProviderOptions) {
     this.name = `openidconnect:${options.key}`;
-    this.client = (async () => {
-      const issuer = await Issuer.discover(options.issuer);
-      const client = new issuer.Client({
-        client_id: options.clientId,
-        client_secret: options.clientSecret,
-        redirect_uris: [options.redirectUri],
-      });
-      return client;
-    })();
+  }
+
+  async init() {
+    const { options } = this;
+    const issuer = await Issuer.discover(options.issuer);
+    this.client = new issuer.Client({
+      client_id: options.clientId,
+      client_secret: options.clientSecret,
+      redirect_uris: [options.redirectUri],
+    });
+  }
+
+  // TODO: consumers need a way to get a url to begin auth flow
+  async createAuthUrl() {
+    const { client } = this;
+    assert(client);
+
+    const nonce = generators.nonce();
+    const authUrl = client.authorizationUrl({
+      response_type: 'id_token',
+      redirect_uri: this.options.redirectUri,
+      scope: 'openid email profile',
+      nonce,
+      response_mode: 'fragment',
+    });
+
+    return { nonce, authUrl };
   }
 
   async validate(request: SocialValidation): Promise<SocialProfile> {
-    const client = await this.client;
+    const { client } = this;
+    assert(client);
+
     const userInfo = await client.userinfo(request.accessToken);
     assert(userInfo.email);
+
     return {
       provider: this.name,
       providerUserId: userInfo.sub,

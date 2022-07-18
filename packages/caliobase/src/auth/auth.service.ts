@@ -8,11 +8,11 @@ import { forgotPasswordEmail } from '../emails/forgotPasswordEmail';
 import { assert } from '../lib/assert';
 import { User, UserPasswordRepository, UserSocialLogin } from './entities';
 import { PasswordResetToken } from './entities/password-reset-token.entity';
-
 import { CaliobaseJwtPayload } from './jwt-payload';
 import {
   SocialProvider,
   SocialProvidersToken,
+  SocialRequest,
   SocialValidation,
 } from './social-provider/social-provider';
 
@@ -43,6 +43,24 @@ export class AuthService {
     this.providers = new Map(
       socialProviders.map((provider) => [provider.name, provider])
     );
+  }
+
+  async getSocialAuthUrl(request: SocialRequest) {
+    const socialProvider = this.providers.get(request.provider);
+
+    if (socialProvider == null) {
+      throw new Error(
+        `no provider registered for social profile type ${request.provider}`
+      );
+    }
+
+    const { createAuthorizationUrl } = socialProvider;
+
+    if (createAuthorizationUrl == null) {
+      throw new Error('selected provider does not offer auth url creation');
+    }
+
+    return await createAuthorizationUrl();
   }
 
   async validateSocial(request: SocialValidation) {
