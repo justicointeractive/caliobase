@@ -21,7 +21,7 @@ export function getOwnerProperty(entity: Type<unknown>) {
 
 export function getOrganizationFilter(
   entity: Type<unknown>,
-  owner?: { id: string }
+  owner: { id: string } | null
 ) {
   const ownerOrgPropertyName = getOwnerProperty(entity);
 

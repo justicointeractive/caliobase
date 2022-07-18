@@ -19,7 +19,7 @@ export function getPolicyFromStatements<TEntity>({
   entityType: Type<TEntity>;
   action: EntityActions;
   policyStatements: PolicyStatements<TEntity> | undefined;
-  organization?: Pick<Organization, 'id'>;
+  organization: Pick<Organization, 'id'> | null;
   user: CaliobaseRequestUser;
 }) {
   if (user.organization?.id !== organization?.id) {

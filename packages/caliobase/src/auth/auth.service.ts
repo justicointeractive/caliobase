@@ -56,7 +56,7 @@ export class AuthService {
 
     const profile = await socialProvider.validate(request);
 
-    const { providerUserId, provider, email } = profile;
+    const { providerUserId, provider, email, emailVerified } = profile;
 
     const socialLogin = await this.socialLoginRepo.findOne({
       where: {
@@ -72,6 +72,7 @@ export class AuthService {
       user = await this.userRepo.save(
         this.userRepo.create({
           email,
+          emailVerified,
         })
       );
       await this.socialLoginRepo.save(

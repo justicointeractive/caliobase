@@ -22,7 +22,7 @@ import {
 } from '@nestjs/swagger';
 import { ValidatorOptions } from 'class-validator';
 import { ToFindOptions } from '.';
-import { CaliobaseRequestUser } from '../auth';
+import { CaliobaseRequestUser, Organization } from '../auth';
 import { getAclEntity } from '../auth/acl/getAclEntityAndProperty';
 import { assert } from '../lib/assert';
 import {
@@ -61,9 +61,11 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
   const entityOptions = CaliobaseEntity.get<TEntity>(Entity);
   const entityHasOrganizationOwner = entityOptions?.organizationOwner !== false;
 
-  function getOwnerIdMixIn(user?: CaliobaseRequestUser) {
+  function getOwnerIdMixIn(user?: CaliobaseRequestUser): {
+    organization: Pick<Organization, 'id'> | null;
+  } {
     if (!entityHasOrganizationOwner) {
-      return {};
+      return { organization: null };
     }
 
     const organizationId = user?.organization?.id;

@@ -179,7 +179,6 @@ export function createFindManyQueryParamClass<TEntity>(
           const queryParamName = toQueryParamName(key, symbol);
           const queryParamNotName = toQueryParamName(key, symbol, true);
 
-          // TODO: remove 'as FindOptionsWhereProperty<NonNullable<TEntity[keyof TEntity]>>'
           if (this[queryParamName] != null) {
             where[key as keyof TEntity] = findOperator(
               this[queryParamName]

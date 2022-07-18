@@ -5,7 +5,7 @@ import { CaliobaseFindOptions } from '.';
 import { CaliobaseRequestUser } from '../auth';
 
 export interface ICaliobaseServiceOptions {
-  organization?: { id: string };
+  organization: { id: string } | null;
   user: CaliobaseRequestUser;
 }
 

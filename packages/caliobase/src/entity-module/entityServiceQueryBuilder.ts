@@ -22,7 +22,7 @@ export function entityServiceQueryBuilder<TEntity>(
     aclAccessLevels = AllRoles,
   }: {
     itemFilters: FindOptionsWhere<TEntity>[] | undefined;
-    organization?: { id: string };
+    organization: { id: string } | null;
     aclAccessLevels?: Role[];
   }
 ) {
