@@ -53,7 +53,7 @@ export const PrimaryGeneratedPrefixedNanoIdColumn = Object.assign(
       defineDecoratedMethod(
         [BeforeInsert()],
         function () {
-          this[key] = `${idPrefix}_${generateSuffix()}`;
+          this[key] = this[key] ?? `${idPrefix}_${generateSuffix()}`;
         },
         targetPrototype,
         Symbol('caliobase:generateIdBeforeInsertHandler')
