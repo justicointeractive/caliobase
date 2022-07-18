@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.87](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.86...caliobase-0.0.1-alpha.87) (2022-07-18)
+
+
+### Bug Fixes
+
+* if inserting an entity with a specified id, don't override it with generated id ([d2f0937](https://github.com/justicointeractive/caliobase/commit/d2f09378aa1213ee1b786606d0cdd6792fedd0e5))
+
 ### [0.0.1-alpha.86](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.85...caliobase-0.0.1-alpha.86) (2022-07-18)
 
 
