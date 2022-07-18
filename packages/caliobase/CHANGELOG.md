@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.91](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.90...caliobase-0.0.1-alpha.91) (2022-07-18)
+
+
+### Bug Fixes
+
+* export openid connect provider ([3634df9](https://github.com/justicointeractive/caliobase/commit/3634df9e4b35c3cf17b8bc3598f4d8d67e130f60))
+
 ### [0.0.1-alpha.90](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.89...caliobase-0.0.1-alpha.90) (2022-07-18)
 
 
