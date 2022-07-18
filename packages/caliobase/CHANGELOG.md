@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.98](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.97...caliobase-0.0.1-alpha.98) (2022-07-18)
+
+
+### Features
+
+* return social profile in social auth response in order to create user profile ([0ea0dbb](https://github.com/justicointeractive/caliobase/commit/0ea0dbbc3bba59ec41928c9469935c2f2a5e2bcf))
+
 ### [0.0.1-alpha.97](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.96...caliobase-0.0.1-alpha.97) (2022-07-18)
 
 ### [0.0.1-alpha.96](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.95...caliobase-0.0.1-alpha.96) (2022-07-18)
