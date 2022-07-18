@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.4.0](https://github.com/justicointeractive/caliobase/compare/example-0.3.8...example-0.4.0) (2022-07-18)
+
+
+### Features
+
+* prefixed-nanoid ids ([8f40e32](https://github.com/justicointeractive/caliobase/commit/8f40e32943e0b2ea4147b87ae41aec24ee3bc30b))
+
 ### [0.3.8](https://github.com/justicointeractive/caliobase/compare/example-0.3.7...example-0.3.8) (2022-07-12)
 
 
