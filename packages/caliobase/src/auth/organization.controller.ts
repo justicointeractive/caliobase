@@ -51,7 +51,9 @@ export class OrganizationController {
   ) {
     const userId = request.user?.user?.id;
     assert(userId, UnauthorizedException);
-    return this.orgService.createOrganization(userId, body);
+    const org = this.orgService.createOrganization(userId, body);
+    // TODO hook here to create org profile
+    return org;
   }
 
   @Public()

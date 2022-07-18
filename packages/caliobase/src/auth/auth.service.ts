@@ -91,6 +91,7 @@ export class AuthService {
           emailVerified,
         })
       );
+      // TODO hook in here to create user profile
       await this.socialLoginRepo.save(
         this.socialLoginRepo.create({
           user,
@@ -134,6 +135,8 @@ export class AuthService {
         ...createUser,
       })
     );
+
+    // TODO hook here to create user profile
 
     await this.userPasswordRepo.setUserPassword(user, password);
 
