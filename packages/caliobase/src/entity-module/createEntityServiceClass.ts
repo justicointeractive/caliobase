@@ -75,7 +75,7 @@ export function createEntityServiceClass<
           entityRepository.create({
             ...createDto,
             ...getOrganizationFilter(entityType, organization),
-          }) as TEntity & ObjectLiteral // todo more narrow type
+          })
         );
 
         if (AclEntity != null && organization) {
