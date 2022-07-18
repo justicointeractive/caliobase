@@ -30,7 +30,7 @@ export class OpenIdConnectSocialProvider implements SocialProvider {
   }
 
   // TODO: consumers need a way to get a url to begin auth flow
-  async createAuthUrl() {
+  async createAuthorizationUrl() {
     const { client } = this;
     assert(client);
 
