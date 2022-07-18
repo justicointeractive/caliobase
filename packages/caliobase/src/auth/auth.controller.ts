@@ -27,6 +27,7 @@ import { OrganizationService } from './organization.service';
 
 export class SocialRequestBody {
   @IsString()
+  // TODO: provide enum of installed providers
   @ApiProperty()
   provider!: string;
 }
@@ -120,10 +121,10 @@ export class AuthController {
 
   @Public()
   @Post('social/authUrl')
-  @ApiBody({ type: SocialValidateBody })
+  @ApiBody({ type: SocialRequestBody })
   @ApiCreatedResponse({ type: SocialAuthUrlResponse })
   async socialAuthUrl(
-    @Body() body: SocialValidateBody
+    @Body() body: SocialRequestBody
   ): Promise<SocialAuthUrlResponse> {
     const authUrl = await this.authService.getSocialAuthUrl(body);
     return authUrl;
