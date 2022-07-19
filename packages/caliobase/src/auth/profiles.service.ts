@@ -39,9 +39,9 @@ export abstract class AbstractProfileService<
     profile: DeepPartial<TUser>
   ): Promise<TUser | null>;
 
-  abstract socialProfileToUserProfile(
-    socialAuth: SocialProfile
-  ): Omit<TUser, keyof AbstractUserProfile> | null;
+  abstract socialProfileToUserProfile:
+    | ((socialAuth: SocialProfile) => Omit<TUser, keyof AbstractUserProfile>)
+    | null;
 
   abstract createOrganizationProfile(
     organization: Organization,

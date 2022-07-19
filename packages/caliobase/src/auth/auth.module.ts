@@ -43,9 +43,9 @@ export type CaliobaseAuthProfileEntities<
   UserProfile: Type<TUser> | null;
   OrganizationProfile: Type<TOrganization> | null;
 
-  socialProfileToUserProfile: (
-    socialProfile: SocialProfile
-  ) => Omit<TUser, keyof AbstractUserProfile>;
+  socialProfileToUserProfile:
+    | ((socialProfile: SocialProfile) => Omit<TUser, keyof AbstractUserProfile>)
+    | null;
 };
 
 export type CaliobaseAuthModuleOptions<

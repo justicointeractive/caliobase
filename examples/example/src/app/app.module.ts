@@ -40,7 +40,11 @@ import { Bank, Configuration, ConfigurationBank, Note } from './entities';
         keyPrefix: '',
         cdnUrlPrefix: '',
       }),
-      profileEntities: { user: null, organization: null },
+      profileEntities: {
+        UserProfile: null,
+        OrganizationProfile: null,
+        socialProfileToUserProfile: null,
+      },
       controllerEntities: [Bank, Configuration],
       otherEntities: [ConfigurationBank, Note],
       baseUrl: '',

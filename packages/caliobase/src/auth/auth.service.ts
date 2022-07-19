@@ -95,7 +95,7 @@ export class AuthService {
 
     if (user == null) {
       const createProfile =
-        this.profileService.socialProfileToUserProfile(socialProfile);
+        this.profileService.socialProfileToUserProfile?.(socialProfile);
 
       user = await this.userRepo.save(
         this.userRepo.create({
@@ -103,7 +103,6 @@ export class AuthService {
           emailVerified,
         })
       );
-      // TODO hook in here to create user profile
       const profile =
         createProfile &&
         (await this.profileService.createUserProfile(user, createProfile));
@@ -111,6 +110,7 @@ export class AuthService {
       (user as any)!.profile = profile;
 
       // TODO hook in here or somewhere else to create org member (ie: Azure AD SSO)
+
       await this.socialLoginRepo.save(
         this.socialLoginRepo.create({
           user,
