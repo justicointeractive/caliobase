@@ -79,7 +79,10 @@ export class CaliobaseAuthModule {
       await socialProvider.init?.();
     }
 
-    const authController = createAuthController({ profileEntities });
+    const authController = createAuthController({
+      socialProviders,
+      profileEntities,
+    });
     const organizationController = createOrganizationController({
       profileEntities,
     });

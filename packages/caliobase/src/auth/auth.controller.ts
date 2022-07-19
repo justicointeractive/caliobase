@@ -34,6 +34,7 @@ import {
   AbstractOrganizationProfile,
   AbstractUserProfile,
 } from './profiles.service';
+import { SocialProvider } from './social-provider';
 
 class CreatePasswordResetTokenBody {
   @IsString()
@@ -79,8 +80,10 @@ export function createAuthController<
   TOrganization extends AbstractOrganizationProfile
 >({
   profileEntities: { UserProfile },
+  socialProviders,
 }: {
   profileEntities: CaliobaseAuthProfileEntities<TUser, TOrganization>;
+  socialProviders: SocialProvider[];
 }): Type<AbstractAuthController> {
   // #region Supporting Classes
   const { CreateEntityDto: CreateUserProfileEntityDto } = UserProfile
@@ -89,8 +92,11 @@ export function createAuthController<
 
   class SocialRequestBody {
     @IsString()
-    // TODO: provide enum of installed providers
-    @ApiProperty()
+    @ApiProperty({
+      type: String,
+      enum: socialProviders.map((p) => p.name),
+      enumName: 'SocialProviderName',
+    })
     provider!: string;
   }
 
