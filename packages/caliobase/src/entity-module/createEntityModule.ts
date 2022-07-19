@@ -17,6 +17,19 @@ import { RenameClass } from './decorators/RenameClass.decorator';
 import { ICaliobaseServiceType } from './ICaliobaseService';
 import { ValidatedType } from './ValidatedType';
 
+export function createEntityDtos<TEntity>(entityType: Type<TEntity>): {
+  CreateEntityDto: Type<Partial<TEntity>>;
+  UpdateEntityDto: Type<Partial<TEntity>>;
+} {
+  @RenameClass(entityType)
+  class CreateEntityDto extends (ValidatedType(entityType) as Type<object>) {}
+
+  @RenameClass(entityType)
+  class UpdateEntityDto extends PartialType(CreateEntityDto) {}
+
+  return { CreateEntityDto, UpdateEntityDto };
+}
+
 export function createEntityModule<TEntity>(
   entityType: Type<TEntity>,
   validatorOptions: ValidationPipeOptions = defaultValidatorOptions
@@ -24,11 +37,7 @@ export function createEntityModule<TEntity>(
   const FindManyParams = createFindManyQueryParamClass(entityType);
   const entityOptions = CaliobaseEntity.get(entityType);
 
-  @RenameClass(entityType)
-  class CreateEntityDto extends (ValidatedType(entityType) as Type<object>) {}
-
-  @RenameClass(entityType)
-  class UpdateEntityDto extends PartialType(CreateEntityDto) {}
+  const { CreateEntityDto, UpdateEntityDto } = createEntityDtos(entityType);
 
   const EntityService = createEntityServiceClass(
     entityType,
