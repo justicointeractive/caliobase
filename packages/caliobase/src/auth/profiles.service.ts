@@ -7,8 +7,10 @@ import {
   PrimaryColumn,
   Repository,
 } from 'typeorm';
+import { CaliobaseAuthProfileEntities } from './auth.module';
 import { Organization } from './entities';
 import { User } from './entities/user.entity';
+import { SocialProfile } from './social-provider';
 
 export class AbstractUserProfile {
   @PrimaryColumn()
@@ -37,6 +39,10 @@ export abstract class AbstractProfileService<
     profile: DeepPartial<TUser>
   ): Promise<TUser | null>;
 
+  abstract socialProfileToUserProfile(
+    socialAuth: SocialProfile
+  ): Omit<TUser, keyof AbstractUserProfile> | null;
+
   abstract createOrganizationProfile(
     organization: Organization,
     profile: DeepPartial<TOrganization>
@@ -46,10 +52,13 @@ export abstract class AbstractProfileService<
 export function createProfilesService<
   TUserProfile extends AbstractUserProfile,
   TOrganizationProfile extends AbstractOrganizationProfile
->(
-  user: Type<TUserProfile> | null,
-  organization: Type<TOrganizationProfile> | null
-): Type<AbstractProfileService<TUserProfile, TOrganizationProfile>> {
+>({
+  UserProfile,
+  OrganizationProfile,
+  socialProfileToUserProfile,
+}: CaliobaseAuthProfileEntities<TUserProfile, TOrganizationProfile>): Type<
+  AbstractProfileService<TUserProfile, TOrganizationProfile>
+> {
   @Injectable()
   class ProfilesService extends AbstractProfileService<TUserProfile> {
     userProfileRepo: Repository<TUserProfile> | null;
@@ -57,9 +66,11 @@ export function createProfilesService<
 
     constructor(private dataSource: DataSource) {
       super();
-      this.userProfileRepo = user && this.dataSource.getRepository(user);
+      this.userProfileRepo =
+        UserProfile && this.dataSource.getRepository(UserProfile);
       this.organizationProfileRepo =
-        organization && this.dataSource.getRepository(organization);
+        OrganizationProfile &&
+        this.dataSource.getRepository(OrganizationProfile);
     }
 
     async createUserProfile(
@@ -73,6 +84,8 @@ export function createProfilesService<
         this.userProfileRepo.create({ ...profile, user }) as TUserProfile
       );
     }
+
+    socialProfileToUserProfile = socialProfileToUserProfile;
 
     async createOrganizationProfile(
       organization: Organization,

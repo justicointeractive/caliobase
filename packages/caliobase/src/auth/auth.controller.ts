@@ -30,8 +30,10 @@ import { Member } from './entities/member.entity';
 import { User as UserEntity } from './entities/user.entity';
 import { CaliobaseRequestUser } from './jwt.strategy';
 import { OrganizationService } from './organization.service';
-import { AbstractUserProfile } from './profiles.service';
-import { SocialProfile } from './social-provider';
+import {
+  AbstractOrganizationProfile,
+  AbstractUserProfile,
+} from './profiles.service';
 
 class CreatePasswordResetTokenBody {
   @IsString()
@@ -72,10 +74,13 @@ export abstract class AbstractAuthController {
   abstract getMe(user: RequestUser): any;
 }
 
-export function createAuthController({
+export function createAuthController<
+  TUser extends AbstractUserProfile,
+  TOrganization extends AbstractOrganizationProfile
+>({
   profileEntities: { UserProfile },
 }: {
-  profileEntities: CaliobaseAuthProfileEntities;
+  profileEntities: CaliobaseAuthProfileEntities<TUser, TOrganization>;
 }): Type<AbstractAuthController> {
   // #region Supporting Classes
   const { CreateEntityDto: CreateUserProfileEntityDto } = UserProfile
@@ -134,10 +139,7 @@ export function createAuthController({
     user!: User;
   }
 
-  class SocialAuthenticationResponse extends AuthenticationResponse {
-    @ApiProperty()
-    profile!: SocialProfile;
-  }
+  class SocialAuthenticationResponse extends AuthenticationResponse {}
 
   class SocialAuthUrlResponse {
     @ApiProperty()
@@ -212,11 +214,10 @@ export function createAuthController({
     async socialValidate(
       @Body() body: SocialValidateBody
     ): Promise<SocialAuthenticationResponse> {
-      const { user, profile } = await this.authService.validateSocial(body);
+      const { user } = await this.authService.validateSocial(body);
 
       return {
         user,
-        profile,
         accessToken: await this.authService.sign({
           userId: user.id,
         }),

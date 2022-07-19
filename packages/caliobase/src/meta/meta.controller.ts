@@ -19,10 +19,13 @@ import {
 import { AllRoles, Role } from '../entity-module/roles';
 import { getEntityDtos } from '../lib/getEntityDtos';
 
-export function createMetaController({
+export function createMetaController<
+  TUser extends AbstractUserProfile,
+  TOrganization extends AbstractOrganizationProfile
+>({
   profileEntities: { UserProfile, OrganizationProfile },
 }: {
-  profileEntities: CaliobaseAuthProfileEntities;
+  profileEntities: CaliobaseAuthProfileEntities<TUser, TOrganization>;
 }): Type<unknown> {
   const { CreateEntityDto: CreateUserProfileEntityDto } = UserProfile
     ? getEntityDtos(UserProfile)

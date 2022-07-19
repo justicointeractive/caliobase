@@ -27,19 +27,19 @@ import { mutex } from './mutex';
 @Entity()
 class UserFirstLastProfile extends AbstractUserProfile {
   @IsString()
-  @Column()
-  firstName!: string;
+  @Column({ type: String, nullable: true })
+  firstName!: string | null;
 
   @IsString()
-  @Column()
-  lastName!: string;
+  @Column({ type: String, nullable: true })
+  lastName!: string | null;
 }
 
 @Entity()
 class OrganizationNameProfile extends AbstractOrganizationProfile {
   @IsString()
-  @Column()
-  name!: string;
+  @Column({ type: String, nullable: true })
+  name!: string | null;
 }
 
 export async function createTestingModule({
@@ -80,6 +80,10 @@ export async function createTestingModule({
         profileEntities: {
           UserProfile: UserFirstLastProfile,
           OrganizationProfile: OrganizationNameProfile,
+          socialProfileToUserProfile: (socialProfile) => ({
+            firstName: socialProfile.name.givenName ?? null,
+            lastName: socialProfile.name.familyName ?? null,
+          }),
         },
         controllerEntities: [],
         otherEntities: [],

@@ -4,6 +4,10 @@ import {
   CaliobaseAuthModuleOptions,
 } from './auth/auth.module';
 import {
+  AbstractOrganizationProfile,
+  AbstractUserProfile,
+} from './auth/profiles.service';
+import {
   CaliobaseConfigModule,
   CaliobaseConfigModuleOptions,
 } from './config/config.module';
@@ -17,14 +21,20 @@ import {
   CaliobaseObjectStorageModuleOptions,
 } from './object-storage/object-storage.module';
 
-export type CaliobaseModuleOptions = CaliobaseEntitiesModuleOptions &
+export type CaliobaseModuleOptions<
+  TUser extends AbstractUserProfile,
+  TOrganization extends AbstractOrganizationProfile
+> = CaliobaseEntitiesModuleOptions &
   CaliobaseObjectStorageModuleOptions &
-  CaliobaseAuthModuleOptions &
+  CaliobaseAuthModuleOptions<TUser, TOrganization> &
   CaliobaseConfigModuleOptions;
 
 @Module({})
 export class CaliobaseModule {
-  static async forRootAsync({
+  static async forRootAsync<
+    TUser extends AbstractUserProfile,
+    TOrganization extends AbstractOrganizationProfile
+  >({
     objectStorageProvider,
     socialProviders,
     profileEntities,
@@ -34,7 +44,7 @@ export class CaliobaseModule {
     baseUrl,
     emailTransport,
     guestRole,
-  }: CaliobaseModuleOptions): Promise<DynamicModule> {
+  }: CaliobaseModuleOptions<TUser, TOrganization>): Promise<DynamicModule> {
     return {
       module: CaliobaseModule,
       imports: [

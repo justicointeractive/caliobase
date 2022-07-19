@@ -45,11 +45,12 @@ describe('social provider', () => {
         }
       );
       expect(await result).toMatchObject({
-        profile: expect.objectContaining({
-          email: user.email,
-        }),
         user: expect.objectContaining({
           email: user.email,
+          profile: expect.objectContaining({
+            firstName: user.first_name,
+            lastName: user.last_name,
+          }),
         }),
       });
     });

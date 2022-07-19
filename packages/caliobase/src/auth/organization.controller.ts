@@ -32,7 +32,10 @@ import { MemberInvitationToken } from './entities/member-invitation-token.entity
 import { Member } from './entities/member.entity';
 import { Organization as OrganizationEntity } from './entities/organization.entity';
 import { OrganizationService } from './organization.service';
-import { AbstractOrganizationProfile } from './profiles.service';
+import {
+  AbstractOrganizationProfile,
+  AbstractUserProfile,
+} from './profiles.service';
 
 class CreateInvitationRequest {
   @ApiProperty()
@@ -42,10 +45,13 @@ class CreateInvitationRequest {
 
 export abstract class AbstractOrganizationController {}
 
-export function createOrganizationController({
+export function createOrganizationController<
+  TUser extends AbstractUserProfile,
+  TOrganization extends AbstractOrganizationProfile
+>({
   profileEntities: { OrganizationProfile },
 }: {
-  profileEntities: CaliobaseAuthProfileEntities;
+  profileEntities: CaliobaseAuthProfileEntities<TUser, TOrganization>;
 }): Type<AbstractOrganizationController> {
   // #region Supporting Classes
   const { CreateEntityDto: CreateOrganizationProfileEntityDto } =

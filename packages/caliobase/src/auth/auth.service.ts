@@ -79,9 +79,9 @@ export class AuthService {
       );
     }
 
-    const profile = await socialProvider.validate(request);
+    const socialProfile = await socialProvider.validate(request);
 
-    const { providerUserId, provider, email, emailVerified } = profile;
+    const { providerUserId, provider, email, emailVerified } = socialProfile;
 
     const socialLogin = await this.socialLoginRepo.findOne({
       where: {
@@ -94,6 +94,9 @@ export class AuthService {
     let user = socialLogin?.user;
 
     if (user == null) {
+      const createProfile =
+        this.profileService.socialProfileToUserProfile(socialProfile);
+
       user = await this.userRepo.save(
         this.userRepo.create({
           email,
@@ -101,6 +104,12 @@ export class AuthService {
         })
       );
       // TODO hook in here to create user profile
+      const profile =
+        createProfile &&
+        (await this.profileService.createUserProfile(user, createProfile));
+
+      (user as any)!.profile = profile;
+
       // TODO hook in here or somewhere else to create org member (ie: Azure AD SSO)
       await this.socialLoginRepo.save(
         this.socialLoginRepo.create({
@@ -113,7 +122,6 @@ export class AuthService {
 
     return {
       user,
-      profile,
     };
   }
 

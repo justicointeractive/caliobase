@@ -31,26 +31,40 @@ import {
 } from './profiles.service';
 import {
   DefaultSocialProviders,
+  SocialProfile,
   SocialProvider,
   SocialProvidersToken,
 } from './social-provider';
 
-export type CaliobaseAuthProfileEntities = {
-  UserProfile: Type<AbstractUserProfile> | null;
-  OrganizationProfile: Type<AbstractOrganizationProfile> | null;
+export type CaliobaseAuthProfileEntities<
+  TUser extends AbstractUserProfile,
+  TOrganization extends AbstractOrganizationProfile
+> = {
+  UserProfile: Type<TUser> | null;
+  OrganizationProfile: Type<TOrganization> | null;
+
+  socialProfileToUserProfile: (
+    socialProfile: SocialProfile
+  ) => Omit<TUser, keyof AbstractUserProfile>;
 };
 
-export type CaliobaseAuthModuleOptions = {
+export type CaliobaseAuthModuleOptions<
+  TUser extends AbstractUserProfile,
+  TOrganization extends AbstractOrganizationProfile
+> = {
   socialProviders?: SocialProvider[];
-  profileEntities: CaliobaseAuthProfileEntities;
+  profileEntities: CaliobaseAuthProfileEntities<TUser, TOrganization>;
 };
 
 @Module({})
 export class CaliobaseAuthModule {
-  static async forRootAsync({
+  static async forRootAsync<
+    TUser extends AbstractUserProfile,
+    TOrganization extends AbstractOrganizationProfile
+  >({
     socialProviders = DefaultSocialProviders,
     profileEntities,
-  }: CaliobaseAuthModuleOptions): Promise<DynamicModule> {
+  }: CaliobaseAuthModuleOptions<TUser, TOrganization>): Promise<DynamicModule> {
     const builtInEntities = [
       Member,
       Organization,
@@ -69,10 +83,7 @@ export class CaliobaseAuthModule {
     const organizationController = createOrganizationController({
       profileEntities,
     });
-    const profilesService = createProfilesService(
-      profileEntities.UserProfile,
-      profileEntities.OrganizationProfile
-    );
+    const profilesService = createProfilesService(profileEntities);
 
     return {
       module: CaliobaseAuthModule,
