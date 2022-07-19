@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.5.0](https://github.com/justicointeractive/caliobase/compare/example-0.4.1...example-0.5.0) (2022-07-19)
+
+
+### Features
+
+* create user profile in same request as create user (WIP) ([ee81497](https://github.com/justicointeractive/caliobase/commit/ee81497cdc81c85e47e05c8e01f91124d7313aae))
+
 ### [0.4.1](https://github.com/justicointeractive/caliobase/compare/example-0.4.0...example-0.4.1) (2022-07-18)
 
 
