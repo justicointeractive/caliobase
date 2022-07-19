@@ -43,7 +43,7 @@ class CreateInvitationRequest {
 export abstract class AbstractOrganizationController {}
 
 export function createOrganizationController({
-  profileEntities: { organization: OrganizationProfile },
+  profileEntities: { OrganizationProfile },
 }: {
   profileEntities: CaliobaseAuthProfileEntities;
 }): Type<AbstractOrganizationController> {

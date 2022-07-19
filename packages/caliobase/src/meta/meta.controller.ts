@@ -20,7 +20,7 @@ import { AllRoles, Role } from '../entity-module/roles';
 import { getEntityDtos } from '../lib/getEntityDtos';
 
 export function createMetaController({
-  profileEntities: { user: UserProfile, organization: OrganizationProfile },
+  profileEntities: { UserProfile, OrganizationProfile },
 }: {
   profileEntities: CaliobaseAuthProfileEntities;
 }): Type<unknown> {

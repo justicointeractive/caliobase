@@ -78,8 +78,8 @@ export async function createTestingModule({
       CaliobaseModule.forRootAsync({
         baseUrl: '',
         profileEntities: {
-          user: UserFirstLastProfile,
-          organization: OrganizationNameProfile,
+          UserProfile: UserFirstLastProfile,
+          OrganizationProfile: OrganizationNameProfile,
         },
         controllerEntities: [],
         otherEntities: [],

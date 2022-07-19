@@ -73,7 +73,7 @@ export abstract class AbstractAuthController {
 }
 
 export function createAuthController({
-  profileEntities: { user: UserProfile },
+  profileEntities: { UserProfile },
 }: {
   profileEntities: CaliobaseAuthProfileEntities;
 }): Type<AbstractAuthController> {

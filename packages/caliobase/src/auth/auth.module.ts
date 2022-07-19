@@ -36,8 +36,8 @@ import {
 } from './social-provider';
 
 export type CaliobaseAuthProfileEntities = {
-  user: Type<AbstractUserProfile> | null;
-  organization: Type<AbstractOrganizationProfile> | null;
+  UserProfile: Type<AbstractUserProfile> | null;
+  OrganizationProfile: Type<AbstractOrganizationProfile> | null;
 };
 
 export type CaliobaseAuthModuleOptions = {
@@ -70,8 +70,8 @@ export class CaliobaseAuthModule {
       profileEntities,
     });
     const profilesService = createProfilesService(
-      profileEntities.user,
-      profileEntities.organization
+      profileEntities.UserProfile,
+      profileEntities.OrganizationProfile
     );
 
     return {
@@ -81,8 +81,8 @@ export class CaliobaseAuthModule {
         TypeOrmModule.forFeature(
           [
             ...builtInEntities,
-            profileEntities.user,
-            profileEntities.organization,
+            profileEntities.UserProfile,
+            profileEntities.OrganizationProfile,
           ].filter(nonNull)
         ),
         ConfigModule,
