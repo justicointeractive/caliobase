@@ -77,6 +77,7 @@ export function createAuthController({
 }: {
   profileEntities: CaliobaseAuthProfileEntities;
 }): Type<AbstractAuthController> {
+  // #region Supporting Classes
   const { CreateEntityDto: CreateUserProfileEntityDto } = UserProfile
     ? getEntityDtos(UserProfile)
     : { CreateEntityDto: null };
@@ -158,6 +159,7 @@ export function createAuthController({
     @ApiProperty()
     success!: boolean;
   }
+  // #endregion
 
   @ApiTags('auth')
   @Controller('auth')

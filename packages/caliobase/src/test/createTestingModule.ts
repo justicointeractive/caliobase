@@ -6,7 +6,7 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { IsString } from 'class-validator';
 import { createTransport } from 'nodemailer';
 import * as supertest from 'supertest';
-import { Column, DataSource, Entity, OneToOne, PrimaryColumn } from 'typeorm';
+import { Column, DataSource, Entity } from 'typeorm';
 import {
   AuthService,
   CaliobaseRequestUser,
@@ -14,7 +14,10 @@ import {
   Organization,
   OrganizationService,
 } from '../auth';
-import { AbstractUserProfile } from '../auth/profiles.service';
+import {
+  AbstractOrganizationProfile,
+  AbstractUserProfile,
+} from '../auth/profiles.service';
 import { CaliobaseModule } from '../caliobase.module';
 import { Role } from '../entity-module/roles';
 import { S3ObjectStorageProvider } from '../object-storage';
@@ -33,14 +36,9 @@ class UserFirstLastProfile extends AbstractUserProfile {
 }
 
 @Entity()
-class OrganizationNameProfile {
-  @PrimaryColumn()
-  organizationId!: string;
-
-  @OneToOne(() => Organization)
-  organization!: Organization;
-
+class OrganizationNameProfile extends AbstractOrganizationProfile {
   @IsString()
+  @Column()
   name!: string;
 }
 
@@ -159,7 +157,9 @@ export async function createTestOrganization(module: TestingModule) {
 
   const owner = await authService.createUserWithPassword(fakeUser());
   const organization = await orgService.createOrganization(owner.id, {
-    name: faker.company.companyName(),
+    profile: {
+      name: faker.company.companyName(),
+    } as Partial<AbstractOrganizationProfile>,
   });
   const member = await orgService.getMember(owner.id, organization.id);
 

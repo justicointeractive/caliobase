@@ -9,6 +9,7 @@ import {
 } from '..';
 import { AuthService } from '../auth/auth.service';
 import { OrganizationService } from '../auth/organization.service';
+import { AbstractOrganizationProfile } from '../auth/profiles.service';
 import {
   createTestingModule,
   useTestingModule,
@@ -46,7 +47,9 @@ describe('entity module', () => {
       const user = await authService.createUserWithPassword(fakeUser());
 
       const org = await orgService.createOrganization(user.id, {
-        name: faker.company.companyName(),
+        profile: {
+          name: faker.company.companyName(),
+        } as Partial<AbstractOrganizationProfile>,
       });
       expect(org.id).toBeTruthy();
 

@@ -18,9 +18,13 @@ import { UserSocialLogin } from './entities/user-social-login.entity';
 import { User } from './entities/user.entity';
 import { JwtAuthGuard } from './guards/jwt.guard';
 import { JwtStrategy } from './jwt.strategy';
-import { OrganizationController } from './organization.controller';
+import {
+  AbstractOrganizationController,
+  createOrganizationController,
+} from './organization.controller';
 import { OrganizationService } from './organization.service';
 import {
+  AbstractOrganizationProfile,
   AbstractProfileService,
   AbstractUserProfile,
   createProfilesService,
@@ -33,7 +37,7 @@ import {
 
 export type CaliobaseAuthProfileEntities = {
   user: Type<AbstractUserProfile> | null;
-  organization: Type<unknown> | null;
+  organization: Type<AbstractOrganizationProfile> | null;
 };
 
 export type CaliobaseAuthModuleOptions = {
@@ -62,14 +66,24 @@ export class CaliobaseAuthModule {
     }
 
     const authController = createAuthController({ profileEntities });
-    const profilesService = createProfilesService(profileEntities.user);
+    const organizationController = createOrganizationController({
+      profileEntities,
+    });
+    const profilesService = createProfilesService(
+      profileEntities.user,
+      profileEntities.organization
+    );
 
     return {
       module: CaliobaseAuthModule,
       global: true,
       imports: [
         TypeOrmModule.forFeature(
-          [...builtInEntities, profileEntities.user].filter(nonNull)
+          [
+            ...builtInEntities,
+            profileEntities.user,
+            profileEntities.organization,
+          ].filter(nonNull)
         ),
         ConfigModule,
         JwtModule.registerAsync({
@@ -106,9 +120,13 @@ export class CaliobaseAuthModule {
           useClass: JwtAuthGuard,
         },
         { provide: AbstractAuthController, useClass: authController },
+        {
+          provide: AbstractOrganizationController,
+          useClass: organizationController,
+        },
         { provide: AbstractProfileService, useClass: profilesService },
       ],
-      controllers: [authController, OrganizationController],
+      controllers: [authController, organizationController],
       exports: [AuthService],
     };
   }

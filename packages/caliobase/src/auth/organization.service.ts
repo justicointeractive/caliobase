@@ -10,12 +10,18 @@ import { CaliobaseConfig } from '../config/config';
 import { Role, Roles } from '../entity-module/roles';
 import { assert } from '../lib/assert';
 import { AuthService } from './auth.service';
-import { CreateOrganizationRequest } from './CreateOrganizationRequest';
 import { MemberInvitationToken } from './entities/member-invitation-token.entity';
 import { Member } from './entities/member.entity';
 import { Organization } from './entities/organization.entity';
 import { User } from './entities/user.entity';
+import {
+  AbstractOrganizationProfile,
+  AbstractProfileService,
+} from './profiles.service';
 
+export type CreateOrganizationRequest = {
+  profile: Partial<AbstractOrganizationProfile> | null;
+};
 @Injectable()
 export class OrganizationService {
   private readonly userRepo = this.dataSource.getRepository(User);
@@ -28,7 +34,8 @@ export class OrganizationService {
   constructor(
     private dataSource: DataSource,
     private authService: AuthService,
-    private caliobaseConfig: CaliobaseConfig
+    private caliobaseConfig: CaliobaseConfig,
+    private profileService: AbstractProfileService
   ) {}
 
   async findUserMemberships(userId: string) {
@@ -62,11 +69,18 @@ export class OrganizationService {
 
   async createOrganization(
     userId: string,
-    createRequest: CreateOrganizationRequest
+    { profile: createProfile, ...createRequest }: CreateOrganizationRequest
   ) {
     const organization = await this.orgRepo.save(
       this.orgRepo.create({ ...createRequest })
     );
+
+    const profile =
+      createProfile &&
+      (await this.profileService.createOrganizationProfile(
+        organization,
+        createProfile
+      ));
 
     await this.memberRepo.save(
       this.memberRepo.create({
@@ -76,7 +90,7 @@ export class OrganizationService {
       })
     );
 
-    return organization;
+    return { ...organization, profile };
   }
 
   async createMemberAccessToken(userId: string, organizationId: string) {

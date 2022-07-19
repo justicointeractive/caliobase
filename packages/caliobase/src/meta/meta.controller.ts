@@ -11,20 +11,27 @@ import { IsString, ValidateNested } from 'class-validator';
 import { DataSource } from 'typeorm';
 import { AuthService, Member, Organization, User } from '../auth';
 import { CaliobaseAuthProfileEntities } from '../auth/auth.module';
-import { CreateOrganizationRequest } from '../auth/CreateOrganizationRequest';
 import { Public } from '../auth/decorators/public.decorator';
-import { AbstractUserProfile } from '../auth/profiles.service';
+import {
+  AbstractOrganizationProfile,
+  AbstractUserProfile,
+} from '../auth/profiles.service';
 import { AllRoles, Role } from '../entity-module/roles';
 import { getEntityDtos } from '../lib/getEntityDtos';
 
 export function createMetaController({
-  profileEntities,
+  profileEntities: { user: UserProfile, organization: OrganizationProfile },
 }: {
   profileEntities: CaliobaseAuthProfileEntities;
 }): Type<unknown> {
-  const { CreateEntityDto: CreateUserProfileEntityDto } = profileEntities.user
-    ? getEntityDtos(profileEntities.user)
+  const { CreateEntityDto: CreateUserProfileEntityDto } = UserProfile
+    ? getEntityDtos(UserProfile)
     : { CreateEntityDto: null };
+
+  const { CreateEntityDto: CreateOrganizationProfileEntityDto } =
+    OrganizationProfile
+      ? getEntityDtos(OrganizationProfile)
+      : { CreateEntityDto: null };
 
   class GetMetaResponse {
     @ApiProperty()
@@ -65,6 +72,21 @@ export function createMetaController({
         TransformType(() => CreateUserProfileEntityDto),
       ],
       UserSignupBody.prototype,
+      'profile'
+    );
+  }
+  class CreateOrganizationRequest {
+    profile!: AbstractOrganizationProfile | null;
+  }
+
+  if (CreateOrganizationProfileEntityDto) {
+    Reflect.decorate(
+      [
+        ApiProperty({ type: CreateOrganizationProfileEntityDto }),
+        ValidateNested(),
+        TransformType(() => CreateOrganizationProfileEntityDto),
+      ],
+      CreateOrganizationRequest.prototype,
       'profile'
     );
   }
