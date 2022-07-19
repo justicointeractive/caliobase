@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Type } from '@nestjs/common';
 import {
   ApiBody,
   ApiCreatedResponse,
@@ -6,51 +6,159 @@ import {
   ApiProperty,
   ApiTags,
 } from '@nestjs/swagger';
-import { Member, Organization } from '../auth';
+import { Type as TransformType } from 'class-transformer';
+import { IsString, ValidateNested } from 'class-validator';
+import { DataSource } from 'typeorm';
+import { AuthService, Member, Organization, User } from '../auth';
+import { CaliobaseAuthProfileEntities } from '../auth/auth.module';
+import { CreateOrganizationRequest } from '../auth/CreateOrganizationRequest';
 import { Public } from '../auth/decorators/public.decorator';
+import { AbstractUserProfile } from '../auth/profiles.service';
 import { AllRoles, Role } from '../entity-module/roles';
-import { CreateRootRequest } from './CreateRootRequest';
-import { MetaService } from './meta.service';
+import { getEntityDtos } from '../lib/getEntityDtos';
 
-class GetMetaResponse {
-  @ApiProperty()
-  hasRootMember!: boolean;
+export function createMetaController({
+  profileEntities,
+}: {
+  profileEntities: CaliobaseAuthProfileEntities;
+}): Type<unknown> {
+  const { CreateEntityDto: CreateUserProfileEntityDto } = profileEntities.user
+    ? getEntityDtos(profileEntities.user)
+    : { CreateEntityDto: null };
 
-  @ApiProperty()
-  publicOrgId!: string;
+  class GetMetaResponse {
+    @ApiProperty()
+    hasRootMember!: boolean;
 
-  @ApiProperty()
-  rootOrgId!: string;
+    @ApiProperty()
+    publicOrgId!: string;
 
-  @ApiProperty({
-    enum: AllRoles,
-    enumName: 'Role',
-    isArray: true,
-  })
-  allRoles!: Role[];
-}
+    @ApiProperty()
+    rootOrgId!: string;
 
-@ApiTags('meta')
-@Controller('meta')
-export class MetaController {
-  constructor(private metaService: MetaService) {}
-
-  @Public()
-  @Get()
-  @ApiOkResponse({ type: () => GetMetaResponse })
-  async getMeta() {
-    return <GetMetaResponse>{
-      hasRootMember: await this.metaService.getHasRootMember(),
-      rootOrgId: Organization.RootId,
-      allRoles: AllRoles,
-    };
+    @ApiProperty({
+      enum: AllRoles,
+      enumName: 'Role',
+      isArray: true,
+    })
+    allRoles!: Role[];
   }
 
-  @Public()
-  @Post()
-  @ApiBody({ type: () => CreateRootRequest })
-  @ApiCreatedResponse({ type: Member })
-  async createRoot(@Body() body: CreateRootRequest) {
-    return this.metaService.createRoot(body);
+  // TODO this should come from auth controller somehow
+  class UserSignupBody {
+    @IsString()
+    @ApiProperty()
+    email!: string;
+
+    @IsString()
+    @ApiProperty()
+    password!: string;
+
+    profile!: AbstractUserProfile | null;
   }
+
+  if (CreateUserProfileEntityDto) {
+    Reflect.decorate(
+      [
+        ApiProperty({ type: CreateUserProfileEntityDto }),
+        ValidateNested(),
+        TransformType(() => CreateUserProfileEntityDto),
+      ],
+      UserSignupBody.prototype,
+      'profile'
+    );
+  }
+
+  class CreateRootRequest {
+    @ValidateNested()
+    @TransformType(() => UserSignupBody)
+    @ApiProperty()
+    user!: UserSignupBody;
+
+    @ValidateNested()
+    @TransformType(() => CreateOrganizationRequest)
+    @ApiProperty()
+    organization!: CreateOrganizationRequest;
+  }
+
+  @ApiTags('meta')
+  @Controller('meta')
+  class MetaController {
+    orgRepo = this.dataSource.getRepository(Organization);
+    memberRepo = this.dataSource.getRepository(Member);
+
+    constructor(
+      private dataSource: DataSource,
+      private authService: AuthService
+    ) {}
+
+    async assertHasNoRootMember() {
+      if (await this.getHasRootMember()) {
+        throw new Error('this can only be called once upon initial setup');
+      }
+    }
+
+    async getHasRootMember() {
+      const rootOrg = await this.orgRepo.findOne({
+        where: { id: Organization.RootId },
+      });
+
+      if (rootOrg == null) {
+        return false;
+      }
+
+      const rootMember = await this.memberRepo.findOne({
+        where: {
+          organization: rootOrg,
+        },
+      });
+
+      if (rootMember == null) {
+        return false;
+      }
+
+      return true;
+    }
+
+    @Public()
+    @Get()
+    @ApiOkResponse({ type: () => GetMetaResponse })
+    async getMeta() {
+      return <GetMetaResponse>{
+        hasRootMember: await this.getHasRootMember(),
+        rootOrgId: Organization.RootId,
+        allRoles: AllRoles,
+      };
+    }
+
+    @Public()
+    @Post()
+    @ApiBody({ type: () => CreateRootRequest })
+    @ApiCreatedResponse({ type: Member })
+    async createRoot(@Body() body: CreateRootRequest) {
+      await this.assertHasNoRootMember();
+
+      const user: User = await this.authService.createUserWithPassword(
+        body.user
+      );
+
+      const organization: Organization = await this.orgRepo.save(
+        this.orgRepo.create({
+          id: Organization.RootId,
+        })
+      );
+
+      const member: Member = await this.memberRepo.save(
+        this.memberRepo.create({
+          user,
+          organization,
+          roles: ['owner'],
+        })
+      );
+
+      return member;
+    }
+  }
+
+  return MetaController;
 }

@@ -3,9 +3,10 @@ import { INestApplication, ModuleMetadata } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { IsString } from 'class-validator';
 import { createTransport } from 'nodemailer';
 import * as supertest from 'supertest';
-import { DataSource } from 'typeorm';
+import { Column, DataSource, Entity, OneToOne, PrimaryColumn } from 'typeorm';
 import {
   AuthService,
   CaliobaseRequestUser,
@@ -13,11 +14,35 @@ import {
   Organization,
   OrganizationService,
 } from '../auth';
+import { AbstractUserProfile } from '../auth/profiles.service';
 import { CaliobaseModule } from '../caliobase.module';
 import { Role } from '../entity-module/roles';
 import { S3ObjectStorageProvider } from '../object-storage';
 import { fakeUser } from './fakeUser';
 import { mutex } from './mutex';
+
+@Entity()
+class UserFirstLastProfile extends AbstractUserProfile {
+  @IsString()
+  @Column()
+  firstName!: string;
+
+  @IsString()
+  @Column()
+  lastName!: string;
+}
+
+@Entity()
+class OrganizationNameProfile {
+  @PrimaryColumn()
+  organizationId!: string;
+
+  @OneToOne(() => Organization)
+  organization!: Organization;
+
+  @IsString()
+  name!: string;
+}
 
 export async function createTestingModule({
   typeormOptions,
@@ -54,6 +79,10 @@ export async function createTestingModule({
       }),
       CaliobaseModule.forRootAsync({
         baseUrl: '',
+        profileEntities: {
+          user: UserFirstLastProfile,
+          organization: OrganizationNameProfile,
+        },
         controllerEntities: [],
         otherEntities: [],
         emailTransport: createTransport({}),

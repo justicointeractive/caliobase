@@ -6,9 +6,15 @@ import { DataSource, MoreThanOrEqual } from 'typeorm';
 import { CaliobaseConfig } from '../config/config';
 import { forgotPasswordEmail } from '../emails/forgotPasswordEmail';
 import { assert } from '../lib/assert';
-import { User, UserPasswordRepository, UserSocialLogin } from './entities';
 import { PasswordResetToken } from './entities/password-reset-token.entity';
+import { UserPasswordRepository } from './entities/user-password.entity';
+import { UserSocialLogin } from './entities/user-social-login.entity';
+import { User } from './entities/user.entity';
 import { CaliobaseJwtPayload } from './jwt-payload';
+import {
+  AbstractProfileService,
+  AbstractUserProfile,
+} from './profiles.service';
 import {
   SocialProvider,
   SocialProvidersToken,
@@ -19,6 +25,7 @@ import {
 export type CreateUserRequest = {
   email: string;
   password: string;
+  profile: Partial<AbstractUserProfile> | null;
 };
 
 @Injectable()
@@ -28,6 +35,7 @@ export class AuthService {
   private readonly socialLoginRepo =
     this.dataSource.getRepository(UserSocialLogin);
   private readonly userRepo = this.dataSource.getRepository(User);
+
   private readonly userPasswordRepo = UserPasswordRepository.forDataSource(
     this.dataSource
   );
@@ -37,6 +45,7 @@ export class AuthService {
   constructor(
     @Inject(SocialProvidersToken) socialProviders: SocialProvider[],
     @Inject(CaliobaseConfig) private config: CaliobaseConfig,
+    private profileService: AbstractProfileService,
     private dataSource: DataSource,
     private jwtService: JwtService
   ) {
@@ -130,18 +139,24 @@ export class AuthService {
     return user;
   }
 
-  async createUserWithPassword({ password, ...createUser }: CreateUserRequest) {
+  async createUserWithPassword({
+    password,
+    profile: createProfile,
+    ...createUser
+  }: CreateUserRequest): Promise<User & { profile: unknown }> {
     const user = await this.userRepo.save(
       this.userRepo.create({
         ...createUser,
       })
     );
 
-    // TODO hook here to create user profile
+    const profile =
+      createProfile &&
+      (await this.profileService.createUserProfile(user, createProfile));
 
     await this.userPasswordRepo.setUserPassword(user, password);
 
-    return user;
+    return { ...user, profile };
   }
 
   async getUserById(request: { userId: string }) {

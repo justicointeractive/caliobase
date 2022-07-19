@@ -6,6 +6,7 @@ import {
   Patch,
   Post,
   Request,
+  Type,
   UnauthorizedException,
 } from '@nestjs/common';
 import {
@@ -16,48 +17,29 @@ import {
   ApiProperty,
   ApiTags,
 } from '@nestjs/swagger';
-import { IsString, MinLength } from 'class-validator';
+import { Type as TransformType } from 'class-transformer';
+import { IsString, MinLength, ValidateNested } from 'class-validator';
 import { RequestUser } from '../entity-module/RequestUser';
 import { assert } from '../lib/assert';
+import { getEntityDtos } from '../lib/getEntityDtos';
 import { html } from '../lib/html';
+import { CaliobaseAuthProfileEntities } from './auth.module';
 import { AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator';
 import { Member } from './entities/member.entity';
-import { User } from './entities/user.entity';
+import { User as UserEntity } from './entities/user.entity';
 import { CaliobaseRequestUser } from './jwt.strategy';
 import { OrganizationService } from './organization.service';
+import { AbstractUserProfile } from './profiles.service';
 import { SocialProfile } from './social-provider';
 
-export class SocialRequestBody {
-  @IsString()
-  // TODO: provide enum of installed providers
-  @ApiProperty()
-  provider!: string;
-}
-
-export class SocialValidateBody extends SocialRequestBody {
-  @IsString()
-  @ApiProperty()
-  accessToken!: string;
-}
-
-export class UserSignupBody {
-  @IsString()
-  @ApiProperty()
-  email!: string;
-
-  @IsString()
-  @ApiProperty()
-  password!: string;
-}
-
-export class CreatePasswordResetTokenBody {
+class CreatePasswordResetTokenBody {
   @IsString()
   @ApiProperty()
   email!: string;
 }
 
-export class ResetWithTokenBody {
+class ResetWithTokenBody {
   @IsString()
   @ApiProperty()
   password!: string;
@@ -67,7 +49,7 @@ export class ResetWithTokenBody {
   token!: string;
 }
 
-export class UserLoginBody {
+class UserLoginBody {
   @IsString()
   @MinLength(1)
   @ApiProperty()
@@ -84,184 +66,253 @@ export class AccessTokenResponse {
   accessToken!: string;
 }
 
-export class AuthenticationResponse {
-  @ApiProperty()
-  user!: User;
-
-  @ApiProperty()
-  accessToken!: string;
+export abstract class AbstractAuthController {
+  abstract createUserWithPassword(userDetails: any): any;
+  abstract loginUser(body: UserLoginBody): any;
+  abstract getMe(user: RequestUser): any;
 }
 
-export class SocialAuthenticationResponse extends AuthenticationResponse {
-  @ApiProperty()
-  profile!: SocialProfile;
-}
+export function createAuthController({
+  profileEntities: { user: UserProfile },
+}: {
+  profileEntities: CaliobaseAuthProfileEntities;
+}): Type<AbstractAuthController> {
+  const { CreateEntityDto: CreateUserProfileEntityDto } = UserProfile
+    ? getEntityDtos(UserProfile)
+    : { CreateEntityDto: null };
 
-export class SocialAuthUrlResponse {
-  @ApiProperty()
-  authUrl!: string;
-
-  @ApiProperty()
-  nonce!: string;
-}
-
-export class UpdatePasswordBody {
-  @ApiProperty()
-  currentPassword!: string;
-
-  @ApiProperty()
-  newPassword!: string;
-}
-
-export class UpdatePasswordResponse {
-  @ApiProperty()
-  success!: boolean;
-}
-
-@ApiTags('auth')
-@Controller('auth')
-@ApiBearerAuth()
-export class AuthController {
-  constructor(
-    private authService: AuthService,
-    private orgService: OrganizationService
-  ) {}
-
-  @Public()
-  @Post('social/authUrl')
-  @ApiBody({ type: SocialRequestBody })
-  @ApiCreatedResponse({ type: SocialAuthUrlResponse })
-  async socialAuthUrl(
-    @Body() body: SocialRequestBody
-  ): Promise<SocialAuthUrlResponse> {
-    const authUrl = await this.authService.getSocialAuthUrl(body);
-    return authUrl;
+  class SocialRequestBody {
+    @IsString()
+    // TODO: provide enum of installed providers
+    @ApiProperty()
+    provider!: string;
   }
 
-  @Public()
-  @Get('social/authUrl/return')
-  @ApiOkResponse()
-  @Header('Content-Type', 'text/html')
-  async socialAuthUrlReturn(): Promise<string> {
-    return html`
-      <!DOCTYPE html>
-      <script>
-        var data = {};
-        new URLSearchParams(
-          [location.search, location.hash]
-            .map((str) => str.substring(1))
-            .join('&')
-        ).forEach((value, key) => {
-          data[key] = value;
-        });
-        // TODO shouldn't send the token to '*'
-        window.opener.postMessage({ type: 'resolve', data: data }, '*');
-      </script>
-    `;
+  class SocialValidateBody extends SocialRequestBody {
+    @IsString()
+    @ApiProperty()
+    accessToken!: string;
   }
 
-  @Public()
-  @Post('social/validate')
-  @ApiBody({ type: SocialValidateBody })
-  @ApiCreatedResponse({ type: SocialAuthenticationResponse })
-  async socialValidate(
-    @Body() body: SocialValidateBody
-  ): Promise<SocialAuthenticationResponse> {
-    const { user, profile } = await this.authService.validateSocial(body);
+  class UserSignupBody {
+    @IsString()
+    @ApiProperty()
+    email!: string;
 
-    return {
-      user,
-      profile,
-      accessToken: await this.authService.sign({
-        userId: user.id,
-      }),
-    };
+    @IsString()
+    @ApiProperty()
+    password!: string;
+
+    profile!: AbstractUserProfile | null;
   }
 
-  @Public()
-  @Post('user/create')
-  @ApiBody({ type: UserSignupBody })
-  @ApiCreatedResponse({ type: AuthenticationResponse })
-  async createUserWithPassword(
-    @Body()
-    body: UserSignupBody
-  ): Promise<AuthenticationResponse> {
-    const user = await this.authService.createUserWithPassword(body);
-
-    return {
-      user,
-      accessToken: await this.authService.sign({
-        userId: user.id,
-      }),
-    };
+  if (CreateUserProfileEntityDto) {
+    Reflect.decorate(
+      [
+        ApiProperty({ type: CreateUserProfileEntityDto }),
+        ValidateNested(),
+        TransformType(() => CreateUserProfileEntityDto),
+      ],
+      UserSignupBody.prototype,
+      'profile'
+    );
   }
 
-  @Public()
-  @Post('user/login')
-  @ApiBody({ type: UserLoginBody })
-  @ApiCreatedResponse({ type: AuthenticationResponse })
-  async loginUser(
-    @Body()
-    body: UserLoginBody
-  ): Promise<AuthenticationResponse> {
-    const user = await this.authService.validatePassword(body);
+  class User extends UserEntity {}
 
-    return {
-      user,
-      accessToken: await this.authService.sign({
-        userId: user.id,
-      }),
-    };
+  if (UserProfile) {
+    Reflect.decorate(
+      [ApiProperty({ type: UserProfile })],
+      User.prototype,
+      'profile'
+    );
   }
 
-  @Get('me')
-  @ApiCreatedResponse({ type: CaliobaseRequestUser })
-  async getMe(@Request() { user }: RequestUser): Promise<CaliobaseRequestUser> {
-    assert(user);
-    return user;
+  class AuthenticationResponse extends AccessTokenResponse {
+    @ApiProperty()
+    user!: User;
   }
 
-  @Patch('me/password')
-  @ApiOkResponse({ type: UpdatePasswordResponse })
-  async updatePassword(
-    @Body() body: UpdatePasswordBody,
-    @Request() { user }: RequestUser
-  ): Promise<UpdatePasswordResponse> {
-    const userId = user?.user?.id;
-    assert(userId);
-    await this.authService.setUserPassword(userId, body);
-    return { success: true };
+  class SocialAuthenticationResponse extends AuthenticationResponse {
+    @ApiProperty()
+    profile!: SocialProfile;
   }
 
-  @Public()
-  @Post('user/password/emailResetToken')
-  @ApiBody({ type: CreatePasswordResetTokenBody })
-  @ApiOkResponse()
-  async emailResetToken(@Body() body: CreatePasswordResetTokenBody) {
-    await this.authService.createAndEmailPasswordResetLink(body.email);
+  class SocialAuthUrlResponse {
+    @ApiProperty()
+    authUrl!: string;
 
-    return {
-      success: true,
-    };
+    @ApiProperty()
+    nonce!: string;
   }
 
-  @Public()
-  @Post('user/password/resetWithToken')
-  @ApiBody({ type: ResetWithTokenBody })
-  @ApiOkResponse()
-  async resetWithToken(@Body() body: ResetWithTokenBody) {
-    await this.authService.setPasswordWithResetToken(body.token, body.password);
+  class UpdatePasswordBody {
+    @ApiProperty()
+    currentPassword!: string;
 
-    return {
-      success: true,
-    };
+    @ApiProperty()
+    newPassword!: string;
   }
 
-  @Get()
-  @ApiOkResponse({ type: [Member] })
-  async listUserMemberships(@Request() request: RequestUser) {
-    const userId = request.user?.user?.id;
-    assert(userId, UnauthorizedException);
-    return await this.orgService.findUserMemberships(userId);
+  class UpdatePasswordResponse {
+    @ApiProperty()
+    success!: boolean;
   }
+
+  @ApiTags('auth')
+  @Controller('auth')
+  @ApiBearerAuth()
+  class AuthController extends AbstractAuthController {
+    constructor(
+      private authService: AuthService,
+      private orgService: OrganizationService
+    ) {
+      super();
+    }
+
+    @Public()
+    @Post('social/authUrl')
+    @ApiBody({ type: SocialRequestBody })
+    @ApiCreatedResponse({ type: SocialAuthUrlResponse })
+    async socialAuthUrl(
+      @Body() body: SocialRequestBody
+    ): Promise<SocialAuthUrlResponse> {
+      const authUrl = await this.authService.getSocialAuthUrl(body);
+      return authUrl;
+    }
+
+    @Public()
+    @Get('social/authUrl/return')
+    @ApiOkResponse()
+    @Header('Content-Type', 'text/html')
+    async socialAuthUrlReturn(): Promise<string> {
+      return html`
+        <!DOCTYPE html>
+        <script>
+          var data = {};
+          new URLSearchParams(
+            [location.search, location.hash]
+              .map((str) => str.substring(1))
+              .join('&')
+          ).forEach((value, key) => {
+            data[key] = value;
+          });
+          // TODO shouldn't send the token to '*'
+          window.opener.postMessage({ type: 'resolve', data: data }, '*');
+        </script>
+      `;
+    }
+
+    @Public()
+    @Post('social/validate')
+    @ApiBody({ type: SocialValidateBody })
+    @ApiCreatedResponse({ type: SocialAuthenticationResponse })
+    async socialValidate(
+      @Body() body: SocialValidateBody
+    ): Promise<SocialAuthenticationResponse> {
+      const { user, profile } = await this.authService.validateSocial(body);
+
+      return {
+        user,
+        profile,
+        accessToken: await this.authService.sign({
+          userId: user.id,
+        }),
+      };
+    }
+
+    @Public()
+    @Post('user/create')
+    @ApiBody({ type: UserSignupBody })
+    @ApiCreatedResponse({ type: AuthenticationResponse })
+    async createUserWithPassword(
+      @Body()
+      body: UserSignupBody
+    ): Promise<AuthenticationResponse> {
+      const user = await this.authService.createUserWithPassword(body);
+
+      return {
+        user,
+        accessToken: await this.authService.sign({
+          userId: user.id,
+        }),
+      };
+    }
+
+    @Public()
+    @Post('user/login')
+    @ApiBody({ type: UserLoginBody })
+    @ApiCreatedResponse({ type: AuthenticationResponse })
+    async loginUser(
+      @Body()
+      body: UserLoginBody
+    ): Promise<AuthenticationResponse> {
+      const user = await this.authService.validatePassword(body);
+
+      return {
+        user,
+        accessToken: await this.authService.sign({
+          userId: user.id,
+        }),
+      };
+    }
+
+    @Get('me')
+    @ApiCreatedResponse({ type: CaliobaseRequestUser })
+    async getMe(
+      @Request() { user }: RequestUser
+    ): Promise<CaliobaseRequestUser> {
+      assert(user);
+      return user;
+    }
+
+    @Patch('me/password')
+    @ApiOkResponse({ type: UpdatePasswordResponse })
+    async updatePassword(
+      @Body() body: UpdatePasswordBody,
+      @Request() { user }: RequestUser
+    ): Promise<UpdatePasswordResponse> {
+      const userId = user?.user?.id;
+      assert(userId);
+      await this.authService.setUserPassword(userId, body);
+      return { success: true };
+    }
+
+    @Public()
+    @Post('user/password/emailResetToken')
+    @ApiBody({ type: CreatePasswordResetTokenBody })
+    @ApiOkResponse()
+    async emailResetToken(@Body() body: CreatePasswordResetTokenBody) {
+      await this.authService.createAndEmailPasswordResetLink(body.email);
+
+      return {
+        success: true,
+      };
+    }
+
+    @Public()
+    @Post('user/password/resetWithToken')
+    @ApiBody({ type: ResetWithTokenBody })
+    @ApiOkResponse()
+    async resetWithToken(@Body() body: ResetWithTokenBody) {
+      await this.authService.setPasswordWithResetToken(
+        body.token,
+        body.password
+      );
+
+      return {
+        success: true,
+      };
+    }
+
+    @Get()
+    @ApiOkResponse({ type: [Member] })
+    async listUserMemberships(@Request() request: RequestUser) {
+      const userId = request.user?.user?.id;
+      assert(userId, UnauthorizedException);
+      return await this.orgService.findUserMemberships(userId);
+    }
+  }
+
+  return AuthController;
 }

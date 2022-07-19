@@ -40,6 +40,7 @@ import { Bank, Configuration, ConfigurationBank, Note } from './entities';
         keyPrefix: '',
         cdnUrlPrefix: '',
       }),
+      profileEntities: { user: null, organization: null },
       controllerEntities: [Bank, Configuration],
       otherEntities: [ConfigurationBank, Note],
       baseUrl: '',

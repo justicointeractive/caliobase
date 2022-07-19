@@ -1,12 +1,17 @@
-import { Module } from '@nestjs/common';
-import { CaliobaseAuthModule } from '../auth/auth.module';
-import { MetaController } from './meta.controller';
-import { MetaService } from './meta.service';
+import { DynamicModule, Module } from '@nestjs/common';
+import { CaliobaseAuthProfileEntities } from '../auth/auth.module';
+import { createMetaController } from './meta.controller';
 
-@Module({
-  imports: [CaliobaseAuthModule],
-  providers: [MetaService],
-  exports: [MetaService],
-  controllers: [MetaController],
-})
-export class CaliobaseMetaModule {}
+@Module({})
+export class CaliobaseMetaModule {
+  async forRootAsync({
+    profileEntities,
+  }: {
+    profileEntities: CaliobaseAuthProfileEntities;
+  }): Promise<DynamicModule> {
+    return {
+      module: CaliobaseMetaModule,
+      controllers: [createMetaController({ profileEntities })],
+    };
+  }
+}

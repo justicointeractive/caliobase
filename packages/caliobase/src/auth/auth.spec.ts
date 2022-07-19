@@ -1,11 +1,12 @@
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { omit } from 'lodash';
 import {
   createTestingModule,
   createTestOrganization,
   useTestingModule,
 } from '../test/createTestingModule';
 import { fakeUser } from '../test/fakeUser';
-import { AuthController } from './auth.controller';
+import { AbstractAuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { Member, Organization } from './entities';
 import { OrganizationService } from './organization.service';
@@ -13,16 +14,17 @@ import { OrganizationService } from './organization.service';
 describe('auth', () => {
   const { userService } = useTestingModule(async () => {
     const module = await createTestingModule();
-    const userService = module.get(AuthController);
+    const userService = module.get(AbstractAuthController);
     return { module, userService };
   });
 
   it('should login user with password', async () => {
     const userDetails = fakeUser();
     const user = await userService.createUserWithPassword(userDetails);
-    expect(await userService.loginUser(userDetails)).toMatchObject({
+    const loggedInUser = await userService.loginUser(userDetails);
+    expect(loggedInUser).toMatchObject({
       accessToken: expect.stringContaining(''),
-      user: user.user,
+      user: omit(user.user, ['profile']),
     });
     await expect(
       async () =>

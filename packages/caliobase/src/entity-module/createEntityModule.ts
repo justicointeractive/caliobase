@@ -1,6 +1,5 @@
 import { Module, Type, ValidationPipeOptions } from '@nestjs/common';
 import { PATH_METADATA } from '@nestjs/common/constants';
-import { PartialType } from '@nestjs/swagger';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DeepPartial } from 'typeorm';
 import {
@@ -11,24 +10,11 @@ import {
 import { EntityOwner, getOwnerProperty } from '../auth';
 import { getAclEntity } from '../auth/acl/getAclEntityAndProperty';
 import { defaultValidatorOptions } from '../defaultValidatorOptions';
+import { getEntityDtos } from '../lib/getEntityDtos';
 import { createEntityController } from './createEntityController';
 import { createEntityServiceClass } from './createEntityServiceClass';
 import { RenameClass } from './decorators/RenameClass.decorator';
 import { ICaliobaseServiceType } from './ICaliobaseService';
-import { ValidatedType } from './ValidatedType';
-
-export function createEntityDtos<TEntity>(entityType: Type<TEntity>): {
-  CreateEntityDto: Type<Partial<TEntity>>;
-  UpdateEntityDto: Type<Partial<TEntity>>;
-} {
-  @RenameClass(entityType)
-  class CreateEntityDto extends (ValidatedType(entityType) as Type<object>) {}
-
-  @RenameClass(entityType)
-  class UpdateEntityDto extends PartialType(CreateEntityDto) {}
-
-  return { CreateEntityDto, UpdateEntityDto };
-}
 
 export function createEntityModule<TEntity>(
   entityType: Type<TEntity>,
@@ -37,7 +23,7 @@ export function createEntityModule<TEntity>(
   const FindManyParams = createFindManyQueryParamClass(entityType);
   const entityOptions = CaliobaseEntity.get(entityType);
 
-  const { CreateEntityDto, UpdateEntityDto } = createEntityDtos(entityType);
+  const { CreateEntityDto, UpdateEntityDto } = getEntityDtos(entityType);
 
   const EntityService = createEntityServiceClass(
     entityType,

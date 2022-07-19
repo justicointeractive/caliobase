@@ -9,9 +9,7 @@ import {
   StrategyOptions as JwtStrategyOptions,
 } from 'passport-jwt';
 import { Repository } from 'typeorm';
-
 import { Member, Organization, User } from './entities';
-
 import { CaliobaseJwtPayload } from './jwt-payload';
 
 export class CaliobaseRequestUser {

@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { CreateUserRequest } from '../auth/auth.service';
+import { AbstractUserProfile } from '../auth/profiles.service';
 import cryptoRandomString = require('crypto-random-string');
 
 export function fakeUser(): CreateUserRequest {
@@ -10,6 +11,7 @@ export function fakeUser(): CreateUserRequest {
       .email(firstName, lastName)
       .replace(/\d*@/, `${cryptoRandomString({ length: 10 })}@`),
     password: faker.internet.password(),
+    profile: { firstName, lastName } as Partial<AbstractUserProfile>,
   };
   return fakeUser;
 }
