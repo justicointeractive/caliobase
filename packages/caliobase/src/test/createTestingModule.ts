@@ -107,7 +107,7 @@ export function useTestingModule<
   });
 
   afterAll(async () => {
-    await result.module.close();
+    await result?.module.close();
   });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
