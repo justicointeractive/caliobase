@@ -9,7 +9,6 @@ import {
   PrimaryColumn,
   RelationId,
 } from 'typeorm';
-
 import { User } from './user.entity';
 
 @Entity()
