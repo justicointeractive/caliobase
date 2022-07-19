@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.5.1](https://github.com/justicointeractive/caliobase/compare/example-0.5.0...example-0.5.1) (2022-07-19)
+
+
+### Bug Fixes
+
+* social to user profile is nullable like user profile is ([79892f3](https://github.com/justicointeractive/caliobase/commit/79892f32cd78c94e1f411fed789cd67c2fc9ccf3))
+
 ## [0.5.0](https://github.com/justicointeractive/caliobase/compare/example-0.4.1...example-0.5.0) (2022-07-19)
 
 
