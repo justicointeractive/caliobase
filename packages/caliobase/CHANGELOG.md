@@ -2,6 +2,19 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.100](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.99...caliobase-0.0.1-alpha.100) (2022-07-19)
+
+
+### Features
+
+* create org profiles in create request ([c097ae6](https://github.com/justicointeractive/caliobase/commit/c097ae65928eb5f416f5ccd23930e3744f9f3c56))
+* create user profile with social auth ([862645f](https://github.com/justicointeractive/caliobase/commit/862645f9393e97c42da20f9a550456e0c3877298))
+
+
+### Bug Fixes
+
+* social to user profile is nullable like user profile is ([79892f3](https://github.com/justicointeractive/caliobase/commit/79892f32cd78c94e1f411fed789cd67c2fc9ccf3))
+
 ### [0.0.1-alpha.99](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.98...caliobase-0.0.1-alpha.99) (2022-07-19)
 
 
