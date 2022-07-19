@@ -2,6 +2,18 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.99](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.98...caliobase-0.0.1-alpha.99) (2022-07-19)
+
+
+### Features
+
+* create user profile in same request as create user (WIP) ([ee81497](https://github.com/justicointeractive/caliobase/commit/ee81497cdc81c85e47e05c8e01f91124d7313aae))
+
+
+### Bug Fixes
+
+* meta module needs profile entities ([0c0d96d](https://github.com/justicointeractive/caliobase/commit/0c0d96d4ab124f781e987c0a3639310836c49a76))
+
 ### [0.0.1-alpha.98](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.97...caliobase-0.0.1-alpha.98) (2022-07-18)
 
 
