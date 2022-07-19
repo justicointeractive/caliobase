@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.101](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.100...caliobase-0.0.1-alpha.101) (2022-07-19)
+
+
+### Features
+
+* provide an enum of social providers ([c616c0d](https://github.com/justicointeractive/caliobase/commit/c616c0d74d1efa02c2c23a25484514585749714a))
+
 ### [0.0.1-alpha.100](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.99...caliobase-0.0.1-alpha.100) (2022-07-19)
 
 
