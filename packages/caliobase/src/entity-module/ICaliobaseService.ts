@@ -1,8 +1,7 @@
 import { Type } from '@nestjs/common';
 import { DataSource, FindOptionsWhere } from 'typeorm';
-
-import { CaliobaseFindOptions } from '.';
 import { CaliobaseRequestUser } from '../auth';
+import { CaliobaseFindOptions } from './createFindManyQueryParamClass';
 
 export interface ICaliobaseServiceOptions {
   organization: { id: string } | null;

@@ -7,8 +7,10 @@ import {
   FindOperator,
   FindOptionsOrder,
   FindOptionsOrderProperty,
+  FindOptionsSelectByString,
   FindOptionsWhere,
   FindOptionsWhereProperty,
+  getMetadataArgsStorage,
   ILike,
   In,
   LessThan,
@@ -139,6 +141,7 @@ function toQueryParamName(
 export type CaliobaseFindOptions<TEntity> = {
   where: FindOptionsWhere<TEntity>;
   order?: FindOptionsOrder<TEntity>;
+  select?: FindOptionsSelectByString<TEntity>;
 };
 
 export type ToFindOptions<TEntity> = {
@@ -208,6 +211,7 @@ export function createFindManyQueryParamClass<TEntity>(
       const findManyOptions: CaliobaseFindOptions<TEntity> = {
         where,
         order: orderBy,
+        select: this.select,
       };
 
       return findManyOptions;
@@ -216,6 +220,7 @@ export function createFindManyQueryParamClass<TEntity>(
 
   interface FindManyParams {
     orderBy?: string[];
+    select?: (keyof TEntity & string)[];
     [key: string]: unknown;
   }
 
@@ -289,6 +294,24 @@ export function createFindManyQueryParamClass<TEntity>(
     ],
     FindManyParams.prototype,
     'orderBy',
+    void 0
+  );
+
+  const selectableFields = getMetadataArgsStorage()
+    .columns.filter((col) => col.target === entityType)
+    .map((col) => col.propertyName);
+
+  Reflect.decorate(
+    [
+      IsIn(selectableFields, { each: true }),
+      IsOptional(),
+      ApiPropertyOptional({
+        type: [String],
+        enum: selectableFields,
+      }),
+    ],
+    FindManyParams.prototype,
+    'select',
     void 0
   );
 
