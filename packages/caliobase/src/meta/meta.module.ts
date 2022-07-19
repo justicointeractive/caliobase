@@ -4,7 +4,7 @@ import { createMetaController } from './meta.controller';
 
 @Module({})
 export class CaliobaseMetaModule {
-  async forRootAsync({
+  static async forRootAsync({
     profileEntities,
   }: {
     profileEntities: CaliobaseAuthProfileEntities;

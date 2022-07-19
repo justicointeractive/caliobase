@@ -45,7 +45,7 @@ export class CaliobaseModule {
         }),
         CaliobaseAuthModule.forRootAsync({ socialProviders, profileEntities }),
         CaliobaseObjectStorageModule.forRootAsync({ objectStorageProvider }),
-        CaliobaseMetaModule,
+        CaliobaseMetaModule.forRootAsync({ profileEntities }),
         CaliobaseEntitiesModule.forRootAsync({
           controllerEntities,
           otherEntities,
