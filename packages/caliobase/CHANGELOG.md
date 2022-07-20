@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.110](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.109...caliobase-0.0.1-alpha.110) (2022-07-20)
+
+
+### Features
+
+* support gt/lt operators on dates ([be868ea](https://github.com/justicointeractive/caliobase/commit/be868ea03afe693d9ab24cd1a099542a16fcfb10))
+
 ### [0.0.1-alpha.109](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.108...caliobase-0.0.1-alpha.109) (2022-07-20)
 
 
