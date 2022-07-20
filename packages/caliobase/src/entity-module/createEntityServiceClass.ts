@@ -94,7 +94,7 @@ export function createEntityServiceClass<
     }
 
     async findAll(
-      { where, order }: CaliobaseFindOptions<TEntity>,
+      findOptions: CaliobaseFindOptions<TEntity>,
       { organization, user }: ICaliobaseServiceOptions
     ) {
       const policy = getUserPolicy('list', user, organization);
@@ -103,7 +103,7 @@ export function createEntityServiceClass<
         const [items, total] = await entityServiceQueryBuilder(
           entityType,
           manager,
-          { where, order },
+          findOptions,
           { organization, itemFilters: policy?.itemFilters }
         ).getManyAndCount();
         return { items, total };
@@ -111,7 +111,7 @@ export function createEntityServiceClass<
     }
 
     async findOne(
-      { where, order }: CaliobaseFindOptions<TEntity>,
+      findOptions: CaliobaseFindOptions<TEntity>,
       { organization, user }: ICaliobaseServiceOptions
     ) {
       const policy = getUserPolicy('get', user, organization);
@@ -120,7 +120,7 @@ export function createEntityServiceClass<
         return await entityServiceQueryBuilder(
           entityType,
           manager,
-          { where, order },
+          findOptions,
           { organization, itemFilters: policy?.itemFilters }
         ).getOne();
       });
