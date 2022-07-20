@@ -7,7 +7,6 @@ import {
   FindOperator,
   FindOptionsOrder,
   FindOptionsOrderProperty,
-  FindOptionsSelectByString,
   FindOptionsWhere,
   FindOptionsWhereProperty,
   getMetadataArgsStorage,
@@ -20,10 +19,8 @@ import {
   MoreThanOrEqual,
   Not,
 } from 'typeorm';
-
-import { RenameClass } from './decorators/RenameClass.decorator';
-
 import { CaliobaseEntity, QueryProperty } from '.';
+import { RenameClass } from './decorators/RenameClass.decorator';
 
 type OperatorType<T> = T extends [Type<infer U>] ? [Type<U>] : Type<T>;
 
@@ -141,7 +138,7 @@ function toQueryParamName(
 export type CaliobaseFindOptions<TEntity> = {
   where: FindOptionsWhere<TEntity>;
   order?: FindOptionsOrder<TEntity>;
-  select?: FindOptionsSelectByString<TEntity>;
+  select?: (keyof TEntity & string)[];
 };
 
 export type ToFindOptions<TEntity> = {

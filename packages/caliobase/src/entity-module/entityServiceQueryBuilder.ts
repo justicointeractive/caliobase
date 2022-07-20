@@ -15,7 +15,7 @@ import { AllRoles, Role } from './roles';
 export function entityServiceQueryBuilder<TEntity>(
   entityType: Type<TEntity>,
   entityManager: EntityManager,
-  { where, order }: CaliobaseFindOptions<TEntity>,
+  { where, order, select }: CaliobaseFindOptions<TEntity>,
   {
     itemFilters,
     organization,
@@ -88,6 +88,10 @@ export function entityServiceQueryBuilder<TEntity>(
   }
 
   // console.log(query.getQueryAndParameters());
+
+  if (select) {
+    query.select(select);
+  }
 
   return query;
 }
