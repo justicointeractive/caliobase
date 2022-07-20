@@ -209,6 +209,7 @@ export function createFindManyQueryParamClass<TEntity>(
         where,
         order: orderBy,
         select: this.select,
+        // todo: limit, skip
       };
 
       return findManyOptions;
