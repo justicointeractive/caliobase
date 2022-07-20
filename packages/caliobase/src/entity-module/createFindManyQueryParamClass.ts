@@ -1,6 +1,6 @@
 import { Type } from '@nestjs/common';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Type as TypeDecorator } from 'class-transformer';
+import { Type as TransformType } from 'class-transformer';
 import { IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
 import {
   Equal,
@@ -176,11 +176,13 @@ export function createFindManyQueryParamClass<TEntity>(
     @IsOptional()
     @IsNumber()
     @ApiPropertyOptional()
+    @TransformType(() => Number)
     limit?: number;
 
     @IsOptional()
     @IsNumber()
     @ApiPropertyOptional()
+    @TransformType(() => Number)
     skip?: number;
 
     toFindOptions() {
@@ -250,7 +252,7 @@ export function createFindManyQueryParamClass<TEntity>(
 
         const classTransformerValidatorTypeDecorators =
           propertyType === Number
-            ? [TypeDecorator(() => Number, {}), IsNumber({}, { each })]
+            ? [TransformType(() => Number, {}), IsNumber({}, { each })]
             : [IsString({ each })];
 
         Reflect.decorate(
