@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.102](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.101...caliobase-0.0.1-alpha.102) (2022-07-20)
+
+
+### Features
+
+* allow client to choose which columns to return ([41bcb82](https://github.com/justicointeractive/caliobase/commit/41bcb8256835a456e54290d6a4f7cc392e5c22ad))
+
 ### [0.0.1-alpha.101](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.100...caliobase-0.0.1-alpha.101) (2022-07-19)
 
 
