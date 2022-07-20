@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.107](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.106...caliobase-0.0.1-alpha.107) (2022-07-20)
+
+
+### Bug Fixes
+
+* remove authToken param from request after using it for jwt ([7b5dc9a](https://github.com/justicointeractive/caliobase/commit/7b5dc9ab3c7b9ce4a6e65c36cdfc24be5975626a))
+
 ### [0.0.1-alpha.106](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.105...caliobase-0.0.1-alpha.106) (2022-07-20)
 
 
