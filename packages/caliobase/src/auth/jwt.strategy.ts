@@ -45,7 +45,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     }
     const publicKey = Buffer.from(publicKeyBase64, 'base64').toString('utf8');
     const jwtStrategyOptions: JwtStrategyOptions = {
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
+        ExtractJwt.fromUrlQueryParameter('authToken'),
+      ]),
       secretOrKey: publicKey,
     };
     super(jwtStrategyOptions);
