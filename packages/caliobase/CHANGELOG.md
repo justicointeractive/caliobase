@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.103](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.102...caliobase-0.0.1-alpha.103) (2022-07-20)
+
+
+### Bug Fixes
+
+* need to actually apply select query ([83d58c9](https://github.com/justicointeractive/caliobase/commit/83d58c9468c0ac1029351d36822f914558460341))
+
 ### [0.0.1-alpha.102](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.101...caliobase-0.0.1-alpha.102) (2022-07-20)
 
 
