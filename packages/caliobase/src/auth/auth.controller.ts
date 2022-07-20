@@ -24,7 +24,7 @@ import { assert } from '../lib/assert';
 import { getEntityDtos } from '../lib/getEntityDtos';
 import { html } from '../lib/html';
 import { CaliobaseAuthProfileEntities } from './auth.module';
-import { AuthService } from './auth.service';
+import { AuthService, CreateUserRequest } from './auth.service';
 import { Public } from './decorators/public.decorator';
 import { Member } from './entities/member.entity';
 import { User as UserEntity } from './entities/user.entity';
@@ -84,7 +84,9 @@ export function createAuthController<
 }: {
   profileEntities: CaliobaseAuthProfileEntities<TUser, TOrganization>;
   socialProviders: SocialProvider[];
-}): Type<AbstractAuthController> {
+}): Type<AbstractAuthController> & {
+  CreateUserRequest: Type<CreateUserRequest>;
+} {
   // #region Supporting Classes
   const { CreateEntityDto: CreateUserProfileEntityDto } = UserProfile
     ? getEntityDtos(UserProfile)
@@ -173,6 +175,8 @@ export function createAuthController<
   @Controller('auth')
   @ApiBearerAuth()
   class AuthController extends AbstractAuthController {
+    static CreateUserRequest = UserSignupBody;
+
     constructor(
       private authService: AuthService,
       private orgService: OrganizationService

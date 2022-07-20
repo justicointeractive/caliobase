@@ -31,7 +31,10 @@ import { Public } from './decorators/public.decorator';
 import { MemberInvitationToken } from './entities/member-invitation-token.entity';
 import { Member } from './entities/member.entity';
 import { Organization as OrganizationEntity } from './entities/organization.entity';
-import { OrganizationService } from './organization.service';
+import {
+  CreateOrganizationRequest,
+  OrganizationService,
+} from './organization.service';
 import {
   AbstractOrganizationProfile,
   AbstractUserProfile,
@@ -52,14 +55,16 @@ export function createOrganizationController<
   profileEntities: { OrganizationProfile },
 }: {
   profileEntities: CaliobaseAuthProfileEntities<TUser, TOrganization>;
-}): Type<AbstractOrganizationController> {
+}): Type<AbstractOrganizationController> & {
+  CreateOrganizationRequest: Type<CreateOrganizationRequest>;
+} {
   // #region Supporting Classes
   const { CreateEntityDto: CreateOrganizationProfileEntityDto } =
     OrganizationProfile
       ? getEntityDtos(OrganizationProfile)
       : { CreateEntityDto: null };
 
-  class CreateOrganizationRequest {
+  class ConcreteCreateOrganizationRequest {
     profile!: AbstractOrganizationProfile | null;
   }
 
@@ -70,7 +75,7 @@ export function createOrganizationController<
         ValidateNested(),
         TransformType(() => CreateOrganizationProfileEntityDto),
       ],
-      CreateOrganizationRequest.prototype,
+      ConcreteCreateOrganizationRequest.prototype,
       'profile'
     );
   }
@@ -90,15 +95,17 @@ export function createOrganizationController<
   @Controller('organization')
   @ApiBearerAuth()
   class OrganizationController extends AbstractOrganizationController {
+    static CreateOrganizationRequest = ConcreteCreateOrganizationRequest;
+
     constructor(private orgService: OrganizationService) {
       super();
     }
 
     @Post()
     @ApiCreatedResponse({ type: Organization })
-    @ApiBody({ type: CreateOrganizationRequest })
+    @ApiBody({ type: ConcreteCreateOrganizationRequest })
     async create(
-      @Body() body: CreateOrganizationRequest,
+      @Body() body: ConcreteCreateOrganizationRequest,
       @Request() request: RequestUser
     ) {
       const userId = request.user?.user?.id;

@@ -79,6 +79,8 @@ describe('swagger', () => {
 
     const document = SwaggerModule.createDocument(app, config);
 
+    expect(document.paths['/root'].get).toBeTruthy();
+    expect(document.paths['/root'].post).toBeTruthy();
     expect(document.paths['/person'].post).toBeTruthy();
     expect(document.paths['/person/{id}'].post).toBeFalsy();
     expect(document.paths['/person'].get).toBeTruthy();

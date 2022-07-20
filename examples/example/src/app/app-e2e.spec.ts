@@ -7,7 +7,7 @@ describe('app', () => {
   });
 
   it('should get root metadata', async () => {
-    return request().get('/meta').expect(200);
+    return request().get('/root').expect(200);
   });
 
   it('should not get banks unauthed', async () => {

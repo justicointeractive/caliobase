@@ -8,7 +8,7 @@ import {
   AbstractAuthController,
   createAuthController,
 } from './auth.controller';
-import { AuthService } from './auth.service';
+import { AuthService, CreateUserRequest } from './auth.service';
 import { MemberInvitationToken } from './entities/member-invitation-token.entity';
 import { Member } from './entities/member.entity';
 import { Organization } from './entities/organization.entity';
@@ -22,13 +22,17 @@ import {
   AbstractOrganizationController,
   createOrganizationController,
 } from './organization.controller';
-import { OrganizationService } from './organization.service';
+import {
+  CreateOrganizationRequest,
+  OrganizationService,
+} from './organization.service';
 import {
   AbstractOrganizationProfile,
   AbstractProfileService,
   AbstractUserProfile,
   createProfilesService,
 } from './profiles.service';
+import { createRootController } from './root.controller';
 import {
   DefaultSocialProviders,
   SocialProfile,
@@ -46,6 +50,14 @@ export type CaliobaseAuthProfileEntities<
   socialProfileToUserProfile:
     | ((socialProfile: SocialProfile) => Omit<TUser, keyof AbstractUserProfile>)
     | null;
+};
+
+export type CaliobaseAuthCreateProfileRequests<
+  TUser extends CreateUserRequest,
+  TOrganization extends CreateOrganizationRequest
+> = {
+  CreateUserProfile: Type<TUser>;
+  CreateOrganizationProfile: Type<TOrganization>;
 };
 
 export type CaliobaseAuthModuleOptions<
@@ -87,6 +99,17 @@ export class CaliobaseAuthModule {
       profileEntities,
     });
     const profilesService = createProfilesService(profileEntities);
+
+    const createProfileRequests: CaliobaseAuthCreateProfileRequests<
+      CreateUserRequest,
+      CreateOrganizationRequest
+    > = {
+      CreateUserProfile: authController.CreateUserRequest,
+      CreateOrganizationProfile:
+        organizationController.CreateOrganizationRequest,
+    };
+
+    const rootController = createRootController({ createProfileRequests });
 
     return {
       module: CaliobaseAuthModule,
@@ -140,7 +163,7 @@ export class CaliobaseAuthModule {
         },
         { provide: AbstractProfileService, useClass: profilesService },
       ],
-      controllers: [authController, organizationController],
+      controllers: [authController, organizationController, rootController],
       exports: [AuthService],
     };
   }

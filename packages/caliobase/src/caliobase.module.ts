@@ -15,7 +15,6 @@ import {
   CaliobaseEntitiesModule,
   CaliobaseEntitiesModuleOptions,
 } from './entity-module/entities-module.module';
-import { CaliobaseMetaModule } from './meta/meta.module';
 import {
   CaliobaseObjectStorageModule,
   CaliobaseObjectStorageModuleOptions,
@@ -55,7 +54,6 @@ export class CaliobaseModule {
         }),
         CaliobaseAuthModule.forRootAsync({ socialProviders, profileEntities }),
         CaliobaseObjectStorageModule.forRootAsync({ objectStorageProvider }),
-        CaliobaseMetaModule.forRootAsync({ profileEntities }),
         CaliobaseEntitiesModule.forRootAsync({
           controllerEntities,
           otherEntities,
