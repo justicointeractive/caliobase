@@ -5,6 +5,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   ExtractJwt,
+  JwtFromRequestFunction,
   Strategy,
   StrategyOptions as JwtStrategyOptions,
 } from 'passport-jwt';
@@ -31,6 +32,16 @@ declare global {
   }
 }
 
+const fromUrlQueryParameterAndRemove =
+  (key: string): JwtFromRequestFunction =>
+  (req) => {
+    const authToken = req.query[key];
+    if (!authToken) {
+      return null;
+    }
+    delete req.query[key];
+    return String(authToken);
+  };
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
@@ -47,7 +58,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const jwtStrategyOptions: JwtStrategyOptions = {
       jwtFromRequest: ExtractJwt.fromExtractors([
         ExtractJwt.fromAuthHeaderAsBearerToken(),
-        ExtractJwt.fromUrlQueryParameter('authToken'),
+        fromUrlQueryParameterAndRemove('authToken'),
       ]),
       secretOrKey: publicKey,
     };
