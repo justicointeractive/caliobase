@@ -70,6 +70,19 @@ describe('entity module', () => {
       );
       expect(created).not.toBeNull();
 
+      const created2 = await entityService.create(
+        { label: 'test245' },
+        {
+          organization: { id: org.id },
+          user: {
+            user: null,
+            member: null,
+            organization: org,
+          },
+        }
+      );
+      expect(created2).not.toBeNull();
+
       const all = await entityService.findAll(
         { where: {} },
         {
@@ -77,7 +90,15 @@ describe('entity module', () => {
           user: { user: null, member: null, organization: org },
         }
       );
-      expect(all.items).toHaveLength(1);
+      expect(all.items).toHaveLength(2);
+      const allLimitOne = await entityService.findAll(
+        { where: {}, limit: 1 },
+        {
+          organization: { id: org.id },
+          user: { user: null, member: null, organization: org },
+        }
+      );
+      expect(allLimitOne.items).toHaveLength(1);
       const one = await entityService.findOne(
         { where: {} },
         {

@@ -87,6 +87,16 @@ describe('swagger', () => {
     expect(document.paths['/person'].get?.operationId).toEqual(
       'PersonController_findAll'
     );
+    expect(
+      document.paths['/person'].get?.parameters?.find(
+        (param) => 'name' in param && param.name === 'limit'
+      )
+    ).toBeTruthy();
+    expect(
+      document.paths['/person'].get?.parameters?.find(
+        (param) => 'name' in param && param.name === 'skip'
+      )
+    ).toBeTruthy();
 
     expect(document.paths['/person_profile'].post).toBeFalsy();
     expect(document.paths['/person_profile/{id}'].post).toBeTruthy();

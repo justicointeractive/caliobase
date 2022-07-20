@@ -137,6 +137,8 @@ function toQueryParamName(
 
 export type CaliobaseFindOptions<TEntity> = {
   where: FindOptionsWhere<TEntity>;
+  limit?: number;
+  skip?: number;
   order?: FindOptionsOrder<TEntity>;
   select?: (keyof TEntity & string)[];
 };
@@ -171,6 +173,16 @@ export function createFindManyQueryParamClass<TEntity>(
 
   @RenameClass(entityType)
   class FindManyParams implements ToFindOptions<TEntity> {
+    @IsOptional()
+    @IsNumber()
+    @ApiPropertyOptional()
+    limit?: number;
+
+    @IsOptional()
+    @IsNumber()
+    @ApiPropertyOptional()
+    skip?: number;
+
     toFindOptions() {
       const where: FindOptionsWhere<TEntity> = {};
 
@@ -209,7 +221,8 @@ export function createFindManyQueryParamClass<TEntity>(
         where,
         order: orderBy,
         select: this.select,
-        // todo: limit, skip
+        limit: this.limit,
+        skip: this.skip,
       };
 
       return findManyOptions;
