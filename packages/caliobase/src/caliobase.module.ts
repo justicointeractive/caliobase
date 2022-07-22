@@ -3,10 +3,8 @@ import {
   CaliobaseAuthModule,
   CaliobaseAuthModuleOptions,
 } from './auth/auth.module';
-import {
-  AbstractOrganizationProfile,
-  AbstractUserProfile,
-} from './auth/profiles.service';
+import { AbstractOrganizationProfile } from './auth/entities/abstract-organization-profile.entity';
+import { AbstractUserProfile } from './auth/entities/abstract-user-profile.entity';
 import {
   CaliobaseConfigModule,
   CaliobaseConfigModuleOptions,

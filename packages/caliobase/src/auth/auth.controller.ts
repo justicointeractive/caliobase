@@ -26,14 +26,12 @@ import { html } from '../lib/html';
 import { CaliobaseAuthProfileEntities } from './auth.module';
 import { AuthService, CreateUserRequest } from './auth.service';
 import { Public } from './decorators/public.decorator';
+import { AbstractOrganizationProfile } from './entities/abstract-organization-profile.entity';
+import { AbstractUserProfile } from './entities/abstract-user-profile.entity';
 import { Member } from './entities/member.entity';
 import { User as UserEntity } from './entities/user.entity';
 import { CaliobaseRequestUser } from './jwt.strategy';
 import { OrganizationService } from './organization.service';
-import {
-  AbstractOrganizationProfile,
-  AbstractUserProfile,
-} from './profiles.service';
 import { SocialProvider } from './social-provider';
 
 class CreatePasswordResetTokenBody {

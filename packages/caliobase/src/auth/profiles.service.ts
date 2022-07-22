@@ -1,34 +1,11 @@
 import { Injectable, Type } from '@nestjs/common';
-import {
-  DataSource,
-  DeepPartial,
-  JoinColumn,
-  OneToOne,
-  PrimaryColumn,
-  Repository,
-} from 'typeorm';
+import { DataSource, DeepPartial, Repository } from 'typeorm';
 import { CaliobaseAuthProfileEntities } from './auth.module';
 import { Organization } from './entities';
+import { AbstractOrganizationProfile } from './entities/abstract-organization-profile.entity';
+import { AbstractUserProfile } from './entities/abstract-user-profile.entity';
 import { User } from './entities/user.entity';
 import { SocialProfile } from './social-provider';
-
-export class AbstractUserProfile {
-  @PrimaryColumn()
-  userId!: string;
-
-  @OneToOne(() => User)
-  @JoinColumn()
-  user!: User;
-}
-
-export class AbstractOrganizationProfile {
-  @PrimaryColumn()
-  organizationId!: string;
-
-  @OneToOne(() => Organization)
-  @JoinColumn()
-  organization!: Organization;
-}
 
 export abstract class AbstractProfileService<
   TUser extends AbstractUserProfile = AbstractUserProfile,

@@ -28,6 +28,8 @@ import { getEntityDtos } from '../lib/getEntityDtos';
 import { AccessTokenResponse } from './auth.controller';
 import { CaliobaseAuthProfileEntities } from './auth.module';
 import { Public } from './decorators/public.decorator';
+import { AbstractOrganizationProfile } from './entities/abstract-organization-profile.entity';
+import { AbstractUserProfile } from './entities/abstract-user-profile.entity';
 import { MemberInvitationToken } from './entities/member-invitation-token.entity';
 import { Member } from './entities/member.entity';
 import { Organization as OrganizationEntity } from './entities/organization.entity';
@@ -35,10 +37,6 @@ import {
   CreateOrganizationRequest,
   OrganizationService,
 } from './organization.service';
-import {
-  AbstractOrganizationProfile,
-  AbstractUserProfile,
-} from './profiles.service';
 
 class CreateInvitationRequest {
   @ApiProperty()

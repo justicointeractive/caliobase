@@ -9,6 +9,8 @@ import {
   createAuthController,
 } from './auth.controller';
 import { AuthService, CreateUserRequest } from './auth.service';
+import { AbstractOrganizationProfile } from './entities/abstract-organization-profile.entity';
+import { AbstractUserProfile } from './entities/abstract-user-profile.entity';
 import { MemberInvitationToken } from './entities/member-invitation-token.entity';
 import { Member } from './entities/member.entity';
 import { Organization } from './entities/organization.entity';
@@ -27,9 +29,7 @@ import {
   OrganizationService,
 } from './organization.service';
 import {
-  AbstractOrganizationProfile,
   AbstractProfileService,
-  AbstractUserProfile,
   createProfilesService,
 } from './profiles.service';
 import { createRootController } from './root.controller';

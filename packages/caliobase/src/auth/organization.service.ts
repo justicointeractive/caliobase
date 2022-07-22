@@ -10,14 +10,12 @@ import { CaliobaseConfig } from '../config/config';
 import { Role, Roles } from '../entity-module/roles';
 import { assert } from '../lib/assert';
 import { AuthService } from './auth.service';
+import { AbstractOrganizationProfile } from './entities/abstract-organization-profile.entity';
 import { MemberInvitationToken } from './entities/member-invitation-token.entity';
 import { Member } from './entities/member.entity';
 import { Organization } from './entities/organization.entity';
 import { User } from './entities/user.entity';
-import {
-  AbstractOrganizationProfile,
-  AbstractProfileService,
-} from './profiles.service';
+import { AbstractProfileService } from './profiles.service';
 
 export type CreateOrganizationRequest = {
   profile: Partial<AbstractOrganizationProfile> | null;
