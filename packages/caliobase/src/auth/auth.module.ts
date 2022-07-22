@@ -4,6 +4,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { nonNull } from 'circumspect';
+import { decorateWithProfileType } from '../lib/decorateWithProfileType';
 import {
   AbstractAuthController,
   createAuthController,
@@ -91,6 +92,20 @@ export class CaliobaseAuthModule {
     for (const socialProvider of socialProviders) {
       await socialProvider.init?.();
     }
+
+    decorateWithProfileType({
+      Entity: User,
+      ProfileEntity: profileEntities.UserProfile,
+      profileToEntityProperty: 'user',
+      entityToProfileProperty: 'profile',
+    });
+
+    decorateWithProfileType({
+      Entity: Organization,
+      ProfileEntity: profileEntities.OrganizationProfile,
+      profileToEntityProperty: 'organization',
+      entityToProfileProperty: 'profile',
+    });
 
     const authController = createAuthController({
       socialProviders,

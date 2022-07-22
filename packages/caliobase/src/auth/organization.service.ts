@@ -74,11 +74,12 @@ export class OrganizationService {
     );
 
     const profile =
-      createProfile &&
-      (await this.profileService.createOrganizationProfile(
-        organization,
-        createProfile
-      ));
+      (createProfile &&
+        (await this.profileService.createOrganizationProfile(
+          organization,
+          createProfile
+        ))) ||
+      undefined;
 
     await this.memberRepo.save(
       this.memberRepo.create({
