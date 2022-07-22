@@ -8,8 +8,8 @@ import {
   Organization,
 } from '..';
 import { AuthService } from '../auth/auth.service';
+import { AbstractOrganizationProfile } from '../auth/entities/abstract-organization-profile.entity';
 import { OrganizationService } from '../auth/organization.service';
-import { AbstractOrganizationProfile } from '../auth/profiles.service';
 import {
   createTestingModule,
   useTestingModule,

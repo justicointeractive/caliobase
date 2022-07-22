@@ -19,6 +19,7 @@ import { UserPassword } from './entities/user-password.entity';
 import { UserSocialLogin } from './entities/user-social-login.entity';
 import { User } from './entities/user.entity';
 import { JwtAuthGuard } from './guards/jwt.guard';
+import { JwtSignerService } from './jwt-signer.service';
 import { JwtStrategy } from './jwt.strategy';
 import {
   AbstractOrganizationController,
@@ -146,6 +147,7 @@ export class CaliobaseAuthModule {
       ],
       providers: [
         JwtStrategy,
+        JwtSignerService,
         AuthService,
         OrganizationService,
         {

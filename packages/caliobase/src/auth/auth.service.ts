@@ -1,20 +1,17 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { async as cryptoRandomString } from 'crypto-random-string';
 import { addHours } from 'date-fns';
 import { DataSource, MoreThanOrEqual } from 'typeorm';
 import { CaliobaseConfig } from '../config/config';
 import { forgotPasswordEmail } from '../emails/forgotPasswordEmail';
 import { assert } from '../lib/assert';
+import { AbstractUserProfile } from './entities/abstract-user-profile.entity';
 import { PasswordResetToken } from './entities/password-reset-token.entity';
 import { UserPasswordRepository } from './entities/user-password.entity';
 import { UserSocialLogin } from './entities/user-social-login.entity';
 import { User } from './entities/user.entity';
-import { CaliobaseJwtPayload } from './jwt-payload';
-import {
-  AbstractProfileService,
-  AbstractUserProfile,
-} from './profiles.service';
+import { OrganizationService } from './organization.service';
+import { AbstractProfileService } from './profiles.service';
 import {
   SocialProvider,
   SocialProvidersToken,
@@ -45,9 +42,9 @@ export class AuthService {
   constructor(
     @Inject(SocialProvidersToken) socialProviders: SocialProvider[],
     @Inject(CaliobaseConfig) private config: CaliobaseConfig,
+    private orgService: OrganizationService,
     private profileService: AbstractProfileService,
-    private dataSource: DataSource,
-    private jwtService: JwtService
+    private dataSource: DataSource
   ) {
     this.providers = new Map(
       socialProviders.map((provider) => [provider.name, provider])
@@ -79,9 +76,10 @@ export class AuthService {
       );
     }
 
-    const socialProfile = await socialProvider.validate(request);
+    const validationResult = await socialProvider.validate(request);
 
-    const { providerUserId, provider, email, emailVerified } = socialProfile;
+    const { providerUserId, provider, email, emailVerified } =
+      validationResult.profile;
 
     const socialLogin = await this.socialLoginRepo.findOne({
       where: {
@@ -94,8 +92,9 @@ export class AuthService {
     let user = socialLogin?.user;
 
     if (user == null) {
-      const createProfile =
-        this.profileService.socialProfileToUserProfile?.(socialProfile);
+      const createProfile = this.profileService.socialProfileToUserProfile?.(
+        validationResult.profile
+      );
 
       user = await this.userRepo.save(
         this.userRepo.create({
@@ -103,13 +102,25 @@ export class AuthService {
           emailVerified,
         })
       );
-      const profile =
-        createProfile &&
-        (await this.profileService.createUserProfile(user, createProfile));
 
-      (user as any)!.profile = profile;
+      user.profile =
+        (createProfile &&
+          (await this.profileService.createUserProfile(user, createProfile))) ||
+        undefined;
 
-      // TODO hook in here or somewhere else to create org member (ie: Azure AD SSO)
+      if (socialProvider.addMemberOnCreate) {
+        const {
+          addMemberOnCreate: { organizationId, roleMap },
+        } = socialProvider;
+
+        const appRoles = roleMap(validationResult);
+
+        await this.orgService.administrativelyAddMember(
+          { id: organizationId },
+          user,
+          appRoles
+        );
+      }
 
       await this.socialLoginRepo.save(
         this.socialLoginRepo.create({
@@ -159,8 +170,9 @@ export class AuthService {
     );
 
     const profile =
-      createProfile &&
-      (await this.profileService.createUserProfile(user, createProfile));
+      (createProfile &&
+        (await this.profileService.createUserProfile(user, createProfile))) ||
+      undefined;
 
     await this.userPasswordRepo.setUserPassword(user, password);
 
@@ -239,9 +251,5 @@ export class AuthService {
     await this.passwordResetTokenRepo.save(token);
 
     return { success: true };
-  }
-
-  async sign(payload: CaliobaseJwtPayload) {
-    return await this.jwtService.signAsync(payload);
   }
 }

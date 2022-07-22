@@ -9,12 +9,12 @@ import { DataSource, MoreThanOrEqual } from 'typeorm';
 import { CaliobaseConfig } from '../config/config';
 import { Role, Roles } from '../entity-module/roles';
 import { assert } from '../lib/assert';
-import { AuthService } from './auth.service';
 import { AbstractOrganizationProfile } from './entities/abstract-organization-profile.entity';
 import { MemberInvitationToken } from './entities/member-invitation-token.entity';
 import { Member } from './entities/member.entity';
 import { Organization } from './entities/organization.entity';
 import { User } from './entities/user.entity';
+import { JwtSignerService } from './jwt-signer.service';
 import { AbstractProfileService } from './profiles.service';
 
 export type CreateOrganizationRequest = {
@@ -31,9 +31,9 @@ export class OrganizationService {
 
   constructor(
     private dataSource: DataSource,
-    private authService: AuthService,
     private caliobaseConfig: CaliobaseConfig,
-    private profileService: AbstractProfileService
+    private profileService: AbstractProfileService,
+    private jwtSigner: JwtSignerService
   ) {}
 
   async findUserMemberships(userId: string) {
@@ -100,14 +100,14 @@ export class OrganizationService {
       relations: ['user', 'organization'],
     });
 
-    return await this.authService.sign({
+    return await this.jwtSigner.sign({
       userId: member.userId,
       organizationId: member.organizationId,
     });
   }
 
   async createGuestAccessToken(organizationId: string) {
-    return await this.authService.sign({
+    return await this.jwtSigner.sign({
       organizationId,
     });
   }
@@ -229,6 +229,21 @@ export class OrganizationService {
     return member;
   }
 
+  async administrativelyAddMember(
+    organization: Organization,
+    user: User,
+    roles: Role[]
+  ) {
+    const member = await this.memberRepo.save(
+      this.memberRepo.create({
+        organization,
+        user,
+        roles,
+      })
+    );
+    return member;
+  }
+
   async joinAsGuest(organization: Organization, user: User) {
     const role = this.caliobaseConfig.guestRole;
 
@@ -238,16 +253,6 @@ export class OrganizationService {
       );
     }
 
-    const roles = [role];
-
-    const member = await this.memberRepo.save(
-      this.memberRepo.create({
-        user,
-        organization,
-        roles,
-      })
-    );
-
-    return member;
+    return this.administrativelyAddMember(organization, user, [role]);
   }
 }

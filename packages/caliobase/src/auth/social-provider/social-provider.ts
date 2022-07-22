@@ -1,12 +1,26 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Role } from '../../entity-module/roles';
 
 export const SocialProvidersToken = Symbol('SOCIAL_PROVIDERS');
 
-export type SocialProvider = {
+type ValidationResult<TProviderExtras extends Record<string, unknown>> = {
+  profile: SocialProfile;
+  providerExtras: TProviderExtras;
+};
+
+export type SocialProvider<
+  TProviderExtras extends Record<string, unknown> = Record<string, unknown>
+> = {
   name: string;
-  validate: (request: SocialValidation) => Promise<SocialProfile>;
+  validate: (
+    request: SocialValidation
+  ) => Promise<ValidationResult<TProviderExtras>>;
   createAuthorizationUrl?: () => Promise<{ authUrl: string; nonce: string }>;
   init?: () => Promise<void>;
+  addMemberOnCreate?: {
+    organizationId: string;
+    roleMap: (result: ValidationResult<TProviderExtras>) => Role[];
+  };
 };
 
 export class SocialProfileName {

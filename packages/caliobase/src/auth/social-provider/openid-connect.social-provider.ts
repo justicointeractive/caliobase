@@ -1,7 +1,7 @@
 import { BaseClient, generators, Issuer } from 'openid-client';
 import { SocialProvider } from '..';
 import { assert } from '../../lib/assert';
-import { SocialProfile, SocialValidation } from './social-provider';
+import { SocialValidation } from './social-provider';
 
 export type OpenIdConnectSocialProviderOptions = {
   key: string;
@@ -12,7 +12,9 @@ export type OpenIdConnectSocialProviderOptions = {
   additionalScopes?: string[];
 };
 
-export class OpenIdConnectSocialProvider implements SocialProvider {
+export class OpenIdConnectSocialProvider
+  implements SocialProvider<{ roles?: string[] }>
+{
   name: string;
   client?: BaseClient;
 
@@ -45,29 +47,34 @@ export class OpenIdConnectSocialProvider implements SocialProvider {
         ...(this.options.additionalScopes ?? []),
       ].join(' '),
       nonce,
-      response_mode: 'fragment',
+      response_mode: 'fragment', // TODO: use form data method
     });
 
     return { nonce, authUrl };
   }
 
-  async validate(request: SocialValidation): Promise<SocialProfile> {
+  async validate(request: SocialValidation) {
     const { client } = this;
     assert(client);
 
-    const userInfo = await client.userinfo(request.accessToken);
+    const userInfo = await client.userinfo<{ roles?: string[] }>(
+      request.accessToken
+    );
     assert(userInfo.email);
 
     return {
-      provider: this.name,
-      providerUserId: userInfo.sub,
-      accessToken: request.accessToken,
-      email: userInfo.email,
-      emailVerified: userInfo.email_verified,
-      name: {
-        givenName: userInfo.given_name,
-        familyName: userInfo.family_name,
+      profile: {
+        provider: this.name,
+        providerUserId: userInfo.sub,
+        accessToken: request.accessToken,
+        email: userInfo.email,
+        emailVerified: userInfo.email_verified,
+        name: {
+          givenName: userInfo.given_name,
+          familyName: userInfo.family_name,
+        },
       },
+      providerExtras: { roles: userInfo.roles },
     };
   }
 }

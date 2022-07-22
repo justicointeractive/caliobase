@@ -30,6 +30,7 @@ import { AbstractOrganizationProfile } from './entities/abstract-organization-pr
 import { AbstractUserProfile } from './entities/abstract-user-profile.entity';
 import { Member } from './entities/member.entity';
 import { User as UserEntity } from './entities/user.entity';
+import { JwtSignerService } from './jwt-signer.service';
 import { CaliobaseRequestUser } from './jwt.strategy';
 import { OrganizationService } from './organization.service';
 import { SocialProvider } from './social-provider';
@@ -177,6 +178,7 @@ export function createAuthController<
 
     constructor(
       private authService: AuthService,
+      private jwtSigner: JwtSignerService,
       private orgService: OrganizationService
     ) {
       super();
@@ -209,8 +211,10 @@ export function createAuthController<
           ).forEach((value, key) => {
             data[key] = value;
           });
-          // TODO shouldn't send the token to '*'
-          window.opener.postMessage({ type: 'resolve', data: data }, '*');
+          window.opener.postMessage(
+            { type: data.error ? 'reject' : 'resolve', data },
+            '*' // TODO shouldn't send the token to '*'
+          );
         </script>
       `;
     }
@@ -226,7 +230,7 @@ export function createAuthController<
 
       return {
         user,
-        accessToken: await this.authService.sign({
+        accessToken: await this.jwtSigner.sign({
           userId: user.id,
         }),
       };
@@ -244,7 +248,7 @@ export function createAuthController<
 
       return {
         user,
-        accessToken: await this.authService.sign({
+        accessToken: await this.jwtSigner.sign({
           userId: user.id,
         }),
       };
@@ -262,7 +266,7 @@ export function createAuthController<
 
       return {
         user,
-        accessToken: await this.authService.sign({
+        accessToken: await this.jwtSigner.sign({
           userId: user.id,
         }),
       };

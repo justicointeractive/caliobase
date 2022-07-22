@@ -14,10 +14,8 @@ import {
   Organization,
   OrganizationService,
 } from '../auth';
-import {
-  AbstractOrganizationProfile,
-  AbstractUserProfile,
-} from '../auth/profiles.service';
+import { AbstractOrganizationProfile } from '../auth/entities/abstract-organization-profile.entity';
+import { AbstractUserProfile } from '../auth/entities/abstract-user-profile.entity';
 import { CaliobaseModule } from '../caliobase.module';
 import { Role } from '../entity-module/roles';
 import { S3ObjectStorageProvider } from '../object-storage';

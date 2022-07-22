@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { CreateUserRequest } from '../auth/auth.service';
-import { AbstractUserProfile } from '../auth/profiles.service';
+import { AbstractUserProfile } from '../auth/entities/abstract-user-profile.entity';
 import cryptoRandomString = require('crypto-random-string');
 
 export function fakeUser(): CreateUserRequest {
