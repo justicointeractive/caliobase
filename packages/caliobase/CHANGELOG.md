@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.112](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.111...caliobase-0.0.1-alpha.112) (2022-07-22)
+
+
+### Features
+
+* get app roles from id_token ([70b5083](https://github.com/justicointeractive/caliobase/commit/70b5083de0c5b99a128755453a7ba4c008a4a445))
+
 ### [0.0.1-alpha.111](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.110...caliobase-0.0.1-alpha.111) (2022-07-22)
 
 
