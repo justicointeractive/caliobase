@@ -77,6 +77,9 @@ export class AuthService {
     }
 
     const validationResult = await socialProvider.validate(request);
+    const mappedToMembership = await socialProvider.mapToMembership?.(
+      validationResult
+    );
 
     const { providerUserId, provider, email, emailVerified } =
       validationResult.profile;
@@ -108,21 +111,20 @@ export class AuthService {
           (await this.profileService.createUserProfile(user, createProfile))) ||
         undefined;
 
-      const mapped = await socialProvider.mapToMembership?.(validationResult);
-      if (mapped != null) {
-        await this.orgService.administrativelyAddMember(
-          { id: mapped.organizationId },
-          user,
-          mapped.role
-        );
-      }
-
       await this.socialLoginRepo.save(
         this.socialLoginRepo.create({
           user,
           provider,
           providerUserId,
         })
+      );
+    }
+
+    if (mappedToMembership != null) {
+      await this.orgService.administrativelyAddMember(
+        { id: mappedToMembership.organizationId },
+        user,
+        mappedToMembership.role
       );
     }
 
