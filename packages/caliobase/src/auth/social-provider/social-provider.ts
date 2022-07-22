@@ -1,26 +1,33 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Role } from '../../entity-module/roles';
+import { Awaitable } from '../../lib/awaitable';
 
 export const SocialProvidersToken = Symbol('SOCIAL_PROVIDERS');
 
-type ValidationResult<TProviderExtras extends Record<string, unknown>> = {
+export type ValidationResult<
+  TProviderTokenClaims extends Record<string, unknown>
+> = {
   profile: SocialProfile;
-  providerExtras: TProviderExtras;
+  providerTokenClaims: TProviderTokenClaims;
 };
 
+export type MapSocialUserToOrganizationMember<
+  TProviderTokenClaims extends Record<string, unknown>
+> = (result: ValidationResult<TProviderTokenClaims>) => Awaitable<{
+  organizationId: string;
+  role: Role[];
+} | null>;
+
 export type SocialProvider<
-  TProviderExtras extends Record<string, unknown> = Record<string, unknown>
+  TProviderTokenClaims extends Record<string, unknown> = Record<string, unknown>
 > = {
   name: string;
   validate: (
     request: SocialValidation
-  ) => Promise<ValidationResult<TProviderExtras>>;
+  ) => Promise<ValidationResult<TProviderTokenClaims>>;
   createAuthorizationUrl?: () => Promise<{ authUrl: string; nonce: string }>;
   init?: () => Promise<void>;
-  addMemberOnCreate?: {
-    organizationId: string;
-    roleMap: (result: ValidationResult<TProviderExtras>) => Role[];
-  };
+  mapToMembership?: MapSocialUserToOrganizationMember<TProviderTokenClaims>;
 };
 
 export class SocialProfileName {

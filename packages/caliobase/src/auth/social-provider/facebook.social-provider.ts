@@ -22,7 +22,7 @@ export const FacebookSocialProvider: SocialProvider = {
         },
         email: data.email,
       },
-      providerExtras: {},
+      providerTokenClaims: data,
     };
   },
 };

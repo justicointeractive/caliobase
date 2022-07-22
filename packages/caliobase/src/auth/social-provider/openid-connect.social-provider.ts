@@ -1,24 +1,33 @@
 import { BaseClient, generators, Issuer } from 'openid-client';
 import { SocialProvider } from '..';
 import { assert } from '../../lib/assert';
-import { SocialValidation } from './social-provider';
+import {
+  MapSocialUserToOrganizationMember,
+  SocialValidation,
+} from './social-provider';
 
-export type OpenIdConnectSocialProviderOptions = {
+export type OpenIdConnectSocialProviderOptions<
+  TProviderTokenClaims extends Record<string, unknown> = Record<string, unknown>
+> = {
   key: string;
   issuer: string;
   clientId: string;
   clientSecret: string;
   redirectUri: string;
   additionalScopes?: string[];
+  mapToMembership?: MapSocialUserToOrganizationMember<TProviderTokenClaims>;
 };
 
-export class OpenIdConnectSocialProvider
-  implements SocialProvider<{ roles?: string[] }>
+export class OpenIdConnectSocialProvider<
+  TProviderTokenClaims extends Record<string, unknown> = Record<string, unknown>
+> implements SocialProvider<TProviderTokenClaims>
 {
   name: string;
   client?: BaseClient;
 
-  constructor(private options: OpenIdConnectSocialProviderOptions) {
+  constructor(
+    private options: OpenIdConnectSocialProviderOptions<TProviderTokenClaims>
+  ) {
     this.name = `openidconnect:${options.key}`;
   }
 
@@ -41,9 +50,7 @@ export class OpenIdConnectSocialProvider
       response_type: 'id_token',
       redirect_uri: this.options.redirectUri,
       scope: [
-        'openid',
-        'email',
-        'profile',
+        ...['openid', 'email', 'profile'],
         ...(this.options.additionalScopes ?? []),
       ].join(' '),
       nonce,
@@ -81,7 +88,9 @@ export class OpenIdConnectSocialProvider
           familyName: userInfo.family_name,
         },
       },
-      providerExtras: { roles: userInfo.roles as string[] | undefined },
+      providerTokenClaims: userInfo as unknown as TProviderTokenClaims,
     };
   }
+
+  mapToMembership = this.options.mapToMembership;
 }

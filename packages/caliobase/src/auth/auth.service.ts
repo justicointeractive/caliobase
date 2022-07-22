@@ -108,17 +108,12 @@ export class AuthService {
           (await this.profileService.createUserProfile(user, createProfile))) ||
         undefined;
 
-      if (socialProvider.addMemberOnCreate) {
-        const {
-          addMemberOnCreate: { organizationId, roleMap },
-        } = socialProvider;
-
-        const appRoles = roleMap(validationResult);
-
+      const mapped = await socialProvider.mapToMembership?.(validationResult);
+      if (mapped != null) {
         await this.orgService.administrativelyAddMember(
-          { id: organizationId },
+          { id: mapped.organizationId },
           user,
-          appRoles
+          mapped.role
         );
       }
 
