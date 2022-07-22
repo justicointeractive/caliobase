@@ -57,9 +57,12 @@ export class OpenIdConnectSocialProvider
     const { client } = this;
     assert(client);
 
-    const userInfo = await client.userinfo<{ roles?: string[] }>(
-      request.accessToken
-    );
+    const tokenSet = await client.callback(this.options.redirectUri, {
+      access_token: request.accessToken,
+      id_token: request.idToken,
+    });
+
+    const userInfo = tokenSet.claims();
     assert(userInfo.email);
 
     return {
@@ -74,7 +77,7 @@ export class OpenIdConnectSocialProvider
           familyName: userInfo.family_name,
         },
       },
-      providerExtras: { roles: userInfo.roles },
+      providerExtras: { roles: userInfo.roles as string[] | undefined },
     };
   }
 }

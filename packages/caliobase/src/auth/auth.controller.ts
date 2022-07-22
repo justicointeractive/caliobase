@@ -15,10 +15,16 @@ import {
   ApiCreatedResponse,
   ApiOkResponse,
   ApiProperty,
+  ApiPropertyOptional,
   ApiTags,
 } from '@nestjs/swagger';
 import { Type as TransformType } from 'class-transformer';
-import { IsString, MinLength, ValidateNested } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  MinLength,
+  ValidateNested,
+} from 'class-validator';
 import { RequestUser } from '../entity-module/RequestUser';
 import { assert } from '../lib/assert';
 import { getEntityDtos } from '../lib/getEntityDtos';
@@ -102,6 +108,11 @@ export function createAuthController<
   }
 
   class SocialValidateBody extends SocialRequestBody {
+    @IsOptional()
+    @IsString()
+    @ApiPropertyOptional()
+    idToken?: string;
+
     @IsString()
     @ApiProperty()
     accessToken!: string;
