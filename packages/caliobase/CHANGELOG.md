@@ -2,6 +2,20 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.111](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.110...caliobase-0.0.1-alpha.111) (2022-07-22)
+
+
+### Features
+
+* add a way to add a user to an organization in a specific role through social auth/sso ([a460f62](https://github.com/justicointeractive/caliobase/commit/a460f6203bdbd497b2da067e55ffa4930d0055f4))
+* let oidc providers request additional scopes ([53dc0dd](https://github.com/justicointeractive/caliobase/commit/53dc0dda96a2313e3f9b57dfcbb165c09e3d23f1))
+
+
+### Bug Fixes
+
+* cascade delete user stuff ([dbbed5a](https://github.com/justicointeractive/caliobase/commit/dbbed5ae9b92918fe440322984be3129f881c2d4))
+* export abstract org/user profiles ([93bb235](https://github.com/justicointeractive/caliobase/commit/93bb2359335b64c2eb41e8758c49ad5a93bce979))
+
 ### [0.0.1-alpha.110](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.109...caliobase-0.0.1-alpha.110) (2022-07-20)
 
 
