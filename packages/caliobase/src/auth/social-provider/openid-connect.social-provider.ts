@@ -9,6 +9,7 @@ export type OpenIdConnectSocialProviderOptions = {
   clientId: string;
   clientSecret: string;
   redirectUri: string;
+  additionalScopes?: string[];
 };
 
 export class OpenIdConnectSocialProvider implements SocialProvider {
@@ -37,7 +38,12 @@ export class OpenIdConnectSocialProvider implements SocialProvider {
     const authUrl = client.authorizationUrl({
       response_type: 'id_token token',
       redirect_uri: this.options.redirectUri,
-      scope: 'openid email profile',
+      scope: [
+        'openid',
+        'email',
+        'profile',
+        ...(this.options.additionalScopes ?? []),
+      ].join(' '),
       nonce,
       response_mode: 'fragment',
     });
