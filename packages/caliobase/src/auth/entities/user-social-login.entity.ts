@@ -8,7 +8,7 @@ export class UserSocialLogin {
   @Column()
   userId!: string;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
   user!: User;
 
   @PrimaryColumn()

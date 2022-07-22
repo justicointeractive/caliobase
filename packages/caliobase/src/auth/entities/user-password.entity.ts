@@ -17,7 +17,7 @@ export class UserPassword {
   @RelationId((password: UserPassword) => password.user)
   userId!: string;
 
-  @OneToOne(() => User)
+  @OneToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn()
   user!: User;
 

@@ -10,7 +10,7 @@ export class Member {
   @ApiProperty()
   organizationId!: string;
 
-  @ManyToOne(() => Organization)
+  @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
   @ApiProperty()
   organization!: Organization;
 
@@ -18,7 +18,7 @@ export class Member {
   @ApiProperty()
   userId!: string;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @ApiProperty()
   user!: User;
 

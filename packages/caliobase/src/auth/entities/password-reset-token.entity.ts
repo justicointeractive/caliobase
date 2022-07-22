@@ -9,6 +9,6 @@ export class PasswordResetToken {
   @Column()
   validUntil!: Date;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
   user!: User;
 }
