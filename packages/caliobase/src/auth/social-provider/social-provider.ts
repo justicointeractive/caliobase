@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Role } from '../../entity-module/roles';
 
 export const SocialProvidersToken = Symbol('SOCIAL_PROVIDERS');
@@ -38,8 +38,8 @@ export class SocialProfile {
   @ApiProperty()
   providerUserId!: string;
 
-  @ApiProperty()
-  accessToken!: string;
+  @ApiPropertyOptional()
+  accessToken?: string;
 
   @ApiProperty()
   name!: SocialProfileName;
@@ -53,7 +53,7 @@ export class SocialProfile {
 
 export type SocialValidation = SocialRequest & {
   idToken?: string;
-  accessToken: string;
+  accessToken?: string;
 };
 
 export type SocialRequest = {

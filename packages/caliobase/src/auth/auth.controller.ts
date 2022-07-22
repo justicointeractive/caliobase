@@ -113,9 +113,10 @@ export function createAuthController<
     @ApiPropertyOptional()
     idToken?: string;
 
+    @IsOptional()
     @IsString()
-    @ApiProperty()
-    accessToken!: string;
+    @ApiPropertyOptional()
+    accessToken?: string;
   }
 
   class UserSignupBody {
