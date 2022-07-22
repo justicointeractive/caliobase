@@ -39,7 +39,7 @@ import { User as UserEntity } from './entities/user.entity';
 import { JwtSignerService } from './jwt-signer.service';
 import { CaliobaseRequestUser } from './jwt.strategy';
 import { OrganizationService } from './organization.service';
-import { SocialProvider } from './social-provider';
+import { SocialProvider, SocialValidation } from './social-provider';
 
 class CreatePasswordResetTokenBody {
   @IsString()
@@ -107,7 +107,10 @@ export function createAuthController<
     provider!: string;
   }
 
-  class SocialValidateBody extends SocialRequestBody {
+  class SocialValidateBody
+    extends SocialRequestBody
+    implements SocialValidation
+  {
     @IsOptional()
     @IsString()
     @ApiPropertyOptional()
@@ -117,6 +120,11 @@ export function createAuthController<
     @IsString()
     @ApiPropertyOptional()
     accessToken?: string;
+
+    @IsOptional()
+    @IsString()
+    @ApiPropertyOptional()
+    nonce?: string;
   }
 
   class UserSignupBody {

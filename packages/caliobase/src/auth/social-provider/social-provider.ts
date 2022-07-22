@@ -54,6 +54,7 @@ export class SocialProfile {
 export type SocialValidation = SocialRequest & {
   idToken?: string;
   accessToken?: string;
+  nonce?: string;
 };
 
 export type SocialRequest = {

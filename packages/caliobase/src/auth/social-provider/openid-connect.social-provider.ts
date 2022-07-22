@@ -57,10 +57,14 @@ export class OpenIdConnectSocialProvider
     const { client } = this;
     assert(client);
 
-    const tokenSet = await client.callback(this.options.redirectUri, {
-      access_token: request.accessToken,
-      id_token: request.idToken,
-    });
+    const tokenSet = await client.callback(
+      this.options.redirectUri,
+      {
+        access_token: request.accessToken,
+        id_token: request.idToken,
+      },
+      { nonce: request.nonce }
+    );
 
     const userInfo = tokenSet.claims();
     assert(userInfo.email);
