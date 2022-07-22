@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.116](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.115...caliobase-0.0.1-alpha.116) (2022-07-22)
+
+
+### Bug Fixes
+
+* set user mapping on each sign in (if provided) ([c193bcd](https://github.com/justicointeractive/caliobase/commit/c193bcd6bd43af6b8a2d676b89d446589fd94fc6))
+
 ### [0.0.1-alpha.115](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.114...caliobase-0.0.1-alpha.115) (2022-07-22)
 
 
