@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.115](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.114...caliobase-0.0.1-alpha.115) (2022-07-22)
+
+
+### Features
+
+* map social/sso user to org member ([74e38eb](https://github.com/justicointeractive/caliobase/commit/74e38ebc7e69e50e5b703f433d8b9d3118d01714))
+
 ### [0.0.1-alpha.114](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.113...caliobase-0.0.1-alpha.114) (2022-07-22)
 
 
