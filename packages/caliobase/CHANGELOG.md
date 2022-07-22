@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.117](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.116...caliobase-0.0.1-alpha.117) (2022-07-22)
+
+
+### Features
+
+* decorate user/organization with profile references ([221e6ff](https://github.com/justicointeractive/caliobase/commit/221e6ffb12644a179c639bc1c1bf3b664e09e4b8))
+
 ### [0.0.1-alpha.116](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.115...caliobase-0.0.1-alpha.116) (2022-07-22)
 
 
