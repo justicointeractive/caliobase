@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.113](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.112...caliobase-0.0.1-alpha.113) (2022-07-22)
+
+
+### Bug Fixes
+
+* access token for oidc is optional ([70161ee](https://github.com/justicointeractive/caliobase/commit/70161ee44cee52bf9b0c32f5c8d88b6242940f75))
+
 ### [0.0.1-alpha.112](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.111...caliobase-0.0.1-alpha.112) (2022-07-22)
 
 
