@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.119](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.118...caliobase-0.0.1-alpha.119) (2022-07-25)
+
+
+### Features
+
+* simple role map method ([301fb6d](https://github.com/justicointeractive/caliobase/commit/301fb6d3d4e018d9c1bd8d510eb9fb3e73c9ccdd))
+
 ### [0.0.1-alpha.118](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.117...caliobase-0.0.1-alpha.118) (2022-07-25)
 
 
