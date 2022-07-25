@@ -17,3 +17,10 @@ export const Roles = {
 };
 
 export type EntityActions = 'create' | 'get' | 'list' | 'update' | 'delete';
+
+export function assertValidRole(roleString: string): Role {
+  if (!AllRoles.includes(roleString as Role)) {
+    throw new Error('invalid role');
+  }
+  return roleString as Role;
+}

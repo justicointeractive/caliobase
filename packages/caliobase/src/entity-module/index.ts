@@ -5,4 +5,5 @@ export * from './createFindManyQueryParamClass';
 export * from './decorators';
 export * from './ICaliobaseController';
 export * from './ICaliobaseService';
+export * from './roles';
 export * from './ValidatedType';
