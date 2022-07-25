@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.118](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.117...caliobase-0.0.1-alpha.118) (2022-07-25)
+
+
+### Features
+
+* add string to role function and export roles stuff ([ded5451](https://github.com/justicointeractive/caliobase/commit/ded545134003e0a826894c4c887de7a3042c5910))
+
 ### [0.0.1-alpha.117](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.116...caliobase-0.0.1-alpha.117) (2022-07-22)
 
 
