@@ -1,9 +1,12 @@
+import { nonNull } from 'circumspect';
 import { BaseClient, generators, Issuer } from 'openid-client';
 import { SocialProvider } from '..';
+import { Role } from '../../entity-module';
 import { assert } from '../../lib/assert';
 import {
   MapSocialUserToOrganizationMember,
   SocialValidation,
+  ValidationResult,
 } from './social-provider';
 
 export type OpenIdConnectSocialProviderOptions<
@@ -15,7 +18,9 @@ export type OpenIdConnectSocialProviderOptions<
   clientSecret: string;
   redirectUri: string;
   additionalScopes?: string[];
-  mapToMembership?: MapSocialUserToOrganizationMember<TProviderTokenClaims>;
+  mapToMembership?:
+    | MapSocialUserToOrganizationMember<TProviderTokenClaims>
+    | SimpleRoleMap;
 };
 
 export class OpenIdConnectSocialProvider<
@@ -92,5 +97,47 @@ export class OpenIdConnectSocialProvider<
     };
   }
 
-  mapToMembership = this.options.mapToMembership;
+  mapToMembership =
+    this.options.mapToMembership &&
+    (typeof this.options.mapToMembership === 'function'
+      ? this.options.mapToMembership
+      : mapProviderRoles(this.options.mapToMembership));
+}
+
+export type SimpleRoleMap = {
+  organization: string;
+  roles?: Map<string, Role[]>;
+  defaultRole?: Role[];
+};
+
+export function mapProviderRoles<
+  TProviderTokenClaims extends Record<string, unknown>
+>(
+  roleMap: SimpleRoleMap
+): MapSocialUserToOrganizationMember<TProviderTokenClaims> {
+  return <T extends TProviderTokenClaims & { roles?: string[] }>({
+    providerTokenClaims,
+  }: ValidationResult<T>) => {
+    const roles = [
+      ...new Set(
+        (providerTokenClaims.roles ?? [])
+          .map((role) => roleMap.roles?.get(role))
+          .filter(nonNull)
+          .flat()
+      ),
+    ];
+
+    if (roles.length === 0 && roleMap.defaultRole) {
+      roles.push(...roleMap.defaultRole);
+    }
+
+    if (roles.length === 0) {
+      return null;
+    }
+
+    return {
+      organizationId: roleMap.organization,
+      role: roles,
+    };
+  };
 }
