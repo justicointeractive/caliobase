@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.122](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.121...caliobase-0.0.1-alpha.122) (2022-07-26)
+
+
+### Features
+
+* add an org-owned entity base class ([e2dcab0](https://github.com/justicointeractive/caliobase/commit/e2dcab0a8bf8d2c3f07aa0aa05002cfc23b99b34))
+
 ### [0.0.1-alpha.121](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.120...caliobase-0.0.1-alpha.121) (2022-07-26)
 
 
