@@ -26,6 +26,7 @@
     "@nestjs/typeorm": "^8.1.4",
     "@nrwl/nest": "^14.3.6",
     "@types/bcrypt": "^5.0.0",
+    "axios": "^0.27.2",
     "bcrypt": "^5.0.1",
     "change-case": "^4.1.2",
     "circumspect": "^0.1.1",
