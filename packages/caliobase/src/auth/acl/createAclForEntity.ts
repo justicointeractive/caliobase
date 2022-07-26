@@ -2,7 +2,7 @@ import { Type } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 import { Entity, ManyToOne, OneToMany } from 'typeorm';
 import { RenameClass } from '../..';
-import { decorateClass } from '../../util/decorateClass';
+import { decorateClass } from '../../internal-utils/decorateClass';
 import { AclItem } from '../entities/acl.entity';
 import { EntityAclMetadataKey, EntityAclPropertyMetadataKey } from './acl';
 

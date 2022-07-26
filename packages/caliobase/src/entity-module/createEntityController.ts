@@ -24,6 +24,7 @@ import { ValidatorOptions } from 'class-validator';
 import { ToFindOptions } from '.';
 import { CaliobaseRequestUser, Organization } from '../auth';
 import { getAclEntity } from '../auth/acl/getAclEntityAndProperty';
+import { cloneMetadata } from '../internal-utils/cloneMetadata';
 import { assert } from '../lib/assert';
 import {
   getPrimaryColumns,
@@ -38,7 +39,6 @@ import {
   PaginationItemResponse,
   PaginationItemsResponse,
 } from '../lib/envelopes';
-import { cloneMetadata } from '../util/cloneMetadata';
 import { createAclController } from './createAclController';
 import { createOneToManyController } from './createOneToManyController';
 import { CaliobaseEntity, getRelationController } from './decorators';

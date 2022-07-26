@@ -30,6 +30,7 @@ import {
 import { ColumnMetadataArgs } from 'typeorm/metadata-args/ColumnMetadataArgs';
 import { RelationMetadataArgs } from 'typeorm/metadata-args/RelationMetadataArgs';
 import { ValidatedType } from '.';
+import { cloneMetadata } from '../internal-utils/cloneMetadata';
 import {
   getPrimaryColumns,
   isGenerated,
@@ -40,7 +41,6 @@ import {
   PaginationItemResponse,
   PaginationItemsResponse,
 } from '../lib/envelopes';
-import { cloneMetadata } from '../util/cloneMetadata';
 import { ApiParams } from './createEntityController';
 import {
   getNamedEntityClassName,
