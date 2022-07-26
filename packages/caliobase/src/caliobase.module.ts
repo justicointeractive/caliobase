@@ -22,7 +22,7 @@ export type CaliobaseModuleOptions<
   TUser extends AbstractUserProfile,
   TOrganization extends AbstractOrganizationProfile
 > = CaliobaseEntitiesModuleOptions &
-  CaliobaseObjectStorageModuleOptions &
+  (CaliobaseObjectStorageModuleOptions | { objectStorageProvider: null }) &
   CaliobaseAuthModuleOptions<TUser, TOrganization> &
   CaliobaseConfigModuleOptions;
 
@@ -51,7 +51,13 @@ export class CaliobaseModule {
           guestRole,
         }),
         CaliobaseAuthModule.forRootAsync({ socialProviders, profileEntities }),
-        CaliobaseObjectStorageModule.forRootAsync({ objectStorageProvider }),
+        ...(objectStorageProvider
+          ? [
+              CaliobaseObjectStorageModule.forRootAsync({
+                objectStorageProvider,
+              }),
+            ]
+          : []),
         CaliobaseEntitiesModule.forRootAsync({
           controllerEntities,
           otherEntities,

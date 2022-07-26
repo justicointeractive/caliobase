@@ -43,8 +43,12 @@ class OrganizationNameProfile extends AbstractOrganizationProfile {
 
 export async function createTestingModule({
   typeormOptions,
+  objectStorage = true,
   ...metadata
-}: ModuleMetadata & { typeormOptions?: TypeOrmModuleOptions } = {}) {
+}: ModuleMetadata & {
+  typeormOptions?: TypeOrmModuleOptions;
+  objectStorage?: boolean;
+} = {}) {
   const module = await Test.createTestingModule({
     ...metadata,
     imports: [
@@ -89,12 +93,14 @@ export async function createTestingModule({
         controllerEntities: [],
         otherEntities: [],
         emailTransport: createTransport({}),
-        objectStorageProvider: new S3ObjectStorageProvider({
-          bucket: 'test',
-          cdnUrlPrefix: '',
-          keyPrefix: '',
-          endpoint: 'http://localhost.localstack.cloud:4588',
-        }),
+        objectStorageProvider: objectStorage
+          ? new S3ObjectStorageProvider({
+              bucket: 'test',
+              cdnUrlPrefix: '',
+              keyPrefix: '',
+              endpoint: 'http://localhost.localstack.cloud:4588',
+            })
+          : null,
       }),
       ...(metadata.imports ?? []),
     ],
