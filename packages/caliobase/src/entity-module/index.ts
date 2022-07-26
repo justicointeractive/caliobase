@@ -1,3 +1,4 @@
+export * from './abstract-organization-owned-entity.entity';
 export * from './createEntityController';
 export * from './createEntityModule';
 export * from './createEntityService';
