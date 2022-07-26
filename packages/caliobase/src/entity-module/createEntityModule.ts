@@ -12,7 +12,7 @@ import { getAclEntity } from '../auth/acl/getAclEntityAndProperty';
 import { defaultValidatorOptions } from '../defaultValidatorOptions';
 import { getEntityDtos } from '../lib/getEntityDtos';
 import { createEntityController } from './createEntityController';
-import { createEntityServiceClass } from './createEntityServiceClass';
+import { createEntityService } from './createEntityService';
 import { RenameClass } from './decorators/RenameClass.decorator';
 import { ICaliobaseServiceType } from './ICaliobaseService';
 
@@ -25,7 +25,7 @@ export function createEntityModule<TEntity>(
 
   const { CreateEntityDto, UpdateEntityDto } = getEntityDtos(entityType);
 
-  const EntityService = createEntityServiceClass(
+  const EntityService = createEntityService(
     entityType,
     FindManyParams,
     CreateEntityDto as Type<DeepPartial<TEntity>>,

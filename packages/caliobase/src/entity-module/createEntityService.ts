@@ -19,7 +19,7 @@ import {
 } from './ICaliobaseService';
 import { EntityActions, Roles } from './roles';
 
-export function createEntityServiceClass<
+export function createEntityService<
   TEntity,
   TCreate extends DeepPartial<TEntity>,
   TUpdate extends DeepPartial<TEntity>
