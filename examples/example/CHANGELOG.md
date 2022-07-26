@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.5.3](https://github.com/justicointeractive/caliobase/compare/example-0.5.2...example-0.5.3) (2022-07-26)
+
+
+### Bug Fixes
+
+* better way of passing urls around for emails ([77f199d](https://github.com/justicointeractive/caliobase/commit/77f199df1c908ec1bbea27c34b1732058802c4a1))
+
 ### [0.5.2](https://github.com/justicointeractive/caliobase/compare/example-0.5.1...example-0.5.2) (2022-07-20)
 
 ### [0.5.1](https://github.com/justicointeractive/caliobase/compare/example-0.5.0...example-0.5.1) (2022-07-19)
