@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.121](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.120...caliobase-0.0.1-alpha.121) (2022-07-26)
+
+
+### Features
+
+* add env var parsing util ([35b63f8](https://github.com/justicointeractive/caliobase/commit/35b63f891abda79eff21a6c7848c76e41c2c44b4))
+
 ### [0.0.1-alpha.120](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.119...caliobase-0.0.1-alpha.120) (2022-07-26)
 
 
