@@ -1,10 +1,10 @@
 import { DynamicModule, Module, Provider } from '@nestjs/common';
 import { Transporter } from 'nodemailer';
 import { Role } from '../entity-module/roles';
-import { CaliobaseConfig } from './config';
+import { CaliobaseConfig, MetaUrls } from './config';
 
 export type CaliobaseConfigModuleOptions = {
-  baseUrl: string;
+  urls: MetaUrls;
   emailTransport: Transporter;
   guestRole?: Role | false;
 };
@@ -12,14 +12,14 @@ export type CaliobaseConfigModuleOptions = {
 @Module({})
 export class CaliobaseConfigModule {
   static async forRootAsync({
-    baseUrl,
+    urls,
     emailTransport,
     guestRole = 'guest',
   }: CaliobaseConfigModuleOptions): Promise<DynamicModule> {
     const configProvider: Provider<CaliobaseConfig> = {
       provide: CaliobaseConfig,
       useValue: new CaliobaseConfig({
-        baseUrl,
+        urls,
         emailTransport,
         guestRole,
       }),

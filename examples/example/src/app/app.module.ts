@@ -1,9 +1,12 @@
-import { CaliobaseModule, S3ObjectStorageProvider } from '@caliobase/caliobase';
+import {
+  CaliobaseModule,
+  S3ObjectStorageProvider,
+  TOKEN_TOKEN,
+} from '@caliobase/caliobase';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { createTransport } from 'nodemailer';
-
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { Bank, Configuration, ConfigurationBank, Note } from './entities';
@@ -47,7 +50,9 @@ import { Bank, Configuration, ConfigurationBank, Note } from './entities';
       },
       controllerEntities: [Bank, Configuration],
       otherEntities: [ConfigurationBank, Note],
-      baseUrl: '',
+      urls: {
+        forgotPassword: `https://example.org/?token=${TOKEN_TOKEN}`,
+      },
       emailTransport: createTransport({
         host: 'smtp.example.com',
         port: 587,

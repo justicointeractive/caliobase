@@ -17,6 +17,7 @@ import {
 import { AbstractOrganizationProfile } from '../auth/entities/abstract-organization-profile.entity';
 import { AbstractUserProfile } from '../auth/entities/abstract-user-profile.entity';
 import { CaliobaseModule } from '../caliobase.module';
+import { TOKEN_TOKEN } from '../config';
 import { Role } from '../entity-module/roles';
 import { S3ObjectStorageProvider } from '../object-storage';
 import { fakeUser } from './fakeUser';
@@ -74,7 +75,9 @@ export async function createTestingModule({
         },
       }),
       CaliobaseModule.forRootAsync({
-        baseUrl: '',
+        urls: {
+          forgotPassword: `https://example.org/?token=${TOKEN_TOKEN}`,
+        },
         profileEntities: {
           UserProfile: UserFirstLastProfile,
           OrganizationProfile: OrganizationNameProfile,

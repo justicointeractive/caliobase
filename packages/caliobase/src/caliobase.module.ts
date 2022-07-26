@@ -38,7 +38,7 @@ export class CaliobaseModule {
     controllerEntities,
     otherEntities,
     validatorOptions,
-    baseUrl,
+    urls,
     emailTransport,
     guestRole,
   }: CaliobaseModuleOptions<TUser, TOrganization>): Promise<DynamicModule> {
@@ -46,7 +46,7 @@ export class CaliobaseModule {
       module: CaliobaseModule,
       imports: [
         CaliobaseConfigModule.forRootAsync({
-          baseUrl,
+          urls,
           emailTransport,
           guestRole,
         }),

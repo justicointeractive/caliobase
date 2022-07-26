@@ -2,7 +2,7 @@ import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { async as cryptoRandomString } from 'crypto-random-string';
 import { addHours } from 'date-fns';
 import { DataSource, MoreThanOrEqual } from 'typeorm';
-import { CaliobaseConfig } from '../config/config';
+import { CaliobaseConfig, formatWithToken } from '../config/config';
 import { forgotPasswordEmail } from '../emails/forgotPasswordEmail';
 import { assert } from '../lib/assert';
 import { AbstractUserProfile } from './entities/abstract-user-profile.entity';
@@ -216,7 +216,7 @@ export class AuthService {
 
         const html = forgotPasswordEmail({
           accountExists: true,
-          resetUrl: `${this.config.baseUrl}/?forgotPasswordToken=${token}`,
+          resetUrl: formatWithToken(this.config.urls.forgotPassword, token),
         });
 
         return html;
