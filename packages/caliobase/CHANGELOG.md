@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.123](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.122...caliobase-0.0.1-alpha.123) (2022-07-26)
+
+
+### Features
+
+* allow no object storage provider ([3ae010a](https://github.com/justicointeractive/caliobase/commit/3ae010ad56a817a1f75a411829ca630338825965))
+
 ### [0.0.1-alpha.122](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.121...caliobase-0.0.1-alpha.122) (2022-07-26)
 
 
