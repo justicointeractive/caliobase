@@ -54,7 +54,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (publicKeyBase64 == null) {
       throw new Error('missing public key');
     }
-    const publicKey = Buffer.from(publicKeyBase64, 'base64').toString('utf8');
+    const publicKey = publicKeyBase64.startsWith('-----BEGIN')
+      ? publicKeyBase64
+      : Buffer.from(publicKeyBase64, 'base64').toString('utf8');
     const jwtStrategyOptions: JwtStrategyOptions = {
       jwtFromRequest: ExtractJwt.fromExtractors([
         ExtractJwt.fromAuthHeaderAsBearerToken(),

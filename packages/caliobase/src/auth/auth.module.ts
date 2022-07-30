@@ -147,9 +147,9 @@ export class CaliobaseAuthModule {
             if (privateKeyBase64 == null) {
               throw new Error('could not get private key');
             }
-            const privateKey = Buffer.from(privateKeyBase64, 'base64').toString(
-              'utf8'
-            );
+            const privateKey = privateKeyBase64.startsWith('-----BEGIN')
+              ? privateKeyBase64
+              : Buffer.from(privateKeyBase64, 'base64').toString('utf8');
 
             return {
               privateKey,
