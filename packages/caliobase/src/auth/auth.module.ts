@@ -5,6 +5,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { nonNull } from 'circumspect';
 import { decorateWithProfileType } from '../lib/decorateWithProfileType';
+import { pemKeyMaybeFromBase64 } from '../lib/pemKeyMaybeFromBase64';
 import {
   AbstractAuthController,
   createAuthController,
@@ -147,9 +148,7 @@ export class CaliobaseAuthModule {
             if (privateKeyBase64 == null) {
               throw new Error('could not get private key');
             }
-            const privateKey = privateKeyBase64.startsWith('-----BEGIN')
-              ? privateKeyBase64
-              : Buffer.from(privateKeyBase64, 'base64').toString('utf8');
+            const privateKey = pemKeyMaybeFromBase64(privateKeyBase64);
 
             return {
               privateKey,

@@ -10,6 +10,7 @@ import {
   StrategyOptions as JwtStrategyOptions,
 } from 'passport-jwt';
 import { Repository } from 'typeorm';
+import { pemKeyMaybeFromBase64 } from '../lib/pemKeyMaybeFromBase64';
 import { Member, Organization, User } from './entities';
 import { CaliobaseJwtPayload } from './jwt-payload';
 
@@ -54,9 +55,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (publicKeyBase64 == null) {
       throw new Error('missing public key');
     }
-    const publicKey = publicKeyBase64.startsWith('-----BEGIN')
-      ? publicKeyBase64
-      : Buffer.from(publicKeyBase64, 'base64').toString('utf8');
+    const publicKey = pemKeyMaybeFromBase64(publicKeyBase64);
     const jwtStrategyOptions: JwtStrategyOptions = {
       jwtFromRequest: ExtractJwt.fromExtractors([
         ExtractJwt.fromAuthHeaderAsBearerToken(),
