@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.128](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.127...caliobase-0.0.1-alpha.128) (2022-08-04)
+
+
+### Bug Fixes
+
+* actually we can't call count required ([391cd79](https://github.com/justicointeractive/caliobase/commit/391cd79d123d23a21f88e489b91611852b593133))
+
 ### [0.0.1-alpha.127](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.126...caliobase-0.0.1-alpha.127) (2022-08-04)
 
 
