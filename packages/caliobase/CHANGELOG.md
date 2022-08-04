@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.129](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.128...caliobase-0.0.1-alpha.129) (2022-08-04)
+
+
+### Bug Fixes
+
+* use offset rather than skip for pagination ([6ace53b](https://github.com/justicointeractive/caliobase/commit/6ace53bfb97ed2a7ce6033365c713364e77a101d))
+
 ### [0.0.1-alpha.128](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.127...caliobase-0.0.1-alpha.128) (2022-08-04)
 
 
