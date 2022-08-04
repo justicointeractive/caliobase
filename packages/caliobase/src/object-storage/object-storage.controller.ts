@@ -13,9 +13,10 @@ import {
   ApiCreatedResponse,
   ApiOkResponse,
   ApiProperty,
+  ApiPropertyOptional,
   ApiTags,
 } from '@nestjs/swagger';
-import { IsIn, IsNumber, IsString } from 'class-validator';
+import { IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
 import { RequestUser } from '../entity-module/RequestUser';
 import { assert } from '../lib/assert';
 import { SignedUploadUrl } from './AbstractObjectStorageProvider';
@@ -41,9 +42,10 @@ export class ObjectStorageCreateRequest {
 }
 
 export class ObjectStorageUpdateRequest {
+  @IsOptional()
   @IsIn(ObjectStorageObjectStatuses)
-  @ApiProperty()
-  status!: ObjectStorageObjectStatus;
+  @ApiPropertyOptional()
+  status?: ObjectStorageObjectStatus;
 }
 
 export class ObjectStorageCreateResponse {
