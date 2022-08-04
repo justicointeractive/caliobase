@@ -33,7 +33,7 @@ export const ApiPaginatedResponse =
                 },
                 count: { type: 'number' },
               },
-              required: ['items', 'count'],
+              required: ['items'],
             },
           ],
         },
