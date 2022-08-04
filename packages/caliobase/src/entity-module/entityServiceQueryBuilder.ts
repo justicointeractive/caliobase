@@ -93,7 +93,7 @@ export function entityServiceQueryBuilder<TEntity>(
     query.limit(limit);
   }
   if (skip != null) {
-    query.skip(skip);
+    query.offset(skip);
   }
 
   if (select) {
