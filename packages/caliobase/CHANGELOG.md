@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.127](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.126...caliobase-0.0.1-alpha.127) (2022-08-04)
+
+
+### Bug Fixes
+
+* items and count are required properties of api paginated response ([cd1fa8c](https://github.com/justicointeractive/caliobase/commit/cd1fa8cbed09ebf8e34a42eedd528926fd3fa35d))
+
 ### [0.0.1-alpha.126](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.125...caliobase-0.0.1-alpha.126) (2022-08-04)
 
 
