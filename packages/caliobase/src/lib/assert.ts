@@ -5,3 +5,11 @@ export function assert<T>(
 ): asserts value {
   if (!value) throw new error(message);
 }
+
+export function assertEqual<T>(expected: T, actual: T) {
+  assert(
+    expected === actual,
+    undefined,
+    `expected '${expected}' to equal '${actual}'`
+  );
+}

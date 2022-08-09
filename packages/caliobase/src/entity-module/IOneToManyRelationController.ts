@@ -4,7 +4,7 @@ import {
 } from '../lib/envelopes';
 import { RequestUser } from './RequestUser';
 
-export interface IEntityRelationController<TMany> {
+export interface IOneToManyRelationController<TMany> {
   create(
     body: Partial<TMany>,
     params: Partial<TMany>,

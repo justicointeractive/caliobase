@@ -1,4 +1,3 @@
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import {
   Column,
   Entity,
@@ -8,6 +7,7 @@ import {
   OneToOne,
   PrimaryColumn,
 } from 'typeorm';
+import { createSwaggerDocument } from '../test/createSwaggerDocument';
 import { createTestingModule } from '../test/createTestingModule';
 import { createEntityModule } from './createEntityModule';
 import {
@@ -61,23 +61,7 @@ describe('swagger', () => {
       imports: [entityModule, profileModule],
     });
 
-    const config = new DocumentBuilder()
-      .setTitle('example')
-      .setDescription('The example app API description')
-      .setVersion('1.0')
-      .addBearerAuth({
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'Bearer',
-        name: 'JWT',
-        description: 'Access Token',
-        in: 'header',
-      })
-      .build();
-
-    const app = module.createNestApplication();
-
-    const document = SwaggerModule.createDocument(app, config);
+    const document = createSwaggerDocument(module);
 
     expect(document.paths['/root'].get).toBeTruthy();
     expect(document.paths['/root'].post).toBeTruthy();

@@ -40,9 +40,11 @@ import {
   PaginationItemsResponse,
 } from '../lib/envelopes';
 import { createAclController } from './createAclController';
+import { createManyToManyController } from './createManyToManyController';
 import { createOneToManyController } from './createOneToManyController';
 import { CaliobaseEntity, getRelationController } from './decorators';
 import { RenameClass } from './decorators/RenameClass.decorator';
+import { findRelationMetadataArgs } from './findRelationMetadataArgs';
 import { ICaliobaseController } from './ICaliobaseController';
 import { ICaliobaseService, ICaliobaseServiceType } from './ICaliobaseService';
 import { RequestUser } from './RequestUser';
@@ -277,15 +279,39 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
   }
 
   getRelationController(Entity)?.properties.forEach((propertyName) => {
-    const { controller, manyEntity } = createOneToManyController(
-      Entity,
-      String(propertyName),
-      {
-        validatorOptions,
+    const relation = findRelationMetadataArgs(Entity, propertyName);
+
+    switch (relation.relationType) {
+      case 'one-to-many': {
+        const { controller, manyEntity } = createOneToManyController(
+          Entity,
+          String(propertyName),
+          {
+            validatorOptions,
+          }
+        );
+        controllers.push(controller);
+        otherEntities.push(manyEntity);
+        break;
       }
-    );
-    controllers.push(controller);
-    otherEntities.push(manyEntity);
+      case 'many-to-many': {
+        const { controller, manyEntity } = createManyToManyController(
+          Entity,
+          String(propertyName),
+          {
+            validatorOptions,
+          }
+        );
+        controllers.push(controller);
+        otherEntities.push(manyEntity);
+        break;
+      }
+      default: {
+        throw new Error(
+          `uncontrollable relation type '${relation.relationType}', only 'one-to-many' and 'many-to-many' are supported`
+        );
+      }
+    }
   });
 
   return { controllers, otherEntities };

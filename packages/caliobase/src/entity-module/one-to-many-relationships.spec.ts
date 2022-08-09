@@ -13,7 +13,7 @@ import {
   PrimaryGeneratedPrefixedNanoIdColumn,
   RelationController,
 } from './decorators';
-import { IEntityRelationController } from './IEntityRelationController';
+import { IOneToManyRelationController } from './IOneToManyRelationController';
 
 describe('one to many relationships', () => {
   @CaliobaseEntity({
@@ -70,7 +70,7 @@ describe('one to many relationships', () => {
       assert(noteControllerType);
       const noteController = module.get(
         noteControllerType
-      ) as IEntityRelationController<Note>;
+      ) as IOneToManyRelationController<Note>;
       assert(noteController);
 
       const createOrganization = await createTestOrganization(module);

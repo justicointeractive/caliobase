@@ -15,6 +15,16 @@ export function getPrimaryColumns<TEntity>(entity: Type<TEntity>) {
   return primaryColumns;
 }
 
+export function getTable<TEntity>(entity: Type<TEntity>) {
+  const table = getMetadataArgsStorage().tables.find(
+    (col) =>
+      typeof col.target !== 'string' &&
+      (entity === col.target || entity.prototype instanceof col.target)
+  );
+
+  return table;
+}
+
 export function pickColumnProperties<T>(
   primaryColumns: ColumnMetadataArgs[],
   params: T

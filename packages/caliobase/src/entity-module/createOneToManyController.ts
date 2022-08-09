@@ -31,6 +31,7 @@ import { ColumnMetadataArgs } from 'typeorm/metadata-args/ColumnMetadataArgs';
 import { RelationMetadataArgs } from 'typeorm/metadata-args/RelationMetadataArgs';
 import { ValidatedType } from '.';
 import { cloneMetadata } from '../internal-utils/cloneMetadata';
+import { assertEqual } from '../lib/assert';
 import {
   getPrimaryColumns,
   isGenerated,
@@ -46,7 +47,8 @@ import {
   getNamedEntityClassName,
   RenameClass,
 } from './decorators/RenameClass.decorator';
-import { IEntityRelationController } from './IEntityRelationController';
+import { findRelationMetadataArgs } from './findRelationMetadataArgs';
+import { IOneToManyRelationController } from './IOneToManyRelationController';
 import { RelationPermissionChecker } from './RelationPermissionChecker';
 import { RequestUser } from './RequestUser';
 
@@ -60,14 +62,18 @@ export function createOneToManyController<T>(
     oneToManyRelationPropertyName
   );
 
+  assertEqual(oneToManyRelation.relationType, 'one-to-many');
+
   const ManyEntity = getRelatedTypeFromRelationMetadataArgs(oneToManyRelation);
 
   const manyToOneRelation = getInverseRelation(oneToManyRelation, ManyEntity);
 
   // get the columns of the many side that are references to the one side
-  const manyToOneReferencingColumns = getPrimaryColumns(OneEntity).map((col) =>
-    relationColumnPropertyName(manyToOneRelation, col)
-  );
+  const manyToOneReferencingColumns = manyToOneRelation
+    ? getPrimaryColumns(OneEntity).map((col) =>
+        relationColumnPropertyName(manyToOneRelation, col)
+      )
+    : [];
 
   const oneSidePathParams = toColumnRoutePath(manyToOneReferencingColumns);
 
@@ -143,7 +149,7 @@ export function createOneToManyController<T>(
   @RenameClass(relationEntityName)
   @ApiBearerAuth()
   class EntityRelationController
-    implements IEntityRelationController<typeof ManyEntity>
+    implements IOneToManyRelationController<typeof ManyEntity>
   {
     relationPermissionChecker = new RelationPermissionChecker(
       this.dataSource,
@@ -343,23 +349,12 @@ function getRelatedTypeFromRelationMetadataArgs(
   return ManyEntity;
 }
 
-function findRelationMetadataArgs<T>(OneEntity: Type<T>, propertyName: string) {
-  const oneToManyRelation = getMetadataArgsStorage()
-    .filterRelations(OneEntity)
-    .find((relation) => relation.propertyName === propertyName);
-
-  if (oneToManyRelation == null) {
-    throw new TypeError(`could not find relation for property ${propertyName}`);
-  }
-  return oneToManyRelation;
-}
-
 function getInverseRelation(
   oneToManyRelation: RelationMetadataArgs,
   ManyEntity: Type<unknown>
 ) {
   const manyEntityPropertyMap = createShallowRelationPropertyMap(ManyEntity);
-  const inverseRelation: RelationMetadataArgs =
+  const inverseRelation: RelationMetadataArgs | undefined =
     typeof oneToManyRelation.inverseSideProperty === 'string'
       ? manyEntityPropertyMap[oneToManyRelation.inverseSideProperty]
       : oneToManyRelation.inverseSideProperty?.(manyEntityPropertyMap);
