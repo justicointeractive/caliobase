@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.130](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.129...caliobase-0.0.1-alpha.130) (2022-08-09)
+
+
+### Features
+
+* add many to many controller (for tags) ([851694f](https://github.com/justicointeractive/caliobase/commit/851694fcc7b24e035c758a185e577d84e58540fb))
+
 ### [0.0.1-alpha.129](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.128...caliobase-0.0.1-alpha.129) (2022-08-04)
 
 
