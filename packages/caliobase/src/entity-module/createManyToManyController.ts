@@ -57,7 +57,9 @@ export function createManyToManyController<T>(
     (col) => ({
       referenceTableColumn: col.propertyName,
       joinTableColumn: camelCase(
-        `${getTable(ReferenceEntity)?.name}_${col.propertyName}`
+        `${getTable(ReferenceEntity)?.name ?? ReferenceEntity.name}_${
+          col.propertyName
+        }`
       ),
     })
   );
@@ -65,7 +67,7 @@ export function createManyToManyController<T>(
     (col) => ({
       otherTableColumn: col.propertyName,
       joinTableColumn: camelCase(
-        `${getTable(OtherEntity)?.name}_${col.propertyName}`
+        `${getTable(OtherEntity)?.name ?? OtherEntity.name}_${col.propertyName}`
       ),
     })
   );
