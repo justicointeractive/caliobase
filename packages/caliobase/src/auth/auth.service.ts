@@ -95,21 +95,12 @@ export class AuthService {
     let user = socialLogin?.user;
 
     if (user == null) {
-      const createProfile = this.profileService.socialProfileToUserProfile?.(
-        validationResult.profile
-      );
-
       user = await this.userRepo.save(
         this.userRepo.create({
           email,
           emailVerified,
         })
       );
-
-      user.profile =
-        (createProfile &&
-          (await this.profileService.createUserProfile(user, createProfile))) ||
-        undefined;
 
       await this.socialLoginRepo.save(
         this.socialLoginRepo.create({
@@ -119,6 +110,15 @@ export class AuthService {
         })
       );
     }
+
+    const createProfile = this.profileService.socialProfileToUserProfile?.(
+      validationResult.profile
+    );
+
+    user.profile =
+      (createProfile &&
+        (await this.profileService.createUserProfile(user, createProfile))) ||
+      undefined;
 
     if (mappedToMembership != null) {
       await this.orgService.administrativelyAddMember(
