@@ -15,7 +15,7 @@ export type OpenIdConnectSocialProviderOptions<
   key: string;
   issuer: string;
   clientId: string;
-  clientSecret: string;
+  clientSecret?: string;
   redirectUri: string;
   additionalScopes?: string[];
   mapToMembership?:
