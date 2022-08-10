@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.133](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.132...caliobase-0.0.1-alpha.133) (2022-08-10)
+
+
+### Bug Fixes
+
+* update user profile after subsequent authentications ([1f56f95](https://github.com/justicointeractive/caliobase/commit/1f56f952fea48a3c90452843a4146a00e28b1df3))
+
 ### [0.0.1-alpha.132](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.131...caliobase-0.0.1-alpha.132) (2022-08-10)
 
 
