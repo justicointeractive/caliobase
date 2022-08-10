@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.132](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.131...caliobase-0.0.1-alpha.132) (2022-08-10)
+
+
+### Bug Fixes
+
+* openid connect client secret is optional ([6b56f61](https://github.com/justicointeractive/caliobase/commit/6b56f613574cfc02a4c126b5982923bf3d503372))
+
 ### [0.0.1-alpha.131](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.130...caliobase-0.0.1-alpha.131) (2022-08-09)
 
 
