@@ -130,6 +130,7 @@ export class AuthService {
 
     return {
       user,
+      validationResult,
     };
   }
 

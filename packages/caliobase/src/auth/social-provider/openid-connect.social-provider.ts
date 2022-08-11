@@ -17,6 +17,7 @@ export type OpenIdConnectSocialProviderOptions<
   clientId: string;
   clientSecret?: string;
   redirectUri: string;
+  responseType?: 'id_token' | 'access_token';
   additionalScopes?: string[];
   mapToMembership?:
     | MapSocialUserToOrganizationMember<TProviderTokenClaims>
@@ -52,7 +53,7 @@ export class OpenIdConnectSocialProvider<
 
     const nonce = generators.nonce();
     const authUrl = client.authorizationUrl({
-      response_type: 'id_token',
+      response_type: this.options.responseType ?? 'id_token',
       redirect_uri: this.options.redirectUri,
       scope: [
         ...['openid', 'email', 'profile'],
@@ -78,7 +79,11 @@ export class OpenIdConnectSocialProvider<
       { nonce: request.nonce }
     );
 
-    const userInfo = tokenSet.claims();
+    const userInfo =
+      this.options.responseType === 'id_token'
+        ? tokenSet.claims()
+        : await client.userinfo(tokenSet);
+
     assert(userInfo.email);
 
     return {
