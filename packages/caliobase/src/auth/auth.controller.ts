@@ -39,7 +39,11 @@ import { User as UserEntity } from './entities/user.entity';
 import { JwtSignerService } from './jwt-signer.service';
 import { CaliobaseRequestUser } from './jwt.strategy';
 import { OrganizationService } from './organization.service';
-import { SocialProvider, SocialValidation } from './social-provider';
+import {
+  SocialProfile,
+  SocialProvider,
+  SocialValidation,
+} from './social-provider';
 
 class CreatePasswordResetTokenBody {
   @IsString()
@@ -166,7 +170,13 @@ export function createAuthController<
     user!: User;
   }
 
-  class SocialAuthenticationResponse extends AuthenticationResponse {}
+  class SocialAuthenticationResponse extends AuthenticationResponse {
+    @ApiProperty()
+    socialProfile!: SocialProfile;
+
+    @ApiProperty()
+    providerTokenClaims!: Record<string, unknown>;
+  }
 
   class SocialAuthUrlResponse {
     @ApiProperty()
@@ -246,9 +256,12 @@ export function createAuthController<
     async socialValidate(
       @Body() body: SocialValidateBody
     ): Promise<SocialAuthenticationResponse> {
-      const { user } = await this.authService.validateSocial(body);
+      const { user, validationResult } = await this.authService.validateSocial(
+        body
+      );
 
       return {
+        ...validationResult,
         user,
         accessToken: await this.jwtSigner.sign({
           userId: user.id,

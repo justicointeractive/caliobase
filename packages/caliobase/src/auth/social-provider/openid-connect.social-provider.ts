@@ -87,7 +87,7 @@ export class OpenIdConnectSocialProvider<
     assert(userInfo.email);
 
     return {
-      profile: {
+      socialProfile: {
         provider: this.name,
         providerUserId: userInfo.sub,
         accessToken: request.accessToken,

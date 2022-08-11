@@ -82,7 +82,7 @@ export class AuthService {
     );
 
     const { providerUserId, provider, email, emailVerified } =
-      validationResult.profile;
+      validationResult.socialProfile;
 
     const socialLogin = await this.socialLoginRepo.findOne({
       where: {
@@ -112,7 +112,7 @@ export class AuthService {
     }
 
     const createProfile = this.profileService.socialProfileToUserProfile?.(
-      validationResult.profile
+      validationResult.socialProfile
     );
 
     user.profile =

@@ -13,7 +13,7 @@ export const FacebookSocialProvider: SocialProvider = {
     });
 
     return {
-      profile: {
+      socialProfile: {
         ...body,
         providerUserId: data.id,
         name: {

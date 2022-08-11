@@ -7,7 +7,7 @@ export const SocialProvidersToken = Symbol('SOCIAL_PROVIDERS');
 export type ValidationResult<
   TProviderTokenClaims extends Record<string, unknown>
 > = {
-  profile: SocialProfile;
+  socialProfile: SocialProfile;
   providerTokenClaims: TProviderTokenClaims;
 };
 
