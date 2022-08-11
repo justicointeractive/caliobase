@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.135](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.134...caliobase-0.0.1-alpha.135) (2022-08-11)
+
+
+### Features
+
+* pass both standardized and raw claims back ([d1bb0d9](https://github.com/justicointeractive/caliobase/commit/d1bb0d98ab1c26d4f38932a6017dd8f7246880de))
+
 ### [0.0.1-alpha.134](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.133...caliobase-0.0.1-alpha.134) (2022-08-11)
 
 ### [0.0.1-alpha.133](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.132...caliobase-0.0.1-alpha.133) (2022-08-10)
