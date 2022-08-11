@@ -17,7 +17,7 @@ export type OpenIdConnectSocialProviderOptions<
   clientId: string;
   clientSecret?: string;
   redirectUri: string;
-  responseType?: 'id_token' | 'access_token';
+  responseType?: 'id_token' | 'token' | 'code';
   additionalScopes?: string[];
   mapToMembership?:
     | MapSocialUserToOrganizationMember<TProviderTokenClaims>
