@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.136](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.135...caliobase-0.0.1-alpha.136) (2022-08-11)
+
+
+### Bug Fixes
+
+* oidc response types ([bc02d8a](https://github.com/justicointeractive/caliobase/commit/bc02d8af71fac9f0f76af62677256d8defa076f2))
+
 ### [0.0.1-alpha.135](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.134...caliobase-0.0.1-alpha.135) (2022-08-11)
 
 
