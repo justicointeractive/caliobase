@@ -93,13 +93,19 @@ export class OrganizationService {
   }
 
   async createMemberAccessToken(userId: string, organizationId: string) {
-    const member = await this.memberRepo.findOneOrFail({
+    const member = await this.memberRepo.findOne({
       where: {
         userId,
         organizationId,
       },
       relations: ['user', 'organization'],
     });
+
+    if (member == null) {
+      throw new UnauthorizedException(
+        `user '${userId}' is not a member of organization '${organizationId}'`
+      );
+    }
 
     return await this.jwtSigner.sign({
       userId: member.userId,
