@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.141](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.140...caliobase-0.0.1-alpha.141) (2022-08-12)
+
+
+### Bug Fixes
+
+* actually consume the response mode option ([a6c2f32](https://github.com/justicointeractive/caliobase/commit/a6c2f328e9da68a5e379ddb04d7898d41ee83419))
+
 ### [0.0.1-alpha.140](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.139...caliobase-0.0.1-alpha.140) (2022-08-12)
 
 
