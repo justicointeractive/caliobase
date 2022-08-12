@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.138](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.137...caliobase-0.0.1-alpha.138) (2022-08-12)
+
+
+### Bug Fixes
+
+* better error when failing to get an access token for an organization not a member of ([295b2b9](https://github.com/justicointeractive/caliobase/commit/295b2b9c06c24fc1580602ea6d8cbf910c978b77))
+
 ### [0.0.1-alpha.137](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.136...caliobase-0.0.1-alpha.137) (2022-08-12)
 
 
