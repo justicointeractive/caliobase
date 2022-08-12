@@ -250,6 +250,23 @@ export function createAuthController<
     }
 
     @Public()
+    @Post('social/authUrl/return')
+    @ApiOkResponse()
+    @Header('Content-Type', 'text/html')
+    async socialAuthUrlReturnPost(@Body() body: {}): Promise<string> {
+      return html`
+        <!DOCTYPE html>
+        <script>
+          var data = ${JSON.stringify(body)};
+          window.opener.postMessage(
+            { type: data.error ? 'reject' : 'resolve', data },
+            '*' // TODO shouldn't send the token to '*'
+          );
+        </script>
+      `;
+    }
+
+    @Public()
     @Post('social/validate')
     @ApiBody({ type: SocialValidateBody })
     @ApiCreatedResponse({ type: SocialAuthenticationResponse })

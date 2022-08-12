@@ -11,6 +11,7 @@ import {
 } from './social-provider';
 
 export type OidcResponseType = 'id_token' | 'token' | 'code';
+export type OidcResponseMode = 'form_post' | 'fragment' | 'query';
 
 export type OpenIdConnectSocialProviderOptions<
   TProviderTokenClaims extends Record<string, unknown> = Record<string, unknown>
@@ -21,6 +22,7 @@ export type OpenIdConnectSocialProviderOptions<
   clientSecret?: string;
   redirectUri: string;
   responseType: OidcResponseType[];
+  responseMode: OidcResponseMode;
   additionalScopes?: string[];
   mapToMembership?:
     | MapSocialUserToOrganizationMember<TProviderTokenClaims>
@@ -31,7 +33,7 @@ export type OpenIdConnectSocialProviderOptionsInput<
   TProviderTokenClaims extends Record<string, unknown> = Record<string, unknown>
 > = SelectivelyPartial<
   OpenIdConnectSocialProviderOptions<TProviderTokenClaims>,
-  'responseType'
+  'responseType' | 'responseMode'
 >;
 
 export class OpenIdConnectSocialProvider<
@@ -52,6 +54,7 @@ export class OpenIdConnectSocialProvider<
     this.options = {
       ...options,
       responseType: options.responseType ?? ['id_token'],
+      responseMode: options.responseMode ?? 'form_post',
     };
     this.mapToMembership =
       this.options.mapToMembership &&
