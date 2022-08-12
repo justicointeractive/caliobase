@@ -3,11 +3,14 @@ import { BaseClient, generators, Issuer } from 'openid-client';
 import { SocialProvider } from '..';
 import { Role } from '../../entity-module';
 import { assert } from '../../lib/assert';
+import { SelectivelyPartial } from '../../lib/SelectivelyPartial';
 import {
   MapSocialUserToOrganizationMember,
   SocialValidation,
   ValidationResult,
 } from './social-provider';
+
+export type OidcResponseType = 'id_token' | 'token' | 'code';
 
 export type OpenIdConnectSocialProviderOptions<
   TProviderTokenClaims extends Record<string, unknown> = Record<string, unknown>
@@ -17,12 +20,19 @@ export type OpenIdConnectSocialProviderOptions<
   clientId: string;
   clientSecret?: string;
   redirectUri: string;
-  responseType?: 'id_token' | 'token' | 'code';
+  responseType: OidcResponseType[];
   additionalScopes?: string[];
   mapToMembership?:
     | MapSocialUserToOrganizationMember<TProviderTokenClaims>
     | SimpleRoleMap;
 };
+
+export type OpenIdConnectSocialProviderOptionsInput<
+  TProviderTokenClaims extends Record<string, unknown> = Record<string, unknown>
+> = SelectivelyPartial<
+  OpenIdConnectSocialProviderOptions<TProviderTokenClaims>,
+  'responseType'
+>;
 
 export class OpenIdConnectSocialProvider<
   TProviderTokenClaims extends Record<string, unknown> = Record<string, unknown>
@@ -30,11 +40,24 @@ export class OpenIdConnectSocialProvider<
 {
   name: string;
   client?: BaseClient;
+  options: OpenIdConnectSocialProviderOptions<TProviderTokenClaims>;
+  mapToMembership:
+    | MapSocialUserToOrganizationMember<TProviderTokenClaims>
+    | undefined;
 
   constructor(
-    private options: OpenIdConnectSocialProviderOptions<TProviderTokenClaims>
+    options: OpenIdConnectSocialProviderOptionsInput<TProviderTokenClaims>
   ) {
     this.name = `openidconnect:${options.key}`;
+    this.options = {
+      ...options,
+      responseType: options.responseType ?? ['id_token'],
+    };
+    this.mapToMembership =
+      this.options.mapToMembership &&
+      (typeof this.options.mapToMembership === 'function'
+        ? this.options.mapToMembership
+        : mapProviderRoles(this.options.mapToMembership));
   }
 
   async init() {
@@ -53,7 +76,7 @@ export class OpenIdConnectSocialProvider<
 
     const nonce = generators.nonce();
     const authUrl = client.authorizationUrl({
-      response_type: this.options.responseType ?? 'id_token',
+      response_type: this.options.responseType.join(' '),
       redirect_uri: this.options.redirectUri,
       scope: [
         ...['openid', 'email', 'profile'],
@@ -79,10 +102,9 @@ export class OpenIdConnectSocialProvider<
       { nonce: request.nonce }
     );
 
-    const userInfo =
-      this.options.responseType === 'id_token'
-        ? tokenSet.claims()
-        : await client.userinfo(tokenSet);
+    const userInfo = this.options.responseType.includes('id_token')
+      ? tokenSet.claims()
+      : await client.userinfo(tokenSet);
 
     assert(userInfo.email);
 
@@ -101,12 +123,6 @@ export class OpenIdConnectSocialProvider<
       providerTokenClaims: userInfo as unknown as TProviderTokenClaims,
     };
   }
-
-  mapToMembership =
-    this.options.mapToMembership &&
-    (typeof this.options.mapToMembership === 'function'
-      ? this.options.mapToMembership
-      : mapProviderRoles(this.options.mapToMembership));
 }
 
 export type SimpleRoleMap = {
