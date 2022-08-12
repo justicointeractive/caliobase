@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.137](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.136...caliobase-0.0.1-alpha.137) (2022-08-12)
+
+
+### Bug Fixes
+
+* default to id_token response type ([e191068](https://github.com/justicointeractive/caliobase/commit/e1910687f3cf42240274675ecf08f205895c2d6c))
+
 ### [0.0.1-alpha.136](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.135...caliobase-0.0.1-alpha.136) (2022-08-11)
 
 
