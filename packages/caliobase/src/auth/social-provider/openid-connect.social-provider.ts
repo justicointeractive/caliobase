@@ -80,13 +80,13 @@ export class OpenIdConnectSocialProvider<
     const nonce = generators.nonce();
     const authUrl = client.authorizationUrl({
       response_type: this.options.responseType.join(' '),
+      response_mode: this.options.responseMode,
       redirect_uri: this.options.redirectUri,
       scope: [
         ...['openid', 'email', 'profile'],
         ...(this.options.additionalScopes ?? []),
       ].join(' '),
       nonce,
-      response_mode: 'fragment', // TODO: use form data method
     });
 
     return { nonce, authUrl };
