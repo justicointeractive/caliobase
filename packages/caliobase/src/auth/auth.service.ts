@@ -81,6 +81,8 @@ export class AuthService {
       validationResult
     );
 
+    console.log(JSON.stringify({ request, validationResult }));
+
     const { providerUserId, provider, email, emailVerified } =
       validationResult.socialProfile;
 
