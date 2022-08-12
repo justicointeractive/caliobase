@@ -21,7 +21,13 @@ export type OpenIdConnectSocialProviderOptions<
   clientId: string;
   clientSecret?: string;
   redirectUri: string;
+  /**
+   * @default ['id_token']
+   */
   responseType: OidcResponseType[];
+  /**
+   * @default 'form_post'
+   */
   responseMode: OidcResponseMode;
   additionalScopes?: string[];
   mapToMembership?:
