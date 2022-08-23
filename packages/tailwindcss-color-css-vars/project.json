@@ -13,18 +13,6 @@
         "assets": ["packages/tailwindcss-color-css-vars/*.md"]
       }
     },
-    "publish": {
-      "executor": "@nrwl/workspace:run-commands",
-      "options": {
-        "command": "node tools/scripts/publish.mjs tailwindcss-color-css-vars {args.ver} {args.tag}"
-      },
-      "dependsOn": [
-        {
-          "projects": "self",
-          "target": "build"
-        }
-      ]
-    },
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
@@ -38,6 +26,22 @@
       "options": {
         "jestConfig": "packages/tailwindcss-color-css-vars/jest.config.ts",
         "passWithNoTests": true
+      }
+    },
+    "deploy": {
+      "executor": "ngx-deploy-npm:deploy",
+      "options": {
+        "access": "public"
+      }
+    },
+    "version": {
+      "executor": "@jscutlery/semver:version",
+      "options": {
+        "preset": "conventional",
+        "trackDeps": true,
+        "postTargets": ["tailwindcss-color-css-vars:deploy"],
+        "releaseAs": "prerelease",
+        "preid": "alpha"
       }
     }
   },
