@@ -1,8 +1,9 @@
 {
-    "workbench.colorCustomizations": {
-        "editorCursor.foreground": "#2684ff",
-        "activityBar.background": "#331A72",
-        "titleBar.activeBackground": "#4724A0",
-        "titleBar.activeForeground": "#FCFBFE"
-    }
+  "workbench.colorCustomizations": {
+    "editorCursor.foreground": "#2684ff",
+    "activityBar.background": "#331A72",
+    "titleBar.activeBackground": "#4724A0",
+    "titleBar.activeForeground": "#FCFBFE"
+  },
+  "conventionalCommits.scopes": ["caliobase-ui"]
 }

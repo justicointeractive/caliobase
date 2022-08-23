@@ -3,6 +3,7 @@
   "version": 2,
   "projects": {
     "caliobase": "packages/caliobase",
+    "caliobase-ui": "packages/caliobase-ui",
     "example": "examples/example"
   }
 }

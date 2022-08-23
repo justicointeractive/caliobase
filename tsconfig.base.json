@@ -17,7 +17,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@caliobase/caliobase": ["packages/caliobase/src/index.ts"]
+      "@caliobase/caliobase": ["packages/caliobase/src/index.ts"],
+      "@caliobase/caliobase-ui": ["packages/caliobase-ui/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

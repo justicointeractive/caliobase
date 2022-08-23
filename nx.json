@@ -10,13 +10,21 @@
   },
   "targetDependencies": {
     "version": [
-      { "target": "build", "projects": "self" },
+      {
+        "target": "build",
+        "projects": "self"
+      },
       {
         "target": "version",
         "projects": "dependencies"
       }
     ],
-    "serve": [{ "target": "build", "projects": "self" }],
+    "serve": [
+      {
+        "target": "build",
+        "projects": "self"
+      }
+    ],
     "build": [
       {
         "target": "build",
@@ -36,5 +44,12 @@
       }
     }
   },
-  "defaultProject": "example"
+  "defaultProject": "example",
+  "generators": {
+    "@nrwl/react": {
+      "application": {
+        "babel": true
+      }
+    }
+  }
 }
