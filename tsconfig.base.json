@@ -12,7 +12,7 @@
     "target": "es2015",
     "strict": true,
     "module": "esnext",
-    "lib": ["es2017", "dom"],
+    "lib": ["es2019", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
@@ -21,7 +21,8 @@
       "@caliobase/caliobase-ui": ["packages/caliobase-ui/src/index.ts"],
       "tailwindcss-color-css-vars": [
         "packages/tailwindcss-color-css-vars/src/index.ts"
-      ]
+      ],
+      "use-async-effect-state": ["packages/use-async-effect-state/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

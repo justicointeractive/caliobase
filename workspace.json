@@ -5,6 +5,7 @@
     "caliobase": "packages/caliobase",
     "caliobase-ui": "packages/caliobase-ui",
     "example": "examples/example",
-    "tailwindcss-color-css-vars": "packages/tailwindcss-color-css-vars"
+    "tailwindcss-color-css-vars": "packages/tailwindcss-color-css-vars",
+    "use-async-effect-state": "packages/use-async-effect-state"
   }
 }
