@@ -1,6 +1,6 @@
 import { nonNull } from 'circumspect';
 
-type ParserProps = {
+export type ParserProps = {
   required: <TValue>(
     key: string,
     converter: (value: string) => TValue
@@ -19,7 +19,7 @@ type ParserProps = {
   ) => T | TDefault;
 };
 
-type Parser<T> = (props: ParserProps) => T;
+export type Parser<T> = (props: ParserProps) => T;
 
 export function parseEnvVars<T>(parser: Parser<T>): T {
   const missingRequire: string[] = [];
