@@ -5,6 +5,7 @@ describe('social provider', () => {
     it('should create instance with provider claims', () => {
       new OpenIdConnectSocialProvider<{ roles?: string[] }>({
         key: 'test',
+        label: 'Test',
         clientId: 'test',
         clientSecret: 'test',
         issuer: 'test',

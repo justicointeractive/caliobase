@@ -126,7 +126,10 @@ export class CaliobaseAuthModule {
         organizationController.CreateOrganizationRequest,
     };
 
-    const rootController = createRootController({ createProfileRequests });
+    const rootController = createRootController({
+      createProfileRequests,
+      socialProviders,
+    });
 
     return {
       module: CaliobaseAuthModule,

@@ -4,6 +4,7 @@ import { SocialProvider, SocialValidation } from './social-provider';
 
 export const FacebookSocialProvider: SocialProvider = {
   name: 'facebook',
+  label: 'Facebook',
   validate: async (body: SocialValidation) => {
     const { data } = await Axios.get(`https://graph.facebook.com/v11.0/me`, {
       params: {

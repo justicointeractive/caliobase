@@ -22,6 +22,7 @@ export type SocialProvider<
   TProviderTokenClaims extends Record<string, unknown> = Record<string, unknown>
 > = {
   name: string;
+  label: string;
   validate: (
     request: SocialValidation
   ) => Promise<ValidationResult<TProviderTokenClaims>>;
@@ -29,6 +30,14 @@ export type SocialProvider<
   init?: () => Promise<void>;
   mapToMembership?: MapSocialUserToOrganizationMember<TProviderTokenClaims>;
 };
+
+export class LabeledSocialProvider {
+  @ApiProperty()
+  name!: string;
+
+  @ApiProperty()
+  label!: string;
+}
 
 export class SocialProfileName {
   @ApiProperty()

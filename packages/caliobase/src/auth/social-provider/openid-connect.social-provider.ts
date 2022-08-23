@@ -17,6 +17,7 @@ export type OpenIdConnectSocialProviderOptions<
   TProviderTokenClaims extends Record<string, unknown> = Record<string, unknown>
 > = {
   key: string;
+  label: string;
   issuer: string;
   clientId: string;
   clientSecret?: string;
@@ -47,6 +48,7 @@ export class OpenIdConnectSocialProvider<
 > implements SocialProvider<TProviderTokenClaims>
 {
   name: string;
+  label: string;
   client?: BaseClient;
   options: OpenIdConnectSocialProviderOptions<TProviderTokenClaims>;
   mapToMembership:
@@ -57,6 +59,7 @@ export class OpenIdConnectSocialProvider<
     options: OpenIdConnectSocialProviderOptionsInput<TProviderTokenClaims>
   ) {
     this.name = `openidconnect:${options.key}`;
+    this.label = options.label;
     this.options = {
       ...options,
       responseType: options.responseType ?? ['id_token'],

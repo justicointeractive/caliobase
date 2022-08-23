@@ -8,13 +8,16 @@ import {
 } from '@nestjs/swagger';
 import { Type as TransformType } from 'class-transformer';
 import { ValidateNested } from 'class-validator';
+import { pick } from 'lodash';
 import { DataSource } from 'typeorm';
 import {
   AuthService,
   CreateOrganizationRequest,
   CreateUserRequest,
+  LabeledSocialProvider,
   Member,
   Organization,
+  SocialProvider,
   User,
 } from '.';
 import { AllRoles, Role } from '../entity-module/roles';
@@ -26,11 +29,13 @@ export function createRootController<
   TOrganization extends CreateOrganizationRequest
 >({
   createProfileRequests: { CreateUserProfile, CreateOrganizationProfile },
+  socialProviders,
 }: {
   createProfileRequests: CaliobaseAuthCreateProfileRequests<
     TUser,
     TOrganization
   >;
+  socialProviders: SocialProvider[];
 }): Type<unknown> {
   class GetRootResponse {
     @ApiProperty()
@@ -45,6 +50,12 @@ export function createRootController<
       isArray: true,
     })
     allRoles!: Role[];
+
+    @ApiProperty({
+      type: LabeledSocialProvider,
+      isArray: true,
+    })
+    socialProviders!: LabeledSocialProvider[];
   }
 
   class CreateRootRequest {
@@ -106,6 +117,7 @@ export function createRootController<
         hasRootMember: await this.getHasRootMember(),
         rootOrgId: Organization.RootId,
         allRoles: AllRoles,
+        socialProviders: socialProviders.map((p) => pick(p, ['name', 'label'])),
       };
     }
 
