@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.1-alpha.143](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.142...caliobase-0.0.1-alpha.143) (2022-08-23)
+
+
+### Features
+
+* labels for social providers ([aa8b164](https://github.com/justicointeractive/caliobase/commit/aa8b164df5ed85e8a1996700fa820e32ef51be60))
+
 ### [0.0.1-alpha.142](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.141...caliobase-0.0.1-alpha.142) (2022-08-12)
 
 ### [0.0.1-alpha.141](https://github.com/justicointeractive/caliobase/compare/caliobase-0.0.1-alpha.140...caliobase-0.0.1-alpha.141) (2022-08-12)
