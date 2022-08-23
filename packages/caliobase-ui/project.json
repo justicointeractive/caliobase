@@ -38,6 +38,20 @@
         "jestConfig": "packages/caliobase-ui/jest.config.ts",
         "passWithNoTests": true
       }
+    },
+    "deploy": {
+      "executor": "ngx-deploy-npm:deploy",
+      "options": {
+        "access": "public"
+      }
+    },
+    "version": {
+      "executor": "@jscutlery/semver:version",
+      "options": {
+        "preset": "conventional",
+        "trackDeps": true,
+        "postTargets": ["caliobase-ui:deploy"]
+      }
     }
   },
   "implicitDependencies": ["tailwindcss-color-css-vars"]
