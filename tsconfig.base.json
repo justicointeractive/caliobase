@@ -18,7 +18,10 @@
     "baseUrl": ".",
     "paths": {
       "@caliobase/caliobase": ["packages/caliobase/src/index.ts"],
-      "@caliobase/caliobase-ui": ["packages/caliobase-ui/src/index.ts"]
+      "@caliobase/caliobase-ui": ["packages/caliobase-ui/src/index.ts"],
+      "tailwindcss-color-css-vars": [
+        "packages/tailwindcss-color-css-vars/src/index.ts"
+      ]
     }
   },
   "exclude": ["node_modules", "tmp"]

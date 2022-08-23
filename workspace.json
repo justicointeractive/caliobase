@@ -4,6 +4,7 @@
   "projects": {
     "caliobase": "packages/caliobase",
     "caliobase-ui": "packages/caliobase-ui",
-    "example": "examples/example"
+    "example": "examples/example",
+    "tailwindcss-color-css-vars": "packages/tailwindcss-color-css-vars"
   }
 }

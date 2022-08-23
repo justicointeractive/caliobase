@@ -5,5 +5,5 @@
     "titleBar.activeBackground": "#4724A0",
     "titleBar.activeForeground": "#FCFBFE"
   },
-  "conventionalCommits.scopes": ["caliobase-ui"]
+  "conventionalCommits.scopes": ["caliobase-ui", "tailwindcss-color-css-vars"]
 }
