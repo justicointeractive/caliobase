@@ -109,10 +109,12 @@ function EditorJs(props: {
 
       return () => {
         removeFormControl();
-        editor.isReady.then(() => {
-          editor.destroy();
-          el.remove();
-        });
+        editor.isReady
+          .then(() => {
+            editor.destroy();
+            el.remove();
+          })
+          .catch((err) => console.error(err));
       };
     }
     return;
