@@ -39,9 +39,7 @@
       "options": {
         "preset": "conventional",
         "trackDeps": true,
-        "postTargets": ["tailwindcss-color-css-vars:deploy"],
-        "releaseAs": "prerelease",
-        "preid": "alpha"
+        "postTargets": ["tailwindcss-color-css-vars:deploy"]
       }
     }
   },
