@@ -2,6 +2,14 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.1.1](https://github.com/justicointeractive/caliobase/compare/caliobase-nx-0.1.0...caliobase-nx-0.1.1) (2022-08-24)
+
+
+### Bug Fixes
+
+* **caliobase-nx:** resolve generator paths relative to cwd ([828f2f5](https://github.com/justicointeractive/caliobase/commit/828f2f55fff671491287746f0684199a61190d1d))
+* **caliobase-nx:** resolve paths and add tests ([9b9fdc1](https://github.com/justicointeractive/caliobase/commit/9b9fdc15fda73703b08fce401ffd34e091936273))
+
 ## 0.1.0 (2022-08-24)
 
 
