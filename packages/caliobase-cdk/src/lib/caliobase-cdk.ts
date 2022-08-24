@@ -46,6 +46,8 @@ export class Caliobase extends Construct {
       s3Bucket?: Bucket;
       s3KeyPrefix?: string;
       dbInstanceProps?: Partial<DatabaseInstanceProps>;
+      environment?: Record<string, string>;
+      secrets?: Record<string, EcsSecret>;
     }
   ) {
     super(scope, id);
@@ -109,12 +111,14 @@ export class Caliobase extends Construct {
         STATIC_FILE_BASEURL: `https://${cloudfront.domainName}/`,
         CMS_HOSTNAME: props.cmsHostname,
         PORT: '8080',
+        ...props.environment,
       },
       secrets: {
         PG_CONNECTION_JSON: EcsSecret.fromSecretsManager(db.secret!),
         JWT_PRIVATE_KEY: keys.ecsSecrets.privateKey,
         JWT_PUBLIC_KEY: keys.ecsSecrets.publicKey,
         DOT_ENV: EcsSecret.fromSecretsManager(dotEnvSecret),
+        ...props.secrets,
       },
       logging: new AwsLogDriver({
         streamPrefix: 'api',
