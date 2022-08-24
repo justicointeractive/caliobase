@@ -74,7 +74,9 @@ export function SelectInput<T>({
         }}
         disabled={props.readOnly}
         multiple={props.multiple}
-        by={(a: T, b: T) => valueKey(a) === valueKey(b)}
+        by={(a: T | null, b: T | null) =>
+          (a && valueKey(a)) === (b && valueKey(b))
+        }
       >
         <Float
           flip={10}
@@ -87,6 +89,7 @@ export function SelectInput<T>({
           leaveTo="scale-95 opacity-0"
           tailwindcssOriginClass
           strategy="fixed"
+          show
         >
           <Wrapper.Button
             className={({ open }) =>
