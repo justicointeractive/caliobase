@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.10](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.0.9...caliobase-ui-0.0.10) (2022-08-24)
+
+
+### Bug Fixes
+
+* **caliobase-ui:** checking has root ([e8665f7](https://github.com/justicointeractive/caliobase/commit/e8665f7ded804d5a10e74f7173edd29a8b86ad46))
+
 ### [0.0.9](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.0.8...caliobase-ui-0.0.9) (2022-08-24)
 
 
