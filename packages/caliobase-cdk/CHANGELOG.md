@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.1.3](https://github.com/justicointeractive/caliobase/compare/caliobase-cdk-0.1.2...caliobase-cdk-0.1.3) (2022-08-24)
+
+
+### Bug Fixes
+
+* **caliobase-cdk:** let cdk create a default task role ([54aea04](https://github.com/justicointeractive/caliobase/commit/54aea040270f584dfc8980596b3d4aca88fe4f0b))
+
 ### [0.1.2](https://github.com/justicointeractive/caliobase/compare/caliobase-cdk-0.1.1...caliobase-cdk-0.1.2) (2022-08-24)
 
 
