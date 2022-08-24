@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.12](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.0.11...caliobase-ui-0.0.12) (2022-08-24)
+
+
+### Bug Fixes
+
+* **caliobase-ui:** make ui component generic ([38dfba8](https://github.com/justicointeractive/caliobase/commit/38dfba8417e3ee342ff972d48b9a7bad0e69e62a))
+
 ### [0.0.11](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.0.10...caliobase-ui-0.0.11) (2022-08-24)
 
 
