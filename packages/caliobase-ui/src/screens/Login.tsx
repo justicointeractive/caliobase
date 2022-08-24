@@ -169,7 +169,7 @@ export function Login() {
             />
           )}
 
-          {root.socialProviders.map((provider) => (
+          {root?.socialProviders.map((provider) => (
             <PendingButton
               key={provider.name}
               className="rounded bg-indigo-700 p-3 font-bold text-white"

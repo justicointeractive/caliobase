@@ -11,7 +11,7 @@ import {
 } from '../context/ApiContext';
 import { ToastContextProvider } from '../context/ToastContext';
 import { UserContextProvider, useUserContext } from '../context/UserContext';
-import { CaliobaseUiConfiguration } from '../lib';
+import { CaliobaseUiConfiguration, ICaliobaseApi } from '../lib';
 import { mergeRouteTrees } from '../lib/mergeRouteTrees';
 import { AcceptInvitationView } from './AcceptInvitationView';
 import { CreateRoot } from './CreateRoot';
@@ -29,7 +29,7 @@ export function RootUI({ routes }: { routes: RouteObject[] }) {
   const { root, reloadRoot } = useApiContext();
   const { user } = useUserContext();
 
-  const hasRoot = root.hasRootMember;
+  const hasRoot = root?.hasRootMember;
 
   return user ? (
     <AppRoutes routes={routes} />
@@ -45,7 +45,7 @@ export function CaliobaseUI({
   routes: appRoutes,
   menuItems,
 }: {
-  configuration: CaliobaseUiConfiguration<any>;
+  configuration: CaliobaseUiConfiguration<ICaliobaseApi>;
   routes: RouteObject[];
   menuItems?: MenuNavLinkPropsInput[];
 }) {
