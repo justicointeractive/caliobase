@@ -3,6 +3,38 @@
   "sourceRoot": "packages/caliobase-cdk/src",
   "projectType": "library",
   "targets": {
+    "build": {
+      "executor": "@nrwl/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/caliobase-cdk",
+        "main": "packages/caliobase-cdk/src/index.ts",
+        "tsConfig": "packages/caliobase-cdk/tsconfig.lib.json",
+        "assets": [
+          "packages/caliobase-cdk/*.md",
+          {
+            "input": "./packages/caliobase-cdk/src",
+            "glob": "**/!(*.ts)",
+            "output": "./src"
+          },
+          {
+            "input": "./packages/caliobase-cdk/src",
+            "glob": "**/*.d.ts",
+            "output": "./src"
+          },
+          {
+            "input": "./packages/caliobase-cdk",
+            "glob": "generators.json",
+            "output": "."
+          },
+          {
+            "input": "./packages/caliobase-cdk",
+            "glob": "executors.json",
+            "output": "."
+          }
+        ]
+      }
+    },
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
