@@ -56,17 +56,6 @@ export function SelectInput<T>({
           Wrapper: Combobox,
         };
 
-  /* as unknown as {
-    Wrapper: (props: {
-      value?: T | T[];
-      onChange?: (value: T | T[]) => void;
-      disabled?: boolean;
-      multiple?: boolean;
-      by?: (a: T, b: T) => boolean;
-      children?: ReactNode;
-    }) => ReactElement;
-  } */
-
   const values = props.options && Object.values(props.options ?? {});
 
   return (
