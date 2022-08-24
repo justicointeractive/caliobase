@@ -9,7 +9,8 @@
     "caliobase-ui",
     "caliobase-nx",
     "tailwindcss-color-css-vars",
-    "use-async-effect-state"
+    "use-async-effect-state",
+    "caliobase"
   ],
   "eslint.validate": ["json"]
 }

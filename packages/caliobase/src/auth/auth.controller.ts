@@ -155,13 +155,11 @@ export function createAuthController<
 
   class User extends UserEntity {}
 
-  if (UserProfile) {
-    Reflect.decorate(
-      [ApiProperty({ type: UserProfile })],
-      User.prototype,
-      'profile'
-    );
-  }
+  Reflect.decorate(
+    [ApiProperty({ type: UserProfile ?? Object })],
+    User.prototype,
+    'profile'
+  );
 
   class AuthenticationResponse extends AccessTokenResponse {
     @ApiProperty()

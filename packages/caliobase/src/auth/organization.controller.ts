@@ -80,13 +80,11 @@ export function createOrganizationController<
 
   class Organization extends OrganizationEntity {}
 
-  if (OrganizationProfile) {
-    Reflect.decorate(
-      [ApiProperty({ type: OrganizationProfile })],
-      Organization.prototype,
-      'profile'
-    );
-  }
+  Reflect.decorate(
+    [ApiProperty({ type: OrganizationProfile ?? Object })],
+    Organization.prototype,
+    'profile'
+  );
 
   // #endregion
   @ApiTags('organization')
