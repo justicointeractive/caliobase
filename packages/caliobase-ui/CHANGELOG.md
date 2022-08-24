@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.13](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.0.12...caliobase-ui-0.0.13) (2022-08-24)
+
+
+### Bug Fixes
+
+* **caliobase-ui:** handle nulls in combobox item ([1ebf482](https://github.com/justicointeractive/caliobase/commit/1ebf482680fe90ab47fc077161429dad5a66ebd4))
+
 ### [0.0.12](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.0.11...caliobase-ui-0.0.12) (2022-08-24)
 
 
