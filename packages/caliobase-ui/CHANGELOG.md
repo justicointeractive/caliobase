@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.15](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.0.14...caliobase-ui-0.0.15) (2022-08-24)
+
+
+### Bug Fixes
+
+* **caliobase-ui:** assume org profile has a name prop for now ([5c37528](https://github.com/justicointeractive/caliobase/commit/5c3752838a2dd33e423770108598afb1f36d036e))
+
 ### [0.0.14](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.0.13...caliobase-ui-0.0.14) (2022-08-24)
 
 
