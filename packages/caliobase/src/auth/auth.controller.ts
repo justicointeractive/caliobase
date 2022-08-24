@@ -143,17 +143,15 @@ export function createAuthController<
     profile!: AbstractUserProfile | null;
   }
 
-  if (CreateUserProfileEntityDto) {
-    Reflect.decorate(
-      [
-        ApiProperty({ type: CreateUserProfileEntityDto }),
-        ValidateNested(),
-        TransformType(() => CreateUserProfileEntityDto),
-      ],
-      UserSignupBody.prototype,
-      'profile'
-    );
-  }
+  Reflect.decorate(
+    [
+      ApiProperty({ type: CreateUserProfileEntityDto ?? Object }),
+      ValidateNested(),
+      TransformType(() => CreateUserProfileEntityDto ?? Object),
+    ],
+    UserSignupBody.prototype,
+    'profile'
+  );
 
   class User extends UserEntity {}
 

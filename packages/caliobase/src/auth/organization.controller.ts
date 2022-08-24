@@ -66,17 +66,17 @@ export function createOrganizationController<
     profile!: AbstractOrganizationProfile | null;
   }
 
-  if (CreateOrganizationProfileEntityDto) {
-    Reflect.decorate(
-      [
-        ApiProperty({ type: CreateOrganizationProfileEntityDto }),
-        ValidateNested(),
-        TransformType(() => CreateOrganizationProfileEntityDto),
-      ],
-      ConcreteCreateOrganizationRequest.prototype,
-      'profile'
-    );
-  }
+  Reflect.decorate(
+    [
+      ApiProperty({
+        type: CreateOrganizationProfileEntityDto ?? Object,
+      }),
+      ValidateNested(),
+      TransformType(() => CreateOrganizationProfileEntityDto ?? Object),
+    ],
+    ConcreteCreateOrganizationRequest.prototype,
+    'profile'
+  );
 
   class Organization extends OrganizationEntity {}
 

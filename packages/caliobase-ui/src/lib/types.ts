@@ -7,12 +7,12 @@ import type { CaliobaseUiConfiguration } from './CaliobaseUiConfiguration';
 export type CaliobaseUser = {
   id: string;
   email: string;
-  profile?: any;
+  profile: Record<string, unknown>;
 };
 
 export type CaliobaseOrganization = {
   id: string;
-  profile?: any;
+  profile: Record<string, unknown>;
 };
 
 export type CaliobaseMember = {
