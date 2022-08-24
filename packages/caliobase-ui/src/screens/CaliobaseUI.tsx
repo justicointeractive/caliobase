@@ -29,7 +29,7 @@ export function RootUI({ routes }: { routes: RouteObject[] }) {
   const { root, reloadRoot } = useApiContext();
   const { user } = useUserContext();
 
-  const hasRoot = root?.hasRootMember;
+  const hasRoot = root?.hasRootMember !== false;
 
   return user ? (
     <AppRoutes routes={routes} />

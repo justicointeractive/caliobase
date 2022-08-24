@@ -21,8 +21,9 @@ export function useUserContext() {
 
 export function UserContextProvider({ children }: { children: ReactNode }) {
   const value = useUserContextValue();
+  const { root } = useApiContext();
 
-  if ((value.accessToken == null) !== (value.user == null)) {
+  if (root == null || (value.accessToken == null) !== (value.user == null)) {
     return <FullScreenLoader />;
   }
 
@@ -54,7 +55,7 @@ function useUserContextValue() {
         setUser(user);
         setUserOrgApi(userOrgApi);
       }
-    })();
+    })().catch((err) => console.error(err));
   }, [
     accessToken,
     caliobaseUiConfiguration.Api,
