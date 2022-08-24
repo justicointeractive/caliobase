@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.9](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.0.8...caliobase-ui-0.0.9) (2022-08-24)
+
+
+### Bug Fixes
+
+* **caliobase-ui:** more generic profile type ([348d78e](https://github.com/justicointeractive/caliobase/commit/348d78e3a345d8241f80ae1e45e76c5166d5e439))
+
 ### [0.0.8](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.0.7...caliobase-ui-0.0.8) (2022-08-24)
 
 
