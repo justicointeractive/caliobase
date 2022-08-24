@@ -77,7 +77,8 @@ export function DescribeInvitation({
       <h4 className="font-xl">
         You have been invited to join:{' '}
         <span className="font-bold">
-          {invitation.organization.profile['name'] as string}
+          {/* TODO: don't assume org profile has a name */}
+          {(invitation.organization?.profile as { name?: string })?.name}
         </span>
       </h4>
       <h4>
