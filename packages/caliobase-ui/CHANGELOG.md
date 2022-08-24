@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.14](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.0.13...caliobase-ui-0.0.14) (2022-08-24)
+
+
+### Bug Fixes
+
+* **caliobase-ui:** let headless float handle show prop ([4639f63](https://github.com/justicointeractive/caliobase/commit/4639f639322686afefaa65b301eb59818385e3bd))
+
 ### [0.0.13](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.0.12...caliobase-ui-0.0.13) (2022-08-24)
 
 
