@@ -1,7 +1,8 @@
 import { parseISO } from 'date-fns';
 import { get } from 'lodash';
 import { FunctionComponent } from 'react';
-import { ContentField, ensureArray } from '../../lib';
+import { ensureArray } from '../../lib/ensureArray';
+import { ContentField } from '../../lib/types';
 
 export type TableCellComponent<TOptions> = FunctionComponent<{
   value: any;
