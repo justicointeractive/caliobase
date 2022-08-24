@@ -89,7 +89,6 @@ export function SelectInput<T>({
           leaveTo="scale-95 opacity-0"
           tailwindcssOriginClass
           strategy="fixed"
-          show
         >
           <Wrapper.Button
             className={({ open }) =>
