@@ -1,4 +1,5 @@
 import { camelCase } from 'lodash';
+import { join } from 'path';
 import { generateApi } from 'swagger-typescript-api-nextgen';
 import { SwaggerClientExecutorSchema } from './schema';
 
@@ -6,8 +7,8 @@ export default async function runExecutor(
   options: SwaggerClientExecutorSchema
 ) {
   await generateApi({
-    input: options.input,
-    output: options.output,
+    input: join(process.cwd(), options.input),
+    output: join(process.cwd(), options.output),
     name: 'index.ts',
     httpClientType: 'fetch',
     moduleNameFirstTag: true,
