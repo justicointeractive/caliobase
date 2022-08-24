@@ -1,9 +1,27 @@
+import {
+  ExecutorContext,
+  parseTargetString,
+  runExecutor as runOtherExecutor,
+} from '@nrwl/devkit';
 import { camelCase } from 'lodash';
 import { join } from 'path';
 import { generateApi } from 'swagger-typescript-api-nextgen';
 import { SwaggerClientExecutorSchema } from './schema';
+import assert = require('assert');
 
-export async function runExecutor(options: SwaggerClientExecutorSchema) {
+export async function runExecutor(
+  options: SwaggerClientExecutorSchema,
+  context?: ExecutorContext
+) {
+  if (options.generateSpecTarget) {
+    assert(context);
+    await runOtherExecutor(
+      parseTargetString(options.generateSpecTarget),
+      {},
+      context
+    );
+  }
+
   await generateApi({
     input: join(process.cwd(), options.input),
     output: join(process.cwd(), options.output),

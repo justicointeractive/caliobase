@@ -12,6 +12,10 @@
     "output": {
       "type": "string",
       "description": "path to the directory where the generated client will be saved"
+    },
+    "generateSpecTarget": {
+      "type": "string",
+      "description": "a target to be executed that should generate a swagger file"
     }
   },
   "required": []
