@@ -1,0 +1,10 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "executors": {
+    "swagger-client": {
+      "implementation": "./src/executors/swagger-client/executor",
+      "schema": "./src/executors/swagger-client/schema.json",
+      "description": "swagger-client executor"
+    }
+  }
+}

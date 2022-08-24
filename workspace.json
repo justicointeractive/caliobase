@@ -3,6 +3,8 @@
   "version": 2,
   "projects": {
     "caliobase": "packages/caliobase",
+    "caliobase-nx": "packages/caliobase-nx",
+    "caliobase-nx-e2e": "packages/caliobase-nx-e2e",
     "caliobase-ui": "packages/caliobase-ui",
     "example": "examples/example",
     "tailwindcss-color-css-vars": "packages/tailwindcss-color-css-vars",
