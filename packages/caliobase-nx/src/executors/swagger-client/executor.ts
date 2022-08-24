@@ -17,11 +17,15 @@ export async function runExecutor(
 ) {
   if (options.generateSpecTarget) {
     assert(context);
-    await runOtherExecutor(
+    for await (const result of await runOtherExecutor(
       parseTargetString(options.generateSpecTarget),
       {},
       context
-    );
+    )) {
+      if (!result.success) {
+        return result;
+      }
+    }
   }
 
   await generateApi({
