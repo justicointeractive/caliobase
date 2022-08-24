@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.2.1](https://github.com/justicointeractive/caliobase/compare/caliobase-nx-0.2.0...caliobase-nx-0.2.1) (2022-08-24)
+
+
+### Bug Fixes
+
+* **caliobase-nx:** load env vars ([7134e50](https://github.com/justicointeractive/caliobase/commit/7134e50148d48c02da2c240c14ba6e87f51d03d2))
+
 ## [0.2.0](https://github.com/justicointeractive/caliobase/compare/caliobase-nx-0.1.1...caliobase-nx-0.2.0) (2022-08-24)
 
 
