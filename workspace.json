@@ -3,6 +3,7 @@
   "version": 2,
   "projects": {
     "caliobase": "packages/caliobase",
+    "caliobase-cdk": "packages/caliobase-cdk",
     "caliobase-nx": "packages/caliobase-nx",
     "caliobase-nx-e2e": "packages/caliobase-nx-e2e",
     "caliobase-ui": "packages/caliobase-ui",
