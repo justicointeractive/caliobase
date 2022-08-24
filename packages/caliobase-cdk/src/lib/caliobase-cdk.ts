@@ -41,8 +41,8 @@ export class Caliobase extends Construct {
       image: DockerImageAsset;
       domainName: string;
       cmsHostname: string;
-      taskRole: IRole;
       taskSecurityGroup: ISecurityGroup;
+      taskRole?: IRole;
       s3Bucket?: Bucket;
       s3KeyPrefix?: string;
       dbInstanceProps?: Partial<DatabaseInstanceProps>;
@@ -127,10 +127,10 @@ export class Caliobase extends Construct {
     apiContainer.addPortMappings({ containerPort: 8080 });
 
     db.connections.allowDefaultPortFrom(props.taskSecurityGroup);
-    this.bucket.grantReadWrite(props.taskRole);
-    this.bucket.grantPutAcl(props.taskRole);
+    this.bucket.grantReadWrite(taskDefinition.taskRole);
+    this.bucket.grantPutAcl(taskDefinition.taskRole);
 
-    props.taskRole.addToPrincipalPolicy(
+    taskDefinition.taskRole.addToPrincipalPolicy(
       new PolicyStatement({
         actions: ['SES:SendRawEmail'],
         resources: ['*'],
