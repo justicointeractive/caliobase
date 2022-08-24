@@ -9,7 +9,7 @@ import {
   ISecurityGroup,
   IVpc,
 } from 'aws-cdk-lib/aws-ec2';
-import { DockerImageAsset, Platform } from 'aws-cdk-lib/aws-ecr-assets';
+import { DockerImageAsset } from 'aws-cdk-lib/aws-ecr-assets';
 import {
   AwsLogDriver,
   Compatibility,
@@ -38,15 +38,19 @@ export class Caliobase extends Construct {
     id: string,
     props: {
       vpc: IVpc;
+      image: DockerImageAsset;
       domainName: string;
       cmsHostname: string;
       taskRole: IRole;
       taskSecurityGroup: ISecurityGroup;
       s3Bucket?: Bucket;
+      s3KeyPrefix?: string;
       dbInstanceProps?: Partial<DatabaseInstanceProps>;
     }
   ) {
     super(scope, id);
+
+    const { s3KeyPrefix } = props;
 
     const bucket = (this.bucket =
       props.s3Bucket ??
@@ -59,8 +63,6 @@ export class Caliobase extends Construct {
           },
         ],
       }));
-
-    const s3KeyPrefix = 'files/';
 
     const imageResize = new ImageResizeBehavior(this, 'ImageResize', {
       createDistribution: false,
@@ -98,18 +100,12 @@ export class Caliobase extends Construct {
       }
     ));
     const apiContainer = taskDefinition.addContainer('api', {
-      image: ContainerImage.fromDockerImageAsset(
-        new DockerImageAsset(scope, 'DockerImage', {
-          directory: '../..',
-          file: './apps/api/Dockerfile',
-          platform: Platform.LINUX_AMD64,
-        })
-      ),
+      image: ContainerImage.fromDockerImageAsset(props.image),
       memoryLimitMiB: 256,
       environment: {
         AWS_REGION: Stack.of(this).region,
         S3_BUCKET: bucket.bucketName,
-        S3_KEY_PREFIX: s3KeyPrefix,
+        S3_KEY_PREFIX: s3KeyPrefix || '',
         STATIC_FILE_BASEURL: `https://${cloudfront.domainName}/`,
         CMS_HOSTNAME: props.cmsHostname,
         PORT: '8080',
@@ -125,9 +121,11 @@ export class Caliobase extends Construct {
       }),
     });
     apiContainer.addPortMappings({ containerPort: 8080 });
+
     db.connections.allowDefaultPortFrom(props.taskSecurityGroup);
     this.bucket.grantReadWrite(props.taskRole);
     this.bucket.grantPutAcl(props.taskRole);
+
     props.taskRole.addToPrincipalPolicy(
       new PolicyStatement({
         actions: ['SES:SendRawEmail'],
