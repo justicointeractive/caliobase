@@ -7,12 +7,14 @@ import type { CaliobaseUiConfiguration } from './CaliobaseUiConfiguration';
 export type CaliobaseUser = {
   id: string;
   email: string;
-  profile: Record<string, unknown>;
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  profile: Object;
 };
 
 export type CaliobaseOrganization = {
   id: string;
-  profile: Record<string, unknown>;
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  profile: Object;
 };
 
 export type CaliobaseMember = {
