@@ -1,5 +1,3 @@
-import 'dotenv/config';
-
 import {
   ExecutorContext,
   parseTargetString,
@@ -15,6 +13,11 @@ export async function runExecutor(
   options: SwaggerClientExecutorSchema,
   context?: ExecutorContext
 ) {
+  if (options.dotenv) {
+    (await import('dotenv')).config({
+      path: options.dotenv,
+    });
+  }
   if (options.generateSpecTarget) {
     assert(context);
     for await (const result of await runOtherExecutor(

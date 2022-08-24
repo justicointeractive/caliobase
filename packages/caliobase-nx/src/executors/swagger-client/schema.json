@@ -16,6 +16,10 @@
     "generateSpecTarget": {
       "type": "string",
       "description": "a target to be executed that should generate a swagger file"
+    },
+    "dotenv": {
+      "type": "string",
+      "description": "path to a dotenv file to load vars from"
     }
   },
   "required": []
