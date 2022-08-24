@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.16](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.0.15...caliobase-ui-0.0.16) (2022-08-24)
+
+
+### Bug Fixes
+
+* **caliobase-ui:** don't flash create root view ([23640d7](https://github.com/justicointeractive/caliobase/commit/23640d7e5e48dd5c7279655dff6c51faf04d3a01))
+
 ### [0.0.15](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.0.14...caliobase-ui-0.0.15) (2022-08-24)
 
 
