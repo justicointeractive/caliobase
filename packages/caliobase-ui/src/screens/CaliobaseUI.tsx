@@ -40,12 +40,12 @@ export function RootUI({ routes }: { routes: RouteObject[] }) {
   );
 }
 
-export function CaliobaseUI({
+export function CaliobaseUI<T extends ICaliobaseApi>({
   configuration: caliobaseUiConfiguration,
   routes: appRoutes,
   menuItems,
 }: {
-  configuration: CaliobaseUiConfiguration<ICaliobaseApi>;
+  configuration: CaliobaseUiConfiguration<T>;
   routes: RouteObject[];
   menuItems?: MenuNavLinkPropsInput[];
 }) {
