@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.2.0](https://github.com/justicointeractive/caliobase/compare/caliobase-nx-0.1.1...caliobase-nx-0.2.0) (2022-08-24)
+
+
+### Features
+
+* **caliobase-nx:** invoke target to generate swagger file ([c9e86ec](https://github.com/justicointeractive/caliobase/commit/c9e86ec2e8aa33db67bede415c756b97961fa2c9))
+
 ### [0.1.1](https://github.com/justicointeractive/caliobase/compare/caliobase-nx-0.1.0...caliobase-nx-0.1.1) (2022-08-24)
 
 
