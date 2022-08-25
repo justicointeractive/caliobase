@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.1.4](https://github.com/justicointeractive/caliobase/compare/caliobase-0.1.3...caliobase-0.1.4) (2022-08-25)
+
+
+### Bug Fixes
+
+* **caliobase:** add yaml dependency ([29b036e](https://github.com/justicointeractive/caliobase/commit/29b036e02d3fb84eefaa2348bfabd9ef820a3196))
+
 ### [0.1.3](https://github.com/justicointeractive/caliobase/compare/caliobase-0.1.2...caliobase-0.1.3) (2022-08-25)
 
 
