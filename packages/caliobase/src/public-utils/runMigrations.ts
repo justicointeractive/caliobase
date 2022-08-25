@@ -57,7 +57,12 @@ export class Migrations {
     const alreadyRunFiles = new Set(alreadyRun.map(({ name }) => name));
 
     const existingMigrations = (
-      await readdir(this.options.migrationsDir).catch(() => [])
+      await readdir(this.options.migrationsDir).catch((err) => {
+        if (this.options.generateMigrations) {
+          return [];
+        }
+        throw err;
+      })
     )
       .map((file) => {
         const match = file.match(migrationFileNamePattern)?.groups;
