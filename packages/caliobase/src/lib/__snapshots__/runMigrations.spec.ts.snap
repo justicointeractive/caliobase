@@ -1,0 +1,91 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`runMigrations should add a column 1`] = `
+Object {
+  "newQueryExcuted": Array [
+    Object {
+      "name": "0000000000001-generated.yml",
+      "querySet": Array [
+        Object {
+          "query": "ALTER TABLE \\"caliobase_test_migrations_entity\\"
+ADD \\"description\\" character varying NOT NULL",
+        },
+      ],
+    },
+  ],
+  "pendingQueryExecuted": Array [],
+}
+`;
+
+exports[`runMigrations should create new migrations 1`] = `
+Object {
+  "newQueryExcuted": Array [
+    Object {
+      "name": "0000000000000-generated.yml",
+      "querySet": Array [
+        Object {
+          "query": "CREATE TABLE \\"caliobase_test_migrations_entity\\" (
+  \\"id\\" SERIAL NOT NULL,
+  \\"name\\" character varying NOT NULL,
+  CONSTRAINT \\"PK_04e9c1f71b555b5faab531dc5fb\\" PRIMARY KEY (\\"id\\")
+)",
+        },
+      ],
+    },
+  ],
+  "pendingQueryExecuted": Array [],
+}
+`;
+
+exports[`runMigrations should remove a column 1`] = `
+Object {
+  "newQueryExcuted": Array [
+    Object {
+      "name": "0000000000002-generated.yml",
+      "querySet": Array [
+        Object {
+          "query": "ALTER TABLE \\"caliobase_test_migrations_entity\\" DROP COLUMN \\"description\\"",
+        },
+      ],
+    },
+  ],
+  "pendingQueryExecuted": Array [],
+}
+`;
+
+exports[`runMigrations should run other migrations 1`] = `
+Object {
+  "newQueryExcuted": Array [],
+  "pendingQueryExecuted": Array [
+    Object {
+      "name": "0000000000000-generated.yml",
+      "querySet": Array [
+        Object {
+          "query": "CREATE TABLE \\"caliobase_test_migrations_entity\\" (
+  \\"id\\" SERIAL NOT NULL,
+  \\"name\\" character varying NOT NULL,
+  CONSTRAINT \\"PK_04e9c1f71b555b5faab531dc5fb\\" PRIMARY KEY (\\"id\\")
+)",
+        },
+      ],
+    },
+    Object {
+      "name": "0000000000001-generated.yml",
+      "querySet": Array [
+        Object {
+          "query": "ALTER TABLE \\"caliobase_test_migrations_entity\\"
+ADD \\"description\\" character varying NOT NULL",
+        },
+      ],
+    },
+    Object {
+      "name": "0000000000002-generated.yml",
+      "querySet": Array [
+        Object {
+          "query": "ALTER TABLE \\"caliobase_test_migrations_entity\\" DROP COLUMN \\"description\\"",
+        },
+      ],
+    },
+  ],
+}
+`;
