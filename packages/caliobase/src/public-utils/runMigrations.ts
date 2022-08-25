@@ -34,7 +34,7 @@ export type RunMigrationsOptions = {
 
 export async function runMigrations(
   dataSource: DataSource,
-  options: MigrationsOptions & RunMigrationsOptions
+  options: MigrationsOptions & RunMigrationsOptions = {}
 ) {
   return await new Migrations(dataSource, options).runMigrations(options);
 }
