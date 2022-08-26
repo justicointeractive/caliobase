@@ -11,17 +11,24 @@ import { createEntityModule } from './createEntityModule';
 
 describe('entityEventSubscriber', () => {
   const beforeInsert = jest.fn();
-  const beforeInsert2 = jest.fn();
+  const afterInsert = jest.fn();
   const beforeUpdate = jest.fn();
+  const afterUpdate = jest.fn();
   const beforeRemove = jest.fn();
+  const afterRemove = jest.fn();
+
+  const beforeInsert2 = jest.fn();
 
   const { entityService, owner } = useTestingModule(async () => {
     @CaliobaseEntity({
       subscribers: [
         {
           beforeInsert,
+          afterInsert,
           beforeUpdate,
+          afterUpdate,
           beforeRemove,
+          afterRemove,
         },
         { beforeInsert: beforeInsert2 },
       ],
@@ -73,16 +80,19 @@ describe('entityEventSubscriber', () => {
     );
     expect(beforeInsert).toHaveBeenCalled();
     expect(beforeInsert2).toHaveBeenCalled();
+    expect(afterInsert).toHaveBeenCalled();
     await entityService.update(
       { id },
       { label: 'Test 234' },
       { user: owner, organization: owner.organization }
     );
     expect(beforeUpdate).toHaveBeenCalled();
+    expect(afterUpdate).toHaveBeenCalled();
     await entityService.remove(
       { id },
       { user: owner, organization: owner.organization }
     );
     expect(beforeRemove).toHaveBeenCalled();
+    expect(afterRemove).toHaveBeenCalled();
   });
 });
