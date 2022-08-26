@@ -150,6 +150,7 @@ export function Login() {
             </div>
           </div>
         )}
+        {/* TODO: allow create new organiation flow if configured */}
         <form
           onSubmit={(e) => {
             e.preventDefault();

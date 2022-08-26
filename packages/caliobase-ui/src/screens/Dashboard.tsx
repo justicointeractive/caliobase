@@ -95,6 +95,7 @@ function MenuContent(props: {
           <FontAwesomeIcon icon={faClose} />
         </MenuTriggerButton>
         <NavLink to="/">
+          {/* TODO: how to select between organizations and create new ones? */}
           <Branding className="max-h-[3em] max-w-[12em] object-contain" />
         </NavLink>
       </div>
