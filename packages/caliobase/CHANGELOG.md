@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.2.0](https://github.com/justicointeractive/caliobase/compare/caliobase-0.1.4...caliobase-0.2.0) (2022-08-26)
+
+
+### Features
+
+* **caliobase:** entity event subscribers ([c5d00ef](https://github.com/justicointeractive/caliobase/commit/c5d00ef3e5cc50ffb1296d78fbca17514735beb1))
+
 ### [0.1.4](https://github.com/justicointeractive/caliobase/compare/caliobase-0.1.3...caliobase-0.1.4) (2022-08-25)
 
 
