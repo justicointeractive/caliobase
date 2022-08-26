@@ -5,7 +5,7 @@ import {
   Type,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Entity, EntityOptions } from 'typeorm';
+import { Entity, EntityOptions, EntitySubscriberInterface } from 'typeorm';
 import { EntityControllerConstructor } from '../createEntityController';
 import { ICaliobaseController } from '../ICaliobaseController';
 import { ICaliobaseServiceType } from '../ICaliobaseService';
@@ -28,6 +28,7 @@ export type CaliobaseEntityOptions<TEntity> = {
       >
     ) => Type<ICaliobaseController<TEntity>>;
   };
+  subscribers?: Omit<EntitySubscriberInterface<TEntity>, 'listenTo'>[];
   accessPolicy?: PolicyStatements<TEntity>;
   organizationOwner?: false;
 };

@@ -1,7 +1,12 @@
-import { Module, Type, ValidationPipeOptions } from '@nestjs/common';
+import { Module, Provider, Type, ValidationPipeOptions } from '@nestjs/common';
 import { PATH_METADATA } from '@nestjs/common/constants';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { DeepPartial } from 'typeorm';
+import {
+  DataSource,
+  DeepPartial,
+  EntitySubscriberInterface,
+  EventSubscriber,
+} from 'typeorm';
 import {
   CaliobaseEntity,
   createFindManyQueryParamClass,
@@ -56,6 +61,26 @@ export function createEntityModule<TEntity>(
     EntityOwner()(entityType.prototype, 'organization');
   }
 
+  const providers: Provider<unknown>[] = [EntityService];
+
+  for (const subscriber of entityOptions?.subscribers ?? []) {
+    @EventSubscriber()
+    @RenameClass(entityType)
+    class EntitySubscriber implements EntitySubscriberInterface<TEntity> {
+      constructor(dataSource: DataSource) {
+        dataSource.subscribers.push(this);
+      }
+
+      listenTo() {
+        return entityType;
+      }
+    }
+
+    Object.assign(EntitySubscriber.prototype, subscriber);
+
+    providers.push(EntitySubscriber);
+  }
+
   @Module({
     imports: [
       ...(entityOptions?.imports ?? []),
@@ -66,7 +91,7 @@ export function createEntityModule<TEntity>(
       ]),
     ],
     controllers: [...controllers],
-    providers: [EntityService],
+    providers,
     exports: [EntityService],
   })
   @RenameClass(entityType)
