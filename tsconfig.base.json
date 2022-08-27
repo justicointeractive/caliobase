@@ -21,6 +21,7 @@
       "@caliobase/caliobase-cdk": ["packages/caliobase-cdk/src/index.ts"],
       "@caliobase/caliobase-nx": ["packages/caliobase-nx/src/index.ts"],
       "@caliobase/caliobase-ui": ["packages/caliobase-ui/src/index.ts"],
+      "@caliobase/examples-client": ["examples/client/src/index.ts"],
       "tailwindcss-color-css-vars": [
         "packages/tailwindcss-color-css-vars/src/index.ts"
       ],

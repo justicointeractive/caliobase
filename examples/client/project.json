@@ -1,0 +1,21 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "examples/client/src",
+  "projectType": "library",
+  "targets": {
+    "generate-sources": {
+      "executor": "./dist/packages/caliobase-nx:swagger-client",
+      "outputs": ["examples/client/src"],
+      "options": {
+        "input": "./examples/client/assets/openapi.json",
+        "output": "./examples/client/src"
+      },
+      "dependsOn": [
+        { "projects": "dependencies", "target": "build" },
+        { "projects": "dependencies", "target": "swagger" }
+      ]
+    }
+  },
+  "tags": [],
+  "implicitDependencies": ["caliobase-nx"]
+}

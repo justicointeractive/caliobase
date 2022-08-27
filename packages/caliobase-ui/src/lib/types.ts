@@ -147,7 +147,7 @@ export type ICaliobaseApi = {
       { organizationId: string }
     >;
   };
-  objectStorage: {
+  objectStorage?: {
     createObjectStorageObject: ICaliobaseApiRequestWithBody<
       ICaliobaseCreateObjectRequest,
       {

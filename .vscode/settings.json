@@ -11,7 +11,8 @@
     "tailwindcss-color-css-vars",
     "use-async-effect-state",
     "caliobase",
-    "caliobase-cdk"
+    "caliobase-cdk",
+    "examples"
   ],
   "eslint.validate": ["json"]
 }

@@ -9,7 +9,8 @@
     "test": "nx run-many --all --target=test --parallel=100 --output-style=stream",
     "build": "nx run-many --all --target=build --parallel=100 --output-style=stream",
     "version": "nx run-many --all --target=version --parallel=1 --output-style=stream",
-    "release": "npm run test && npm run version && git push --follow-tags"
+    "release": "npm run test && npm run version && git push --follow-tags",
+    "start:example": "nx run-many --projects=api,cms --target=serve --parallel=100 --output-style=stream"
   },
   "private": true,
   "dependencies": {
@@ -45,6 +46,7 @@
     "aws-cdk-lib": "^2.38.1",
     "axios": "^0.27.2",
     "bcrypt": "^5.0.1",
+    "better-sqlite3": "^7.6.2",
     "cd": "^0.3.3",
     "change-case": "^4.1.2",
     "circumspect": "^0.1.1",
@@ -88,6 +90,7 @@
     "@nestjs/schematics": "^8.0.0",
     "@nestjs/testing": "^8.0.0",
     "@nrwl/cli": "14.3.6",
+    "@nrwl/cypress": "14.3.6",
     "@nrwl/devkit": "14.3.6",
     "@nrwl/eslint-plugin-nx": "14.3.6",
     "@nrwl/jest": "14.3.6",
@@ -118,8 +121,10 @@
     "@typescript-eslint/eslint-plugin": "~5.24.0",
     "@typescript-eslint/parser": "~5.24.0",
     "babel-jest": "27.5.1",
+    "cypress": "^9.1.0",
     "eslint": "~8.15.0",
     "eslint-config-prettier": "8.1.0",
+    "eslint-plugin-cypress": "^2.10.3",
     "eslint-plugin-import": "2.26.0",
     "eslint-plugin-jsx-a11y": "6.5.1",
     "eslint-plugin-react": "7.30.0",
@@ -134,7 +139,7 @@
     "sqlite3": "^5.0.8",
     "supertest": "^6.2.3",
     "ts-jest": "27.1.4",
-    "ts-node": "~10.8.0",
+    "ts-node": "^10.9.1",
     "tslib": "^2.0.0",
     "typescript": "~4.7.2"
   },

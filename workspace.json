@@ -2,12 +2,16 @@
   "$schema": "./node_modules/nx/schemas/workspace-schema.json",
   "version": 2,
   "projects": {
+    "api": "examples/api",
     "caliobase": "packages/caliobase",
     "caliobase-cdk": "packages/caliobase-cdk",
     "caliobase-nx": "packages/caliobase-nx",
     "caliobase-nx-e2e": "packages/caliobase-nx-e2e",
     "caliobase-ui": "packages/caliobase-ui",
+    "cms": "examples/cms",
+    "cms-e2e": "examples/cms-e2e",
     "example": "examples/example",
+    "client": "examples/client",
     "tailwindcss-color-css-vars": "packages/tailwindcss-color-css-vars",
     "use-async-effect-state": "packages/use-async-effect-state"
   }

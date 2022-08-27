@@ -1,0 +1,70 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "examples/api/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/node:webpack",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/examples/api",
+        "main": "examples/api/src/main.ts",
+        "tsConfig": "examples/api/tsconfig.app.json",
+        "assets": ["examples/api/src/assets"]
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": true,
+          "inspect": false,
+          "fileReplacements": [
+            {
+              "replace": "examples/api/src/environments/environment.ts",
+              "with": "examples/api/src/environments/environment.prod.ts"
+            }
+          ]
+        }
+      }
+    },
+    "swagger": {
+      "executor": "nx:run-commands",
+      "outputs": ["examples/client/assets"],
+      "dependsOn": [
+        {
+          "target": "build",
+          "projects": "self"
+        }
+      ],
+      "options": {
+        "command": "npx ts-node --project ./examples/api/tsconfig.app.json -r tsconfig-paths/register ./examples/api/src/main.ts --write-swagger-and-exit=./examples/client/assets/openapi.json"
+      },
+      "configurations": {
+        "staging": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/node:node",
+      "options": {
+        "buildTarget": "api:build"
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["examples/api/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/examples/api"],
+      "options": {
+        "jestConfig": "examples/api/jest.config.ts",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": [],
+  "implicitDependencies": ["api"]
+}

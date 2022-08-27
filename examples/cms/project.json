@@ -1,0 +1,81 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "examples/cms/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/web:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "compiler": "babel",
+        "outputPath": "dist/examples/cms",
+        "index": "examples/cms/src/index.html",
+        "baseHref": "/",
+        "main": "examples/cms/src/main.tsx",
+        "polyfills": "examples/cms/src/polyfills.ts",
+        "tsConfig": "examples/cms/tsconfig.app.json",
+        "assets": ["examples/cms/src/favicon.ico", "examples/cms/src/assets"],
+        "styles": ["examples/cms/src/styles.css"],
+        "scripts": [],
+        "webpackConfig": "@nrwl/react/plugins/webpack"
+      },
+      "configurations": {
+        "development": {
+          "extractLicenses": false,
+          "optimization": false,
+          "sourceMap": true,
+          "vendorChunk": true
+        },
+        "production": {
+          "fileReplacements": [
+            {
+              "replace": "examples/cms/src/environments/environment.ts",
+              "with": "examples/cms/src/environments/environment.prod.ts"
+            }
+          ],
+          "optimization": true,
+          "outputHashing": "all",
+          "sourceMap": false,
+          "namedChunks": false,
+          "extractLicenses": true,
+          "vendorChunk": false
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/web:dev-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "cms:build",
+        "hmr": true,
+        "proxyConfig": "examples/cms/proxy.conf.json"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "cms:build:development"
+        },
+        "production": {
+          "buildTarget": "cms:build:production",
+          "hmr": false
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["examples/cms/**/*.{ts,tsx,js,jsx}"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/examples/cms"],
+      "options": {
+        "jestConfig": "examples/cms/jest.config.ts",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

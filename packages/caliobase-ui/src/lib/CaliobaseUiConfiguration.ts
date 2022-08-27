@@ -1,3 +1,4 @@
+import { invariant } from 'circumspect';
 import { assert } from './assert';
 import { CaliobaseUiConfigurationBuilder } from './CaliobaseUiConfiguration.builder';
 import { rolesField, userEmailField } from './commonFields';
@@ -26,7 +27,10 @@ export class CaliobaseUiConfiguration<TApi extends ICaliobaseApi> {
     return this.builder.brandingComponent;
   }
 
+  // TODO: exclude this function if no object storage provider
   async uploadFile<TApi extends ICaliobaseApi>(api: TApi, file: File) {
+    invariant(api.objectStorage, 'object storage not available');
+
     const {
       data: { object, signedUrl },
     } = await api.objectStorage.createObjectStorageObject({
@@ -51,7 +55,7 @@ export class CaliobaseUiConfiguration<TApi extends ICaliobaseApi> {
 
     // TODO: can the method calls automatically return the actual api types rather than needing to be cast here?
     return objectStorageObject as InferApiResponseType<
-      TApi['objectStorage']['updateObjectStorageObject']
+      NonNullable<TApi['objectStorage']>['updateObjectStorageObject']
     >;
   }
 

@@ -1,4 +1,4 @@
-import * as plugin from 'tailwindcss/plugin';
+import plugin from 'tailwindcss/plugin';
 
 type ThemeColors = Record<string, string | Record<string, string>>;
 

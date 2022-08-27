@@ -1,7 +1,9 @@
 import { DynamicModule, INestApplication, Module } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Command } from 'commander';
-import { writeFile } from 'fs/promises';
+import { mkdir, writeFile } from 'fs/promises';
+import { join } from 'path';
+import { DataSource } from 'typeorm';
 import {
   CaliobaseAuthModule,
   CaliobaseAuthModuleOptions,
@@ -20,6 +22,7 @@ import {
   CaliobaseObjectStorageModule,
   CaliobaseObjectStorageModuleOptions,
 } from './object-storage/object-storage.module';
+import { MigrationsOptions, runMigrations } from './public-utils';
 
 export type CaliobaseModuleOptions<
   TUser extends AbstractUserProfile,
@@ -31,7 +34,10 @@ export type CaliobaseModuleOptions<
 
 @Module({})
 export class CaliobaseModule {
-  async bootstrap(app: INestApplication) {
+  static async bootstrap(
+    app: INestApplication,
+    options: { migration?: MigrationsOptions } = {}
+  ) {
     const document = SwaggerModule.createDocument(
       app,
       new DocumentBuilder()
@@ -48,6 +54,7 @@ export class CaliobaseModule {
         })
         .build()
     );
+
     SwaggerModule.setup('swagger', app, document);
 
     const { writeSwaggerAndExit } = new Command()
@@ -56,8 +63,16 @@ export class CaliobaseModule {
       .opts();
 
     if (writeSwaggerAndExit) {
+      await mkdir(join(writeSwaggerAndExit, '..'), {
+        recursive: true,
+      });
       await writeFile(writeSwaggerAndExit, JSON.stringify(document, null, 2));
       await app.close();
+      process.exit(0);
+    }
+
+    if (options.migration != null) {
+      await runMigrations(app.get(DataSource), options.migration);
     }
   }
 
