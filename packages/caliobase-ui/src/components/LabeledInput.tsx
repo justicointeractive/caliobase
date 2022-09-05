@@ -24,8 +24,8 @@ export function LabeledInput<TValue>({
       className={clsxo(
         'group relative grid',
         isEditable
-          ? 'color-var-[bg_gray-50] hover:color-var-[bg_indigo-50] color-var-[ring_indigo-500]'
-          : 'color-var-[bg_gray-100] color-var-[ring_gray-300]',
+          ? '[--bg:theme(colors.gray.50)] hover:[--bg:theme(colors.indigo.50)] [--ring:theme(colors.indigo.500)]'
+          : '[--bg:theme(colors.gray.100)] [--ring:theme(colors.gray.300)]',
         'bg-[color:var(--bg)]',
         'transition-all',
         'rounded border',
