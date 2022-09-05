@@ -2,6 +2,16 @@
 
 This Tailwind CSS plugin allows you to set CSS variables with arbitrary names with values from the theme palette.
 
+## Deprecation Notice
+
+You probably should not use this plugin anymore. Similar functionality is built into Tailwind CSS now using arbitrary properties and theme functions.
+
+```tsx
+<div className="[--brand-text:theme(colors.red.500)]">
+  <span className="text-[color:var(--brand-text)]">Brand</span>
+</div>
+```
+
 ## Example
 
 ```tsx
