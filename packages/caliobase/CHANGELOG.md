@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.3.1](https://github.com/justicointeractive/caliobase/compare/caliobase-0.3.0...caliobase-0.3.1) (2022-09-06)
+
+
+### Bug Fixes
+
+* **caliobase:** allow skipping multiple catch-up migrations ([d36bae5](https://github.com/justicointeractive/caliobase/commit/d36bae5db909e325e519dce87339697fb5b31d3c))
+
 ## [0.3.0](https://github.com/justicointeractive/caliobase/compare/caliobase-0.2.2...caliobase-0.3.0) (2022-09-06)
 
 
