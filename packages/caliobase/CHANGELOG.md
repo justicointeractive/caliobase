@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.2.1](https://github.com/justicointeractive/caliobase/compare/caliobase-0.2.0...caliobase-0.2.1) (2022-09-06)
+
+
+### Bug Fixes
+
+* **caliobase:** add a bootstrap method on caliobase module ([8cbe2b8](https://github.com/justicointeractive/caliobase/commit/8cbe2b8876e54e9a32e4dce8ae62e2ab0a00c2da))
+
 ## [0.2.0](https://github.com/justicointeractive/caliobase/compare/caliobase-0.1.4...caliobase-0.2.0) (2022-08-26)
 
 
