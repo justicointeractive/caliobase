@@ -29,6 +29,10 @@ export type MigrationsOptions = {
 };
 
 export type RunMigrationsOptions = {
+  /**
+   * Only run migrations less than or equal to this date; and, if any migrations are generated, generate them with this date.
+   * @default now
+   */
   timestamp?: Date;
 };
 
@@ -39,6 +43,11 @@ export async function runMigrations(
   return await new Migrations(dataSource, options).runMigrations(options);
 }
 
+/**
+ * `0000000000000` is a special migration, useful if you are switching from TypeORM's `synchronize` method to migrations.
+ * `0000000000000` will be skipped if any table in the entity schema already exists.
+ * If you are switching from `synchronize` to migrations you should use a new database and generate a migration against that, then rename the migration to `0000000000000-generated.yml`.
+ */
 export class Migrations {
   static defaultOptions: Required<MigrationsOptions> = {
     migrationsTableName: 'migrations',
@@ -54,7 +63,16 @@ export class Migrations {
 
   async runMigrations(options: RunMigrationsOptions) {
     const alreadyRun = await this.getAlreadyRunMigrations();
-    const alreadyRunFiles = new Set(alreadyRun.map(({ name }) => name));
+    const alreadyRunFiles = new Set(alreadyRun?.map(({ name }) => name));
+
+    const shouldSkip0thMigration =
+      alreadyRun == null && // has not created migration table
+      // but has already created some tables
+      (await this.dataSource.createQueryRunner().getTables()).some((table) =>
+        this.dataSource.entityMetadatas.some(
+          (metadata) => metadata.tableName === table.name
+        )
+      );
 
     const existingMigrations = (
       await readdir(this.options.migrationsDir).catch((err) => {
@@ -75,7 +93,15 @@ export class Migrations {
             }
           : null;
       })
-      .filter(nonNull);
+      .filter(nonNull)
+      .filter(
+        (migration) =>
+          options.timestamp == null || migration.timestamp <= options.timestamp
+      )
+      .filter(
+        (migration) =>
+          !(shouldSkip0thMigration && migration.timestamp.getTime() === 0)
+      );
 
     const orderedExistingMigrations = orderBy(
       existingMigrations,
@@ -167,6 +193,26 @@ export class Migrations {
   async getAlreadyRunMigrations() {
     const runner = this.dataSource.createQueryRunner();
     const migrationsTableName = this.options.migrationsTableName;
+    const tableExists = await runner.hasTable(migrationsTableName);
+
+    if (!tableExists) {
+      return null;
+    }
+
+    const rawResults = await this.dataSource
+      .createQueryBuilder(runner)
+      .select()
+      .from(migrationsTableName, 'migrations')
+      .getRawMany();
+
+    return rawResults.map((result) => ({
+      name: String(result.name),
+    }));
+  }
+
+  async insertRunMigration(name: string) {
+    const runner = this.dataSource.createQueryRunner();
+    const migrationsTableName = this.options.migrationsTableName;
 
     const tableExists = await runner.hasTable(migrationsTableName);
 
@@ -187,22 +233,6 @@ export class Migrations {
         })
       );
     }
-
-    const rawResults = await this.dataSource
-      .createQueryBuilder(runner)
-      .select()
-      .from(migrationsTableName, 'migrations')
-      .getRawMany();
-
-    return rawResults.map((result) => ({
-      name: String(result.name),
-    }));
-  }
-
-  async insertRunMigration(name: string) {
-    const runner = this.dataSource.createQueryRunner();
-
-    const migrationsTableName = this.options.migrationsTableName;
 
     await runner.manager
       .createQueryBuilder()

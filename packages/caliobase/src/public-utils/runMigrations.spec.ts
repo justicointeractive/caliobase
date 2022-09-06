@@ -95,6 +95,40 @@ describe('runMigrations', () => {
       })
     ).toMatchSnapshot();
   });
+
+  it('should skip zeroth migration if not empty', async () => {
+    @Entity(entityTableName)
+    class TestMigrationsEntity {
+      @PrimaryGeneratedColumn()
+      id!: string;
+
+      @Column()
+      name!: string;
+    }
+
+    const dataSource = await initializeDataSource(TestMigrationsEntity);
+    const runner = dataSource.createQueryRunner();
+    await runner.dropTable(migrationsTableName, true);
+    await runner.dropTable(entityTableName, true);
+
+    expect(
+      await runMigrations(dataSource, {
+        ...migrationOptions,
+        timestamp: new Date(0),
+        generateMigrations: false,
+      })
+    ).toMatchSnapshot();
+
+    await runner.dropTable(migrationsTableName, true);
+
+    expect(
+      await runMigrations(dataSource, {
+        ...migrationOptions,
+        timestamp: new Date(order++),
+        generateMigrations: false,
+      })
+    ).toMatchSnapshot();
+  });
 });
 
 async function initializeDataSource(TestMigrationsEntity?: new () => any) {
