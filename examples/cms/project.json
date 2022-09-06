@@ -6,7 +6,6 @@
     "build": {
       "executor": "@nrwl/web:webpack",
       "outputs": ["{options.outputPath}"],
-      "defaultConfiguration": "production",
       "options": {
         "compiler": "babel",
         "outputPath": "dist/examples/cms",
@@ -45,16 +44,14 @@
     },
     "serve": {
       "executor": "@nrwl/web:dev-server",
-      "defaultConfiguration": "development",
       "options": {
         "buildTarget": "examples-cms:build",
         "hmr": true,
-        "proxyConfig": "examples/cms/proxy.conf.json"
+        "proxyConfig": "examples/cms/proxy.conf.js",
+        "port": 5200,
+        "host": "0.0.0.0"
       },
       "configurations": {
-        "development": {
-          "buildTarget": "examples-cms:build:development"
-        },
         "production": {
           "buildTarget": "examples-cms:build:production",
           "hmr": false
