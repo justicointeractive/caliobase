@@ -3,7 +3,7 @@ import { nonNull } from 'circumspect';
 import { mkdir, readdir, readFile, writeFile } from 'fs/promises';
 import { orderBy } from 'lodash';
 import { join } from 'path';
-import { DataSource, Table } from 'typeorm';
+import { DataSource, EntityManager, Table } from 'typeorm';
 import { SqlInMemory } from 'typeorm/driver/SqlInMemory';
 import { parse, stringify } from 'yaml';
 
@@ -84,18 +84,21 @@ export class Migrations {
     );
     const pendingQueryExecuted: QueryExecution[] = [];
     // run pending migrations
-    for (const { file, filePath } of orderedExistingMigrations) {
-      if (alreadyRunFiles.has(file)) {
-        continue;
+    await this.dataSource.transaction(async (transaction) => {
+      for (const { file, filePath } of orderedExistingMigrations) {
+        if (alreadyRunFiles.has(file)) {
+          continue;
+        }
+        const fileContents = await readFile(filePath, 'utf8');
+        const executed = await this.executeMigrationFileContents(
+          transaction,
+          fileContents,
+          file,
+          'upQueries'
+        );
+        pendingQueryExecuted.push(executed);
       }
-      const fileContents = await readFile(filePath, 'utf8');
-      const executed = await this.executeMigrationFileContents(
-        fileContents,
-        file,
-        'upQueries'
-      );
-      pendingQueryExecuted.push(executed);
-    }
+    });
 
     const builder = this.dataSource.driver.createSchemaBuilder();
     const queries = this.options.generateMigrations && (await builder.log());
@@ -116,13 +119,16 @@ export class Migrations {
         migrationName
       );
       const yml = await this.generateMigrationFileContents(queries);
-      const executed = await this.executeMigrationFileContents(
-        yml,
-        migrationName,
-        'upQueries'
-      );
-      newQueryExcuted.push(executed);
-      await writeFile(migrationFilePath, yml);
+      await this.dataSource.transaction(async (transaction) => {
+        const executed = await this.executeMigrationFileContents(
+          transaction,
+          yml,
+          migrationName,
+          'upQueries'
+        );
+        newQueryExcuted.push(executed);
+        await writeFile(migrationFilePath, yml);
+      });
     }
 
     return { pendingQueryExecuted, newQueryExcuted };
@@ -142,6 +148,7 @@ export class Migrations {
   }
 
   async executeMigrationFileContents(
+    transaction: EntityManager,
     fileSource: string,
     migrationName: string,
     querySetKey: QuerySetKey
@@ -149,12 +156,10 @@ export class Migrations {
     const querySets = parse(fileSource) as QuerySets;
     const querySet = querySets[querySetKey];
 
-    await this.dataSource.transaction(async (em) => {
-      for (const query of querySet) {
-        await em.query(query.query, query.parameters ?? undefined);
-      }
-      await this.insertRunMigration(migrationName);
-    });
+    for (const query of querySet) {
+      await transaction.query(query.query, query.parameters ?? undefined);
+    }
+    await this.insertRunMigration(migrationName);
 
     return { name: migrationName, querySet };
   }
