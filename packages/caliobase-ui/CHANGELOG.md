@@ -2,6 +2,16 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.17](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.0.16...caliobase-ui-0.0.17) (2022-09-06)
+
+### Dependency Updates
+
+* `tailwindcss-color-css-vars` updated to version `0.0.2`
+
+### Bug Fixes
+
+* **caliobase-ui:** add list empty state ([1c3b515](https://github.com/justicointeractive/caliobase/commit/1c3b5155adca43a84b41b52bcbe6fde1266ae467))
+
 ### [0.0.16](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.0.15...caliobase-ui-0.0.16) (2022-08-24)
 
 
