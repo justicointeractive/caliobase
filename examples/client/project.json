@@ -1,6 +1,6 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "examples/client/src",
+  "sourceRoot": "examples/client",
   "projectType": "library",
   "targets": {
     "generate-sources": {
@@ -17,5 +17,5 @@
     }
   },
   "tags": [],
-  "implicitDependencies": ["caliobase-nx"]
+  "implicitDependencies": ["caliobase-nx", "examples-api"]
 }

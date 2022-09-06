@@ -46,7 +46,7 @@
     "serve": {
       "executor": "@nrwl/node:node",
       "options": {
-        "buildTarget": "api:build"
+        "buildTarget": "examples-api:build"
       }
     },
     "lint": {
@@ -66,5 +66,5 @@
     }
   },
   "tags": [],
-  "implicitDependencies": ["api"]
+  "implicitDependencies": ["examples-api"]
 }

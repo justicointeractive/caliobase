@@ -29,6 +29,14 @@
       {
         "target": "build",
         "projects": "dependencies"
+      },
+      {
+        "target": "generate-sources",
+        "projects": "dependencies"
+      },
+      {
+        "target": "generate-sources",
+        "projects": "self"
       }
     ]
   },

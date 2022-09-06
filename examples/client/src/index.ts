@@ -156,6 +156,12 @@ export interface CreateRootRequest {
   organization: ConcreteCreateOrganizationRequest;
 }
 
+export type Example = object;
+
+export type CreateExampleDto = object;
+
+export type UpdateExampleDto = object;
+
 export type QueryParamsType = Record<string | number, any>;
 export type ResponseFormat = keyof Omit<Body, 'body' | 'bodyUsed'>;
 
@@ -842,6 +848,105 @@ export class Api<
         method: 'POST',
         body: data,
         type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+  };
+  example = {
+    /**
+     * No description
+     *
+     * @tags example
+     * @name Create
+     * @request POST:/api/example
+     * @secure
+     */
+    create: (data: CreateExampleDto, params: RequestParams = {}) =>
+      this.request<{ item: Example }, any>({
+        path: `/api/example`,
+        method: 'POST',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags example
+     * @name FindAll
+     * @request GET:/api/example
+     * @secure
+     */
+    findAll: (
+      query?: {
+        limit?: number;
+        skip?: number;
+        orderBy?: number[];
+        select?: ('id' | 'name')[];
+      },
+      params: RequestParams = {}
+    ) =>
+      this.request<{ items: Example[]; count?: number }, any>({
+        path: `/api/example`,
+        method: 'GET',
+        query: query,
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags example
+     * @name FindOne
+     * @request GET:/api/example/{id}
+     * @secure
+     */
+    findOne: (id: any, params: RequestParams = {}) =>
+      this.request<{ item?: Example }, any>({
+        path: `/api/example/${id}`,
+        method: 'GET',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags example
+     * @name Update
+     * @request PATCH:/api/example/{id}
+     * @secure
+     */
+    update: (id: any, data: UpdateExampleDto, params: RequestParams = {}) =>
+      this.request<{ items: Example[]; count?: number }, any>({
+        path: `/api/example/${id}`,
+        method: 'PATCH',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags example
+     * @name Remove
+     * @request DELETE:/api/example/{id}
+     * @secure
+     */
+    remove: (id: any, params: RequestParams = {}) =>
+      this.request<{ items: Example[]; count?: number }, any>({
+        path: `/api/example/${id}`,
+        method: 'DELETE',
+        secure: true,
         format: 'json',
         ...params,
       }),

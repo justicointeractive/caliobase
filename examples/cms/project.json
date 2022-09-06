@@ -47,16 +47,16 @@
       "executor": "@nrwl/web:dev-server",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "cms:build",
+        "buildTarget": "examples-cms:build",
         "hmr": true,
         "proxyConfig": "examples/cms/proxy.conf.json"
       },
       "configurations": {
         "development": {
-          "buildTarget": "cms:build:development"
+          "buildTarget": "examples-cms:build:development"
         },
         "production": {
-          "buildTarget": "cms:build:production",
+          "buildTarget": "examples-cms:build:production",
           "hmr": false
         }
       }
