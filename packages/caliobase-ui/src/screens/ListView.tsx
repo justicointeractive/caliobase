@@ -9,6 +9,7 @@ import { Pagination } from '../components/data/Pagination';
 import { useContentType } from '../hooks/useContentType';
 import { assert } from '../lib/assert';
 import { FocusView } from '../patterns/FocusView';
+import { EmptyState } from './EmptyState';
 import { FullHeightLoader } from './FullScreenLoader';
 
 export function ListView() {
@@ -66,24 +67,31 @@ export function ListView() {
       <div className="rounded bg-gray-50 p-3 shadow-lg">
         <div className="grid gap-3">
           {list?.items ? (
-            <>
-              <ContentTable
-                items={list.items}
-                fields={fields}
-                onEditItem={(item) => navigate(`./${item.id}`)}
-                onViewItem={
-                  frontEndUrl?.item &&
-                  ((item) => window.open(frontEndUrl?.item?.(item), '_blank'))
-                }
+            list.items.length ? (
+              <>
+                <ContentTable
+                  items={list.items}
+                  fields={fields}
+                  onEditItem={(item) => navigate(`./${item.id}`)}
+                  onViewItem={
+                    frontEndUrl?.item &&
+                    ((item) => window.open(frontEndUrl?.item?.(item), '_blank'))
+                  }
+                />
+                <Pagination
+                  list={list}
+                  currentPage={currentPage}
+                  itemsPerPage={itemsPerPage}
+                  onCurrentPageChange={setCurrentPage}
+                  onItemsPerPageChange={setItemsPerPage}
+                />
+              </>
+            ) : (
+              <EmptyState
+                contentType={contentType}
+                onCreateClick={() => navigate('./create')}
               />
-              <Pagination
-                list={list}
-                currentPage={currentPage}
-                itemsPerPage={itemsPerPage}
-                onCurrentPageChange={setCurrentPage}
-                onItemsPerPageChange={setItemsPerPage}
-              />
-            </>
+            )
           ) : (
             <FullHeightLoader className="min-h-[100px]" />
           )}
