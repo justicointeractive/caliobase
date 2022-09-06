@@ -8,13 +8,13 @@ export type CaliobaseUser = {
   id: string;
   email: string;
   // eslint-disable-next-line @typescript-eslint/ban-types
-  profile: Object;
+  profile: {};
 };
 
 export type CaliobaseOrganization = {
   id: string;
   // eslint-disable-next-line @typescript-eslint/ban-types
-  profile: Object;
+  profile: {};
 };
 
 export type CaliobaseMember = {
