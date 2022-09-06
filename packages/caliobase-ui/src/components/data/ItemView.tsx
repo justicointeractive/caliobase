@@ -27,7 +27,7 @@ export function ItemView<T extends { id?: string | number }>({
         metaColumnFields ? 'grid-cols-[1fr_300px]' : 'grid-cols-1'
       )}
     >
-      <div className="ml-12 grid content-start gap-3 rounded bg-gray-50 p-3 shadow-lg">
+      <div className="grid content-start gap-3 rounded bg-gray-50 p-3 shadow-lg">
         <Fieldset
           item={itemState}
           fields={mainColumnFields ?? []}

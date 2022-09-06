@@ -60,7 +60,7 @@ export function ListView() {
       buttons={[
         <NavLink to="./create" className="flex items-center gap-2">
           <FontAwesomeIcon icon={faPlus} />
-          <span>Create {singular}</span>
+          <span className="whitespace-nowrap">Create {singular}</span>
         </NavLink>,
       ]}
     >

@@ -1,5 +1,3 @@
-import { faChevronLeft } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { nonNull } from 'circumspect';
 import { cloneElement, ReactElement, ReactNode } from 'react';
 import { clsxo } from '../lib/clsxo';
@@ -13,16 +11,8 @@ export function FocusView(props: {
   children?: ReactNode;
 }) {
   return (
-    <div className="container mx-auto grid grid-rows-[auto_1fr] gap-3 p-3">
-      <div className="flex items-end gap-3 px-3">
-        {props.onGoBack && (
-          <button
-            className="rounded bg-gray-200 px-4 py-2 text-sm font-bold text-gray-600"
-            onClick={props.onGoBack}
-          >
-            <FontAwesomeIcon icon={faChevronLeft} />
-          </button>
-        )}
+    <div className="container mx-auto flex flex-col gap-3">
+      <div className="sticky top-0 flex items-end gap-3 bg-gray-100 p-3 pl-14 md:pl-6 lg:pl-3">
         <div className="flex-1">
           <h3 className="text-sm font-light leading-tight text-gray-600">
             {props.preTitle}
@@ -43,7 +33,7 @@ export function FocusView(props: {
           )}
         </div>
       </div>
-      <div className="grid content-start gap-3">{props.children}</div>
+      <div className="grid content-start gap-3 px-3">{props.children}</div>
     </div>
   );
 }

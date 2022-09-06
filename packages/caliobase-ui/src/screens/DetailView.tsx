@@ -88,7 +88,7 @@ export function DetailView() {
                 }
               }}
             >
-              {itemId ? 'Save' : 'Create'}
+              Save
             </PendingButton>,
 
             contentTypeDescription.frontEndUrl?.item && item ? (

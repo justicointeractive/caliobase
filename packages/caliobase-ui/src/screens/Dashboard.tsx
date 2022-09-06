@@ -19,22 +19,22 @@ export function Dashboard(props: { appMenuItems: MenuNavLinkPropsInput[] }) {
   const [offcanvasOpen, setOffcanvasOpen] = useState(false);
 
   return (
-    <div className="relative grid h-screen bg-gray-200 lg:grid-cols-[240px_1fr]">
+    <div className="flex min-h-screen bg-gray-200 lg:h-screen">
       <MenuTriggerButton
-        className="absolute left-2 top-2 lg:hidden"
+        className="fixed left-3 top-5 z-10 lg:hidden"
         onClick={() => setOffcanvasOpen(true)}
       >
         <FontAwesomeIcon icon={faBars} />
       </MenuTriggerButton>
       {offcanvasOpen && (
         <button
-          className="absolute inset-0 bg-gray-600/10"
+          className="absolute inset-0 z-10 bg-gray-600/10"
           onClick={() => setOffcanvasOpen(false)}
         ></button>
       )}
       <div
         className={clsx(
-          `absolute z-10 grid h-full w-[240px] grid-cols-1 grid-rows-[50px_1fr_50px] bg-gray-50 text-gray-600 shadow-lg transition lg:static`,
+          `fixed z-10 flex h-full w-[240px] flex-col bg-gray-50 text-gray-600 shadow-lg transition lg:static`,
           offcanvasOpen ? `translate-x-0` : `-translate-x-full`,
           'lg:translate-x-0'
         )}
@@ -44,16 +44,10 @@ export function Dashboard(props: { appMenuItems: MenuNavLinkPropsInput[] }) {
           onCloseMenu={() => setOffcanvasOpen(false)}
         />
       </div>
-      <div className="grid min-h-0 grid-cols-1 grid-rows-[50px_1fr_50px] overflow-hidden">
-        <div className="bg-gray-200"></div>
-        <div className="min-h-0 overflow-auto bg-gray-100">
-          <Suspense fallback={<FullHeightLoader />}>
-            <Outlet />
-          </Suspense>
-        </div>
-        <div className="grid items-center bg-gray-200 p-3">
-          <div className="text-right text-gray-400">Powered by Caliobase</div>
-        </div>
+      <div className="min-h-0 flex-1 self-stretch overflow-auto bg-gray-100">
+        <Suspense fallback={<FullHeightLoader />}>
+          <Outlet />
+        </Suspense>
       </div>
     </div>
   );
@@ -87,7 +81,7 @@ function MenuContent(props: {
 
   return (
     <>
-      <div className="flex items-center gap-3 border-b p-3 text-sm font-bold">
+      <div className="flex h-[50px] items-center gap-3 border-b p-3 text-sm font-bold">
         <MenuTriggerButton
           className="lg:hidden"
           onClick={() => props.onCloseMenu()}
@@ -99,7 +93,7 @@ function MenuContent(props: {
           <Branding className="max-h-[3em] max-w-[12em] object-contain" />
         </NavLink>
       </div>
-      <div className="grid content-start items-start gap-1 p-2 py-3 text-lg">
+      <div className="flex-1 content-start items-start gap-1 p-2 py-3 text-lg">
         {props.appMenuItems.map((item) => (
           <MenuNavLink key={item.to} {...item} onClick={props.onCloseMenu} />
         ))}
@@ -130,13 +124,18 @@ function MenuContent(props: {
           onClick={props.onCloseMenu}
         />
       </div>
-      <div className="flex items-center border-t text-left font-bold">
-        <div className="flex-1 overflow-hidden overflow-ellipsis whitespace-nowrap p-3 ">
-          {user?.user.email}
+      <div>
+        <div className="p-1 px-3 text-xs text-gray-400">
+          Powered by Caliobase
         </div>
-        <button className="p-3 hover:bg-gray-100" onClick={onLogout}>
-          <FontAwesomeIcon icon={faRightFromBracket} />
-        </button>
+        <div className="flex items-center border-t text-left font-bold">
+          <div className="flex-1 overflow-hidden overflow-ellipsis whitespace-nowrap p-3 ">
+            {user?.user.email}
+          </div>
+          <button className="p-3 hover:bg-gray-100" onClick={onLogout}>
+            <FontAwesomeIcon icon={faRightFromBracket} />
+          </button>
+        </div>
       </div>
     </>
   );

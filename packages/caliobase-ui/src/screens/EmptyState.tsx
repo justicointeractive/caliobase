@@ -14,11 +14,11 @@ export function EmptyState(props: {
 
   return (
     <div className="py-16 flex flex-col items-center content-center gap-8">
-      <div className="flex flex-col items-center">
-        <div className="font-normal text-base text-gray-400">
+      <div className="flex flex-col items-center gap-2">
+        <div className="font-normal text-base text-gray-400 leading-tight text-center">
           No {plural} Found
         </div>
-        <div className="font-semibold text-lg text-gray-400">
+        <div className="font-semibold text-lg text-gray-400 leading-tight text-center">
           Create {indefinite(singular)} or broaden your search criteria
         </div>
       </div>
@@ -32,7 +32,7 @@ export function EmptyState(props: {
         )}
       >
         <FontAwesomeIcon icon={faPlus} />
-        <span>Create {singular}</span>
+        <span className="whitespace-nowrap">Create {singular}</span>
       </button>
     </div>
   );
