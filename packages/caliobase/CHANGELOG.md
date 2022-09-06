@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.3.0](https://github.com/justicointeractive/caliobase/compare/caliobase-0.2.2...caliobase-0.3.0) (2022-09-06)
+
+
+### Features
+
+* **caliobase:** add a way to generate/skip a zeroth migration ([fcc4ebd](https://github.com/justicointeractive/caliobase/commit/fcc4ebd58ae03096c4ec120acad2bd2f95763690))
+
 ### [0.2.2](https://github.com/justicointeractive/caliobase/compare/caliobase-0.2.1...caliobase-0.2.2) (2022-09-06)
 
 
