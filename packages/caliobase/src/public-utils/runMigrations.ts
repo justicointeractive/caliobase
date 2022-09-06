@@ -24,7 +24,7 @@ export type QueryExecution = {
 export type MigrationsOptions = {
   migrationsTableName?: string;
   migrationsDir?: string;
-  /** @default `true` in development, `false` in production */
+  /** @default `true` when `process.env.NODE_ENV === 'development'` otherwise `false` */
   generateMigrations?: boolean;
 };
 
