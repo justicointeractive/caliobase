@@ -7,7 +7,7 @@ import { DataSource, EntityManager, Table } from 'typeorm';
 import { SqlInMemory } from 'typeorm/driver/SqlInMemory';
 import { parse, stringify } from 'yaml';
 
-const migrationFileNamePattern = /^(?<timestamp>\d+)-(?<label>[^.]*).yml$/;
+const migrationFileNamePattern = /^(?<timestamp>-?\d+)-(?<label>[^.]*).yml$/;
 
 export type QuerySetKey = 'upQueries' | 'downQueries';
 export type QuerySets = Record<QuerySetKey, QuerySet>;
@@ -100,7 +100,7 @@ export class Migrations {
       )
       .filter(
         (migration) =>
-          !(shouldSkip0thMigration && migration.timestamp.getTime() === 0)
+          !(shouldSkip0thMigration && migration.timestamp.getTime() <= 0)
       );
 
     const orderedExistingMigrations = orderBy(
