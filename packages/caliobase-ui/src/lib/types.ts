@@ -7,14 +7,12 @@ import type { CaliobaseUiConfiguration } from './CaliobaseUiConfiguration';
 export type CaliobaseUser = {
   id: string;
   email: string;
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  profile: {};
+  profile: any; // TODO: narrow this type
 };
 
 export type CaliobaseOrganization = {
   id: string;
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  profile: {};
+  profile: any; // TODO: narrow this type
 };
 
 export type CaliobaseMember = {
@@ -95,7 +93,7 @@ export type ICaliobaseLoginRequest = {
 export type ICaliobaseCreateUserWithPasswordRequest = {
   email: string;
   password: string;
-  profile: any;
+  profile: any; // TODO: narrow this type
 };
 
 export type ICaliobaseRequestPasswordResetRequest = {

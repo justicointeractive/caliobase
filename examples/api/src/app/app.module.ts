@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { Example } from './entities/example.entity';
+import { OrganizationProfile } from './entities/organization-profile.entity';
 
 @Module({
   imports: [
@@ -14,10 +15,10 @@ import { Example } from './entities/example.entity';
       autoLoadEntities: true,
     }),
     CaliobaseModule.forRootAsync({
-      controllerEntities: [Example],
+      controllerEntities: [Example, OrganizationProfile],
       otherEntities: [],
       profileEntities: {
-        OrganizationProfile: null,
+        OrganizationProfile,
         UserProfile: null,
         socialProfileToUserProfile: null,
       },

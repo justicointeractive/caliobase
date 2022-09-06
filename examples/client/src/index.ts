@@ -72,9 +72,13 @@ export interface UserLoginBody {
   password: string;
 }
 
+export interface OrganizationProfile {
+  name: string;
+}
+
 export interface Organization {
   id: string;
-  profile: object;
+  profile: OrganizationProfile;
 }
 
 export interface Member {
@@ -109,8 +113,12 @@ export interface ResetWithTokenBody {
   token: string;
 }
 
+export interface CreateOrganizationProfileDto {
+  name: string;
+}
+
 export interface ConcreteCreateOrganizationRequest {
-  profile: object;
+  profile: CreateOrganizationProfileDto;
 }
 
 export interface AccessTokenResponse {
@@ -161,6 +169,10 @@ export type Example = object;
 export type CreateExampleDto = object;
 
 export type UpdateExampleDto = object;
+
+export interface UpdateOrganizationProfileDto {
+  name?: string;
+}
 
 export type QueryParamsType = Record<string | number, any>;
 export type ResponseFormat = keyof Omit<Body, 'body' | 'bodyUsed'>;
@@ -946,6 +958,113 @@ export class Api<
       this.request<{ items: Example[]; count?: number }, any>({
         path: `/api/example/${id}`,
         method: 'DELETE',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+  };
+  organizationProfile = {
+    /**
+     * No description
+     *
+     * @tags organization_profile
+     * @name Create
+     * @request POST:/api/organization_profile/{organizationId}
+     * @secure
+     */
+    create: (
+      organizationId: any,
+      data: CreateOrganizationProfileDto,
+      params: RequestParams = {}
+    ) =>
+      this.request<{ item: OrganizationProfile }, any>({
+        path: `/api/organization_profile/${organizationId}`,
+        method: 'POST',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags organization_profile
+     * @name FindOne
+     * @request GET:/api/organization_profile/{organizationId}
+     * @secure
+     */
+    findOne: (organizationId: any, params: RequestParams = {}) =>
+      this.request<{ item?: OrganizationProfile }, any>({
+        path: `/api/organization_profile/${organizationId}`,
+        method: 'GET',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags organization_profile
+     * @name Update
+     * @request PATCH:/api/organization_profile/{organizationId}
+     * @secure
+     */
+    update: (
+      organizationId: any,
+      data: UpdateOrganizationProfileDto,
+      params: RequestParams = {}
+    ) =>
+      this.request<{ items: OrganizationProfile[]; count?: number }, any>({
+        path: `/api/organization_profile/${organizationId}`,
+        method: 'PATCH',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags organization_profile
+     * @name Remove
+     * @request DELETE:/api/organization_profile/{organizationId}
+     * @secure
+     */
+    remove: (organizationId: any, params: RequestParams = {}) =>
+      this.request<{ items: OrganizationProfile[]; count?: number }, any>({
+        path: `/api/organization_profile/${organizationId}`,
+        method: 'DELETE',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags organization_profile
+     * @name FindAll
+     * @request GET:/api/organization_profile
+     * @secure
+     */
+    findAll: (
+      query?: {
+        limit?: number;
+        skip?: number;
+        orderBy?: number[];
+        select?: 'name'[];
+      },
+      params: RequestParams = {}
+    ) =>
+      this.request<{ items: OrganizationProfile[]; count?: number }, any>({
+        path: `/api/organization_profile`,
+        method: 'GET',
+        query: query,
         secure: true,
         format: 'json',
         ...params,
