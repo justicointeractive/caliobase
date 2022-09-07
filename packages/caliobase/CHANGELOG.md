@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.3.2](https://github.com/justicointeractive/caliobase/compare/caliobase-0.3.1...caliobase-0.3.2) (2022-09-07)
+
+
+### Bug Fixes
+
+* **caliobase:** transaction deadlock ([36325c1](https://github.com/justicointeractive/caliobase/commit/36325c17f9f255799c074ffa8485c969ace26f0a))
+
 ### [0.3.1](https://github.com/justicointeractive/caliobase/compare/caliobase-0.3.0...caliobase-0.3.1) (2022-09-06)
 
 
