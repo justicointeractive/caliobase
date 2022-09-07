@@ -54,6 +54,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
     "clsx": "^1.2.1",
+    "commander": "^9.4.0",
     "constructs": "^10.1.85",
     "core-js": "^3.6.5",
     "crypto-random-string": "^3.3.1",
