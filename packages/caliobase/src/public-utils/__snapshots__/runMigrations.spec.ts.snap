@@ -4,7 +4,7 @@ exports[`runMigrations should add a column 1`] = `
 Object {
   "newQueryExcuted": Array [
     Object {
-      "name": "0000000000001-generated.yml",
+      "name": "0000000000000-generated.yml",
       "querySet": Array [
         Object {
           "query": "ALTER TABLE \\"caliobase_test_migrations_entity\\"
@@ -21,7 +21,7 @@ exports[`runMigrations should create new migrations 1`] = `
 Object {
   "newQueryExcuted": Array [
     Object {
-      "name": "0000000000000-generated.yml",
+      "name": "-0000000000001-generated.yml",
       "querySet": Array [
         Object {
           "query": "CREATE TABLE \\"caliobase_test_migrations_entity\\" (
@@ -41,7 +41,7 @@ exports[`runMigrations should remove a column 1`] = `
 Object {
   "newQueryExcuted": Array [
     Object {
-      "name": "0000000000002-generated.yml",
+      "name": "0000000000001-generated.yml",
       "querySet": Array [
         Object {
           "query": "ALTER TABLE \\"caliobase_test_migrations_entity\\" DROP COLUMN \\"description\\"",
@@ -58,7 +58,7 @@ Object {
   "newQueryExcuted": Array [],
   "pendingQueryExecuted": Array [
     Object {
-      "name": "0000000000000-generated.yml",
+      "name": "-0000000000001-generated.yml",
       "querySet": Array [
         Object {
           "query": "CREATE TABLE \\"caliobase_test_migrations_entity\\" (
@@ -70,7 +70,7 @@ Object {
       ],
     },
     Object {
-      "name": "0000000000001-generated.yml",
+      "name": "0000000000000-generated.yml",
       "querySet": Array [
         Object {
           "query": "ALTER TABLE \\"caliobase_test_migrations_entity\\"
@@ -79,7 +79,7 @@ ADD \\"description\\" character varying NOT NULL",
       ],
     },
     Object {
-      "name": "0000000000002-generated.yml",
+      "name": "0000000000001-generated.yml",
       "querySet": Array [
         Object {
           "query": "ALTER TABLE \\"caliobase_test_migrations_entity\\" DROP COLUMN \\"description\\"",
@@ -95,7 +95,7 @@ Object {
   "newQueryExcuted": Array [],
   "pendingQueryExecuted": Array [
     Object {
-      "name": "0000000000000-generated.yml",
+      "name": "-0000000000001-generated.yml",
       "querySet": Array [
         Object {
           "query": "CREATE TABLE \\"caliobase_test_migrations_entity\\" (
@@ -103,6 +103,15 @@ Object {
   \\"name\\" character varying NOT NULL,
   CONSTRAINT \\"PK_04e9c1f71b555b5faab531dc5fb\\" PRIMARY KEY (\\"id\\")
 )",
+        },
+      ],
+    },
+    Object {
+      "name": "0000000000000-generated.yml",
+      "querySet": Array [
+        Object {
+          "query": "ALTER TABLE \\"caliobase_test_migrations_entity\\"
+ADD \\"description\\" character varying NOT NULL",
         },
       ],
     },
@@ -118,19 +127,17 @@ Object {
       "name": "0000000000001-generated.yml",
       "querySet": Array [
         Object {
-          "query": "ALTER TABLE \\"caliobase_test_migrations_entity\\"
-ADD \\"description\\" character varying NOT NULL",
-        },
-      ],
-    },
-    Object {
-      "name": "0000000000002-generated.yml",
-      "querySet": Array [
-        Object {
           "query": "ALTER TABLE \\"caliobase_test_migrations_entity\\" DROP COLUMN \\"description\\"",
         },
       ],
     },
   ],
+}
+`;
+
+exports[`runMigrations should skip zeroth migration if not empty 3`] = `
+Object {
+  "newQueryExcuted": Array [],
+  "pendingQueryExecuted": Array [],
 }
 `;

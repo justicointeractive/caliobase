@@ -65,8 +65,8 @@ export class Migrations {
     const alreadyRun = await this.getAlreadyRunMigrations();
     const alreadyRunFiles = new Set(alreadyRun?.map(({ name }) => name));
 
-    const shouldSkip0thMigration =
-      alreadyRun == null && // has not created migration table
+    const hasNotRunMigrationsButHasSomeEntityTables =
+      alreadyRun.length === 0 && // has not yet run any migrations
       // but has already created some tables
       (await this.dataSource.createQueryRunner().getTables()).some((table) =>
         this.dataSource.entityMetadatas.some(
@@ -97,10 +97,6 @@ export class Migrations {
       .filter(
         (migration) =>
           options.timestamp == null || migration.timestamp <= options.timestamp
-      )
-      .filter(
-        (migration) =>
-          !(shouldSkip0thMigration && migration.timestamp.getTime() <= 0)
       );
 
     const orderedExistingMigrations = orderBy(
@@ -109,20 +105,30 @@ export class Migrations {
       'asc'
     );
     const pendingQueryExecuted: QueryExecution[] = [];
+
+    await this.createMigrationsTableIfNotExists();
+
     // run pending migrations
     await this.dataSource.transaction(async (transaction) => {
-      for (const { file, filePath } of orderedExistingMigrations) {
+      for (const { file, filePath, timestamp } of orderedExistingMigrations) {
         if (alreadyRunFiles.has(file)) {
           continue;
         }
         const fileContents = await readFile(filePath, 'utf8');
-        const executed = await this.executeMigrationFileContents(
-          transaction,
-          fileContents,
-          file,
-          'upQueries'
-        );
-        pendingQueryExecuted.push(executed);
+        if (
+          hasNotRunMigrationsButHasSomeEntityTables &&
+          timestamp.getTime() <= 0
+        ) {
+          await this.insertRunMigration(transaction, file);
+        } else {
+          const executed = await this.executeMigrationFileContents(
+            transaction,
+            fileContents,
+            file,
+            'upQueries'
+          );
+          pendingQueryExecuted.push(executed);
+        }
       }
     });
 
@@ -137,7 +143,8 @@ export class Migrations {
       const timestamp = (options.timestamp ?? new Date())
         .getTime()
         .toString()
-        .padStart(13, '0');
+        .replace(/\d+/, (v) => v.padStart(13, '0'));
+
       const label = 'generated';
       const migrationName = `${timestamp}-${label}.yml`;
       const migrationFilePath = join(
@@ -185,7 +192,8 @@ export class Migrations {
     for (const query of querySet) {
       await transaction.query(query.query, query.parameters ?? undefined);
     }
-    await this.insertRunMigration(migrationName);
+
+    await this.insertRunMigration(transaction, migrationName);
 
     return { name: migrationName, querySet };
   }
@@ -196,7 +204,7 @@ export class Migrations {
     const tableExists = await runner.hasTable(migrationsTableName);
 
     if (!tableExists) {
-      return null;
+      return [];
     }
 
     const rawResults = await this.dataSource
@@ -210,35 +218,36 @@ export class Migrations {
     }));
   }
 
-  async insertRunMigration(name: string) {
-    const runner = this.dataSource.createQueryRunner();
+  async insertRunMigration(transaction: EntityManager, name: string) {
     const migrationsTableName = this.options.migrationsTableName;
 
-    const tableExists = await runner.hasTable(migrationsTableName);
-
-    if (!tableExists) {
-      await runner.createTable(
-        new Table({
-          name: migrationsTableName,
-          columns: [
-            {
-              name: 'name',
-              type: runner.connection.driver.normalizeType({
-                type: String,
-              }),
-              isPrimary: true,
-              isNullable: false,
-            },
-          ],
-        })
-      );
-    }
-
-    await runner.manager
+    await transaction
       .createQueryBuilder()
       .insert()
       .into(migrationsTableName)
       .values([{ name }])
       .execute();
+  }
+
+  private async createMigrationsTableIfNotExists() {
+    const migrationsTableName = this.options.migrationsTableName;
+    const runner = this.dataSource.createQueryRunner();
+
+    await runner.createTable(
+      new Table({
+        name: migrationsTableName,
+        columns: [
+          {
+            name: 'name',
+            type: runner.connection.driver.normalizeType({
+              type: String,
+            }),
+            isPrimary: true,
+            isNullable: false,
+          },
+        ],
+      }),
+      true
+    );
   }
 }

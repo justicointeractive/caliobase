@@ -12,7 +12,7 @@ describe('runMigrations', () => {
     migrationsTableName,
     generateMigrations: true,
   };
-  let order = 0;
+  let order = -1;
 
   beforeAll(async () => {
     const dataSource = await initializeDataSource();
@@ -128,7 +128,15 @@ describe('runMigrations', () => {
         generateMigrations: false,
       })
     ).toMatchSnapshot();
-  });
+
+    expect(
+      await runMigrations(dataSource, {
+        ...migrationOptions,
+        timestamp: new Date(order++),
+        generateMigrations: false,
+      })
+    ).toMatchSnapshot();
+  }, 5_000);
 });
 
 async function initializeDataSource(TestMigrationsEntity?: new () => any) {
@@ -138,6 +146,7 @@ async function initializeDataSource(TestMigrationsEntity?: new () => any) {
     entities: TestMigrationsEntity && [TestMigrationsEntity],
     synchronize: false,
     migrationsRun: false,
+    logging: process.env.TYPEORM_LOGGING === '1',
   });
   await dataSource.initialize();
   return dataSource;
