@@ -29,7 +29,7 @@
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@headlessui-float/react": "^0.8.0",
     "@headlessui/react": "0.0.0-insiders.122eed7",
-    "@ji-constructs/cdk-image-resize-behavior": "^0.5.4",
+    "@ji-constructs/cdk-image-resize-behavior": "^0.5.5",
     "@ji-constructs/ecs-jwt-keypair": "^0.1.7",
     "@jscutlery/semver": "^2.25.2",
     "@nestjs/common": "^8.0.0",
