@@ -11,8 +11,14 @@
         "output": "./examples/client/src"
       },
       "dependsOn": [
-        { "projects": "dependencies", "target": "build" },
-        { "projects": "dependencies", "target": "swagger" }
+        {
+          "projects": "dependencies",
+          "target": "build"
+        },
+        {
+          "projects": "dependencies",
+          "target": "swagger"
+        }
       ]
     }
   },

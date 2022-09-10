@@ -12,7 +12,6 @@
     "examples-client": "examples/client",
     "examples-cms": "examples/cms",
     "examples-cms-e2e": "examples/cms-e2e",
-    "tailwindcss-color-css-vars": "packages/tailwindcss-color-css-vars",
     "use-async-effect-state": "packages/use-async-effect-state"
   }
 }

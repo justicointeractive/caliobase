@@ -8,7 +8,6 @@
   "conventionalCommits.scopes": [
     "caliobase-ui",
     "caliobase-nx",
-    "tailwindcss-color-css-vars",
     "use-async-effect-state",
     "caliobase",
     "caliobase-cdk",

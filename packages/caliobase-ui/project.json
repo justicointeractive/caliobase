@@ -54,6 +54,5 @@
         "postTargets": ["caliobase-ui:deploy"]
       }
     }
-  },
-  "implicitDependencies": ["tailwindcss-color-css-vars"]
+  }
 }
