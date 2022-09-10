@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.3.6](https://github.com/justicointeractive/caliobase/compare/caliobase-0.3.5...caliobase-0.3.6) (2022-09-10)
+
+
+### Bug Fixes
+
+* **caliobase:** add migration timestamp column ([e43ad1e](https://github.com/justicointeractive/caliobase/commit/e43ad1ea904fc3bc8c85b07952d346f1a9526309))
+
 ### [0.3.5](https://github.com/justicointeractive/caliobase/compare/caliobase-0.3.4...caliobase-0.3.5) (2022-09-08)
 
 ### [0.3.4](https://github.com/justicointeractive/caliobase/compare/caliobase-0.3.3...caliobase-0.3.4) (2022-09-08)
