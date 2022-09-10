@@ -3,7 +3,7 @@ import { nonNull } from 'circumspect';
 import { mkdir, readdir, readFile, writeFile } from 'fs/promises';
 import { orderBy } from 'lodash';
 import { join } from 'path';
-import { DataSource, EntityManager, Table } from 'typeorm';
+import { DataSource, EntityManager, Table, TableColumn } from 'typeorm';
 import { SqlInMemory } from 'typeorm/driver/SqlInMemory';
 import { parse, stringify } from 'yaml';
 
@@ -68,11 +68,7 @@ export class Migrations {
     const hasNotRunMigrationsButHasSomeEntityTables =
       alreadyRun.length === 0 && // has not yet run any migrations
       // but has already created some tables
-      (await this.dataSource.createQueryRunner().getTables()).some((table) =>
-        this.dataSource.entityMetadatas.some(
-          (metadata) => metadata.tableName === table.name
-        )
-      );
+      (await this.hasSomeEntityTables());
 
     const existingMigrations = (
       await readdir(this.options.migrationsDir).catch((err) => {
@@ -233,7 +229,7 @@ export class Migrations {
     const migrationsTableName = this.options.migrationsTableName;
     const runner = this.dataSource.createQueryRunner();
 
-    await runner.createTable(
+    const migrationTable = await createTableIfNotExists(
       new Table({
         name: migrationsTableName,
         columns: [
@@ -246,8 +242,46 @@ export class Migrations {
             isNullable: false,
           },
         ],
-      }),
-      true
+      })
+    );
+
+    await addColumnIfNotExists(
+      new TableColumn({
+        name: 'timestamp',
+        type: runner.connection.driver.normalizeType({ type: Date }),
+        default: 'CURRENT_TIMESTAMP',
+      })
+    );
+
+    async function createTableIfNotExists(table: Table) {
+      if (!(await runner.hasTable(table))) {
+        await runner.createTable(table);
+      }
+      return table;
+    }
+
+    async function addColumnIfNotExists(column: TableColumn) {
+      if (!(await runner.hasColumn(migrationTable, column.name))) {
+        await runner.addColumn(migrationTable, column);
+      }
+      return column;
+    }
+  }
+  private async hasSomeEntityTables() {
+    const existingTables = await this.dataSource
+      .createQueryRunner()
+      .getTables();
+
+    const existingTableNames = new Set(
+      existingTables.map((table) => table.name)
+    );
+
+    const entityTableNames = this.dataSource.entityMetadatas.map(
+      (m) => m.tableName
+    );
+
+    return entityTableNames.some((tableName) =>
+      existingTableNames.has(tableName)
     );
   }
 }
