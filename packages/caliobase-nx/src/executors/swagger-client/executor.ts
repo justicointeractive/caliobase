@@ -7,7 +7,7 @@ export async function runExecutor(options: SwaggerClientExecutorSchema) {
   await generateApi({
     input: join(process.cwd(), options.input),
     output: join(process.cwd(), options.output),
-    name: 'index.ts',
+    name: options.name ?? 'index.ts',
     httpClientType: 'fetch',
     moduleNameFirstTag: true,
     hooks: {

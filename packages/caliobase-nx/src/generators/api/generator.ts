@@ -3,6 +3,7 @@ import {
   generateFiles,
   getWorkspaceLayout,
   names,
+  offsetFromRoot,
   Tree,
 } from '@nrwl/devkit';
 import { applicationGenerator } from '@nrwl/nest/src/generators/application/application';
@@ -39,19 +40,25 @@ function normalizeOptions(
   };
 }
 
-export default async function (tree: Tree, options: ApiGeneratorSchema) {
-  const normalizedOptions = normalizeOptions(tree, options);
-  await applicationGenerator(tree, { name: options.name });
+function addFiles(tree: Tree, options: NormalizedSchema) {
+  const templateOptions = {
+    cmsProjectName: null,
+    ...options,
+    ...names(options.name),
+    offsetFromRoot: offsetFromRoot(options.projectRoot),
+    tmpl: '',
+  };
   generateFiles(
     tree,
     path.join(__dirname, 'files'),
-    normalizedOptions.projectRoot,
-    {
-      cmsProjectName: null,
-      ...options,
-      ...normalizedOptions,
-      tmpl: '',
-    }
+    options.projectRoot,
+    templateOptions
   );
+}
+
+export default async function (tree: Tree, options: ApiGeneratorSchema) {
+  const normalizedOptions = normalizeOptions(tree, options);
+  await applicationGenerator(tree, { name: options.name });
+  addFiles(tree, normalizedOptions);
   await formatFiles(tree);
 }

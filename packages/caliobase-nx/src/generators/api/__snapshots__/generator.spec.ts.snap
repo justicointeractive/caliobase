@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`api generator should run successfully: apps/test/src/app/app.module.ts 1`] = `
+exports[`api generator should run successfully: apps/api/src/app/app.module.ts 1`] = `
 "import { SendRawEmailCommand, SES } from '@aws-sdk/client-ses';
 import {
   CaliobaseModule,
@@ -12,11 +12,11 @@ import { DynamicModule, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { createTransport } from 'nodemailer';
 import * as SESTransport from 'nodemailer/lib/ses-transport';
-import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { OrganizationProfile } from './entities/organization-profile.entity';
 import { UserProfile } from './entities/user-profile.entity';
+
 
 const ses = new SES({});
 
@@ -88,7 +88,7 @@ export class AppModule {
 "
 `;
 
-exports[`api generator should run successfully: apps/test/src/app/entities/organization-profile.entity.ts 1`] = `
+exports[`api generator should run successfully: apps/api/src/app/entities/organization-profile.entity.ts 1`] = `
 "import {
   AbstractOrganizationProfile,
   CaliobaseEntity,
@@ -105,7 +105,7 @@ export class OrganizationProfile extends AbstractOrganizationProfile {
 "
 `;
 
-exports[`api generator should run successfully: apps/test/src/app/entities/user-profile.entity.ts 1`] = `
+exports[`api generator should run successfully: apps/api/src/app/entities/user-profile.entity.ts 1`] = `
 "import { AbstractUserProfile, CaliobaseEntity } from '@caliobase/caliobase';
 import { Column } from 'typeorm';
 
@@ -122,11 +122,11 @@ export class UserProfile extends AbstractUserProfile {
 "
 `;
 
-exports[`api generator should run successfully: apps/test/src/main.ts 1`] = `
+exports[`api generator should run successfully: apps/api/src/main.ts 1`] = `
 "import { CaliobaseModule } from '@caliobase/caliobase';
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app/app.module.ts';
+import { AppModule } from './app/app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule.forRootAsync(), {
@@ -138,7 +138,7 @@ async function bootstrap() {
 
   await CaliobaseModule.bootstrap(app, {
     migration: {
-      migrationsDir: './apps/test/migrations',
+      migrationsDir: './apps/api/migrations',
     },
   });
 
@@ -155,4 +155,3 @@ bootstrap().catch((err) => {
 });
 "
 `;
-

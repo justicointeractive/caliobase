@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`client generator should run successfully: apps/api/src/main.ts 1`] = `
+"import { CaliobaseModule } from '@caliobase/caliobase';
+import { Logger } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app/app.module';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule.forRootAsync(), {
+    cors: true,
+  });
+
+  const globalPrefix = 'api';
+  app.setGlobalPrefix(globalPrefix);
+
+  await CaliobaseModule.bootstrap(app, {
+    migration: {
+      migrationsDir: './apps/api/migrations',
+    },
+  });
+
+  const port = process.env.PORT || 3324;
+  await app.listen(port);
+  Logger.log(
+    \`🚀 Application is running on: http://localhost:\${port}/\${globalPrefix}\`
+  );
+}
+
+bootstrap().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
+"
+`;
+
+exports[`client generator should run successfully: libs/client/src/index.ts 1`] = `
+"export * from './lib/client';
+"
+`;
+
+exports[`client generator should run successfully: libs/client/src/lib/client.ts 1`] = `"// this will be replaced with a generated file when the generate-sources target is executed"`;
