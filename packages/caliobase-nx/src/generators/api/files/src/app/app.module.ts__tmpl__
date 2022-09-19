@@ -1,0 +1,91 @@
+import { SendRawEmailCommand, SES } from '@aws-sdk/client-ses';
+import {
+  CaliobaseModule,
+  parseEnvVars,
+  S3ObjectStorageProvider,
+  TOKEN_TOKEN,
+} from '@caliobase/caliobase';
+import { DynamicModule, Module } from '@nestjs/common';<% if (cmsProjectName) {%>
+import { ServeStaticModule } from '@nestjs/serve-static';
+<% } %>
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { createTransport } from 'nodemailer';
+import * as SESTransport from 'nodemailer/lib/ses-transport';
+import { join } from 'path';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { OrganizationProfile } from './entities/organization-profile.entity';
+import { UserProfile } from './entities/user-profile.entity';
+
+const ses = new SES({});
+
+const envVars = parseEnvVars(({ required, optional }) => ({
+  pgConnectionString:
+    optional(
+      'PG_CONNECTION_JSON',
+      (v) => {
+        const { host, port, username, password } = JSON.parse(v);
+        return `postgresql://${username}:${password}@${host}:${port}/postgres`;
+      },
+      null
+    ) ?? required('PG_CONNECTION_STRING', String),
+  cmsHostname: required('CMS_HOSTNAME', String),
+  emailFromAddress: required('EMAIL_FROM_ADDRESS', String),
+  s3: {
+    bucket: optional('S3_BUCKET', String, ''),
+    keyPrefix: optional('S3_KEY_PREFIX', String, ''),
+    endpoint: optional('S3_ENDPOINT', String, undefined),
+  },
+  cdn: {
+    urlPrefix: optional('STATIC_FILE_BASEURL', String, ''),
+  },
+}));
+
+@Module({
+  imports: [],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {
+  static async forRootAsync(): Promise<DynamicModule> {
+    return {
+      module: AppModule,
+      providers: [],
+      imports: [
+        TypeOrmModule.forRoot({
+          type: 'postgres',
+          url: envVars.pgConnectionString,
+          autoLoadEntities: true,
+        }),
+        <% if (cmsProjectName) {%>
+        ServeStaticModule.forRoot({
+          rootPath: join(process.cwd(), './dist/apps/cms'),
+          exclude: ['/api'],
+        }),
+        <% } %>
+        CaliobaseModule.forRootAsync({
+          urls: {
+            forgotPassword: `https://${envVars.cmsHostname}/forgotPassword?token=${TOKEN_TOKEN}`,
+          },
+          controllerEntities: [],
+          otherEntities: [],
+          profileEntities: {
+            OrganizationProfile,
+            UserProfile,
+            socialProfileToUserProfile: null,
+          },
+          objectStorageProvider: new S3ObjectStorageProvider({
+            ...envVars.s3,
+            cdnUrlPrefix: envVars.cdn.urlPrefix,
+          }),
+          emailTransport: createTransport(
+            <SESTransport.Options>{
+              SES: { aws: { SendRawEmailCommand }, ses },
+            },
+            { from: envVars.emailFromAddress }
+          ),
+        }),
+      ],
+    };
+  }
+}

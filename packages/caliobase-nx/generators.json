@@ -2,5 +2,11 @@
   "$schema": "http://json-schema.org/schema",
   "name": "caliobase-nx",
   "version": "0.0.1",
-  "generators": {}
+  "generators": {
+    "api": {
+      "factory": "./src/generators/api/generator",
+      "schema": "./src/generators/api/schema.json",
+      "description": "api generator"
+    }
+  }
 }
