@@ -5,17 +5,18 @@ import {
   S3ObjectStorageProvider,
   TOKEN_TOKEN,
 } from '@caliobase/caliobase';
-import { DynamicModule, Module } from '@nestjs/common';<% if (cmsProjectName) {%>
-import { ServeStaticModule } from '@nestjs/serve-static';
-<% } %>
+import { DynamicModule, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { createTransport } from 'nodemailer';
 import * as SESTransport from 'nodemailer/lib/ses-transport';
-import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { OrganizationProfile } from './entities/organization-profile.entity';
 import { UserProfile } from './entities/user-profile.entity';
+<% if (cmsProjectName) {%>
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
+<% } %>
 
 const ses = new SES({});
 
