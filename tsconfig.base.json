@@ -22,9 +22,6 @@
       "@caliobase/caliobase-nx": ["packages/caliobase-nx/src/index.ts"],
       "@caliobase/caliobase-ui": ["packages/caliobase-ui/src/index.ts"],
       "@caliobase/examples-client": ["examples/client/src/index.ts"],
-      "tailwindcss-color-css-vars": [
-        "packages/tailwindcss-color-css-vars/src/index.ts"
-      ],
       "use-async-effect-state": ["packages/use-async-effect-state/src/index.ts"]
     }
   },

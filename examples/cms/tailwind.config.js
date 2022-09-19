@@ -1,5 +1,4 @@
 const path = require('path');
-const { colorVars } = require('../../dist/packages/tailwindcss-color-css-vars');
 const { createGlobPatternsForDependencies } = require('@nrwl/react/tailwind');
 
 const caliobaseUiDir = path.resolve(
@@ -12,5 +11,5 @@ module.exports = {
     `${caliobaseUiDir}/**/*.js`,
     ...createGlobPatternsForDependencies(__dirname),
   ],
-  plugins: [colorVars],
+  plugins: [],
 };
