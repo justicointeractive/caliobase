@@ -6,3 +6,4 @@ export * from './DetailView';
 export * from './ListView';
 export * from './Login';
 export * from './OrganizationMemberView';
+export * from './RootUI';

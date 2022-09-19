@@ -1,16 +1,10 @@
 import { faClose } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import clsx from 'clsx';
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { BrowserRouter, RouteObject } from 'react-router-dom';
-import { useAsyncEffectState } from 'use-async-effect-state';
-import {
-  ApiContextProvider,
-  AppRoutes,
-  useApiContext,
-} from '../context/ApiContext';
+import { AppRoutes } from '../context/ApiContext';
 import { ToastContextProvider } from '../context/ToastContext';
-import { UserContextProvider, useUserContext } from '../context/UserContext';
 import { CaliobaseUiConfiguration, ICaliobaseApi } from '../lib';
 import { mergeRouteTrees } from '../lib/mergeRouteTrees';
 import { AcceptInvitationView } from './AcceptInvitationView';
@@ -24,21 +18,7 @@ import {
   OrganizationMemberDetailView,
   OrganizationMemberListView,
 } from './OrganizationMemberView';
-
-export function RootUI({ routes }: { routes: RouteObject[] }) {
-  const { root, reloadRoot } = useApiContext();
-  const { user } = useUserContext();
-
-  const hasRoot = root?.hasRootMember !== false;
-
-  return user ? (
-    <AppRoutes routes={routes} />
-  ) : hasRoot ? (
-    <Login />
-  ) : (
-    <CreateRoot onCreated={() => reloadRoot()} />
-  );
-}
+import { RootUI } from './RootUI';
 
 export function CaliobaseUI<T extends ICaliobaseApi>({
   configuration: caliobaseUiConfiguration,
@@ -49,35 +29,6 @@ export function CaliobaseUI<T extends ICaliobaseApi>({
   routes: RouteObject[];
   menuItems?: MenuNavLinkPropsInput[];
 }) {
-  const api = useMemo(
-    () =>
-      new caliobaseUiConfiguration.Api(caliobaseUiConfiguration.baseApiParams),
-    [caliobaseUiConfiguration]
-  );
-
-  const [rootReloadId, setRootReloadId] = useState(0);
-  const [root] = useAsyncEffectState(
-    undefined,
-    async (signal) => {
-      return (await api.root.getRoot({ signal })).data;
-    },
-    [api, rootReloadId]
-  );
-
-  const reloadRoot = useCallback(() => {
-    setRootReloadId((r) => r + 1);
-  }, []);
-
-  const context = useMemo(
-    () => ({
-      caliobaseUiConfiguration,
-      api,
-      root,
-      reloadRoot,
-    }),
-    [api, caliobaseUiConfiguration, root, reloadRoot]
-  );
-
   const routes = useMemo(() => {
     const defaultRoutes: RouteObject[] = [
       {
@@ -144,13 +95,14 @@ export function CaliobaseUI<T extends ICaliobaseApi>({
         </div>
       )}
     >
-      <ApiContextProvider context={context}>
-        <UserContextProvider>
-          <BrowserRouter>
-            <RootUI routes={routes} />
-          </BrowserRouter>
-        </UserContextProvider>
-      </ApiContextProvider>
+      <BrowserRouter>
+        <RootUI
+          configuration={caliobaseUiConfiguration}
+          loggedIn={<AppRoutes routes={routes} />}
+          anonymous={<Login />}
+          createRoot={<CreateRoot />}
+        />
+      </BrowserRouter>
     </ToastContextProvider>
   );
 }

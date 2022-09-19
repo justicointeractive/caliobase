@@ -6,11 +6,11 @@ import { useUserContext } from '../context/UserContext';
 import { createInstanceFromFields } from '../lib';
 import { bearerToken } from '../lib/bearerToken';
 
-export function CreateRoot(props: { onCreated: () => void }) {
+export function CreateRoot() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const { api, caliobaseUiConfiguration } = useApiContext();
+  const { api, caliobaseUiConfiguration, reloadRoot } = useApiContext();
   const { setAccessToken } = useUserContext();
 
   const userProfileFields = useMemo(() => {
@@ -56,7 +56,7 @@ export function CreateRoot(props: { onCreated: () => void }) {
     });
 
     setAccessToken(orgAccessToken);
-    props.onCreated();
+    reloadRoot();
   }
 
   return (
