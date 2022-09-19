@@ -3,5 +3,8 @@
   "version": "0.2.5",
   "main": "src/index.js",
   "generators": "./generators.json",
-  "executors": "./executors.json"
+  "executors": "./executors.json",
+  "devDependencies": {
+    "@nrwl/nest": "^14.3.6"
+  }
 }
