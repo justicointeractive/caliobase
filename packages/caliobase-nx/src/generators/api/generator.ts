@@ -8,7 +8,9 @@ import {
 } from '@nrwl/devkit';
 import { applicationGenerator } from '@nrwl/nest/src/generators/application/application';
 import * as path from 'path';
+import { modifyProjectConfiguration } from '../../lib/modifyProjectConfiguration';
 import { ApiGeneratorSchema } from './schema';
+import assert = require('assert');
 
 interface NormalizedSchema extends ApiGeneratorSchema {
   projectName: string;
@@ -60,5 +62,10 @@ export default async function (tree: Tree, options: ApiGeneratorSchema) {
   const normalizedOptions = normalizeOptions(tree, options);
   await applicationGenerator(tree, { name: options.name });
   addFiles(tree, normalizedOptions);
+  modifyProjectConfiguration(tree, options.name, (config) => {
+    assert(config.targets);
+    config.targets['build'].options['tsPlugins'] = ['@nestjs/swagger/plugin'];
+    return config;
+  });
   await formatFiles(tree);
 }

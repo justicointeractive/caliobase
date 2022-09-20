@@ -17,6 +17,9 @@ exports[`api generator should run successfully: apps/api/project.json 1`] = `
         \\"tsConfig\\": \\"apps/api/tsconfig.app.json\\",
         \\"assets\\": [
           \\"apps/api/src/assets\\"
+        ],
+        \\"tsPlugins\\": [
+          \\"@nestjs/swagger/plugin\\"
         ]
       },
       \\"configurations\\": {

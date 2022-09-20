@@ -4,13 +4,11 @@ import {
   getWorkspaceLayout,
   names,
   offsetFromRoot,
-  ProjectConfiguration,
-  readProjectConfiguration,
   Tree,
-  updateProjectConfiguration,
 } from '@nrwl/devkit';
 import { libraryGenerator } from '@nrwl/js/src/generators/library/library';
 import * as path from 'path';
+import { modifyProjectConfiguration } from '../../lib/modifyProjectConfiguration';
 import { ClientGeneratorSchema } from './schema';
 
 interface NormalizedSchema extends ClientGeneratorSchema {
@@ -109,14 +107,4 @@ export default async function (tree: Tree, options: ClientGeneratorSchema) {
   );
 
   await formatFiles(tree);
-}
-
-function modifyProjectConfiguration(
-  tree: Tree,
-  projectName: string,
-  action: (config: ProjectConfiguration) => ProjectConfiguration
-) {
-  let config = readProjectConfiguration(tree, projectName);
-  config = action(config);
-  updateProjectConfiguration(tree, projectName, config);
 }
