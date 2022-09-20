@@ -18,6 +18,7 @@ describe('api generator', () => {
     const config = readProjectConfiguration(appTree, 'api');
     expect(config).toBeDefined();
 
+    expectSnapshot(appTree, 'apps/api/project.json');
     expectSnapshot(appTree, 'apps/api/src/main.ts');
     expectSnapshot(appTree, 'apps/api/src/app/app.module.ts');
     expectSnapshot(

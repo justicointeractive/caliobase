@@ -70,7 +70,7 @@ export default async function (tree: Tree, options: ClientGeneratorSchema) {
         outputs: [`${normalizedOptions.projectRoot}/src`],
         options: {
           input: `./${normalizedOptions.projectRoot}/assets/openapi.json`,
-          output: `./${normalizedOptions.projectRoot}/src`,
+          output: `./${normalizedOptions.projectRoot}/src/lib`,
           name: `${normalizedOptions.projectName}.ts`,
         },
         dependsOn: [{ projects: 'dependencies', target: 'swagger' }],

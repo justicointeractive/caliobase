@@ -34,6 +34,57 @@ bootstrap().catch((err) => {
 "
 `;
 
+exports[`client generator should run successfully: libs/client/project.json 1`] = `
+"{
+  \\"$schema\\": \\"../../node_modules/nx/schemas/project-schema.json\\",
+  \\"tags\\": [],
+  \\"targets\\": {
+    \\"lint\\": {
+      \\"executor\\": \\"@nrwl/linter:eslint\\",
+      \\"outputs\\": [
+        \\"{options.outputFile}\\"
+      ],
+      \\"options\\": {
+        \\"lintFilePatterns\\": [
+          \\"libs/client/**/*.ts\\"
+        ]
+      }
+    },
+    \\"test\\": {
+      \\"executor\\": \\"@nrwl/jest:jest\\",
+      \\"outputs\\": [
+        \\"coverage/libs/client\\"
+      ],
+      \\"options\\": {
+        \\"jestConfig\\": \\"libs/client/jest.config.ts\\",
+        \\"passWithNoTests\\": true
+      }
+    },
+    \\"generate-sources\\": {
+      \\"executor\\": \\"@caliobase/caliobase-nx:swagger-client\\",
+      \\"outputs\\": [
+        \\"libs/client/src\\"
+      ],
+      \\"options\\": {
+        \\"input\\": \\"./libs/client/assets/openapi.json\\",
+        \\"output\\": \\"./libs/client/src/lib\\",
+        \\"name\\": \\"client.ts\\"
+      },
+      \\"dependsOn\\": [
+        {
+          \\"projects\\": \\"dependencies\\",
+          \\"target\\": \\"swagger\\"
+        }
+      ]
+    }
+  },
+  \\"implicitDependencies\\": [
+    \\"api\\"
+  ]
+}
+"
+`;
+
 exports[`client generator should run successfully: libs/client/src/index.ts 1`] = `
 "export * from './lib/client';
 "

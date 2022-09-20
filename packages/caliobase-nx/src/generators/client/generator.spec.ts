@@ -23,6 +23,7 @@ describe('client generator', () => {
     const config = readProjectConfiguration(appTree, 'client');
     expect(config).toBeDefined();
     expectSnapshot(appTree, 'apps/api/src/main.ts');
+    expectSnapshot(appTree, 'libs/client/project.json');
     expectSnapshot(appTree, 'libs/client/src/index.ts');
     expectSnapshot(appTree, 'libs/client/src/lib/client.ts');
   });
