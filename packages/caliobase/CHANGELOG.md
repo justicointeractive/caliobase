@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.3.7](https://github.com/justicointeractive/caliobase/compare/caliobase-0.3.6...caliobase-0.3.7) (2022-09-21)
+
+
+### Reverts
+
+* Revert "test(caliobase): fix runMigrations snapshots" ([e739e7a](https://github.com/justicointeractive/caliobase/commit/e739e7a3a691676716c00531f49893d0cebf7f7a))
+
 ### [0.3.6](https://github.com/justicointeractive/caliobase/compare/caliobase-0.3.5...caliobase-0.3.6) (2022-09-10)
 
 
