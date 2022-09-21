@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.1.0](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.0.22...caliobase-ui-0.1.0) (2022-09-21)
+
+
+### Features
+
+* **caliobase-ui:** add an easy way to show an authentication dialog ([02a91d6](https://github.com/justicointeractive/caliobase/commit/02a91d6b7c0731ab0c27b550f91744507fa01ea7))
+
 ### [0.0.22](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.0.21...caliobase-ui-0.0.22) (2022-09-19)
 
 ### [0.0.21](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.0.20...caliobase-ui-0.0.21) (2022-09-10)
