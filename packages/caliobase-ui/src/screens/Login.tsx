@@ -14,6 +14,14 @@ import { bearerToken } from '../lib/bearerToken';
 import { promisePopup } from '../lib/promisePopup';
 import { DescribeInvitation } from './AcceptInvitationView';
 
+export function LoginScreen() {
+  return (
+    <div className="flex h-screen flex-col place-content-center place-items-center gap-3 bg-gray-200">
+      <Login />
+    </div>
+  );
+}
+
 export function Login() {
   const navigate = useNavigate();
   const toast = useToastContext();
@@ -132,65 +140,63 @@ export function Login() {
   const modeLabel = mode === 'create' ? 'Create account' : 'Log in';
 
   return (
-    <div className="flex h-screen flex-col place-content-center place-items-center gap-3 bg-gray-200">
-      <div className="m-auto grid w-[300px] gap-2">
-        <Branding className="mb-4" />
-        {invitation && (
-          <div className="flex items-center gap-2 rounded bg-white p-2">
-            <div className="flex-1 text-sm">
-              <DescribeInvitation invitation={invitation} />
-            </div>
-            <div>
-              <button
-                className="rounded bg-gray-200 py-1 px-2 text-xs font-bold text-gray-600"
-                onClick={() => setSearchParams({})}
-              >
-                Decline
-              </button>
-            </div>
+    <div className="m-auto grid w-[300px] gap-2">
+      <Branding className="mb-4" />
+      {invitation && (
+        <div className="flex items-center gap-2 rounded bg-white p-2">
+          <div className="flex-1 text-sm">
+            <DescribeInvitation invitation={invitation} />
           </div>
-        )}
-        {/* TODO: allow create new organiation flow if configured */}
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-          }}
-          className="grid gap-3 rounded bg-white p-2"
-        >
-          {showPasswordAuth && (
-            <PasswordLoginFormFragment
-              {...{
-                mode,
-                modeLabel,
-                startSessionWithUserAccessToken,
-                claimInvitation,
-                onError: showErr,
-                onModeChange: setMode,
-              }}
-            />
-          )}
-
-          {root?.socialProviders.map((provider) => (
-            <PendingButton
-              key={provider.name}
-              className="rounded bg-indigo-700 p-3 font-bold text-white"
-              onClick={async () => {
-                await handleSignInSSO(provider.name);
-              }}
+          <div>
+            <button
+              className="rounded bg-gray-200 py-1 px-2 text-xs font-bold text-gray-600"
+              onClick={() => setSearchParams({})}
             >
-              {modeLabel} with {provider.label}
-            </PendingButton>
-          ))}
-        </form>
-        {!showPasswordAuth && (
-          <button
-            className="text-sm text-gray-500"
-            onClick={() => setShowPasswordAuth(true)}
-          >
-            {modeLabel} with password
-          </button>
+              Decline
+            </button>
+          </div>
+        </div>
+      )}
+      {/* TODO: allow create new organiation flow if configured */}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+        }}
+        className="grid gap-3 rounded bg-white p-2"
+      >
+        {showPasswordAuth && (
+          <PasswordLoginFormFragment
+            {...{
+              mode,
+              modeLabel,
+              startSessionWithUserAccessToken,
+              claimInvitation,
+              onError: showErr,
+              onModeChange: setMode,
+            }}
+          />
         )}
-      </div>
+
+        {root?.socialProviders.map((provider) => (
+          <PendingButton
+            key={provider.name}
+            className="rounded bg-indigo-700 p-3 font-bold text-white"
+            onClick={async () => {
+              await handleSignInSSO(provider.name);
+            }}
+          >
+            {modeLabel} with {provider.label}
+          </PendingButton>
+        ))}
+      </form>
+      {!showPasswordAuth && (
+        <button
+          className="text-sm text-gray-500"
+          onClick={() => setShowPasswordAuth(true)}
+        >
+          {modeLabel} with password
+        </button>
+      )}
     </div>
   );
 }

@@ -12,7 +12,7 @@ import { CreateRoot } from './CreateRoot';
 import { Dashboard } from './Dashboard';
 import { DetailView } from './DetailView';
 import { ListView } from './ListView';
-import { Login } from './Login';
+import { LoginScreen } from './Login';
 import { MenuNavLinkPropsInput } from './MenuNavLink';
 import {
   OrganizationMemberDetailView,
@@ -98,7 +98,7 @@ export function CaliobaseUI<T extends ICaliobaseApi>({
       <RootUI
         configuration={caliobaseUiConfiguration}
         loggedIn={<AppRoutes routes={routes} />}
-        anonymous={<Login />}
+        anonymous={<LoginScreen />}
         createRoot={<CreateRoot />}
       />
     </ToastContextProvider>
