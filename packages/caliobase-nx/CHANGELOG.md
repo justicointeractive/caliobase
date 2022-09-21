@@ -2,6 +2,14 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.2.8](https://github.com/justicointeractive/caliobase/compare/caliobase-nx-0.2.7...caliobase-nx-0.2.8) (2022-09-21)
+
+
+### Bug Fixes
+
+* **caliobase-nx:** add nest swagger ts plugin ([e8bb6da](https://github.com/justicointeractive/caliobase/commit/e8bb6da137c51a559b16c5770b8636e35809255a))
+* **caliobase-nx:** dependency management ([777246d](https://github.com/justicointeractive/caliobase/commit/777246d5cffa89886a87684b49ce997ba8f7b7eb))
+
 ### [0.2.7](https://github.com/justicointeractive/caliobase/compare/caliobase-nx-0.2.6...caliobase-nx-0.2.7) (2022-09-19)
 
 
