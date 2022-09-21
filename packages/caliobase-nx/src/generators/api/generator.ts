@@ -1,14 +1,17 @@
 import {
   formatFiles,
   generateFiles,
+  GeneratorCallback,
   getWorkspaceLayout,
   names,
   offsetFromRoot,
   Tree,
 } from '@nrwl/devkit';
 import { applicationGenerator } from '@nrwl/nest/src/generators/application/application';
+import { runTasksInSerial } from '@nrwl/workspace/src/utilities/run-tasks-in-serial';
 import * as path from 'path';
 import { modifyProjectConfiguration } from '../../lib/modifyProjectConfiguration';
+import { addDependencyVersionsToPackageJson } from '../../lib/versions';
 import { ApiGeneratorSchema } from './schema';
 import assert = require('assert');
 
@@ -59,13 +62,23 @@ function addFiles(tree: Tree, options: NormalizedSchema) {
 }
 
 export default async function (tree: Tree, options: ApiGeneratorSchema) {
+  const tasks: GeneratorCallback[] = [];
+
   const normalizedOptions = normalizeOptions(tree, options);
+
   await applicationGenerator(tree, { name: options.name });
+
   addFiles(tree, normalizedOptions);
+
   modifyProjectConfiguration(tree, options.name, (config) => {
     assert(config.targets);
     config.targets['build'].options['tsPlugins'] = ['@nestjs/swagger/plugin'];
     return config;
   });
+
+  tasks.push(addDependencyVersionsToPackageJson(tree, ['nodemailer']));
+
   await formatFiles(tree);
+
+  return runTasksInSerial(...tasks);
 }

@@ -1,5 +1,6 @@
 import { readProjectConfiguration, Tree } from '@nrwl/devkit';
 import { createTreeWithEmptyWorkspace } from '@nrwl/devkit/testing';
+import { expectDependenciesMatch } from '../../test-utils/expectDependenciesMatch';
 import { expectSnapshot } from '../../test-utils/expectSnapshot';
 
 import generator from './generator';
@@ -18,6 +19,8 @@ describe('api generator', () => {
     const config = readProjectConfiguration(appTree, 'api');
     expect(config).toBeDefined();
 
+    expectSnapshot(appTree, 'package.json');
+    await expectDependenciesMatch(appTree, 'package.json');
     expectSnapshot(appTree, 'apps/api/project.json');
     expectSnapshot(appTree, 'apps/api/src/main.ts');
     expectSnapshot(appTree, 'apps/api/src/app/app.module.ts');
