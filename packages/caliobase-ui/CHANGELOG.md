@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.1.2](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.1...caliobase-ui-0.1.2) (2022-09-21)
+
+
+### Bug Fixes
+
+* **caliobase-ui:** wrap base ui in react router ([7a72c3e](https://github.com/justicointeractive/caliobase/commit/7a72c3e1535f7360ec2f5193ce6bd7aea19e9275))
+
 ### [0.1.1](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.0...caliobase-ui-0.1.1) (2022-09-21)
 
 
