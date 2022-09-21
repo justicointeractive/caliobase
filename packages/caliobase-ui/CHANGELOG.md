@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.1.1](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.0...caliobase-ui-0.1.1) (2022-09-21)
+
+
+### Bug Fixes
+
+* **caliobase-ui:** add a way to close auth dialog ([65ed1e4](https://github.com/justicointeractive/caliobase/commit/65ed1e4815b8617dca8a83c7cbd1a0bfca3b6564))
+
 ## [0.1.0](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.0.22...caliobase-ui-0.1.0) (2022-09-21)
 
 
