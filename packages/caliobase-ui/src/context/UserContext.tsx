@@ -19,11 +19,20 @@ export function useUserContext() {
   return useContext(UserContext);
 }
 
-export function UserContextProvider({ children }: { children: ReactNode }) {
+export function UserContextProvider({
+  children,
+  showLoader,
+}: {
+  showLoader?: boolean;
+  children: ReactNode;
+}) {
   const value = useUserContextValue();
   const { root } = useApiContext();
 
-  if (root == null || (value.accessToken == null) !== (value.user == null)) {
+  if (
+    showLoader !== false &&
+    (root == null || (value.accessToken == null) !== (value.user == null))
+  ) {
     return <FullScreenLoader />;
   }
 

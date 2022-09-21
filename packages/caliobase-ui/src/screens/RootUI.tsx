@@ -14,6 +14,7 @@ import { CaliobaseUiConfiguration, ICaliobaseApi } from '../lib';
 export type RootUIProps<T extends ICaliobaseApi> = {
   configuration: CaliobaseUiConfiguration<T>;
   authModal?: ReactElement;
+  showLoader?: boolean;
 } & RootUISwitchProps;
 
 export function RootUI<T extends ICaliobaseApi>({
@@ -22,6 +23,7 @@ export function RootUI<T extends ICaliobaseApi>({
   createRoot,
   anonymous,
   authModal,
+  showLoader,
 }: RootUIProps<T>) {
   const api = useMemo(
     () =>
@@ -62,7 +64,7 @@ export function RootUI<T extends ICaliobaseApi>({
 
   return (
     <ApiContextProvider context={context}>
-      <UserContextProvider>
+      <UserContextProvider showLoader={showLoader}>
         <BrowserRouter>
           <RootUISwitch
             loggedIn={loggedIn}
@@ -96,5 +98,7 @@ export function RootUISwitch({
 
   const hasRoot = root?.hasRootMember !== false;
 
-  return (user ? loggedIn : hasRoot ? anonymous : createRoot) ?? null;
+  return (
+    (user ? loggedIn : hasRoot ? anonymous : createRoot ?? anonymous) ?? null
+  );
 }
