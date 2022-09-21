@@ -2,7 +2,7 @@ import { faClose } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import clsx from 'clsx';
 import { useMemo } from 'react';
-import { BrowserRouter, RouteObject } from 'react-router-dom';
+import { RouteObject } from 'react-router-dom';
 import { AppRoutes } from '../context/ApiContext';
 import { ToastContextProvider } from '../context/ToastContext';
 import { CaliobaseUiConfiguration, ICaliobaseApi } from '../lib';
@@ -95,14 +95,12 @@ export function CaliobaseUI<T extends ICaliobaseApi>({
         </div>
       )}
     >
-      <BrowserRouter>
-        <RootUI
-          configuration={caliobaseUiConfiguration}
-          loggedIn={<AppRoutes routes={routes} />}
-          anonymous={<Login />}
-          createRoot={<CreateRoot />}
-        />
-      </BrowserRouter>
+      <RootUI
+        configuration={caliobaseUiConfiguration}
+        loggedIn={<AppRoutes routes={routes} />}
+        anonymous={<Login />}
+        createRoot={<CreateRoot />}
+      />
     </ToastContextProvider>
   );
 }

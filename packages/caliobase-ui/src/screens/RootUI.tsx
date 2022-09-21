@@ -5,6 +5,7 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { BrowserRouter } from 'react-router-dom';
 import { useAsyncEffectState } from 'use-async-effect-state';
 import { ApiContextProvider, useApiContext } from '../context/ApiContext';
 import { UserContextProvider, useUserContext } from '../context/UserContext';
@@ -62,16 +63,18 @@ export function RootUI<T extends ICaliobaseApi>({
   return (
     <ApiContextProvider context={context}>
       <UserContextProvider>
-        <RootUISwitch
-          loggedIn={loggedIn}
-          anonymous={anonymous}
-          createRoot={createRoot}
-        />
-        {showAuthModal &&
-          authModal &&
-          cloneElement(authModal, {
-            setOpen: (value: boolean) => context.setShowAuthModal(value),
-          })}
+        <BrowserRouter>
+          <RootUISwitch
+            loggedIn={loggedIn}
+            anonymous={anonymous}
+            createRoot={createRoot}
+          />
+          {showAuthModal &&
+            authModal &&
+            cloneElement(authModal, {
+              setOpen: (value: boolean) => context.setShowAuthModal(value),
+            })}
+        </BrowserRouter>
       </UserContextProvider>
     </ApiContextProvider>
   );
