@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.1.3](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.2...caliobase-ui-0.1.3) (2022-09-21)
+
+
+### Bug Fixes
+
+* **caliobase-ui:** let full screen loader be disabled ([0c11b92](https://github.com/justicointeractive/caliobase/commit/0c11b92605bf5494b67b6bf487df73128eb81757))
+
 ### [0.1.2](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.1...caliobase-ui-0.1.2) (2022-09-21)
 
 
