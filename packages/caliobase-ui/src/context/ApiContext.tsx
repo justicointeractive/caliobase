@@ -8,6 +8,7 @@ export type ApiContext = {
   api: ICaliobaseApi;
   root?: ICaliobaseRootResponse;
   reloadRoot: () => void;
+  setShowAuthModal?: (value: boolean) => void;
 };
 
 const ApiContext = createContext<ApiContext>(null!);

@@ -1,4 +1,4 @@
-import { ReactElement, useCallback, useMemo, useState } from 'react';
+import { ReactElement, ReactNode, useCallback, useMemo, useState } from 'react';
 import { useAsyncEffectState } from 'use-async-effect-state';
 import { ApiContextProvider, useApiContext } from '../context/ApiContext';
 import { UserContextProvider, useUserContext } from '../context/UserContext';
@@ -6,6 +6,7 @@ import { CaliobaseUiConfiguration, ICaliobaseApi } from '../lib';
 
 export type RootUIProps<T extends ICaliobaseApi> = {
   configuration: CaliobaseUiConfiguration<T>;
+  authModal?: ReactNode;
 } & RootUISwitchProps;
 
 export function RootUI<T extends ICaliobaseApi>({
@@ -13,6 +14,7 @@ export function RootUI<T extends ICaliobaseApi>({
   loggedIn,
   createRoot,
   anonymous,
+  authModal,
 }: RootUIProps<T>) {
   const api = useMemo(
     () =>
@@ -33,14 +35,22 @@ export function RootUI<T extends ICaliobaseApi>({
     setRootReloadId((r) => r + 1);
   }, []);
 
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
   const context = useMemo(
     () => ({
       caliobaseUiConfiguration,
       api,
       root,
       reloadRoot,
+      setShowAuthModal: (value: boolean) => {
+        if (value && authModal == null) {
+          throw new Error('no auth modal provided to show');
+        }
+        setShowAuthModal(value);
+      },
     }),
-    [api, caliobaseUiConfiguration, root, reloadRoot]
+    [caliobaseUiConfiguration, api, root, reloadRoot, authModal]
   );
 
   return (
@@ -51,6 +61,7 @@ export function RootUI<T extends ICaliobaseApi>({
           anonymous={anonymous}
           createRoot={createRoot}
         />
+        {showAuthModal && authModal}
       </UserContextProvider>
     </ApiContextProvider>
   );
