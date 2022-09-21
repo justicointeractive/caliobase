@@ -1,4 +1,10 @@
-import { ReactElement, ReactNode, useCallback, useMemo, useState } from 'react';
+import {
+  cloneElement,
+  ReactElement,
+  useCallback,
+  useMemo,
+  useState,
+} from 'react';
 import { useAsyncEffectState } from 'use-async-effect-state';
 import { ApiContextProvider, useApiContext } from '../context/ApiContext';
 import { UserContextProvider, useUserContext } from '../context/UserContext';
@@ -6,7 +12,7 @@ import { CaliobaseUiConfiguration, ICaliobaseApi } from '../lib';
 
 export type RootUIProps<T extends ICaliobaseApi> = {
   configuration: CaliobaseUiConfiguration<T>;
-  authModal?: ReactNode;
+  authModal?: ReactElement;
 } & RootUISwitchProps;
 
 export function RootUI<T extends ICaliobaseApi>({
@@ -61,7 +67,11 @@ export function RootUI<T extends ICaliobaseApi>({
           anonymous={anonymous}
           createRoot={createRoot}
         />
-        {showAuthModal && authModal}
+        {showAuthModal &&
+          authModal &&
+          cloneElement(authModal, {
+            setOpen: (value: boolean) => context.setShowAuthModal(value),
+          })}
       </UserContextProvider>
     </ApiContextProvider>
   );
