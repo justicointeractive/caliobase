@@ -44,10 +44,12 @@ class OrganizationNameProfile extends AbstractOrganizationProfile {
 export async function createTestingModule({
   typeormOptions,
   objectStorage = true,
+  allowCreateOwnOrganizations = false,
   ...metadata
 }: ModuleMetadata & {
   typeormOptions?: TypeOrmModuleOptions;
   objectStorage?: boolean;
+  allowCreateOwnOrganizations?: boolean;
 } = {}) {
   const module = await Test.createTestingModule({
     ...metadata,
@@ -79,6 +81,7 @@ export async function createTestingModule({
         },
       }),
       CaliobaseModule.forRootAsync({
+        allowCreateOwnOrganizations,
         urls: {
           forgotPassword: `https://example.org/?token=${TOKEN_TOKEN}`,
         },
