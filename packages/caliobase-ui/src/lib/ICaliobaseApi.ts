@@ -64,6 +64,7 @@ export type ICaliobaseApi = {
       ICaliobaseRequestPasswordResetRequest,
       void
     >;
+    listUserMemberships: ICaliobaseApiRequestNoBody<CaliobaseMember[]>;
   };
   organization: {
     create: ICaliobaseApiRequestWithBody<

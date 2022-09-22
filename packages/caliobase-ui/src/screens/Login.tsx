@@ -83,10 +83,6 @@ export function useLogin() {
       userAccessToken: string,
       organizationOrInvitation: CaliobaseOrganization | string | null
     ) => {
-      const {
-        data: { rootOrgId },
-      } = await api.root.getRoot();
-
       if (typeof organizationOrInvitation === 'string') {
         organizationOrInvitation = (
           await api.organization.claimInvitation(organizationOrInvitation, {
@@ -96,18 +92,22 @@ export function useLogin() {
         navigate('/');
       }
 
+      let organizationId = organizationOrInvitation?.id;
+
+      if (organizationId == null) {
+        organizationId = (await api.auth.listUserMemberships()).data[0]
+          .organizationId;
+      }
+
       const {
         data: { accessToken: userOrgToken },
-      } = await api.organization.getOrganizationToken(
-        organizationOrInvitation?.id ?? rootOrgId,
-        {
-          headers: { ...bearerToken(userAccessToken) },
-        }
-      );
+      } = await api.organization.getOrganizationToken(organizationId, {
+        headers: { ...bearerToken(userAccessToken) },
+      });
 
       setAccessToken(userOrgToken);
     },
-    [api.root, api.organization, navigate, setAccessToken]
+    [api.organization, api.auth, setAccessToken, navigate]
   );
 
   const handleSignInSSO = useCallback(
