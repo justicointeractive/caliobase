@@ -95,8 +95,11 @@ export function useLogin() {
       let organizationId = organizationOrInvitation?.id;
 
       if (organizationId == null) {
-        organizationId = (await api.auth.listUserMemberships()).data[0]
-          .organizationId;
+        organizationId = (
+          await api.auth.listUserMemberships({
+            headers: { ...bearerToken(userAccessToken) },
+          })
+        ).data[0].organizationId;
       }
 
       const {
