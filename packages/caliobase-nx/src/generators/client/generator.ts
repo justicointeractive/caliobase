@@ -106,5 +106,7 @@ export default async function (tree: Tree, options: ClientGeneratorSchema) {
     }
   );
 
+  // TODO: update nx.json's targetDefaults build dependsOn "^generate-sources", "generate-sources"
+
   await formatFiles(tree);
 }
