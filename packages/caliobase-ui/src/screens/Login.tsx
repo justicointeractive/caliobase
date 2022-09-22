@@ -22,7 +22,7 @@ export function LoginScreen() {
   );
 }
 
-export function Login() {
+export function useLogin() {
   const navigate = useNavigate();
   const toast = useToastContext();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -39,7 +39,7 @@ export function Login() {
     claimInvitation ? 'create' : 'login'
   );
 
-  const showErr = useCallback(
+  const onError = useCallback(
     (err: any) => {
       if (err == null) {
         err = { message: 'Unknown error' };
@@ -130,14 +130,91 @@ export function Login() {
 
         await startSessionWithUserAccessToken(accessToken, null);
       } catch (err) {
-        showErr(err);
+        onError(err);
         throw err;
       }
     },
-    [api.auth, showErr, startSessionWithUserAccessToken]
+    [api.auth, onError, startSessionWithUserAccessToken]
   );
 
   const modeLabel = mode === 'create' ? 'Create account' : 'Log in';
+
+  const userProfileFields = useMemo(() => {
+    const fields = caliobaseUiConfiguration.getBuiltInFields('userProfile');
+    return fields;
+  }, [caliobaseUiConfiguration]);
+
+  const onLogin = useCallback(
+    async (props: { email: string; password: string }) => {
+      try {
+        const {
+          data: { accessToken: userAccessToken },
+        } = await api.auth.loginUser(props);
+
+        await startSessionWithUserAccessToken(userAccessToken, claimInvitation);
+      } catch (err) {
+        onError(err);
+        throw err;
+      }
+    },
+    [api.auth, startSessionWithUserAccessToken, claimInvitation, onError]
+  );
+
+  const onCreateAccount = useCallback(
+    async (props: { email: string; password: string; profile: any }) => {
+      try {
+        const {
+          data: { accessToken: userAccessToken },
+        } = await api.auth.createUserWithPassword(props);
+
+        await startSessionWithUserAccessToken(userAccessToken, claimInvitation);
+      } catch (err) {
+        onError(err);
+        throw err;
+      }
+    },
+    [api.auth, startSessionWithUserAccessToken, claimInvitation, onError]
+  );
+
+  const onForgotPassword = useCallback(
+    async (props: { email: string }) => {
+      await api.auth.emailResetToken(props);
+    },
+    [api]
+  );
+
+  return {
+    invitation,
+    setSearchParams,
+    showPasswordAuth,
+    setShowPasswordAuth,
+    setMode,
+    mode,
+    modeLabel,
+    handleSignInSSO,
+    startSessionWithUserAccessToken,
+    claimInvitation,
+    userProfileFields,
+    root,
+    onError,
+    onLogin,
+    onCreateAccount,
+    onForgotPassword,
+  };
+}
+
+export function Login() {
+  const login = useLogin();
+
+  const {
+    invitation,
+    setSearchParams,
+    showPasswordAuth,
+    setShowPasswordAuth,
+    modeLabel,
+    root,
+    handleSignInSSO,
+  } = login;
 
   return (
     <div className="m-auto grid w-[300px] gap-2">
@@ -164,18 +241,7 @@ export function Login() {
         }}
         className="grid gap-3 rounded bg-white p-2"
       >
-        {showPasswordAuth && (
-          <PasswordLoginFormFragment
-            {...{
-              mode,
-              modeLabel,
-              startSessionWithUserAccessToken,
-              claimInvitation,
-              onError: showErr,
-              onModeChange: setMode,
-            }}
-          />
-        )}
+        {showPasswordAuth && <PasswordLoginFormFragment {...login} />}
 
         {root?.socialProviders.map((provider) => (
           <PendingButton
@@ -201,93 +267,24 @@ export function Login() {
   );
 }
 
-function PasswordLoginFormFragment(props: {
-  mode: 'create' | 'login';
-  onModeChange: (mode: 'create' | 'login') => void;
-  modeLabel: string;
-  claimInvitation: string | null;
-  startSessionWithUserAccessToken: (
-    userAccessToken: string,
-    claimInvitation: string | null
-  ) => Promise<void>;
-  onError: (err: unknown) => void;
-}) {
+function PasswordLoginFormFragment(props: ReturnType<typeof useLogin>) {
   const {
     mode,
     modeLabel,
-    onModeChange,
-    startSessionWithUserAccessToken,
+    setMode,
+    onLogin,
+    onForgotPassword,
+    onCreateAccount,
+    userProfileFields,
     claimInvitation,
-    onError,
   } = props;
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const { api, caliobaseUiConfiguration } = useApiContext();
-
-  const userProfileFields = useMemo(() => {
-    const fields = caliobaseUiConfiguration.getBuiltInFields('userProfile');
-    return fields;
-  }, [caliobaseUiConfiguration]);
-
   const [userProfile, setUserProfile] = useState(() =>
     createInstanceFromFields(userProfileFields)
   );
-
-  const onLogin = useCallback(async () => {
-    try {
-      const {
-        data: { accessToken: userAccessToken },
-      } = await api.auth.loginUser({
-        email,
-        password,
-      });
-
-      await startSessionWithUserAccessToken(userAccessToken, claimInvitation);
-    } catch (err) {
-      onError(err);
-      throw err;
-    }
-  }, [
-    api.auth,
-    email,
-    password,
-    onError,
-    startSessionWithUserAccessToken,
-    claimInvitation,
-  ]);
-
-  const onCreateAccount = useCallback(async () => {
-    try {
-      const {
-        data: { accessToken: userAccessToken },
-      } = await api.auth.createUserWithPassword({
-        email,
-        password,
-        profile: userProfile,
-      });
-
-      await startSessionWithUserAccessToken(userAccessToken, claimInvitation);
-    } catch (err) {
-      onError(err);
-      throw err;
-    }
-  }, [
-    api.auth,
-    email,
-    password,
-    userProfile,
-    startSessionWithUserAccessToken,
-    claimInvitation,
-    onError,
-  ]);
-
-  const onForgotPassword = useCallback(async () => {
-    await api.auth.emailResetToken({
-      email,
-    });
-  }, [api, email]);
 
   return (
     <>
@@ -319,20 +316,20 @@ function PasswordLoginFormFragment(props: {
           <PendingButton
             type="submit"
             className="rounded bg-indigo-700 p-3 font-bold text-white"
-            onClick={onLogin}
+            onClick={() => onLogin({ email, password })}
           >
             Log In
           </PendingButton>
           <button
             className="rounded px-2 py-1 text-indigo-600"
-            onClick={onForgotPassword}
+            onClick={() => onForgotPassword({ email })}
           >
             Forgot Password
           </button>
           {claimInvitation && (
             <button
               className="rounded px-2 py-1 text-gray-600"
-              onClick={() => onModeChange('create')}
+              onClick={() => setMode('create')}
             >
               Create new account
             </button>
@@ -344,13 +341,15 @@ function PasswordLoginFormFragment(props: {
           <PendingButton
             type="submit"
             className="rounded bg-indigo-700 p-3 font-bold text-white"
-            onClick={onCreateAccount}
+            onClick={() =>
+              onCreateAccount({ email, password, profile: userProfile })
+            }
           >
             Create Account
           </PendingButton>
           <button
             className="rounded px-2 py-1 text-gray-600"
-            onClick={() => onModeChange('login')}
+            onClick={() => setMode('login')}
           >
             Log with an account
           </button>
