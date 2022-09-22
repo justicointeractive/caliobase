@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.1.7](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.6...caliobase-ui-0.1.7) (2022-09-22)
+
+
+### Bug Fixes
+
+* **caliobase-ui:** need a user access token to list user memberships ([ca258b0](https://github.com/justicointeractive/caliobase/commit/ca258b01359a89232916413364d6123eca5b2fb3))
+
 ### [0.1.6](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.5...caliobase-ui-0.1.6) (2022-09-22)
 
 
