@@ -7,6 +7,7 @@ export type CaliobaseConfigModuleOptions = {
   urls: MetaUrls;
   emailTransport: Transporter;
   guestRole?: Role | false;
+  allowCreateOwnOrganizations: boolean;
 };
 
 @Module({})
@@ -15,6 +16,7 @@ export class CaliobaseConfigModule {
     urls,
     emailTransport,
     guestRole = 'guest',
+    allowCreateOwnOrganizations,
   }: CaliobaseConfigModuleOptions): Promise<DynamicModule> {
     const configProvider: Provider<CaliobaseConfig> = {
       provide: CaliobaseConfig,
@@ -22,6 +24,7 @@ export class CaliobaseConfigModule {
         urls,
         emailTransport,
         guestRole,
+        allowCreateOwnOrganizations,
       }),
     };
 

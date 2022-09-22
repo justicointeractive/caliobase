@@ -6,6 +6,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { Example } from './entities/example.entity';
 import { OrganizationProfile } from './entities/organization-profile.entity';
+import { UserProfile } from './entities/user-profile.entity';
 
 @Module({
   imports: [
@@ -15,11 +16,12 @@ import { OrganizationProfile } from './entities/organization-profile.entity';
       autoLoadEntities: true,
     }),
     CaliobaseModule.forRootAsync({
-      controllerEntities: [Example, OrganizationProfile],
+      allowCreateOwnOrganizations: true,
+      controllerEntities: [Example],
       otherEntities: [],
       profileEntities: {
         OrganizationProfile,
-        UserProfile: null,
+        UserProfile,
         socialProfileToUserProfile: null,
       },
       emailTransport: null!,

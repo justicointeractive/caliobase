@@ -9,7 +9,7 @@ import { TextInput } from '../components/TextInput';
 import { useApiContext } from '../context/ApiContext';
 import { useToastContext } from '../context/ToastContext';
 import { useUserContext } from '../context/UserContext';
-import { createInstanceFromFields } from '../lib';
+import { CaliobaseOrganization, createInstanceFromFields } from '../lib';
 import { bearerToken } from '../lib/bearerToken';
 import { promisePopup } from '../lib/promisePopup';
 import { DescribeInvitation } from './AcceptInvitationView';
@@ -79,23 +79,31 @@ export function useLogin() {
   );
 
   const startSessionWithUserAccessToken = useCallback(
-    async (userAccessToken: string, claimInvitation: string | null) => {
+    async (
+      userAccessToken: string,
+      organizationOrInvitation: CaliobaseOrganization | string | null
+    ) => {
       const {
         data: { rootOrgId },
       } = await api.root.getRoot();
 
-      if (claimInvitation) {
-        await api.organization.claimInvitation(claimInvitation, {
-          headers: { ...bearerToken(userAccessToken) },
-        });
+      if (typeof organizationOrInvitation === 'string') {
+        organizationOrInvitation = (
+          await api.organization.claimInvitation(organizationOrInvitation, {
+            headers: { ...bearerToken(userAccessToken) },
+          })
+        ).data.organization;
         navigate('/');
       }
 
       const {
         data: { accessToken: userOrgToken },
-      } = await api.organization.getOrganizationToken(rootOrgId, {
-        headers: { ...bearerToken(userAccessToken) },
-      });
+      } = await api.organization.getOrganizationToken(
+        organizationOrInvitation?.id ?? rootOrgId,
+        {
+          headers: { ...bearerToken(userAccessToken) },
+        }
+      );
 
       setAccessToken(userOrgToken);
     },
@@ -144,6 +152,13 @@ export function useLogin() {
     return fields;
   }, [caliobaseUiConfiguration]);
 
+  const organizationProfileFields = useMemo(() => {
+    const fields = caliobaseUiConfiguration.getBuiltInFields(
+      'organizationProfile'
+    );
+    return fields;
+  }, [caliobaseUiConfiguration]);
+
   const onLogin = useCallback(
     async (props: { email: string; password: string }) => {
       try {
@@ -161,19 +176,48 @@ export function useLogin() {
   );
 
   const onCreateAccount = useCallback(
-    async (props: { email: string; password: string; profile: any }) => {
+    async (props: {
+      email: string;
+      password: string;
+      profile: any;
+      organizationProfile?: any;
+    }) => {
       try {
         const {
           data: { accessToken: userAccessToken },
         } = await api.auth.createUserWithPassword(props);
 
-        await startSessionWithUserAccessToken(userAccessToken, claimInvitation);
+        let organization: CaliobaseOrganization | null = null;
+
+        if (props.organizationProfile) {
+          organization = (
+            await api.organization.create(
+              {
+                profile: props.organizationProfile,
+              },
+              {
+                headers: { ...bearerToken(userAccessToken) },
+              }
+            )
+          ).data;
+        }
+
+        await startSessionWithUserAccessToken(
+          userAccessToken,
+          organization ?? claimInvitation
+        );
       } catch (err) {
         onError(err);
         throw err;
       }
     },
-    [api.auth, startSessionWithUserAccessToken, claimInvitation, onError]
+    [
+      api.auth,
+      api.organization,
+      startSessionWithUserAccessToken,
+      claimInvitation,
+      onError,
+    ]
   );
 
   const onForgotPassword = useCallback(
@@ -195,6 +239,7 @@ export function useLogin() {
     startSessionWithUserAccessToken,
     claimInvitation,
     userProfileFields,
+    organizationProfileFields,
     root,
     onError,
     onLogin,
@@ -234,7 +279,6 @@ export function Login() {
           </div>
         </div>
       )}
-      {/* TODO: allow create new organiation flow if configured */}
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -276,8 +320,12 @@ function PasswordLoginFormFragment(props: ReturnType<typeof useLogin>) {
     onForgotPassword,
     onCreateAccount,
     userProfileFields,
+    organizationProfileFields,
     claimInvitation,
+    root,
   } = props;
+
+  const { allowCreateOwnOrganizations } = root ?? {};
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -286,17 +334,32 @@ function PasswordLoginFormFragment(props: ReturnType<typeof useLogin>) {
     createInstanceFromFields(userProfileFields)
   );
 
+  const [organizationProfile, setOrganizationProfile] = useState(() =>
+    claimInvitation == null
+      ? createInstanceFromFields(organizationProfileFields)
+      : null
+  );
+
   return (
     <>
       <h2 className="text-center text-lg font-bold text-gray-600">
         {modeLabel}
       </h2>
       {mode === 'create' && (
-        <Fieldset
-          fields={userProfileFields}
-          item={userProfile}
-          onChange={setUserProfile}
-        />
+        <>
+          <Fieldset
+            fields={userProfileFields}
+            item={userProfile}
+            onChange={setUserProfile}
+          />
+          {organizationProfile && (
+            <Fieldset
+              fields={organizationProfileFields}
+              item={organizationProfile}
+              onChange={setOrganizationProfile}
+            />
+          )}
+        </>
       )}
       <TextInput
         label="Email"
@@ -326,7 +389,7 @@ function PasswordLoginFormFragment(props: ReturnType<typeof useLogin>) {
           >
             Forgot Password
           </button>
-          {claimInvitation && (
+          {(allowCreateOwnOrganizations || claimInvitation) && (
             <button
               className="rounded px-2 py-1 text-gray-600"
               onClick={() => setMode('create')}
@@ -342,7 +405,12 @@ function PasswordLoginFormFragment(props: ReturnType<typeof useLogin>) {
             type="submit"
             className="rounded bg-indigo-700 p-3 font-bold text-white"
             onClick={() =>
-              onCreateAccount({ email, password, profile: userProfile })
+              onCreateAccount({
+                email,
+                password,
+                profile: userProfile,
+                organizationProfile,
+              })
             }
           >
             Create Account

@@ -1,7 +1,8 @@
 import { createContext, ReactNode, useContext } from 'react';
 import { RouteObject, useRoutes } from 'react-router-dom';
 import { CaliobaseUiConfiguration } from '../lib';
-import { ICaliobaseApi, ICaliobaseRootResponse } from '../lib/types';
+import { ICaliobaseApi } from '../lib/ICaliobaseApi';
+import { ICaliobaseRootResponse } from '../lib/types';
 
 export type ApiContext = {
   caliobaseUiConfiguration: CaliobaseUiConfiguration<any>;

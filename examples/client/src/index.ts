@@ -28,11 +28,16 @@ export interface SocialValidateBody {
   nonce?: string;
 }
 
+export interface UserProfile {
+  firstName: string;
+  lastName: string;
+}
+
 export interface User {
   id: string;
   email: string;
   emailVerified: boolean;
-  profile: object;
+  profile: UserProfile;
 }
 
 export interface SocialProfileName {
@@ -56,10 +61,15 @@ export interface SocialAuthenticationResponse {
   providerTokenClaims: object;
 }
 
+export interface CreateUserProfileDto {
+  firstName: string;
+  lastName: string;
+}
+
 export interface UserSignupBody {
   email: string;
   password: string;
-  profile: object;
+  profile: CreateUserProfileDto;
 }
 
 export interface AuthenticationResponse {
@@ -157,6 +167,7 @@ export interface GetRootResponse {
   rootOrgId: string;
   allRoles: Role[];
   socialProviders: LabeledSocialProvider[];
+  allowCreateOwnOrganizations: boolean;
 }
 
 export interface CreateRootRequest {
@@ -172,6 +183,11 @@ export type UpdateExampleDto = object;
 
 export interface UpdateOrganizationProfileDto {
   name?: string;
+}
+
+export interface UpdateUserProfileDto {
+  firstName?: string;
+  lastName?: string;
 }
 
 export type QueryParamsType = Record<string | number, any>;
@@ -1063,6 +1079,113 @@ export class Api<
     ) =>
       this.request<{ items: OrganizationProfile[]; count?: number }, any>({
         path: `/api/organization_profile`,
+        method: 'GET',
+        query: query,
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+  };
+  userProfile = {
+    /**
+     * No description
+     *
+     * @tags user_profile
+     * @name Create
+     * @request POST:/api/user_profile/{userId}
+     * @secure
+     */
+    create: (
+      userId: any,
+      data: CreateUserProfileDto,
+      params: RequestParams = {}
+    ) =>
+      this.request<{ item: UserProfile }, any>({
+        path: `/api/user_profile/${userId}`,
+        method: 'POST',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags user_profile
+     * @name FindOne
+     * @request GET:/api/user_profile/{userId}
+     * @secure
+     */
+    findOne: (userId: any, params: RequestParams = {}) =>
+      this.request<{ item?: UserProfile }, any>({
+        path: `/api/user_profile/${userId}`,
+        method: 'GET',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags user_profile
+     * @name Update
+     * @request PATCH:/api/user_profile/{userId}
+     * @secure
+     */
+    update: (
+      userId: any,
+      data: UpdateUserProfileDto,
+      params: RequestParams = {}
+    ) =>
+      this.request<{ items: UserProfile[]; count?: number }, any>({
+        path: `/api/user_profile/${userId}`,
+        method: 'PATCH',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags user_profile
+     * @name Remove
+     * @request DELETE:/api/user_profile/{userId}
+     * @secure
+     */
+    remove: (userId: any, params: RequestParams = {}) =>
+      this.request<{ items: UserProfile[]; count?: number }, any>({
+        path: `/api/user_profile/${userId}`,
+        method: 'DELETE',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags user_profile
+     * @name FindAll
+     * @request GET:/api/user_profile
+     * @secure
+     */
+    findAll: (
+      query?: {
+        limit?: number;
+        skip?: number;
+        orderBy?: number[];
+        select?: ('firstName' | 'lastName')[];
+      },
+      params: RequestParams = {}
+    ) =>
+      this.request<{ items: UserProfile[]; count?: number }, any>({
+        path: `/api/user_profile`,
         method: 'GET',
         query: query,
         secure: true,

@@ -20,6 +20,7 @@ import {
   SocialProvider,
   User,
 } from '.';
+import { CaliobaseConfig } from '../config';
 import { AllRoles, Role } from '../entity-module/roles';
 import { CaliobaseAuthCreateProfileRequests } from './auth.module';
 import { Public } from './decorators/public.decorator';
@@ -56,6 +57,9 @@ export function createRootController<
       isArray: true,
     })
     socialProviders!: LabeledSocialProvider[];
+
+    @ApiProperty()
+    allowCreateOwnOrganizations!: boolean;
   }
 
   class CreateRootRequest {
@@ -78,7 +82,8 @@ export function createRootController<
 
     constructor(
       private dataSource: DataSource,
-      private authService: AuthService
+      private authService: AuthService,
+      private config: CaliobaseConfig
     ) {}
 
     async assertHasNoRootMember() {
@@ -118,6 +123,7 @@ export function createRootController<
         rootOrgId: Organization.RootId,
         allRoles: AllRoles,
         socialProviders: socialProviders.map((p) => pick(p, ['name', 'label'])),
+        allowCreateOwnOrganizations: this.config.allowCreateOwnOrganizations,
       };
     }
 

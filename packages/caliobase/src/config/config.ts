@@ -18,6 +18,7 @@ export class CaliobaseConfig {
   urls!: MetaUrls;
   emailTransport!: Transporter;
   guestRole!: Role | false;
+  allowCreateOwnOrganizations!: boolean;
 
   constructor(options: CaliobaseConfig) {
     Object.assign(this, options);

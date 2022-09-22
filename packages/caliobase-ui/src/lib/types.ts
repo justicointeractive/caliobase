@@ -3,6 +3,7 @@ import type { ComponentClass, FunctionComponent } from 'react';
 import type { DetailEditorComponent } from '../components/data/DetailEditorComponent';
 import type { TableCellComponent } from '../components/data/TableCellComponent';
 import type { CaliobaseUiConfiguration } from './CaliobaseUiConfiguration';
+import { ICaliobaseApi } from './ICaliobaseApi';
 
 export type CaliobaseUser = {
   id: string;
@@ -76,6 +77,7 @@ export type ICaliobaseRootResponse = {
   hasRootMember: boolean;
   allRoles: string[];
   socialProviders: { name: string; label: string }[];
+  allowCreateOwnOrganizations: boolean;
 };
 
 export type ICaliobaseApiProps = {
@@ -95,6 +97,11 @@ export type ICaliobaseCreateUserWithPasswordRequest = {
   password: string;
   profile: any; // TODO: narrow this type
 };
+
+export type ICaliobaseCreateOrganizationRequest = Omit<
+  CaliobaseOrganization,
+  'id'
+>;
 
 export type ICaliobaseRequestPasswordResetRequest = {
   email: string;
@@ -135,76 +142,6 @@ export type ICaliobaseObjectStorageObject = {
 export type ICaliobaseSignedObjectPutUrl = {
   method: string;
   url: string;
-};
-
-export type ICaliobaseApi = {
-  root: {
-    getRoot: ICaliobaseApiRequestNoBody<ICaliobaseRootResponse>;
-    createRoot: ICaliobaseApiRequestWithBody<
-      ICaliobaseCreateRootRequest,
-      { organizationId: string }
-    >;
-  };
-  objectStorage?: {
-    createObjectStorageObject: ICaliobaseApiRequestWithBody<
-      ICaliobaseCreateObjectRequest,
-      {
-        object: ICaliobaseObjectStorageObject;
-        signedUrl: ICaliobaseSignedObjectPutUrl;
-      }
-    >;
-    updateObjectStorageObject: ICaliobaseApiRequestWithParamAndBody<
-      string,
-      Partial<ICaliobaseObjectStorageObject>,
-      ICaliobaseObjectStorageObject
-    >;
-  };
-  auth: {
-    socialAuthUrl: ICaliobaseApiRequestWithBody<
-      SocialAuthUrlRequest,
-      ISocialAuthUrlResponse
-    >;
-    socialValidate: ICaliobaseApiRequestWithBody<
-      ICaliobaseSocialAuthBody,
-      ICaliobaseAccessTokenResponse
-    >;
-    loginUser: ICaliobaseApiRequestWithBody<
-      ICaliobaseLoginRequest,
-      ICaliobaseAccessTokenResponse
-    >;
-    createUserWithPassword: ICaliobaseApiRequestWithBody<
-      ICaliobaseCreateUserWithPasswordRequest,
-      ICaliobaseAccessTokenResponse
-    >;
-    emailResetToken: ICaliobaseApiRequestWithBody<
-      ICaliobaseRequestPasswordResetRequest,
-      void
-    >;
-  };
-  organization: {
-    createInvitation: ICaliobaseApiRequestWithBody<
-      Pick<CaliobaseMember, 'roles'>,
-      CaliobaseMemberInvitationToken
-    >;
-    getInvitation: ICaliobaseApiRequestWithParam<
-      string,
-      CaliobaseMemberInvitationToken
-    >;
-    claimInvitation: ICaliobaseApiRequestWithParam<string, CaliobaseMember>;
-
-    getOrganizationToken: ICaliobaseApiRequestWithParam<
-      string,
-      { accessToken: string }
-    >;
-
-    listMembers: ICaliobaseApiRequestNoBody<CaliobaseMember[]>;
-    getMember: ICaliobaseApiRequestWithParam<string, CaliobaseMember>;
-    updateMember: ICaliobaseApiRequestWithParamAndBody<
-      string,
-      Pick<CaliobaseMember, 'roles'>,
-      CaliobaseMember
-    >;
-  };
 };
 
 export type ICaliobaseEntityApi<T extends { id: string }> = {
@@ -313,12 +250,7 @@ export type ProfileTypeDescription<
   TApi extends ICaliobaseApi,
   TEntity extends { id: string }
 > = {
-  label: {
-    singular: string;
-    plural: string;
-  };
   fields: ContentField<keyof TEntity & string, any, any>[];
-  menuItemIcon?: IconDefinition;
 };
 
 export type ICaliobaseImageHandler<TApi extends ICaliobaseApi, TImage> = (

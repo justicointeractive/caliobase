@@ -7,7 +7,8 @@ import {
   useState,
 } from 'react';
 import { bearerToken } from '../lib/bearerToken';
-import { CaliobaseMember, ICaliobaseApi } from '../lib/types';
+import { ICaliobaseApi } from '../lib/ICaliobaseApi';
+import { CaliobaseMember } from '../lib/types';
 import { FullScreenLoader } from '../screens/FullScreenLoader';
 import { useApiContext } from './ApiContext';
 

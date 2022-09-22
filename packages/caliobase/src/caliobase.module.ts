@@ -89,6 +89,7 @@ export class CaliobaseModule {
     urls,
     emailTransport,
     guestRole,
+    allowCreateOwnOrganizations,
   }: CaliobaseModuleOptions<TUser, TOrganization>): Promise<DynamicModule> {
     return {
       module: CaliobaseModule,
@@ -97,6 +98,7 @@ export class CaliobaseModule {
           urls,
           emailTransport,
           guestRole,
+          allowCreateOwnOrganizations,
         }),
         CaliobaseAuthModule.forRootAsync({ socialProviders, profileEntities }),
         ...(objectStorageProvider
@@ -110,6 +112,7 @@ export class CaliobaseModule {
           controllerEntities,
           otherEntities,
           validatorOptions,
+          profileEntities,
         }),
       ],
     };

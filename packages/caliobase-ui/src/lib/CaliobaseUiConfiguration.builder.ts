@@ -1,12 +1,12 @@
 import { CaliobaseUiConfiguration } from './CaliobaseUiConfiguration';
 import { defaultFieldValues } from './commonFields';
+import { ICaliobaseApi } from './ICaliobaseApi';
 import {
   Constructor,
   ContentTypeDescription,
   ContentTypeDescriptionInput,
   EntityApiConstructedEntityType,
   EntityApiName,
-  ICaliobaseApi,
   ICaliobaseApiProps,
   ICaliobaseBrandingComponent,
   ICaliobaseEntityApi,
@@ -81,8 +81,11 @@ export class CaliobaseUiConfigurationBuilder<TApi extends ICaliobaseApi> {
 
   addProfileType<TProfileName extends ProfileApiName<TApi> & string>(
     name: TProfileName,
-    description: ContentTypeDescriptionInput<
-      ProfileApiConstructedProfileType<TApi, TProfileName>
+    description: Pick<
+      ContentTypeDescriptionInput<
+        ProfileApiConstructedProfileType<TApi, TProfileName>
+      >,
+      'fields'
     >
   ) {
     this.profileTypes.set(name, {

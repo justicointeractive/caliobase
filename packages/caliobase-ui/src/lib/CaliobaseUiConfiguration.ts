@@ -2,10 +2,10 @@ import { invariant } from 'circumspect';
 import { assert } from './assert';
 import { CaliobaseUiConfigurationBuilder } from './CaliobaseUiConfiguration.builder';
 import { rolesField, userEmailField } from './commonFields';
+import { ICaliobaseApi } from './ICaliobaseApi';
 import {
   ContentField,
   EntityApiName,
-  ICaliobaseApi,
   ICaliobaseApiProps,
   InferApiResponseType,
 } from './types';

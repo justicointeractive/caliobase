@@ -5,6 +5,7 @@ export * from './commonFields';
 export * from './createInstanceFromFields';
 export * from './ensureArray';
 export * from './formatDateTimeLocal';
+export * from './ICaliobaseApi';
 export * from './loadImage';
 export * from './promisePopup';
 export * from './types';
