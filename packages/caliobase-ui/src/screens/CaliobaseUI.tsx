@@ -18,7 +18,7 @@ import {
   OrganizationMemberDetailView,
   OrganizationMemberListView,
 } from './OrganizationMemberView';
-import { RootUI } from './RootUI';
+import { CaliobaseProviders, RootUISwitch } from './RootUI';
 
 export function CaliobaseUI<T extends ICaliobaseApi>({
   configuration: caliobaseUiConfiguration,
@@ -95,12 +95,13 @@ export function CaliobaseUI<T extends ICaliobaseApi>({
         </div>
       )}
     >
-      <RootUI
-        configuration={caliobaseUiConfiguration}
-        loggedIn={<AppRoutes routes={routes} />}
-        anonymous={<LoginScreen />}
-        createRoot={<CreateRoot />}
-      />
+      <CaliobaseProviders configuration={caliobaseUiConfiguration}>
+        <RootUISwitch
+          loggedIn={<AppRoutes routes={routes} />}
+          anonymous={<LoginScreen />}
+          createRoot={<CreateRoot />}
+        />
+      </CaliobaseProviders>
     </ToastContextProvider>
   );
 }

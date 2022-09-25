@@ -1,30 +1,21 @@
-import {
-  cloneElement,
-  ReactElement,
-  useCallback,
-  useMemo,
-  useState,
-} from 'react';
+import { ReactElement, ReactNode, useCallback, useMemo, useState } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { useAsyncEffectState } from 'use-async-effect-state';
 import { ApiContextProvider, useApiContext } from '../context/ApiContext';
 import { UserContextProvider, useUserContext } from '../context/UserContext';
 import { CaliobaseUiConfiguration, ICaliobaseApi } from '../lib';
 
-export type RootUIProps<T extends ICaliobaseApi> = {
+export type CaliobaseProvidersProps<T extends ICaliobaseApi> = {
   configuration: CaliobaseUiConfiguration<T>;
-  authModal?: ReactElement;
+  children?: ReactNode;
   showLoader?: boolean;
-} & RootUISwitchProps;
+};
 
-export function RootUI<T extends ICaliobaseApi>({
+export function CaliobaseProviders<T extends ICaliobaseApi>({
   configuration: caliobaseUiConfiguration,
-  loggedIn,
-  createRoot,
-  anonymous,
-  authModal,
+  children,
   showLoader,
-}: RootUIProps<T>) {
+}: CaliobaseProvidersProps<T>) {
   const api = useMemo(
     () =>
       new caliobaseUiConfiguration.Api(caliobaseUiConfiguration.baseApiParams),
@@ -44,39 +35,20 @@ export function RootUI<T extends ICaliobaseApi>({
     setRootReloadId((r) => r + 1);
   }, []);
 
-  const [showAuthModal, setShowAuthModal] = useState(false);
-
   const context = useMemo(
     () => ({
       caliobaseUiConfiguration,
       api,
       root,
       reloadRoot,
-      setShowAuthModal: (value: boolean) => {
-        if (value && authModal == null) {
-          throw new Error('no auth modal provided to show');
-        }
-        setShowAuthModal(value);
-      },
     }),
-    [caliobaseUiConfiguration, api, root, reloadRoot, authModal]
+    [caliobaseUiConfiguration, api, root, reloadRoot]
   );
 
   return (
     <ApiContextProvider context={context}>
       <UserContextProvider showLoader={showLoader}>
-        <BrowserRouter>
-          <RootUISwitch
-            loggedIn={loggedIn}
-            anonymous={anonymous}
-            createRoot={createRoot}
-          />
-          {showAuthModal &&
-            authModal &&
-            cloneElement(authModal, {
-              setOpen: (value: boolean) => context.setShowAuthModal(value),
-            })}
-        </BrowserRouter>
+        <BrowserRouter>{children}</BrowserRouter>
       </UserContextProvider>
     </ApiContextProvider>
   );
@@ -86,6 +58,7 @@ export type RootUISwitchProps = {
   loggedIn?: ReactElement;
   anonymous?: ReactElement;
   createRoot?: ReactElement;
+  authModal?: ReactElement;
 };
 
 export function RootUISwitch({
