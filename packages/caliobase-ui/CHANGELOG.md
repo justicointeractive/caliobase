@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.1.8](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.7...caliobase-ui-0.1.8) (2022-09-25)
+
+
+### Bug Fixes
+
+* **caliobase-ui:** fixing non-cms uis ([576d0ec](https://github.com/justicointeractive/caliobase/commit/576d0ecf3d363033ad9f713717741205d8068d89))
+
 ### [0.1.7](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.6...caliobase-ui-0.1.7) (2022-09-22)
 
 
