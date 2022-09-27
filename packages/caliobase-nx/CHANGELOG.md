@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.2.9](https://github.com/justicointeractive/caliobase/compare/caliobase-nx-0.2.8...caliobase-nx-0.2.9) (2022-09-27)
+
+
+### Bug Fixes
+
+* **caliobase-nx:** @nrwl/nest is a peer dep ([b997fb1](https://github.com/justicointeractive/caliobase/commit/b997fb15cc5480bdfaf456dd3f859fe3149631a7))
+
 ### [0.2.8](https://github.com/justicointeractive/caliobase/compare/caliobase-nx-0.2.7...caliobase-nx-0.2.8) (2022-09-21)
 
 
