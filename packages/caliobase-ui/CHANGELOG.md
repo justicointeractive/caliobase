@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.1.9](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.8...caliobase-ui-0.1.9) (2022-09-27)
+
+
+### Bug Fixes
+
+* **caliobase-ui:** add nrwl/react as peer dep ([afc8c37](https://github.com/justicointeractive/caliobase/commit/afc8c373d911f35a80aaa1ef250cbf4201042c1a))
+
 ### [0.1.8](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.7...caliobase-ui-0.1.8) (2022-09-25)
 
 
