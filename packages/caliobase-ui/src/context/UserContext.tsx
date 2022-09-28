@@ -16,8 +16,10 @@ export type UserContextProps = ReturnType<typeof useUserContextValue>;
 
 const UserContext = createContext<UserContextProps>(null!);
 
-export function useUserContext() {
-  return useContext(UserContext);
+export function useUserContext<TApi extends ICaliobaseApi = ICaliobaseApi>() {
+  return useContext(UserContext) as Omit<UserContextProps, 'userOrgApi'> & {
+    userOrgApi: TApi;
+  };
 }
 
 export function UserContextProvider({
