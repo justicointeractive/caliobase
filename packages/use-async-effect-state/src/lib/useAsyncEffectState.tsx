@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { from, ObservableInput } from 'rxjs';
 import { useLatestValueRef } from './useLatestValueRef';
 
@@ -10,6 +10,9 @@ export function useAsyncEffectState<TInit, TState>(
 ) {
   const derriveStateRef = useLatestValueRef(derriveState);
   const [state, setState] = useState<TInit | TState>(initialState);
+
+  const [reload, setReload] = useState(0);
+  const incrementReload = useCallback(() => setReload((v) => v + 1), []);
 
   const keyRef = useRef(key);
   if (keyRef.current !== key) {
@@ -25,7 +28,7 @@ export function useAsyncEffectState<TInit, TState>(
       subscription.unsubscribe();
       controller.abort();
     };
-  }, [...deps, derriveStateRef]);
+  }, [...deps, reload, derriveStateRef]);
 
-  return [state, setState] as const;
+  return [state, setState, { reload: incrementReload }] as const;
 }
