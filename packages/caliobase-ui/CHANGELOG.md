@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.1.12](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.11...caliobase-ui-0.1.12) (2022-09-28)
+
+
+### Bug Fixes
+
+* **caliobase-ui:** export pending button ([4e8f734](https://github.com/justicointeractive/caliobase/commit/4e8f7343f7ab6b541285fb9a05de89d9884bab7c))
+
 ### [0.1.11](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.10...caliobase-ui-0.1.11) (2022-09-28)
 
 
