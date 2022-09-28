@@ -218,6 +218,7 @@ export function createFindManyQueryParamClass<TEntity>(
         this.orderBy ??
         CaliobaseEntity.get(entityType)?.controller?.defaultOrderBy
       )?.forEach((order) => {
+        // TODO: create more clear error message for invalid order by
         const [key, direction] = order.split('.') as [keyof TEntity, string];
         const orderDirection = direction.toUpperCase() as 'ASC' | 'DESC';
         orderBy[key] = orderDirection as FindOptionsOrderProperty<
