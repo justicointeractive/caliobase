@@ -12,6 +12,11 @@
       "factory": "./src/generators/client/generator",
       "schema": "./src/generators/client/schema.json",
       "description": "client generator"
+    },
+    "ui": {
+      "factory": "./src/generators/ui/generator",
+      "schema": "./src/generators/ui/schema.json",
+      "description": "ui generator"
     }
   }
 }

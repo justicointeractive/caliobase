@@ -1,9 +1,11 @@
+import { version as caliobaseUiVersion } from '@caliobase/caliobase-ui/package.json';
 import { addDependenciesToPackageJson, Tree } from '@nrwl/devkit';
 import { pick } from 'lodash';
 
 export const versions = {
   nodemailer: '^6.7.5',
   '@types/nodemailer': '^6.4.4',
+  '@caliobase/caliobase-ui': caliobaseUiVersion,
 };
 
 export type Dependency = keyof typeof versions;
