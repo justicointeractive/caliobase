@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.1.0](https://github.com/justicointeractive/caliobase/compare/use-async-effect-state-0.0.2...use-async-effect-state-0.1.0) (2022-09-28)
+
+
+### Features
+
+* **use-async-effect-state:** add a way to reload an async effect ([3973f6b](https://github.com/justicointeractive/caliobase/commit/3973f6bddc461d40d5483def998f09d3dab4b79d))
+
 ### [0.0.2](https://github.com/justicointeractive/caliobase/compare/use-async-effect-state-0.0.1...use-async-effect-state-0.0.2) (2022-09-28)
 
 ### 0.0.1 (2022-08-23)
