@@ -2,6 +2,16 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.1.13](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.12...caliobase-ui-0.1.13) (2022-09-28)
+
+### Dependency Updates
+
+* `use-async-effect-state` updated to version `0.1.0`
+
+### Bug Fixes
+
+* **caliobase-ui:** fix listview ([b36f8bc](https://github.com/justicointeractive/caliobase/commit/b36f8bcfd5f21de436938ed407173cbd78aac920))
+
 ### [0.1.12](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.11...caliobase-ui-0.1.12) (2022-09-28)
 
 
