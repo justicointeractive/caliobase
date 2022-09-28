@@ -76,7 +76,13 @@ export default async function (tree: Tree, options: ApiGeneratorSchema) {
     return config;
   });
 
-  tasks.push(addDependencyVersionsToPackageJson(tree, ['nodemailer']));
+  tasks.push(
+    addDependencyVersionsToPackageJson(tree, [
+      'nodemailer',
+      '@caliobase/caliobase',
+      '@nestjs/swagger',
+    ])
+  );
 
   await formatFiles(tree);
 

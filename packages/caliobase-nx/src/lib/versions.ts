@@ -1,12 +1,21 @@
 import { version as caliobaseUiVersion } from '@caliobase/caliobase-ui/package.json';
+import { version as caliobaseVersion } from '@caliobase/caliobase/package.json';
 import { addDependenciesToPackageJson, Tree } from '@nrwl/devkit';
 import { pick } from 'lodash';
+
+/* eslint-disable @typescript-eslint/no-var-requires */
+export const workspaceProjectVersions = {
+  '@caliobase/caliobase-ui': caliobaseUiVersion,
+  '@caliobase/caliobase': caliobaseVersion,
+};
 
 export const versions = {
   nodemailer: '^6.7.5',
   '@types/nodemailer': '^6.4.4',
-  '@caliobase/caliobase-ui': caliobaseUiVersion,
+  '@nestjs/swagger': require('@nestjs/swagger/package.json').version as string,
+  ...workspaceProjectVersions,
 };
+/* eslint-enable @typescript-eslint/no-var-requires */
 
 export type Dependency = keyof typeof versions;
 

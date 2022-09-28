@@ -97,9 +97,11 @@ exports[`client generator should run successfully: package.json 1`] = `
 "{
   \\"name\\": \\"test-name\\",
   \\"dependencies\\": {
+    \\"@caliobase/caliobase\\": \\"0.3.9\\",
     \\"@nestjs/common\\": \\"^9.0.0\\",
     \\"@nestjs/core\\": \\"^9.0.0\\",
     \\"@nestjs/platform-express\\": \\"^9.0.0\\",
+    \\"@nestjs/swagger\\": \\"6.1.2\\",
     \\"nodemailer\\": \\"^6.7.5\\",
     \\"reflect-metadata\\": \\"^0.1.13\\",
     \\"rxjs\\": \\"^7.0.0\\",
