@@ -97,6 +97,7 @@ exports[`client generator should run successfully: package.json 1`] = `
 "{
   \\"name\\": \\"test-name\\",
   \\"dependencies\\": {
+    \\"@aws-sdk/client-ses\\": \\"^3.171.0\\",
     \\"@caliobase/caliobase\\": \\"0.3.9\\",
     \\"@nestjs/common\\": \\"^9.0.0\\",
     \\"@nestjs/core\\": \\"^9.0.0\\",

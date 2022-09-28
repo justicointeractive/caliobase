@@ -1,5 +1,6 @@
 import { Tree } from '@nrwl/devkit';
 import { readFile } from 'fs/promises';
+import { pickBy } from 'lodash';
 import { workspaceProjectVersions } from '../lib/versions';
 
 export async function expectDependenciesMatch(tree: Tree, path: string) {
@@ -19,9 +20,15 @@ export async function expectDependenciesMatch(tree: Tree, path: string) {
   );
 
   expect(workspacePackageJson.dependencies).toMatchObject(
-    projectPackageJson.dependencies
+    pickBy(
+      projectPackageJson.dependencies,
+      (value, key) => key in workspacePackageJson.dependencies
+    )
   );
   expect(workspacePackageJson.devDependencies).toMatchObject(
-    projectPackageJson.devDependencies
+    pickBy(
+      projectPackageJson.devDependencies,
+      (value, key) => key in workspacePackageJson.devDependencies
+    )
   );
 }

@@ -59,7 +59,8 @@ exports[`ui generator should run successfully: apps/ui/project.json 1`] = `
       \\"defaultConfiguration\\": \\"development\\",
       \\"options\\": {
         \\"buildTarget\\": \\"ui:build\\",
-        \\"hmr\\": true
+        \\"hmr\\": true,
+        \\"proxyConfig\\": \\"apps/ui/proxy.conf.json\\"
       },
       \\"configurations\\": {
         \\"development\\": {

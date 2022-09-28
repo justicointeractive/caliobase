@@ -13,6 +13,7 @@ export const versions = {
   nodemailer: '^6.7.5',
   '@types/nodemailer': '^6.4.4',
   '@nestjs/swagger': require('@nestjs/swagger/package.json').version as string,
+  '@aws-sdk/client-ses': '^3.171.0',
   ...workspaceProjectVersions,
 };
 /* eslint-enable @typescript-eslint/no-var-requires */

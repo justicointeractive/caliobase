@@ -65,6 +65,7 @@ export class AppModule {
         }),
         <% } %>
         CaliobaseModule.forRootAsync({
+          allowCreateOwnOrganizations: true,
           urls: {
             forgotPassword: `https://${envVars.cmsHostname}/forgotPassword?token=${TOKEN_TOKEN}`,
           },

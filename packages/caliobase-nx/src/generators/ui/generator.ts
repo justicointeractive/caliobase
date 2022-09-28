@@ -11,8 +11,10 @@ import { Linter } from '@nrwl/linter';
 import { applicationGenerator } from '@nrwl/react';
 import { runTasksInSerial } from '@nrwl/workspace/src/utilities/run-tasks-in-serial';
 import * as path from 'path';
+import { modifyProjectConfiguration } from '../../lib/modifyProjectConfiguration';
 import { addDependencyVersionsToPackageJson } from '../../lib/versions';
 import { UiGeneratorSchema } from './schema';
+import assert = require('assert');
 
 interface NormalizedSchema extends UiGeneratorSchema {
   projectName: string;
@@ -71,6 +73,13 @@ export default async function (tree: Tree, options: UiGeneratorSchema) {
     style: 'css',
   });
   addFiles(tree, normalizedOptions);
+  modifyProjectConfiguration(tree, options.name, (config) => {
+    assert(config.targets);
+    config.targets['serve'].options[
+      'proxyConfig'
+    ] = `${normalizedOptions.projectRoot}/proxy.conf.json`;
+    return config;
+  });
   await formatFiles(tree);
 
   tasks.push(

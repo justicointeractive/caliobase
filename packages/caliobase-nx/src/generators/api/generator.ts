@@ -81,6 +81,7 @@ export default async function (tree: Tree, options: ApiGeneratorSchema) {
       'nodemailer',
       '@caliobase/caliobase',
       '@nestjs/swagger',
+      '@aws-sdk/client-ses',
     ])
   );
 
