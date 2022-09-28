@@ -31,7 +31,8 @@ export function ListView() {
 
   const [list]: readonly [
     { items: { id: string }[]; count?: number } | undefined,
-    (value: undefined) => void
+    (value: undefined) => void,
+    unknown
   ] = useAsyncEffectState(
     undefined,
     (signal) =>
