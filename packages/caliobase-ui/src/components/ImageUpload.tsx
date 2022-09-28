@@ -1,39 +1,50 @@
 import { faTrash, faUpload } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, {
-  DragEventHandler,
-  MouseEventHandler,
-  useCallback,
-  useEffect,
-  useState,
-} from 'react';
+import { MouseEventHandler, useCallback, useEffect, useState } from 'react';
+import { useFileDrop } from '../hooks/useFileDrop';
 import { useUploadImage } from '../hooks/useUploadImage';
 import { useFormContext } from './data/FormContext';
 
-export function ImageUpload(props: {
+export function ImageUpload({
+  image: existingFile,
+  onChange,
+}: {
   image: unknown | null;
   onChange: (value: unknown | null) => void;
 }) {
+  const { uploadImageFile, toUrl } = useUploadImage();
+
+  const formContext = useFormContext();
+
   const [pendingFile, setPendingFile] = useState<{
     file: File;
     previewUrl: string;
   } | null>(null);
 
-  const { uploadImageFile, toUrl } = useUploadImage();
-
-  const formContext = useFormContext();
-
-  const handleFileSelected = useCallback(async (file: File) => {
-    const previewUrl = URL.createObjectURL(file);
-    setPendingFile({ file, previewUrl });
-  }, []);
+  const {
+    handleChooseFile,
+    handleDragOut,
+    handleDragOver,
+    handleFileDrop,
+    dragOver,
+  } = useFileDrop({
+    acceptTypes: 'image/*',
+    onChange: useCallback((file) => {
+      if (file) {
+        const previewUrl = URL.createObjectURL(file);
+        setPendingFile({ file, previewUrl });
+      } else {
+        setPendingFile(null);
+      }
+    }, []),
+  });
 
   useEffect(() => {
     if (pendingFile) {
       const removeFormControl = formContext.addFormControl({
         onBeforeSave: async () => {
           const image = await uploadImageFile(pendingFile.file);
-          props.onChange(image);
+          onChange(image);
           setPendingFile(null);
         },
       });
@@ -43,61 +54,18 @@ export function ImageUpload(props: {
       };
     }
     return () => void 0;
-  }, [formContext, pendingFile, props, uploadImageFile]);
+  }, [formContext, onChange, pendingFile, setPendingFile, uploadImageFile]);
 
-  const handleChooseFile = useCallback<MouseEventHandler>(
-    (e) => {
-      e.preventDefault();
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'image/*';
-      input.onchange = () => {
-        const file = input.files?.[0];
-        if (file) {
-          handleFileSelected(file);
-        }
-      };
-      input.click();
-    },
-    [handleFileSelected]
-  );
+  const hasFile = !!(pendingFile || existingFile);
 
   const handleClearFile = useCallback<MouseEventHandler>(
     (e) => {
       e.preventDefault();
       setPendingFile(null);
-      props.onChange(null);
+      onChange(null);
     },
-    [props]
+    [onChange]
   );
-
-  const [dragOver, setDragOver] = useState(false);
-
-  const handleFileDrop = useCallback<DragEventHandler>(
-    (e) => {
-      e.preventDefault();
-
-      const file = getFileFromDrop(e);
-      if (file) {
-        handleFileSelected(file);
-      }
-
-      setDragOver(false);
-    },
-    [handleFileSelected]
-  );
-
-  const handleDragOver = useCallback<DragEventHandler>((e) => {
-    e.preventDefault();
-    setDragOver(true);
-  }, []);
-
-  const handleDragOut = useCallback<DragEventHandler>((e) => {
-    e.preventDefault();
-    setDragOver(false);
-  }, []);
-
-  const hasFile = !!(pendingFile || props.image);
 
   return (
     <div
@@ -106,10 +74,10 @@ export function ImageUpload(props: {
       onDrop={handleFileDrop}
     >
       <div className="h-[220px] rounded bg-gray-300">
-        {pendingFile?.previewUrl || props.image ? (
+        {pendingFile?.previewUrl || existingFile ? (
           <img
             className="absolute inset-0 h-full w-full object-contain object-center"
-            src={pendingFile?.previewUrl || toUrl(props.image)}
+            src={pendingFile?.previewUrl || toUrl(existingFile)}
             alt={'Preview'}
           />
         ) : (
@@ -148,11 +116,4 @@ export function ImageUpload(props: {
       )}
     </div>
   );
-}
-
-function getFileFromDrop(e: React.DragEvent) {
-  return [
-    ...Array.from(e.dataTransfer.items).map((item) => item.getAsFile()),
-    ...Array.from(e.dataTransfer.files),
-  ][0];
 }
