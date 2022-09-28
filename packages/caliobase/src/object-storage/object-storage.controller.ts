@@ -44,7 +44,10 @@ export class ObjectStorageCreateRequest {
 export class ObjectStorageUpdateRequest {
   @IsOptional()
   @IsIn(ObjectStorageObjectStatuses)
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    type: String,
+    enum: ObjectStorageObjectStatuses,
+  })
   status?: ObjectStorageObjectStatus;
 }
 
