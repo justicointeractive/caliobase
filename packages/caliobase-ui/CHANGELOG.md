@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.1.14](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.13...caliobase-ui-0.1.14) (2022-09-28)
+
+
+### Bug Fixes
+
+* **caliobase-ui:** fix object storage status ([fdc980b](https://github.com/justicointeractive/caliobase/commit/fdc980bfdf0b9935739988c1916592e0bab967b5))
+
 ### [0.1.13](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.12...caliobase-ui-0.1.13) (2022-09-28)
 
 ### Dependency Updates
