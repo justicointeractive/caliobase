@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.1.11](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.10...caliobase-ui-0.1.11) (2022-09-28)
+
+
+### Bug Fixes
+
+* **caliobase-ui:** add a way to have an app-specifically-typed UserContext ([725c4ab](https://github.com/justicointeractive/caliobase/commit/725c4abe8e929cb07b2f379691650089267ac38a))
+
 ### [0.1.10](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.9...caliobase-ui-0.1.10) (2022-09-28)
 
 ### Dependency Updates
