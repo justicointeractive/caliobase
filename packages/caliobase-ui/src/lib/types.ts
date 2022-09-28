@@ -133,7 +133,7 @@ export type ICaliobaseCreateObjectRequest = {
 
 export type ICaliobaseObjectStorageObject = {
   id: string;
-  status: string;
+  status: 'pending' | 'processing' | 'ready';
   contentLength: number;
   contentType: string;
   cdnUrl: string;
