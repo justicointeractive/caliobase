@@ -5,6 +5,15 @@ import { Organization } from '../auth/entities/organization.entity';
 import { User } from '../auth/entities/user.entity';
 import { PrimaryGeneratedPrefixedNanoIdColumn } from '../entity-module/decorators/PrimaryGeneratedPrefixedNanoIdColumn.decorator';
 
+export const ObjectStorageObjectStatuses = [
+  'pending',
+  'processing',
+  'ready',
+] as const;
+
+export type ObjectStorageObjectStatus =
+  typeof ObjectStorageObjectStatuses[number];
+
 @Entity()
 export class ObjectStorageObject {
   @PrimaryGeneratedPrefixedNanoIdColumn('blob')
@@ -32,19 +41,10 @@ export class ObjectStorageObject {
   contentType!: string;
 
   @Column({ type: String })
-  @ApiProperty()
+  @ApiProperty({ type: String, enum: ObjectStorageObjectStatuses })
   status!: ObjectStorageObjectStatus;
 
   @ManyToOne(() => User)
   @ApiProperty()
   uploadedBy!: User;
 }
-
-export const ObjectStorageObjectStatuses = [
-  'pending',
-  'processing',
-  'ready',
-] as const;
-
-export type ObjectStorageObjectStatus =
-  typeof ObjectStorageObjectStatuses[number];
