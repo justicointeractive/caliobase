@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.3.3](https://github.com/justicointeractive/caliobase/compare/caliobase-nx-0.3.2...caliobase-nx-0.3.3) (2022-09-28)
+
+
+### Bug Fixes
+
+* **caliobase-nx:** add some missing dependencies ([7b3f293](https://github.com/justicointeractive/caliobase/commit/7b3f293143194e2d0077cdccfbe9dcb70eecfee6))
+
 ### [0.3.2](https://github.com/justicointeractive/caliobase/compare/caliobase-nx-0.3.1...caliobase-nx-0.3.2) (2022-09-28)
 
 ### [0.3.1](https://github.com/justicointeractive/caliobase/compare/caliobase-nx-0.3.0...caliobase-nx-0.3.1) (2022-09-28)
