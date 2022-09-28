@@ -1,6 +1,5 @@
 import { readProjectConfiguration, Tree } from '@nrwl/devkit';
 import { createTreeWithEmptyWorkspace } from '@nrwl/devkit/testing';
-import { Linter } from '@nrwl/linter';
 import { expectSnapshot } from '../../test-utils/expectSnapshot';
 import generator from './generator';
 import { UiGeneratorSchema } from './schema';
@@ -9,11 +8,6 @@ describe('ui generator', () => {
   let appTree: Tree;
   const options: UiGeneratorSchema = {
     name: 'ui',
-    e2eTestRunner: 'cypress',
-    linter: Linter.EsLint,
-    skipFormat: true,
-    style: 'css',
-    unitTestRunner: 'jest',
   };
 
   beforeEach(async () => {

@@ -7,6 +7,7 @@ import {
   offsetFromRoot,
   Tree,
 } from '@nrwl/devkit';
+import { Linter } from '@nrwl/linter';
 import { applicationGenerator } from '@nrwl/react';
 import { runTasksInSerial } from '@nrwl/workspace/src/utilities/run-tasks-in-serial';
 import * as path from 'path';
@@ -61,7 +62,14 @@ function addFiles(tree: Tree, options: NormalizedSchema) {
 export default async function (tree: Tree, options: UiGeneratorSchema) {
   const tasks: GeneratorCallback[] = [];
   const normalizedOptions = normalizeOptions(tree, options);
-  await applicationGenerator(tree, options);
+  await applicationGenerator(tree, {
+    ...options,
+    e2eTestRunner: 'cypress',
+    linter: Linter.EsLint,
+    unitTestRunner: 'jest',
+    skipFormat: true,
+    style: 'css',
+  });
   addFiles(tree, normalizedOptions);
   await formatFiles(tree);
 
