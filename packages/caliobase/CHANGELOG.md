@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.3.11](https://github.com/justicointeractive/caliobase/compare/caliobase-0.3.10...caliobase-0.3.11) (2022-09-28)
+
+
+### Bug Fixes
+
+* **caliobase:** another place to update object storage status values ([750112c](https://github.com/justicointeractive/caliobase/commit/750112c3a8773e6f86492a0b86eaa67da4d7602a))
+
 ### [0.3.10](https://github.com/justicointeractive/caliobase/compare/caliobase-0.3.9...caliobase-0.3.10) (2022-09-28)
 
 
