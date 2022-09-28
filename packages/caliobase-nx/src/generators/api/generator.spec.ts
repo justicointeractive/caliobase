@@ -11,7 +11,7 @@ describe('api generator', () => {
   const options: ApiGeneratorSchema = { name: 'api' };
 
   beforeEach(() => {
-    appTree = createTreeWithEmptyWorkspace(2);
+    appTree = createTreeWithEmptyWorkspace();
   });
 
   it('should run successfully', async () => {

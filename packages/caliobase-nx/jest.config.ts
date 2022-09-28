@@ -11,6 +11,7 @@ export default {
   transform: {
     '^.+\\.[tj]s$': 'ts-jest',
   },
-  moduleFileExtensions: ['ts', 'js', 'html'],
+  transformIgnorePatterns: ['/node_modules/(?!(@nrwl/webpack)/)'],
+  moduleFileExtensions: ['ts', 'js', 'html', 'd.ts'],
   coverageDirectory: '../../coverage/packages/caliobase-nx',
 };

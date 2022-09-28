@@ -36,6 +36,7 @@ bootstrap().catch((err) => {
 
 exports[`client generator should run successfully: libs/client/project.json 1`] = `
 "{
+  \\"name\\": \\"client\\",
   \\"$schema\\": \\"../../node_modules/nx/schemas/project-schema.json\\",
   \\"tags\\": [],
   \\"targets\\": {
@@ -96,32 +97,33 @@ exports[`client generator should run successfully: package.json 1`] = `
 "{
   \\"name\\": \\"test-name\\",
   \\"dependencies\\": {
-    \\"@nestjs/common\\": \\"^8.0.0\\",
-    \\"@nestjs/core\\": \\"^8.0.0\\",
-    \\"@nestjs/platform-express\\": \\"^8.0.0\\",
+    \\"@nestjs/common\\": \\"^9.0.0\\",
+    \\"@nestjs/core\\": \\"^9.0.0\\",
+    \\"@nestjs/platform-express\\": \\"^9.0.0\\",
     \\"nodemailer\\": \\"^6.7.5\\",
     \\"reflect-metadata\\": \\"^0.1.13\\",
     \\"rxjs\\": \\"^7.0.0\\",
     \\"tslib\\": \\"^2.3.0\\"
   },
   \\"devDependencies\\": {
-    \\"@nestjs/schematics\\": \\"^8.0.0\\",
-    \\"@nestjs/testing\\": \\"^8.0.0\\",
-    \\"@nrwl/eslint-plugin-nx\\": \\"14.3.6\\",
-    \\"@nrwl/jest\\": \\"14.3.6\\",
-    \\"@nrwl/linter\\": \\"14.3.6\\",
-    \\"@nrwl/nest\\": \\"14.3.6\\",
-    \\"@nrwl/node\\": \\"14.3.6\\",
-    \\"@types/jest\\": \\"27.4.1\\",
+    \\"@nestjs/schematics\\": \\"^9.0.0\\",
+    \\"@nestjs/testing\\": \\"^9.0.0\\",
+    \\"@nrwl/eslint-plugin-nx\\": \\"14.7.18\\",
+    \\"@nrwl/jest\\": \\"14.7.18\\",
+    \\"@nrwl/linter\\": \\"14.7.18\\",
+    \\"@nrwl/nest\\": \\"14.7.18\\",
+    \\"@nrwl/node\\": \\"14.7.18\\",
+    \\"@types/jest\\": \\"28.1.1\\",
     \\"@types/node\\": \\"16.11.7\\",
     \\"@types/nodemailer\\": \\"^6.4.4\\",
-    \\"@typescript-eslint/eslint-plugin\\": \\"~5.24.0\\",
-    \\"@typescript-eslint/parser\\": \\"~5.24.0\\",
+    \\"@typescript-eslint/eslint-plugin\\": \\"^5.36.1\\",
+    \\"@typescript-eslint/parser\\": \\"^5.36.1\\",
     \\"eslint\\": \\"~8.15.0\\",
     \\"eslint-config-prettier\\": \\"8.1.0\\",
-    \\"jest\\": \\"27.5.1\\",
-    \\"ts-jest\\": \\"27.1.4\\",
-    \\"ts-node\\": \\"~10.8.0\\"
+    \\"jest\\": \\"28.1.1\\",
+    \\"jest-environment-jsdom\\": \\"28.1.1\\",
+    \\"ts-jest\\": \\"28.0.5\\",
+    \\"ts-node\\": \\"10.9.1\\"
   }
 }
 "

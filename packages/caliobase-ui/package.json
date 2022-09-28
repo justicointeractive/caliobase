@@ -1,7 +1,5 @@
 {
   "name": "@caliobase/caliobase-ui",
   "version": "0.1.9",
-  "peerDependencies": {
-    "@nrwl/react": "14.3.6"
-  }
+  "peerDependencies": {}
 }

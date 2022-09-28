@@ -11,7 +11,7 @@ describe('ui generator', () => {
   };
 
   beforeEach(async () => {
-    appTree = createTreeWithEmptyWorkspace(2);
+    appTree = createTreeWithEmptyWorkspace();
   });
 
   it('should run successfully', async () => {

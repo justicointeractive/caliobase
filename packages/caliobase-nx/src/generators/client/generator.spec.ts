@@ -13,7 +13,7 @@ describe('client generator', () => {
   };
 
   beforeEach(async () => {
-    appTree = createTreeWithEmptyWorkspace(2);
+    appTree = createTreeWithEmptyWorkspace();
     await apiGenerator(appTree, { name: 'api' });
   });
 
