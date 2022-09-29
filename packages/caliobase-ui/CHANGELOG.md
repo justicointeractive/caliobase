@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.1.16](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.15...caliobase-ui-0.1.16) (2022-09-29)
+
+
+### Bug Fixes
+
+* **caliobase-ui:** accept onProgress handler for user/org upload file ([e380498](https://github.com/justicointeractive/caliobase/commit/e3804985450b59e5db6c23dad16f83f4898d38d5))
+
 ### [0.1.15](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.14...caliobase-ui-0.1.15) (2022-09-29)
 
 
