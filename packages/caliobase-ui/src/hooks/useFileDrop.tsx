@@ -63,27 +63,35 @@ export function useFileDrop({
 function getFilesFromDrop(e: React.DragEvent) {
   const files: File[] = [];
   if ('items' in e.dataTransfer) {
-    addFilesRecursive(Array.from(e.dataTransfer.items), files);
+    addFilesRecursive(
+      Array.from(e.dataTransfer.items, (item) =>
+        item.webkitGetAsEntry()
+      ).filter(nonNull),
+      files
+    );
   } else {
     files.push(...Array.from(e.dataTransfer.files));
   }
   return files.filter(nonNull);
 }
 
-function addFilesRecursive(
-  items: (DataTransferItem | FileSystemEntry)[],
-  files: File[]
-) {
-  for (const item of items) {
-    const entry = item instanceof FileSystemEntry || item.webkitGetAsEntry();
-
-    if (entry instanceof FileSystemFileEntry) {
+function addFilesRecursive(items: FileSystemEntry[], files: File[]) {
+  for (const entry of items) {
+    if (isFile(entry)) {
       entry.file((file) => files.push(file));
     }
 
-    if (entry instanceof FileSystemDirectoryEntry) {
+    if (isDir(entry)) {
       const dirReader = entry.createReader();
       dirReader.readEntries((entries) => addFilesRecursive(entries, files));
     }
   }
+}
+
+function isFile(entry: FileSystemEntry): entry is FileSystemFileEntry {
+  return entry.isFile;
+}
+
+function isDir(entry: FileSystemEntry): entry is FileSystemDirectoryEntry {
+  return entry.isDirectory;
 }
