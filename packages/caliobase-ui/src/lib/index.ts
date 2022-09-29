@@ -1,3 +1,4 @@
+export * from './assert';
 export * from './bearerToken';
 export * from './CaliobaseUiConfiguration';
 export * from './CaliobaseUiConfiguration.builder';
