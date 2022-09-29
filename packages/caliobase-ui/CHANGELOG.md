@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.1.18](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.17...caliobase-ui-0.1.18) (2022-09-29)
+
+
+### Bug Fixes
+
+* **caliobase-ui:** export assert fn ([61fb955](https://github.com/justicointeractive/caliobase/commit/61fb955f7410c69e1228a5ef7c8913dfd5d184a7))
+
 ### [0.1.17](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.16...caliobase-ui-0.1.17) (2022-09-29)
 
 
