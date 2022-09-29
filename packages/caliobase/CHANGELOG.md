@@ -2,6 +2,14 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.3.17](https://github.com/justicointeractive/caliobase/compare/caliobase-0.3.16...caliobase-0.3.17) (2022-09-29)
+
+
+### Bug Fixes
+
+* **caliobase:** fix passing along upload id and parts ([3e43742](https://github.com/justicointeractive/caliobase/commit/3e43742e3db6dd0ca4654086a8234bda68ef9168))
+* **caliobase:** pass along upload id for completion ([d6103df](https://github.com/justicointeractive/caliobase/commit/d6103dfd4d7dcc2e4224c071e1e665efba6968d7))
+
 ### [0.3.16](https://github.com/justicointeractive/caliobase/compare/caliobase-0.3.15...caliobase-0.3.16) (2022-09-29)
 
 
