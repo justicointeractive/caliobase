@@ -6,6 +6,7 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { assert } from '../lib/assert';
 import { bearerToken } from '../lib/bearerToken';
 import { ICaliobaseApi } from '../lib/ICaliobaseApi';
 import { CaliobaseMember } from '../lib/types';
@@ -89,8 +90,12 @@ function useUserContextValue() {
       },
       user,
       userOrgApi,
+      uploadFile: async (file: File) => {
+        assert(userOrgApi);
+        await caliobaseUiConfiguration.uploadFile(userOrgApi, file);
+      },
     }),
-    [accessToken, user, userOrgApi]
+    [accessToken, caliobaseUiConfiguration, user, userOrgApi]
   );
 
   return value;
