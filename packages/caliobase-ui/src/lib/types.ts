@@ -139,9 +139,27 @@ export type ICaliobaseObjectStorageObject = {
   cdnUrl: string;
 };
 
+export type ICaliobaseSignedObjectUpload = {
+  uploadId: string;
+  parts: ICaliobaseSignedObjectPutUrl[];
+};
+
+export type ICaliobaseCompletedUploadPart = {
+  part: number;
+  etag: string;
+};
+
+export type ICaliobaseCompleteUploadRequest = {
+  uploadId: string;
+  parts: ICaliobaseCompletedUploadPart[];
+};
+
 export type ICaliobaseSignedObjectPutUrl = {
+  part: number;
   method: string;
   url: string;
+  rangeStart: number;
+  rangeEnd: number;
 };
 
 export type ICaliobaseEntityApi<T extends { id: string }> = {

@@ -7,6 +7,7 @@ import {
   ContentField,
   EntityApiName,
   ICaliobaseApiProps,
+  ICaliobaseCompletedUploadPart,
   InferApiResponseType,
 } from './types';
 
@@ -28,34 +29,73 @@ export class CaliobaseUiConfiguration<TApi extends ICaliobaseApi> {
   }
 
   // TODO: exclude this function if no object storage provider
-  async uploadFile<TApi extends ICaliobaseApi>(api: TApi, file: File) {
+  async uploadFile<TApi extends ICaliobaseApi>(
+    api: TApi,
+    file: File,
+    onProgress?: (event: { loaded: number; total: number }) => void
+  ) {
     invariant(api.objectStorage, 'object storage not available');
 
     const {
-      data: { object, signedUrl },
+      data: {
+        object,
+        upload: { parts: signedPartUrls, uploadId },
+      },
     } = await api.objectStorage.createObjectStorageObject({
-      fileName: file.name,
-      contentType: file.type,
       contentLength: file.size,
+      contentType: file.type,
+      fileName: file.name,
     });
 
-    const putResponse = await fetch(signedUrl.url, {
-      method: signedUrl.method,
-      body: file,
+    const partPromises: (Promise<ICaliobaseCompletedUploadPart> & {
+      loaded: number;
+    })[] = signedPartUrls.map((signedUrl) => {
+      const partPromise = Object.assign(
+        new Promise<ICaliobaseCompletedUploadPart>((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open(signedUrl.method, signedUrl.url);
+          xhr.addEventListener('readystatechange', (e) =>
+            console.log({ xhr, e })
+          );
+          xhr.addEventListener('load', () => {
+            const etag = xhr.getResponseHeader('etag') ?? '';
+            return resolve({
+              etag,
+              part: signedUrl.part,
+            });
+          });
+          xhr.addEventListener('error', (err) => reject(err));
+          if (onProgress) {
+            xhr.upload.addEventListener('progress', (e) => {
+              partPromise.loaded = e.loaded;
+              onProgress({
+                loaded: partPromises.reduce(
+                  (sum, part) => sum + part.loaded,
+                  0
+                ),
+                total: file.size,
+              });
+            });
+          }
+          xhr.send(file.slice(signedUrl.rangeStart, signedUrl.rangeEnd));
+        }),
+        { loaded: 0 }
+      );
+
+      return partPromise;
     });
 
-    if (putResponse.status !== 200) {
-      throw new Error('invalid response');
-    }
+    const completedParts = await Promise.all(partPromises);
 
     const { data: objectStorageObject } =
-      await api.objectStorage.updateObjectStorageObject(object.id, {
-        status: 'ready',
+      await api.objectStorage.completeUpload(object.id, {
+        parts: completedParts,
+        uploadId,
       });
 
     // TODO: can the method calls automatically return the actual api types rather than needing to be cast here?
     return objectStorageObject as InferApiResponseType<
-      NonNullable<TApi['objectStorage']>['updateObjectStorageObject']
+      NonNullable<TApi['objectStorage']>['completeUpload']
     >;
   }
 

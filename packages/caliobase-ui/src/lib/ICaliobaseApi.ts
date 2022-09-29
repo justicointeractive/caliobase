@@ -7,6 +7,7 @@ import {
   ICaliobaseApiRequestWithBody,
   ICaliobaseApiRequestWithParam,
   ICaliobaseApiRequestWithParamAndBody,
+  ICaliobaseCompleteUploadRequest,
   ICaliobaseCreateObjectRequest,
   ICaliobaseCreateOrganizationRequest,
   ICaliobaseCreateRootRequest,
@@ -15,7 +16,7 @@ import {
   ICaliobaseObjectStorageObject,
   ICaliobaseRequestPasswordResetRequest,
   ICaliobaseRootResponse,
-  ICaliobaseSignedObjectPutUrl,
+  ICaliobaseSignedObjectUpload,
   ICaliobaseSocialAuthBody,
   ISocialAuthUrlResponse,
   SocialAuthUrlRequest,
@@ -34,12 +35,12 @@ export type ICaliobaseApi = {
       ICaliobaseCreateObjectRequest,
       {
         object: ICaliobaseObjectStorageObject;
-        signedUrl: ICaliobaseSignedObjectPutUrl;
+        upload: ICaliobaseSignedObjectUpload;
       }
     >;
-    updateObjectStorageObject: ICaliobaseApiRequestWithParamAndBody<
+    completeUpload: ICaliobaseApiRequestWithParamAndBody<
       string,
-      Partial<ICaliobaseObjectStorageObject>,
+      ICaliobaseCompleteUploadRequest,
       ICaliobaseObjectStorageObject
     >;
   };
