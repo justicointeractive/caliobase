@@ -96,7 +96,11 @@ function useUserContextValue() {
         onProgress?: FileUploadProgressHandler
       ) => {
         assert(userOrgApi);
-        await caliobaseUiConfiguration.uploadFile(userOrgApi, file, onProgress);
+        return await caliobaseUiConfiguration.uploadFile(
+          userOrgApi,
+          file,
+          onProgress
+        );
       },
     }),
     [accessToken, caliobaseUiConfiguration, user, userOrgApi]
