@@ -32,9 +32,6 @@ export class SignedUploadUrlResult {
 
 export class CompleteUploadRequest {
   @ApiProperty()
-  objectId!: string;
-
-  @ApiProperty()
   uploadId!: string;
 
   @ApiProperty()
