@@ -1,10 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-
-export type ObjectUploadRequest = {
-  key: string;
-  contentLength: number;
-  contentType: string;
-};
+import { ObjectStorageObject } from './object-storage-object.entity';
 
 export type DeleteResult = {
   deleted: boolean;
@@ -16,6 +11,31 @@ export class SignedUploadUrl {
 
   @ApiProperty()
   method!: string;
+
+  @ApiProperty()
+  range!: [number, number];
+
+  @ApiProperty()
+  part!: number;
+}
+
+export class SignedUploadUrlResult {
+  @ApiProperty()
+  part!: number;
+
+  @ApiProperty()
+  etag!: string;
+}
+
+export class CompleteUploadRequest {
+  @ApiProperty()
+  objectId!: string;
+
+  @ApiProperty()
+  uploadId!: string;
+
+  @ApiProperty()
+  parts!: SignedUploadUrlResult[];
 }
 
 export type ObjectStorageProviderOptions = {
@@ -27,9 +47,14 @@ export abstract class AbstractObjectStorageProvider {
     public readonly options: Readonly<ObjectStorageProviderOptions>
   ) {}
 
-  abstract createSignedUploadUrl(
-    file: ObjectUploadRequest
-  ): Promise<SignedUploadUrl>;
+  abstract createUpload(
+    object: ObjectStorageObject
+  ): Promise<SignedUploadUrl[]>;
+
+  abstract completeUpload(
+    object: ObjectStorageObject,
+    completion: CompleteUploadRequest
+  ): Promise<void>;
 
   abstract deleteFile(file: string): Promise<DeleteResult>;
 }

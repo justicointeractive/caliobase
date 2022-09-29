@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Param,
-  Patch,
   Post,
   Request,
   UnauthorizedException,
@@ -13,18 +12,16 @@ import {
   ApiCreatedResponse,
   ApiOkResponse,
   ApiProperty,
-  ApiPropertyOptional,
   ApiTags,
 } from '@nestjs/swagger';
-import { IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsNumber, IsString } from 'class-validator';
 import { RequestUser } from '../entity-module/RequestUser';
 import { assert } from '../lib/assert';
-import { SignedUploadUrl } from './AbstractObjectStorageProvider';
 import {
-  ObjectStorageObject,
-  ObjectStorageObjectStatus,
-  ObjectStorageObjectStatuses,
-} from './object-storage-object.entity';
+  CompleteUploadRequest,
+  SignedUploadUrl,
+} from './AbstractObjectStorageProvider';
+import { ObjectStorageObject } from './object-storage-object.entity';
 import { ObjectStorageService } from './object-storage.service';
 
 export class ObjectStorageCreateRequest {
@@ -41,22 +38,12 @@ export class ObjectStorageCreateRequest {
   contentLength!: number;
 }
 
-export class ObjectStorageUpdateRequest {
-  @IsOptional()
-  @IsIn(ObjectStorageObjectStatuses)
-  @ApiPropertyOptional({
-    type: String,
-    enum: ObjectStorageObjectStatuses,
-  })
-  status?: ObjectStorageObjectStatus;
-}
-
 export class ObjectStorageCreateResponse {
   @ApiProperty()
   object!: ObjectStorageObject;
 
   @ApiProperty()
-  signedUrl!: SignedUploadUrl;
+  signedPartUrls!: SignedUploadUrl[];
 }
 
 @ApiTags('object-storage')
@@ -87,22 +74,21 @@ export class ObjectStorageController {
     return object;
   }
 
-  @Patch(':objectId')
-  @ApiBody({ type: ObjectStorageUpdateRequest })
+  @Post(':objectId/complete')
+  @ApiBody({ type: CompleteUploadRequest })
   @ApiOkResponse({
     type: ObjectStorageObject,
   })
-  async updateObjectStorageObject(
+  async completeUpload(
     @Param('objectId') objectId: string,
-    @Body() file: ObjectStorageUpdateRequest,
+    @Body() completeUploadRequest: CompleteUploadRequest,
     @Request() request: RequestUser
   ): Promise<ObjectStorageObject> {
     const member = request.user?.member;
     assert(member, UnauthorizedException);
 
-    // TODO assert permission to update object
-    const object = await this.objectStorageService.updateObject(objectId, {
-      ...file,
+    const object = await this.objectStorageService.completeUpload(objectId, {
+      ...completeUploadRequest,
     });
 
     return object;

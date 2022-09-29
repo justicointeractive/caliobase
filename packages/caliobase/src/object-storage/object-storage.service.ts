@@ -3,9 +3,17 @@ import { format } from 'date-fns';
 import { DataSource } from 'typeorm';
 import {
   AbstractObjectStorageProvider,
+  CompleteUploadRequest,
   ObjectStorageObject,
-  ObjectUploadRequest,
 } from '.';
+
+export type ObjectCreateRequest = {
+  contentLength: number;
+  contentType: string;
+  fileName: string;
+  organization: { id: string };
+  uploadedBy: { id: string };
+};
 
 @Injectable()
 export class ObjectStorageService {
@@ -16,13 +24,7 @@ export class ObjectStorageService {
     private objectStorage: AbstractObjectStorageProvider
   ) {}
 
-  async createObject(
-    file: Omit<ObjectUploadRequest, 'key'> & {
-      fileName: string;
-      organization: { id: string };
-      uploadedBy: { id: string };
-    }
-  ) {
+  async createObject(file: ObjectCreateRequest) {
     const { fileName, contentLength, contentType, organization, uploadedBy } =
       file;
 
@@ -45,16 +47,20 @@ export class ObjectStorageService {
       })
     );
 
-    const signedUrl = await this.objectStorage.createSignedUploadUrl(object);
+    const signedPartUrls = await this.objectStorage.createUpload(object);
 
-    return { object, signedUrl };
+    return { object, signedPartUrls };
   }
 
-  async updateObject(objectId: string, update: Partial<ObjectStorageObject>) {
+  async completeUpload(objectId: string, completion: CompleteUploadRequest) {
     const object = await this.objectRepo.findOneOrFail({
       where: { id: objectId },
     });
-    Object.assign(object, update);
+
+    await this.objectStorage.completeUpload(object, completion);
+
+    object.status = 'ready';
+
     return await this.objectRepo.save(object);
   }
 }
