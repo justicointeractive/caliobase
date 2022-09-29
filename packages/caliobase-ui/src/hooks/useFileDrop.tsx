@@ -30,10 +30,10 @@ export function useFileDrop({
   const [dragOver, setDragOver] = useState(false);
 
   const handleFileDrop = useCallback<DragEventHandler>(
-    (e) => {
+    async (e) => {
       e.preventDefault();
 
-      const files = getFilesFromDrop(e);
+      const files = await getFilesFromDrop(e);
       onChange(files);
 
       setDragOver(false);
@@ -60,10 +60,10 @@ export function useFileDrop({
   };
 }
 
-function getFilesFromDrop(e: React.DragEvent) {
+async function getFilesFromDrop(e: React.DragEvent) {
   const files: File[] = [];
   if ('items' in e.dataTransfer) {
-    addFilesRecursive(
+    await addFilesRecursive(
       Array.from(e.dataTransfer.items, (item) =>
         item.webkitGetAsEntry()
       ).filter(nonNull),
@@ -75,17 +75,29 @@ function getFilesFromDrop(e: React.DragEvent) {
   return files.filter(nonNull);
 }
 
-function addFilesRecursive(items: FileSystemEntry[], files: File[]) {
+async function addFilesRecursive(items: FileSystemEntry[], files: File[]) {
   for (const entry of items) {
     if (isFile(entry)) {
-      entry.file((file) => files.push(file));
+      files.push(await getFile(entry));
     }
 
     if (isDir(entry)) {
-      const dirReader = entry.createReader();
-      dirReader.readEntries((entries) => addFilesRecursive(entries, files));
+      await addFilesRecursive(await readEntries(entry), files);
     }
   }
+}
+
+function getFile(entry: FileSystemFileEntry) {
+  return new Promise<File>((resolve, reject) => {
+    entry.file(resolve, reject);
+  });
+}
+
+function readEntries(dir: FileSystemDirectoryEntry) {
+  const reader = dir.createReader();
+  return new Promise<FileSystemEntry[]>((resolve, reject) =>
+    reader.readEntries(resolve, reject)
+  );
 }
 
 function isFile(entry: FileSystemEntry): entry is FileSystemFileEntry {
