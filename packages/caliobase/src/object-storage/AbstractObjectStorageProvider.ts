@@ -27,7 +27,7 @@ export class Upload {
   uploadId!: string;
 
   @ApiProperty({ type: [SignedUploadUrl] })
-  parts!: SignedUploadUrl;
+  parts!: SignedUploadUrl[];
 }
 
 export class SignedUploadUrlResult {

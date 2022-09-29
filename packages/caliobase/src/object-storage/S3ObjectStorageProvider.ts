@@ -6,11 +6,13 @@ import {
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { parse as bytes } from 'bytes';
+import { assert } from '../lib/assert';
 import {
   AbstractObjectStorageProvider,
   CompleteUploadRequest,
   DeleteResult,
   SignedUploadUrl,
+  Upload,
 } from './AbstractObjectStorageProvider';
 import { ObjectStorageObject } from './object-storage-object.entity';
 
@@ -32,20 +34,22 @@ export class S3ObjectStorageProvider extends AbstractObjectStorageProvider {
     super(options);
   }
 
-  async createUpload(object: ObjectStorageObject): Promise<SignedUploadUrl[]> {
+  async createUpload(object: ObjectStorageObject): Promise<Upload> {
     const chunkSize = bytes('100MB');
 
     const desiredParts = Math.ceil(object.contentLength / chunkSize);
 
     const parts: SignedUploadUrl[] = [];
 
-    const createUploadResult = await this.s3.send(
+    const { UploadId: uploadId } = await this.s3.send(
       new CreateMultipartUploadCommand({
         Bucket: this.options.bucket,
         Key: `${this.options.keyPrefix}${object.key}`,
         ContentType: object.contentType,
       })
     );
+
+    assert(uploadId);
 
     for (let i = 0; i < desiredParts; i++) {
       const start = i * chunkSize;
@@ -54,7 +58,7 @@ export class S3ObjectStorageProvider extends AbstractObjectStorageProvider {
       const command = new UploadPartCommand({
         Bucket: this.options.bucket,
         Key: `${this.options.keyPrefix}${object.key}`,
-        UploadId: createUploadResult.UploadId,
+        UploadId: uploadId,
         PartNumber: i + 1,
         ContentLength: end - start,
       });
@@ -70,7 +74,10 @@ export class S3ObjectStorageProvider extends AbstractObjectStorageProvider {
       });
     }
 
-    return parts;
+    return {
+      uploadId,
+      parts,
+    };
   }
 
   async completeUpload(
