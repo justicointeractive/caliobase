@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.3.15](https://github.com/justicointeractive/caliobase/compare/caliobase-0.3.14...caliobase-0.3.15) (2022-09-29)
+
+
+### Bug Fixes
+
+* **caliobase:** remove duplicate object id ([7f5d639](https://github.com/justicointeractive/caliobase/commit/7f5d63995f99f8be09c5328e06e2ba7a07226810))
+
 ### [0.3.14](https://github.com/justicointeractive/caliobase/compare/caliobase-0.3.13...caliobase-0.3.14) (2022-09-29)
 
 ### [0.3.13](https://github.com/justicointeractive/caliobase/compare/caliobase-0.3.12...caliobase-0.3.13) (2022-09-29)
