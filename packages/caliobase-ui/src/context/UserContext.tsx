@@ -6,6 +6,7 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { FileUploadProgressHandler } from '../lib';
 import { assert } from '../lib/assert';
 import { bearerToken } from '../lib/bearerToken';
 import { ICaliobaseApi } from '../lib/ICaliobaseApi';
@@ -90,9 +91,12 @@ function useUserContextValue() {
       },
       user,
       userOrgApi,
-      uploadFile: async (file: File) => {
+      uploadFile: async (
+        file: File,
+        onProgress?: FileUploadProgressHandler
+      ) => {
         assert(userOrgApi);
-        await caliobaseUiConfiguration.uploadFile(userOrgApi, file);
+        await caliobaseUiConfiguration.uploadFile(userOrgApi, file, onProgress);
       },
     }),
     [accessToken, caliobaseUiConfiguration, user, userOrgApi]

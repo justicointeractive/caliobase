@@ -11,6 +11,11 @@ import {
   InferApiResponseType,
 } from './types';
 
+export type FileUploadProgressHandler = (event: {
+  loaded: number;
+  total: number;
+}) => void;
+
 export class CaliobaseUiConfiguration<TApi extends ICaliobaseApi> {
   constructor(
     private readonly builder: CaliobaseUiConfigurationBuilder<TApi>
@@ -32,7 +37,7 @@ export class CaliobaseUiConfiguration<TApi extends ICaliobaseApi> {
   async uploadFile<TApi extends ICaliobaseApi>(
     api: TApi,
     file: File,
-    onProgress?: (event: { loaded: number; total: number }) => void
+    onProgress?: FileUploadProgressHandler
   ) {
     invariant(api.objectStorage, 'object storage not available');
 
