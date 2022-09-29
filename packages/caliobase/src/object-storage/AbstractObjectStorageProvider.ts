@@ -34,7 +34,7 @@ export class CompleteUploadRequest {
   @ApiProperty()
   uploadId!: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: [SignedUploadUrlResult] })
   parts!: SignedUploadUrlResult[];
 }
 
