@@ -53,8 +53,7 @@ export function createRootController<
     allRoles!: Role[];
 
     @ApiProperty({
-      type: LabeledSocialProvider,
-      isArray: true,
+      type: [LabeledSocialProvider],
     })
     socialProviders!: LabeledSocialProvider[];
 

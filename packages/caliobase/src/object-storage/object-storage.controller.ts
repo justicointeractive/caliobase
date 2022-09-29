@@ -42,7 +42,7 @@ export class ObjectStorageCreateResponse {
   @ApiProperty()
   object!: ObjectStorageObject;
 
-  @ApiProperty()
+  @ApiProperty({ type: [SignedUploadUrl] })
   signedPartUrls!: SignedUploadUrl[];
 }
 
