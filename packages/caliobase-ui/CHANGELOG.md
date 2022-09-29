@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.1.19](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.18...caliobase-ui-0.1.19) (2022-09-29)
+
+
+### Bug Fixes
+
+* **caliobase-ui:** accept multiple dropped files ([f396012](https://github.com/justicointeractive/caliobase/commit/f396012cbdaeb636240a1e3e17609e93e67aa30a))
+
 ### [0.1.18](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.17...caliobase-ui-0.1.18) (2022-09-29)
 
 
