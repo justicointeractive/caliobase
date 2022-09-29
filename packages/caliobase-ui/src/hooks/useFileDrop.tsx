@@ -1,3 +1,4 @@
+import { nonNull } from 'circumspect';
 import React, {
   DragEventHandler,
   MouseEventHandler,
@@ -10,7 +11,7 @@ export function useFileDrop({
   onChange,
 }: {
   acceptTypes: string;
-  onChange: (value: File | null) => void;
+  onChange: (value: File[] | null) => void;
 }) {
   const handleChooseFile = useCallback<MouseEventHandler>(
     (e) => {
@@ -19,10 +20,7 @@ export function useFileDrop({
       input.type = 'file';
       input.accept = acceptTypes;
       input.onchange = () => {
-        const file = input.files?.[0];
-        if (file) {
-          onChange(file);
-        }
+        onChange(input.files ? Array.from(input.files) : null);
       };
       input.click();
     },
@@ -35,10 +33,8 @@ export function useFileDrop({
     (e) => {
       e.preventDefault();
 
-      const file = getFileFromDrop(e);
-      if (file) {
-        onChange(file);
-      }
+      const files = getFilesFromDrop(e);
+      onChange(files);
 
       setDragOver(false);
     },
@@ -63,9 +59,9 @@ export function useFileDrop({
     dragOver,
   };
 }
-function getFileFromDrop(e: React.DragEvent) {
+function getFilesFromDrop(e: React.DragEvent) {
   return [
     ...Array.from(e.dataTransfer.items).map((item) => item.getAsFile()),
     ...Array.from(e.dataTransfer.files),
-  ][0];
+  ].filter(nonNull);
 }

@@ -29,7 +29,8 @@ export function ImageUpload({
     dragOver,
   } = useFileDrop({
     acceptTypes: 'image/*',
-    onChange: useCallback((file) => {
+    onChange: useCallback((files) => {
+      const file = files?.[0];
       if (file) {
         const previewUrl = URL.createObjectURL(file);
         setPendingFile({ file, previewUrl });
