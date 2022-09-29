@@ -33,12 +33,12 @@ export function useFileDrop({
     async (e) => {
       e.preventDefault();
 
-      const files = await getFilesFromDrop(e);
+      const files = await getFilesFromDrop(e, mimeToRegex(acceptTypes));
       onChange(files);
 
       setDragOver(false);
     },
-    [onChange]
+    [acceptTypes, onChange]
   );
 
   const handleDragOver = useCallback<DragEventHandler>((e) => {
@@ -60,7 +60,7 @@ export function useFileDrop({
   };
 }
 
-async function getFilesFromDrop(e: React.DragEvent) {
+async function getFilesFromDrop(e: React.DragEvent, acceptType: RegExp) {
   const files: File[] = [];
   if ('items' in e.dataTransfer) {
     await addFilesRecursive(
@@ -72,7 +72,14 @@ async function getFilesFromDrop(e: React.DragEvent) {
   } else {
     files.push(...Array.from(e.dataTransfer.files));
   }
-  return files.filter(nonNull);
+  return files.filter(nonNull).filter((file) => acceptType.test(file.type));
+}
+
+function mimeToRegex(type: string) {
+  return new RegExp(
+    `^${type.split('/').join('\\/').split('*').join('.*')}$`,
+    'i'
+  );
 }
 
 async function addFilesRecursive(items: FileSystemEntry[], files: File[]) {
