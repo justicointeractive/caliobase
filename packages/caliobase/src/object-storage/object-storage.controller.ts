@@ -17,10 +17,7 @@ import {
 import { IsNumber, IsString } from 'class-validator';
 import { RequestUser } from '../entity-module/RequestUser';
 import { assert } from '../lib/assert';
-import {
-  CompleteUploadRequest,
-  SignedUploadUrl,
-} from './AbstractObjectStorageProvider';
+import { CompleteUploadRequest, Upload } from './AbstractObjectStorageProvider';
 import { ObjectStorageObject } from './object-storage-object.entity';
 import { ObjectStorageService } from './object-storage.service';
 
@@ -42,8 +39,8 @@ export class ObjectStorageCreateResponse {
   @ApiProperty()
   object!: ObjectStorageObject;
 
-  @ApiProperty({ type: [SignedUploadUrl] })
-  signedPartUrls!: SignedUploadUrl[];
+  @ApiProperty()
+  upload!: Upload;
 }
 
 @ApiTags('object-storage')

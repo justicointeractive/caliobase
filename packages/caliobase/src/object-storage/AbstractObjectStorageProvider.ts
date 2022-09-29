@@ -22,6 +22,14 @@ export class SignedUploadUrl {
   part!: number;
 }
 
+export class Upload {
+  @ApiProperty()
+  uploadId!: string;
+
+  @ApiProperty({ type: [SignedUploadUrl] })
+  parts!: SignedUploadUrl;
+}
+
 export class SignedUploadUrlResult {
   @ApiProperty()
   part!: number;
@@ -47,9 +55,7 @@ export abstract class AbstractObjectStorageProvider {
     public readonly options: Readonly<ObjectStorageProviderOptions>
   ) {}
 
-  abstract createUpload(
-    object: ObjectStorageObject
-  ): Promise<SignedUploadUrl[]>;
+  abstract createUpload(object: ObjectStorageObject): Promise<Upload>;
 
   abstract completeUpload(
     object: ObjectStorageObject,

@@ -47,9 +47,9 @@ export class ObjectStorageService {
       })
     );
 
-    const signedPartUrls = await this.objectStorage.createUpload(object);
+    const upload = await this.objectStorage.createUpload(object);
 
-    return { object, signedPartUrls };
+    return { object, upload };
   }
 
   async completeUpload(objectId: string, completion: CompleteUploadRequest) {
