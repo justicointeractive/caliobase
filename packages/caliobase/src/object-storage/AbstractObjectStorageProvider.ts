@@ -13,7 +13,10 @@ export class SignedUploadUrl {
   method!: string;
 
   @ApiProperty()
-  range!: [number, number];
+  rangeStart!: number;
+
+  @ApiProperty()
+  rangeEnd!: number;
 
   @ApiProperty()
   part!: number;

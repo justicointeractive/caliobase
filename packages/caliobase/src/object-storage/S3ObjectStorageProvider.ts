@@ -64,7 +64,8 @@ export class S3ObjectStorageProvider extends AbstractObjectStorageProvider {
       parts.push({
         method: 'PUT',
         part: i + 1,
-        range: [start, end],
+        rangeStart: start,
+        rangeEnd: end,
         url,
       });
     }
