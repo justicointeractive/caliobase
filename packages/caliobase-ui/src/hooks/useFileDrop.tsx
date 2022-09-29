@@ -59,9 +59,31 @@ export function useFileDrop({
     dragOver,
   };
 }
+
 function getFilesFromDrop(e: React.DragEvent) {
-  return [
-    ...Array.from(e.dataTransfer.items).map((item) => item.getAsFile()),
-    ...Array.from(e.dataTransfer.files),
-  ].filter(nonNull);
+  const files: File[] = [];
+  if ('items' in e.dataTransfer) {
+    addFilesRecursive(Array.from(e.dataTransfer.items), files);
+  } else {
+    files.push(...Array.from(e.dataTransfer.files));
+  }
+  return files.filter(nonNull);
+}
+
+function addFilesRecursive(
+  items: (DataTransferItem | FileSystemEntry)[],
+  files: File[]
+) {
+  for (const item of items) {
+    const entry = item instanceof FileSystemEntry || item.webkitGetAsEntry();
+
+    if (entry instanceof FileSystemFileEntry) {
+      entry.file((file) => files.push(file));
+    }
+
+    if (entry instanceof FileSystemDirectoryEntry) {
+      const dirReader = entry.createReader();
+      dirReader.readEntries((entries) => addFilesRecursive(entries, files));
+    }
+  }
 }
