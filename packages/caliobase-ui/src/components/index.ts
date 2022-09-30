@@ -4,4 +4,5 @@ export * from './data';
 export * from './ImageUpload';
 export * from './ModalDialog';
 export * from './PendingButton';
+export * from './SelectInput';
 export * from './TextInput';
