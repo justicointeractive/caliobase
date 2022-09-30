@@ -99,7 +99,7 @@ export async function createTestingModule({
         objectStorageProvider: objectStorage
           ? new S3ObjectStorageProvider({
               bucket: 'test',
-              cdnUrlPrefix: '',
+              cdnUrlPrefix: 'http://test.localhost.localstack.cloud:4588',
               keyPrefix: '',
               endpoint: 'http://localhost.localstack.cloud:4588',
             })
