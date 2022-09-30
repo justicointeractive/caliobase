@@ -28,8 +28,8 @@
     "@fortawesome/free-regular-svg-icons": "^6.1.2",
     "@fortawesome/free-solid-svg-icons": "^6.1.2",
     "@fortawesome/react-fontawesome": "^0.2.0",
-    "@headlessui-float/react": "^0.8.0",
-    "@headlessui/react": "0.0.0-insiders.122eed7",
+    "@headlessui-float/react": "^0.9.1",
+    "@headlessui/react": "^1.7.3",
     "@ji-constructs/cdk-image-resize-behavior": "^0.5.6",
     "@ji-constructs/ecs-jwt-keypair": "^0.1.7",
     "@jscutlery/semver": "^2.25.2",
@@ -159,7 +159,5 @@
   "workspaces": [
     "packages/**"
   ],
-  "overrides": {
-    "@headlessui/react": "0.0.0-insiders.122eed7"
-  }
+  "overrides": {}
 }
