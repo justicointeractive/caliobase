@@ -21,7 +21,7 @@ export class ObjectStorageService {
 
   constructor(
     private dataSource: DataSource,
-    private objectStorage: AbstractObjectStorageProvider
+    private objectStorageProvider: AbstractObjectStorageProvider
   ) {}
 
   async createObject(file: ObjectCreateRequest) {
@@ -33,7 +33,7 @@ export class ObjectStorageService {
       'yyyy/MM/dd'
     )}/${fileName}`;
 
-    const cdnUrl = `${this.objectStorage.options.cdnUrlPrefix}${key}`;
+    const cdnUrl = `${this.objectStorageProvider.options.cdnUrlPrefix}${key}`;
 
     const object = await this.objectRepo.save(
       this.objectRepo.create({
@@ -47,7 +47,7 @@ export class ObjectStorageService {
       })
     );
 
-    const upload = await this.objectStorage.createUpload(object);
+    const upload = await this.objectStorageProvider.createUpload(object);
 
     return { object, upload };
   }
@@ -57,7 +57,7 @@ export class ObjectStorageService {
       where: { id: objectId },
     });
 
-    await this.objectStorage.completeUpload(object, completion);
+    await this.objectStorageProvider.completeUpload(object, completion);
 
     object.status = 'ready';
 
