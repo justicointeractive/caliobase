@@ -72,7 +72,10 @@ export default async function (tree: Tree, options: ApiGeneratorSchema) {
 
   modifyProjectConfiguration(tree, options.name, (config) => {
     assert(config.targets);
-    config.targets['build'].options['tsPlugins'] = ['@nestjs/swagger/plugin'];
+    Object.assign(config.targets['build'].options, {
+      tsPlugins: ['@nestjs/swagger/plugin'],
+      generatePackageJson: true,
+    });
     return config;
   });
 
