@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.1.26](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.25...caliobase-ui-0.1.26) (2022-10-01)
+
+
+### Bug Fixes
+
+* **caliobase-ui:** stretch combobox button ([0ee6f57](https://github.com/justicointeractive/caliobase/commit/0ee6f57cab5914cf46d08e6940c7bf174f477398))
+
 ### [0.1.25](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.24...caliobase-ui-0.1.25) (2022-09-30)
 
 ### [0.1.24](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.23...caliobase-ui-0.1.24) (2022-09-30)
