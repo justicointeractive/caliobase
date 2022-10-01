@@ -8,7 +8,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Float } from '@headlessui-float/react';
-import { Combobox, Listbox } from '@headlessui/react';
+import { Combobox } from '@headlessui/react';
 import clsx from 'clsx';
 import { without } from 'lodash';
 import { ComponentProps, forwardRef, Key, ReactNode } from 'react';
@@ -50,7 +50,7 @@ export function SelectInput<T>({
   const { Wrapper } =
     props.onQuery == null
       ? {
-          Wrapper: Listbox,
+          Wrapper: Combobox,
         }
       : {
           Wrapper: Combobox,
@@ -61,8 +61,10 @@ export function SelectInput<T>({
   return (
     <LabeledInput value={props.value} label={props.label}>
       <Wrapper
-        value={props.value}
-        onChange={(value) => {
+        as={'div'}
+        className="grid"
+        value={props.value as any}
+        onChange={(value: any) => {
           // if an option has a value that is a function then call it rather than setting the new value
           for (const item of ensureArray(value)) {
             if (typeof item === 'function') {
@@ -70,13 +72,11 @@ export function SelectInput<T>({
             }
           }
 
-          return props.onChange(value as T & T[]);
+          return props.onChange(value);
         }}
-        disabled={props.readOnly}
-        multiple={props.multiple}
-        by={(a: T | null, b: T | null) =>
-          (a && valueKey(a)) === (b && valueKey(b))
-        }
+        disabled={props.readOnly as any}
+        multiple={props.multiple as any}
+        by={(a: any, b: any) => (a && valueKey(a)) === (b && valueKey(b))}
       >
         <Float
           flip={10}
