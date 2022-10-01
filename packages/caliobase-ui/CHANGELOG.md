@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.1.27](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.26...caliobase-ui-0.1.27) (2022-10-01)
+
+
+### Bug Fixes
+
+* float as fragment ([4b6b0ee](https://github.com/justicointeractive/caliobase/commit/4b6b0eef12bf02cf262268d943f61340f5354332))
+
 ### [0.1.26](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.25...caliobase-ui-0.1.26) (2022-10-01)
 
 
