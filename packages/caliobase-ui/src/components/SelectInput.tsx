@@ -11,7 +11,7 @@ import { Float } from '@headlessui-float/react';
 import { Combobox } from '@headlessui/react';
 import clsx from 'clsx';
 import { without } from 'lodash';
-import { ComponentProps, forwardRef, Key, ReactNode } from 'react';
+import { ComponentProps, forwardRef, Fragment, Key, ReactNode } from 'react';
 import { ensureArray } from '../lib/ensureArray';
 import { FullHeightLoader } from '../screens/FullScreenLoader';
 import { LabeledInput } from './LabeledInput';
@@ -61,8 +61,6 @@ export function SelectInput<T>({
   return (
     <LabeledInput value={props.value} label={props.label}>
       <Wrapper
-        as={'div'}
-        className="grid"
         value={props.value as any}
         onChange={(value: any) => {
           // if an option has a value that is a function then call it rather than setting the new value
@@ -79,6 +77,7 @@ export function SelectInput<T>({
         by={(a: any, b: any) => (a && valueKey(a)) === (b && valueKey(b))}
       >
         <Float
+          as={Fragment}
           flip={10}
           offset={4}
           enter="transition duration-200 ease-out"
