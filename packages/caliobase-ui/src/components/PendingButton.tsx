@@ -22,7 +22,7 @@ export const PendingButton = (props: {
   type?: HTMLInputTypeAttribute;
   children?: ReactNode;
   className?: string;
-  onClick: () => Promise<void>;
+  onClick: (e: MouseEvent<HTMLButtonElement>) => Promise<void>;
   role?: 'destroy';
 }) => {
   const [isPending, setIsPending] = useState(false);
@@ -37,11 +37,11 @@ export const PendingButton = (props: {
   }, []);
 
   const handlePendingClick = useCallback(
-    async (e: MouseEvent) => {
+    async (e: MouseEvent<HTMLButtonElement>) => {
       e.preventDefault();
       try {
         setIsPending(true);
-        await props.onClick();
+        await props.onClick(e);
         setTemporaryStatus('success');
       } catch (err) {
         console.error(err);
