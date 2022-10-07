@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.1.29](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.28...caliobase-ui-0.1.29) (2022-10-07)
+
+
+### Bug Fixes
+
+* **caliobase-ui:** modals should be stacked in floating tree ([ae02791](https://github.com/justicointeractive/caliobase/commit/ae02791f0ca65670778f22c64bfebc17b0e7e837))
+
 ### [0.1.28](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.27...caliobase-ui-0.1.28) (2022-10-01)
 
 
