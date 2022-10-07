@@ -7,7 +7,10 @@ import {
 } from '@caliobase/caliobase-ui';
 import { Api } from '@caliobase/examples-client';
 import { faObjectGroup } from '@fortawesome/free-regular-svg-icons';
+import { faTents } from '@fortawesome/free-solid-svg-icons';
 import { ComponentProps } from 'react';
+import { RouteObject } from 'react-router-dom';
+import { TestDialog } from './test-dialog';
 
 const idField: ContentFieldInput<'id', string, unknown> = {
   label: 'Id',
@@ -31,6 +34,11 @@ const appConfig = new CaliobaseUiConfigurationBuilder(Api, {
   frontEndBaseUrl: '',
   preferredLoginMethod: 'password',
 })
+  .addMenuItem({
+    label: 'Test Dialog',
+    menuItemIcon: faTents,
+    to: 'test-dialog',
+  })
   .addProfileType('organizationProfile', {
     fields: [
       {
@@ -67,8 +75,12 @@ const appConfig = new CaliobaseUiConfigurationBuilder(Api, {
   })
   .build();
 
+const routes: RouteObject[] = [
+  { path: '/', children: [{ path: 'test-dialog', element: <TestDialog /> }] },
+];
+
 export function App() {
-  return <CaliobaseUI configuration={appConfig} routes={[]} />;
+  return <CaliobaseUI configuration={appConfig} routes={routes} />;
 }
 
 export default App;

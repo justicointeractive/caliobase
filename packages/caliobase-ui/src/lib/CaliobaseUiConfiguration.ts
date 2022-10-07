@@ -33,6 +33,10 @@ export class CaliobaseUiConfiguration<TApi extends ICaliobaseApi> {
     return this.builder.brandingComponent;
   }
 
+  get menuItems() {
+    return this.builder.menuItems;
+  }
+
   // TODO: exclude this function if no object storage provider
   async uploadFile<TApi extends ICaliobaseApi>(
     api: TApi,

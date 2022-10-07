@@ -1,4 +1,5 @@
 export * from './AcceptInvitationView';
+export * from './CaliobaseProviders';
 export * from './CaliobaseUI';
 export * from './CreateRoot';
 export * from './Dashboard';

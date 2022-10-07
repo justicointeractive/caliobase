@@ -97,6 +97,15 @@ function MenuContent(props: {
         {props.appMenuItems.map((item) => (
           <MenuNavLink key={item.to} {...item} onClick={props.onCloseMenu} />
         ))}
+        {caliobaseUiConfiguration.menuItems.map((link) => (
+          <MenuNavLink
+            key={link.to}
+            label={link.label}
+            icon={link.menuItemIcon}
+            to={link.to}
+            onClick={props.onCloseMenu}
+          ></MenuNavLink>
+        ))}
         <div className="px-2 pt-3 pb-0 text-xs font-bold text-gray-500">
           Content Management
         </div>

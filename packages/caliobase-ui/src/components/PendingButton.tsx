@@ -13,8 +13,8 @@ import {
   useCallback,
   useState,
 } from 'react';
+import { CancelationError } from '../lib/CancelationError';
 import { clsxo } from '../lib/clsxo';
-import { CancelationError } from './CancelationError';
 
 export type ResultStatus = 'success' | 'fail' | 'cancel';
 

@@ -8,6 +8,7 @@ import { ToastContextProvider } from '../context/ToastContext';
 import { CaliobaseUiConfiguration, ICaliobaseApi } from '../lib';
 import { mergeRouteTrees } from '../lib/mergeRouteTrees';
 import { AcceptInvitationView } from './AcceptInvitationView';
+import { CaliobaseProviders } from './CaliobaseProviders';
 import { CreateRoot } from './CreateRoot';
 import { Dashboard } from './Dashboard';
 import { DetailView } from './DetailView';
@@ -18,7 +19,7 @@ import {
   OrganizationMemberDetailView,
   OrganizationMemberListView,
 } from './OrganizationMemberView';
-import { CaliobaseProviders, RootUISwitch } from './RootUI';
+import { RootUISwitch } from './RootUI';
 
 export function CaliobaseUI<T extends ICaliobaseApi>({
   configuration: caliobaseUiConfiguration,

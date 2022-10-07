@@ -11,6 +11,7 @@ import {
   ICaliobaseBrandingComponent,
   ICaliobaseEntityApi,
   ICaliobaseImageHandler,
+  MenuItemDescriptionInput,
   ProfileApiConstructedProfileType,
   ProfileApiName,
   ProfileTypeDescription,
@@ -29,6 +30,7 @@ export class CaliobaseUiConfigurationBuilder<TApi extends ICaliobaseApi> {
 
   public imageHandler?: ICaliobaseImageHandler<TApi, any>;
   public brandingComponent?: ICaliobaseBrandingComponent;
+  public readonly menuItems: MenuItemDescriptionInput[] = [];
 
   constructor(
     public readonly Api: Constructor<[ICaliobaseApiProps], TApi>,
@@ -42,6 +44,11 @@ export class CaliobaseUiConfigurationBuilder<TApi extends ICaliobaseApi> {
 
   useBranding(handler: ICaliobaseBrandingComponent) {
     this.brandingComponent = handler;
+    return this;
+  }
+
+  addMenuItem(item: MenuItemDescriptionInput) {
+    this.menuItems.push(item);
     return this;
   }
 

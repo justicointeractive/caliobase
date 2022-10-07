@@ -2,6 +2,7 @@ export * from './assert';
 export * from './bearerToken';
 export * from './CaliobaseUiConfiguration';
 export * from './CaliobaseUiConfiguration.builder';
+export * from './CancelationError';
 export * from './clsxo';
 export * from './commonFields';
 export * from './createInstanceFromFields';

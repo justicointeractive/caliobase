@@ -2,7 +2,6 @@ import { useCallback, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAsyncEffectState } from 'use-async-effect-state';
 import { Branding } from '../components';
-import { CancelationError } from '../components/CancelationError';
 import { Fieldset } from '../components/Fieldset';
 import { PendingButton } from '../components/PendingButton';
 import { TextInput } from '../components/TextInput';
@@ -11,6 +10,7 @@ import { useToastContext } from '../context/ToastContext';
 import { useUserContext } from '../context/UserContext';
 import { CaliobaseOrganization, createInstanceFromFields } from '../lib';
 import { bearerToken } from '../lib/bearerToken';
+import { CancelationError } from '../lib/CancelationError';
 import { promisePopup } from '../lib/promisePopup';
 import { DescribeInvitation } from './AcceptInvitationView';
 

@@ -1,4 +1,4 @@
-import { CancelationError } from '../components/CancelationError';
+import { CancelationError } from './CancelationError';
 
 export function promisePopup<T>(url: string) {
   return new Promise<T>((resolve, reject) => {

@@ -236,6 +236,12 @@ export type ContentField<TProperty extends string, TValue, TOptions> = Required<
   ContentFieldInput<TProperty, TValue, TOptions>
 >;
 
+export type MenuItemDescriptionInput = {
+  label: string;
+  to: string;
+  menuItemIcon: IconDefinition;
+};
+
 export type ContentTypeDescriptionInput<TEntity> = {
   label: {
     singular: string;
