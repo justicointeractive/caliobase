@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.1.30](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.29...caliobase-ui-0.1.30) (2022-10-07)
+
+
+### Bug Fixes
+
+* **caliobase-ui:** pass click event to pending button ([3d963df](https://github.com/justicointeractive/caliobase/commit/3d963df3ad82c21e93ebe8c8e850ed33bd141548))
+
 ### [0.1.29](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.28...caliobase-ui-0.1.29) (2022-10-07)
 
 
