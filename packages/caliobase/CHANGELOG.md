@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.3.18](https://github.com/justicointeractive/caliobase/compare/caliobase-0.3.17...caliobase-0.3.18) (2022-10-08)
+
+
+### Bug Fixes
+
+* **caliobase:** add a way to write out swagger api doc without exiting ([a2af8a7](https://github.com/justicointeractive/caliobase/commit/a2af8a786dfb6ad7e66019273bee681928d72833))
+
 ### [0.3.17](https://github.com/justicointeractive/caliobase/compare/caliobase-0.3.16...caliobase-0.3.17) (2022-09-29)
 
 
