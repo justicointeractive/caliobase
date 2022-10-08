@@ -57,18 +57,22 @@ export class CaliobaseModule {
 
     SwaggerModule.setup('swagger', app, document);
 
-    const { writeSwaggerAndExit } = new Command()
+    const { writeSwagger, writeSwaggerAndExit } = new Command()
+      .option(`--write-swagger [path]`)
       .option(`--write-swagger-and-exit [path]`)
       .parse(process.argv)
       .opts();
 
-    if (writeSwaggerAndExit) {
-      await mkdir(join(writeSwaggerAndExit, '..'), {
+    if (writeSwagger || writeSwaggerAndExit) {
+      const swaggerPath = writeSwagger || writeSwaggerAndExit;
+      await mkdir(join(swaggerPath, '..'), {
         recursive: true,
       });
-      await writeFile(writeSwaggerAndExit, JSON.stringify(document, null, 2));
-      await app.close();
-      process.exit(0);
+      await writeFile(swaggerPath, JSON.stringify(document, null, 2));
+      if (writeSwaggerAndExit) {
+        await app.close();
+        process.exit(0);
+      }
     }
 
     if (options.migration != null) {
