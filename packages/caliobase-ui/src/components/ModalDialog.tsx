@@ -45,7 +45,7 @@ export function ModalDialog({
   const { getFloatingProps } = useInteractions([
     useClick(context),
     useRole(context),
-    useDismiss(context, { bubbles: false }),
+    useDismiss(context, { bubbles: false, outsidePointerDown: false }),
   ]);
 
   return (
@@ -55,6 +55,11 @@ export function ModalDialog({
           <FloatingOverlay
             lockScroll
             className="z-20 grid place-items-center bg-gray-800/80"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                setOpen(false);
+              }
+            }}
           >
             <FloatingFocusManager context={context} initialFocus={initialFocus}>
               <div
