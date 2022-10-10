@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.2.0](https://github.com/justicointeractive/caliobase/compare/use-async-effect-state-0.1.0...use-async-effect-state-0.2.0) (2022-10-10)
+
+
+### Features
+
+* **use-async-effect-state:** add a hook to intercept setting state ([2eb31ab](https://github.com/justicointeractive/caliobase/commit/2eb31ab2180c13dbe4814fe88fff30fce7611a97))
+
 ## [0.1.0](https://github.com/justicointeractive/caliobase/compare/use-async-effect-state-0.0.2...use-async-effect-state-0.1.0) (2022-09-28)
 
 
