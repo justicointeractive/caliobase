@@ -2,6 +2,16 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.1.31](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.30...caliobase-ui-0.1.31) (2022-10-10)
+
+### Dependency Updates
+
+* `use-async-effect-state` updated to version `0.2.0`
+
+### Bug Fixes
+
+* **caliobase-ui:** only dismiss dialog on backdrop click ([2bd114f](https://github.com/justicointeractive/caliobase/commit/2bd114f5bdc09ebc419039b7e7fdc52e41b51090))
+
 ### [0.1.30](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.29...caliobase-ui-0.1.30) (2022-10-07)
 
 
