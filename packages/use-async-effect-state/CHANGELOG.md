@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.2.1](https://github.com/justicointeractive/caliobase/compare/use-async-effect-state-0.2.0...use-async-effect-state-0.2.1) (2022-10-11)
+
+
+### Bug Fixes
+
+* **use-async-effect-state:** add a way to pass extra args with setState ([1918a10](https://github.com/justicointeractive/caliobase/commit/1918a106c2d1e0adf031bc3d3cc80f63cdbc553b))
+
 ## [0.2.0](https://github.com/justicointeractive/caliobase/compare/use-async-effect-state-0.1.0...use-async-effect-state-0.2.0) (2022-10-10)
 
 
