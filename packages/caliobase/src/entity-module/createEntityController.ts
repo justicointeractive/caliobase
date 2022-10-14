@@ -143,7 +143,7 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
         assert(user, UnauthorizedException);
         return new PaginationItemResponse(
           await this.service.create(
-            { ...createDto, ...params },
+            { ...createDto, ...params, ...getOwnerIdMixIn(user) },
             {
               user,
               ...getOwnerIdMixIn(user),

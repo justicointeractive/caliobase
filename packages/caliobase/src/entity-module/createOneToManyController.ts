@@ -29,7 +29,9 @@ import {
 } from 'typeorm';
 import { ColumnMetadataArgs } from 'typeorm/metadata-args/ColumnMetadataArgs';
 import { RelationMetadataArgs } from 'typeorm/metadata-args/RelationMetadataArgs';
-import { ValidatedType } from '.';
+import { CaliobaseEntity, ValidatedType } from '.';
+import { Organization } from '../auth/entities/organization.entity';
+import { CaliobaseRequestUser } from '../auth/jwt.strategy';
 import { cloneMetadata } from '../internal-utils/cloneMetadata';
 import { assertEqual } from '../lib/assert';
 import {
@@ -52,8 +54,8 @@ import { IOneToManyRelationController } from './IOneToManyRelationController';
 import { RelationPermissionChecker } from './RelationPermissionChecker';
 import { RequestUser } from './RequestUser';
 
-export function createOneToManyController<T>(
-  OneEntity: Type<T>,
+export function createOneToManyController<TOneEntity>(
+  OneEntity: Type<TOneEntity>,
   oneToManyRelationPropertyName: string,
   options: { validatorOptions: ValidatorOptions }
 ): { controller: Type<unknown>; manyEntity: Type<unknown> } {
@@ -65,6 +67,28 @@ export function createOneToManyController<T>(
   assertEqual(oneToManyRelation.relationType, 'one-to-many');
 
   const ManyEntity = getRelatedTypeFromRelationMetadataArgs(oneToManyRelation);
+
+  const manyEntityOptions = CaliobaseEntity.get<typeof ManyEntity>(ManyEntity);
+  const manyEntityHasOrganizationOwner =
+    manyEntityOptions?.organizationOwner !== false;
+
+  function getManyOwnerIdMixin(user?: CaliobaseRequestUser): {
+    organization: Pick<Organization, 'id'> | null;
+  } {
+    if (!manyEntityHasOrganizationOwner) {
+      return { organization: null };
+    }
+
+    const organizationId = user?.organization?.id;
+
+    if (organizationId == null) {
+      throw new Error(
+        'supplied access token does not provide an appropriate owner id'
+      );
+    }
+
+    return { organization: { id: organizationId } };
+  }
 
   const manyToOneRelation = getInverseRelation(oneToManyRelation, ManyEntity);
 
@@ -194,6 +218,8 @@ export function createOneToManyController<T>(
           this.manyRepo.create({
             ...params,
             ...body,
+            // eslint-disable-next-line @typescript-eslint/ban-types
+            ...(getManyOwnerIdMixin(user) as {}),
           })
         )
       );
