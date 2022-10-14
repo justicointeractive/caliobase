@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.3.19](https://github.com/justicointeractive/caliobase/compare/caliobase-0.3.18...caliobase-0.3.19) (2022-10-14)
+
+
+### Bug Fixes
+
+* mix in entity owners where needed ([aa168f7](https://github.com/justicointeractive/caliobase/commit/aa168f7f71bb7adb1698050532bc4ee44e83a85c))
+
 ### [0.3.18](https://github.com/justicointeractive/caliobase/compare/caliobase-0.3.17...caliobase-0.3.18) (2022-10-08)
 
 

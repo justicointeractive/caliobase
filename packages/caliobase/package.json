@@ -1,6 +1,6 @@
 {
   "name": "@caliobase/caliobase",
-  "version": "0.3.18",
+  "version": "0.3.19",
   "dependencies": {
     "yaml": "^2.1.1",
     "commander": "^9.4.0"
