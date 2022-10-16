@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.1.33](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.32...caliobase-ui-0.1.33) (2022-10-16)
+
+
+### Bug Fixes
+
+* **caliobase-ui:** don't use p-map as it tries to import "os" ([5854c7c](https://github.com/justicointeractive/caliobase/commit/5854c7cef575cfd399c38efe6356ddc43c356eb8))
+
 ### [0.1.32](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.31...caliobase-ui-0.1.32) (2022-10-16)
 
 ### Dependency Updates
