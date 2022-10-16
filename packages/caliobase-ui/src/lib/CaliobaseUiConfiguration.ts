@@ -1,9 +1,9 @@
 import { invariant } from 'circumspect';
-import pMap from 'p-map';
 import { assert } from './assert';
 import { CaliobaseUiConfigurationBuilder } from './CaliobaseUiConfiguration.builder';
 import { rolesField, userEmailField } from './commonFields';
 import { ICaliobaseApi } from './ICaliobaseApi';
+import { pMap } from './pMap';
 import {
   ContentField,
   EntityApiName,
