@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.3.20](https://github.com/justicointeractive/caliobase/compare/caliobase-0.3.19...caliobase-0.3.20) (2022-10-16)
+
+
+### Bug Fixes
+
+* **caliobase:** support objects larger than 2GB ([37efcd1](https://github.com/justicointeractive/caliobase/commit/37efcd13d646c50fd37c9ff60be3bdd3bc8719a2))
+
 ### [0.3.19](https://github.com/justicointeractive/caliobase/compare/caliobase-0.3.18...caliobase-0.3.19) (2022-10-14)
 
 
