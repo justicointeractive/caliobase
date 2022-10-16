@@ -32,7 +32,7 @@ export class ObjectStorageObject {
   @ApiProperty()
   cdnUrl!: string;
 
-  @Column()
+  @Column({ type: 'bigint' })
   @ApiProperty()
   contentLength!: number;
 
