@@ -2,6 +2,16 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.1.32](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.31...caliobase-ui-0.1.32) (2022-10-16)
+
+### Dependency Updates
+
+* `use-async-effect-state` updated to version `0.2.1`
+
+### Bug Fixes
+
+* **caliobase-ui:** limit upload concurrency ([817ee82](https://github.com/justicointeractive/caliobase/commit/817ee824c7f8bbac8ece84e615aca52664fc1a5f))
+
 ### [0.1.31](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.30...caliobase-ui-0.1.31) (2022-10-10)
 
 ### Dependency Updates
