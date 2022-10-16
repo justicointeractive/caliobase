@@ -1,4 +1,5 @@
 import { invariant } from 'circumspect';
+import pMap from 'p-map';
 import { assert } from './assert';
 import { CaliobaseUiConfigurationBuilder } from './CaliobaseUiConfiguration.builder';
 import { rolesField, userEmailField } from './commonFields';
@@ -56,11 +57,12 @@ export class CaliobaseUiConfiguration<TApi extends ICaliobaseApi> {
       fileName: file.name,
     });
 
-    const partPromises: (Promise<ICaliobaseCompletedUploadPart> & {
-      loaded: number;
-    })[] = signedPartUrls.map((signedUrl) => {
-      const partPromise = Object.assign(
-        new Promise<ICaliobaseCompletedUploadPart>((resolve, reject) => {
+    const partProgress: number[] = [];
+
+    const completedParts = await pMap(
+      signedPartUrls,
+      (signedUrl, i) => {
+        return new Promise<ICaliobaseCompletedUploadPart>((resolve, reject) => {
           const xhr = new XMLHttpRequest();
           xhr.open(signedUrl.method, signedUrl.url);
           xhr.addEventListener('readystatechange', (e) =>
@@ -76,25 +78,18 @@ export class CaliobaseUiConfiguration<TApi extends ICaliobaseApi> {
           xhr.addEventListener('error', (err) => reject(err));
           if (onProgress) {
             xhr.upload.addEventListener('progress', (e) => {
-              partPromise.loaded = e.loaded;
+              partProgress[i] = e.loaded;
               onProgress({
-                loaded: partPromises.reduce(
-                  (sum, part) => sum + part.loaded,
-                  0
-                ),
+                loaded: partProgress.reduce((sum, part) => sum + part, 0),
                 total: file.size,
               });
             });
           }
           xhr.send(file.slice(signedUrl.rangeStart, signedUrl.rangeEnd));
-        }),
-        { loaded: 0 }
-      );
-
-      return partPromise;
-    });
-
-    const completedParts = await Promise.all(partPromises);
+        });
+      },
+      { concurrency: 5 }
+    );
 
     const { data: objectStorageObject } =
       await api.objectStorage.completeUpload(object.id, {
