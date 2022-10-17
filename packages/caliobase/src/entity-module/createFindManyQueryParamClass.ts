@@ -1,6 +1,6 @@
 import { Type } from '@nestjs/common';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Type as TransformType } from 'class-transformer';
+import { Transform, Type as TransformType } from 'class-transformer';
 import { IsDate, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
 import {
   Equal,
@@ -20,6 +20,7 @@ import {
   Not,
 } from 'typeorm';
 import { CaliobaseEntity, QueryProperty } from '.';
+import { ensureArray } from '../lib/ensureArray';
 import { RenameClass } from './decorators/RenameClass.decorator';
 
 type OperatorType<T> = T extends [Type<infer U>] ? [Type<U>] : Type<T>;
@@ -311,6 +312,7 @@ export function createFindManyQueryParamClass<TEntity>(
 
   Reflect.decorate(
     [
+      Transform(({ value }) => (value == null ? null : ensureArray(value))),
       IsIn(orderParams, { each: true }),
       IsOptional(),
       ApiPropertyOptional({
