@@ -24,6 +24,7 @@ export const PendingButton = (props: {
   className?: string;
   onClick: (e: MouseEvent<HTMLButtonElement>) => Promise<void>;
   role?: 'destroy';
+  disabled?: boolean;
 }) => {
   const [isPending, setIsPending] = useState(false);
 
@@ -64,7 +65,7 @@ export const PendingButton = (props: {
         result === 'cancel' && 'border-gray-600 bg-gray-600 text-white'
       )}
       onClick={handlePendingClick}
-      disabled={isPending || result != null}
+      disabled={props.disabled || isPending || result != null}
     >
       <div className={clsx(isPending || result ? 'opacity-10' : 'opacity-100')}>
         {props.children}
