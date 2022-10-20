@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.1.34](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.33...caliobase-ui-0.1.34) (2022-10-20)
+
+
+### Bug Fixes
+
+* **caliobase-ui:** allow pending button to be disabled ([a1d9953](https://github.com/justicointeractive/caliobase/commit/a1d9953456ec51ffe1de88ef2e65b29e8467c624))
+
 ### [0.1.33](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.32...caliobase-ui-0.1.33) (2022-10-16)
 
 
