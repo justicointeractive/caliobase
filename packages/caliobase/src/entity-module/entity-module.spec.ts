@@ -107,6 +107,15 @@ describe('entity module', () => {
         }
       );
       expect(one).toBeTruthy();
+      const relation = await entityService.findOne(
+        { where: {}, relations: ['organization', 'organization.profile'] },
+        {
+          organization: { id: org.id },
+          user: { user: null, member: null, organization: org },
+        }
+      );
+      expect(relation?.organization).toBeTruthy();
+      expect(relation?.organization.profile).toBeTruthy();
     });
   });
 

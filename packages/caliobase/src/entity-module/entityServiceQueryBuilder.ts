@@ -15,7 +15,15 @@ import { AllRoles, Role } from './roles';
 export function entityServiceQueryBuilder<TEntity>(
   entityType: Type<TEntity>,
   entityManager: EntityManager,
-  { where, order, select, limit, skip }: CaliobaseFindOptions<TEntity>,
+  {
+    where,
+    order,
+    select,
+    limit,
+    skip,
+    loadEagerRelations,
+    relations,
+  }: CaliobaseFindOptions<TEntity>,
   {
     itemFilters,
     organization,
@@ -30,12 +38,23 @@ export function entityServiceQueryBuilder<TEntity>(
 
   const query = repository.createQueryBuilder('entity');
 
-  recursiveJoinEagerRelations(
-    query,
-    'entity',
-    repository.metadata.relations,
-    []
-  );
+  if (relations) {
+    relations.forEach((relation) => {
+      const parts = relation.split('.');
+      const aliasParts = parts.slice(0, -1);
+      const propertyName = parts.slice(-1)[0];
+      const parentAlias = aliasParts.join('_') || 'entity';
+      const ownAlias = [...aliasParts, propertyName].join('_');
+      query.leftJoinAndSelect(`${parentAlias}.${propertyName}`, ownAlias);
+    });
+  } else if (loadEagerRelations !== false) {
+    recursiveJoinEagerRelations(
+      query,
+      'entity',
+      repository.metadata.relations,
+      []
+    );
+  }
 
   query.andWhere(where);
 
