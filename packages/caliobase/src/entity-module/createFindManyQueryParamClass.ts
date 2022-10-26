@@ -194,6 +194,7 @@ export function createFindManyQueryParamClass<TEntity>(
     @TransformType(() => Number)
     skip?: number;
 
+    // TODO: generate an enum of all possible relations
     @IsOptional()
     @IsString({ each: true })
     @ApiPropertyOptional()
