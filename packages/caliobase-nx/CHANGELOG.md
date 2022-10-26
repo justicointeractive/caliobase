@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.3.5](https://github.com/justicointeractive/caliobase/compare/caliobase-nx-0.3.4...caliobase-nx-0.3.5) (2022-10-26)
+
+
+### Bug Fixes
+
+* **caliobase-nx:** generated api projects need to generate package json files ([afeffde](https://github.com/justicointeractive/caliobase/commit/afeffdeb3604a7aa19ff0eaffc059e90cb6dd3de))
+
 ### [0.3.4](https://github.com/justicointeractive/caliobase/compare/caliobase-nx-0.3.3...caliobase-nx-0.3.4) (2022-09-28)
 
 
