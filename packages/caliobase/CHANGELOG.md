@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.3.22](https://github.com/justicointeractive/caliobase/compare/caliobase-0.3.21...caliobase-0.3.22) (2022-10-26)
+
+
+### Bug Fixes
+
+* **caliobase:** allow selectively loading relations ([372e42b](https://github.com/justicointeractive/caliobase/commit/372e42b6e860f7b34bffb45660c34a8c2cd1e5f5))
+
 ### [0.3.21](https://github.com/justicointeractive/caliobase/compare/caliobase-0.3.20...caliobase-0.3.21) (2022-10-17)
 
 
