@@ -18,7 +18,12 @@ describe('ui generator', () => {
     await generator(appTree, options);
     const config = readProjectConfiguration(appTree, 'ui');
     expect(config).toBeDefined();
-    expectSnapshot(appTree, 'package.json');
+    expectSnapshot(appTree, 'package.json', [
+      [
+        /"@caliobase\/caliobase-ui": "[0-9.]+"/g,
+        '"@caliobase/caliobase-ui": "*"',
+      ],
+    ]);
     expectSnapshot(appTree, 'apps/ui/project.json');
     expectSnapshot(appTree, 'apps/ui/src/main.tsx');
     expectSnapshot(appTree, 'apps/ui/src/styles.css');

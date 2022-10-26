@@ -19,7 +19,9 @@ describe('api generator', () => {
     const config = readProjectConfiguration(appTree, 'api');
     expect(config).toBeDefined();
 
-    expectSnapshot(appTree, 'package.json');
+    expectSnapshot(appTree, 'package.json', [
+      [/"@caliobase\/caliobase": "[0-9.]+"/g, '"@caliobase/caliobase": "*"'],
+    ]);
     await expectDependenciesMatch(appTree, 'package.json');
     expectSnapshot(appTree, 'apps/api/project.json');
     expectSnapshot(appTree, 'apps/api/src/main.ts');

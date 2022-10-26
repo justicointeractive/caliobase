@@ -23,7 +23,8 @@ exports[`api generator should run successfully: apps/api/project.json 1`] = `
         ],
         \\"tsPlugins\\": [
           \\"@nestjs/swagger/plugin\\"
-        ]
+        ],
+        \\"generatePackageJson\\": true
       },
       \\"configurations\\": {
         \\"production\\": {
@@ -239,7 +240,7 @@ exports[`api generator should run successfully: package.json 1`] = `
   \\"name\\": \\"test-name\\",
   \\"dependencies\\": {
     \\"@aws-sdk/client-ses\\": \\"^3.171.0\\",
-    \\"@caliobase/caliobase\\": \\"0.3.9\\",
+    \\"@caliobase/caliobase\\": \\"*\\",
     \\"@nestjs/common\\": \\"^9.0.0\\",
     \\"@nestjs/core\\": \\"^9.0.0\\",
     \\"@nestjs/platform-express\\": \\"^9.0.0\\",
