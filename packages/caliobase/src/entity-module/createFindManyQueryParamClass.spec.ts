@@ -29,4 +29,19 @@ describe('createFindManyQueryParamClass', () => {
       },
     });
   });
+  it('should create class against relation', async () => {
+    class ReferenceEntity {
+      id!: string;
+    }
+
+    const QueryParamClass = createFindManyQueryParamClass(ReferenceEntity);
+
+    const instance = new QueryParamClass();
+
+    instance['relations'] = ['foo.bar'];
+
+    const findOptions = instance.toFindOptions();
+    expect(findOptions.relations).toMatchObject(['foo.bar']);
+    expect(findOptions.loadEagerRelations).toBeFalsy();
+  });
 });

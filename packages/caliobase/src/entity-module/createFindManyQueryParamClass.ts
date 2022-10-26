@@ -148,6 +148,8 @@ export type CaliobaseFindOptions<TEntity> = {
   skip?: number;
   order?: FindOptionsOrder<TEntity>;
   select?: (keyof TEntity & string)[];
+  relations?: string[];
+  loadEagerRelations?: boolean;
 };
 
 export type ToFindOptions<TEntity> = {
@@ -192,6 +194,12 @@ export function createFindManyQueryParamClass<TEntity>(
     @TransformType(() => Number)
     skip?: number;
 
+    @IsOptional()
+    @IsString({ each: true })
+    @ApiPropertyOptional()
+    @Transform(({ value }) => (value == null ? null : ensureArray(value)))
+    relations?: string[];
+
     toFindOptions() {
       const where: FindOptionsWhere<TEntity> = {};
 
@@ -233,6 +241,8 @@ export function createFindManyQueryParamClass<TEntity>(
         select: this.select,
         limit: this.limit,
         skip: this.skip,
+        relations: this.relations,
+        loadEagerRelations: this.relations == null,
       };
 
       return findManyOptions;
