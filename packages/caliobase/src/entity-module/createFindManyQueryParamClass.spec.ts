@@ -21,14 +21,12 @@ describe('createFindManyQueryParamClass', () => {
     const findOptions = instance.toFindOptions();
     const notStartsWith = findOptions.where.stringProperty;
     assert(notStartsWith instanceof FindOperator);
-    expect(notStartsWith).toEqual(
-      expect.objectContaining({
-        _type: 'not',
-        _value: expect.objectContaining({
-          _type: 'like',
-          _value: 'foo%',
-        }),
-      })
-    );
+    expect(notStartsWith).toMatchObject({
+      _type: 'not',
+      _value: {
+        _type: 'like',
+        _value: 'foo%',
+      },
+    });
   });
 });
