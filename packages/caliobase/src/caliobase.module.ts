@@ -1,3 +1,7 @@
+import {
+  MigrationsOptions,
+  runMigrations,
+} from '@caliobase/typeorm-migrations';
 import { DynamicModule, INestApplication, Module } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Command } from 'commander';
@@ -22,7 +26,6 @@ import {
   CaliobaseObjectStorageModule,
   CaliobaseObjectStorageModuleOptions,
 } from './object-storage/object-storage.module';
-import { MigrationsOptions, runMigrations } from './public-utils';
 
 export type CaliobaseModuleOptions<
   TUser extends AbstractUserProfile,

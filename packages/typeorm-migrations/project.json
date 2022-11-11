@@ -1,0 +1,49 @@
+{
+  "name": "typeorm-migrations",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/typeorm-migrations/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/typeorm-migrations",
+        "tsConfig": "packages/typeorm-migrations/tsconfig.lib.json",
+        "packageJson": "packages/typeorm-migrations/package.json",
+        "main": "packages/typeorm-migrations/src/index.ts",
+        "assets": ["packages/typeorm-migrations/*.md"]
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/typeorm-migrations/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/packages/typeorm-migrations"],
+      "options": {
+        "jestConfig": "packages/typeorm-migrations/jest.config.ts",
+        "passWithNoTests": true
+      }
+    },
+    "deploy": {
+      "executor": "ngx-deploy-npm:deploy",
+      "options": {
+        "access": "public"
+      }
+    },
+    "version": {
+      "executor": "@jscutlery/semver:version",
+      "options": {
+        "preset": "conventional",
+        "trackDeps": true,
+        "postTargets": ["typeorm-migrations:deploy"]
+      }
+    }
+  },
+  "tags": []
+}

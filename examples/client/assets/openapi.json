@@ -798,6 +798,14 @@
           },
           {
             "required": false,
+            "name": "relations",
+            "in": "query",
+            "schema": {
+              "type": "array"
+            }
+          },
+          {
+            "required": false,
             "name": "orderBy",
             "in": "query",
             "schema": {
@@ -1224,6 +1232,14 @@
           },
           {
             "required": false,
+            "name": "relations",
+            "in": "query",
+            "schema": {
+              "type": "array"
+            }
+          },
+          {
+            "required": false,
             "name": "orderBy",
             "in": "query",
             "schema": {
@@ -1500,6 +1516,14 @@
             "in": "query",
             "schema": {
               "type": "number"
+            }
+          },
+          {
+            "required": false,
+            "name": "relations",
+            "in": "query",
+            "schema": {
+              "type": "array"
             }
           },
           {

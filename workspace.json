@@ -12,6 +12,7 @@
     "examples-client": "examples/client",
     "examples-cms": "examples/cms",
     "examples-cms-e2e": "examples/cms-e2e",
+    "typeorm-migrations": "packages/typeorm-migrations",
     "use-async-effect-state": "packages/use-async-effect-state"
   }
 }

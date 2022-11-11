@@ -11,7 +11,8 @@
     "use-async-effect-state",
     "caliobase",
     "caliobase-cdk",
-    "examples"
+    "examples",
+    "typeorm-migrations"
   ],
   "eslint.validate": ["json"]
 }

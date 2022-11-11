@@ -912,6 +912,7 @@ export class Api<
       query?: {
         limit?: number;
         skip?: number;
+        relations?: any[];
         orderBy?: number[];
         select?: ('id' | 'name')[];
       },
@@ -1072,6 +1073,7 @@ export class Api<
       query?: {
         limit?: number;
         skip?: number;
+        relations?: any[];
         orderBy?: number[];
         select?: 'name'[];
       },
@@ -1179,6 +1181,7 @@ export class Api<
       query?: {
         limit?: number;
         skip?: number;
+        relations?: any[];
         orderBy?: number[];
         select?: ('firstName' | 'lastName')[];
       },
