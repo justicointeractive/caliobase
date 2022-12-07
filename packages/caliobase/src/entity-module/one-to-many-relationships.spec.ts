@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { omit } from 'lodash';
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { Column, ManyToOne, OneToMany } from 'typeorm';
 import { createEntityModule, ICaliobaseController } from '.';
 import { assert } from '../lib/assert';
 import {
@@ -18,7 +18,7 @@ import { IOneToManyRelationController } from './IOneToManyRelationController';
 describe('one to many relationships', () => {
   @CaliobaseEntity({
     entity: { name: 'one_to_many_card' },
-    controller: { name: 'one' },
+    controller: { name: 'card' },
   })
   class Card {
     @PrimaryGeneratedPrefixedNanoIdColumn('card')
@@ -32,7 +32,10 @@ describe('one to many relationships', () => {
     notes!: Note[];
   }
 
-  @Entity({ name: 'one_to_many_card_note' })
+  @CaliobaseEntity({
+    entity: { name: 'one_to_many_card_note' },
+    controller: { name: 'note' },
+  })
   class Note {
     @PrimaryGeneratedPrefixedNanoIdColumn('note')
     id!: string;
@@ -47,15 +50,16 @@ describe('one to many relationships', () => {
     card!: Card;
   }
 
-  const { cardController, noteController, owner } = useTestingModule(
-    async () => {
-      const entityModule = createEntityModule(Card);
+  const { cardController, cardNoteController, noteController, owner } =
+    useTestingModule(async () => {
+      const cardEntityModule = createEntityModule(Card);
+      const noteEntityModule = createEntityModule(Note);
 
       const module = await createTestingModule({
-        imports: [entityModule],
+        imports: [cardEntityModule, noteEntityModule],
       });
 
-      const cardControllerType = entityModule.EntityControllers?.find(
+      const cardControllerType = cardEntityModule.EntityControllers?.find(
         (c) => c.name === 'CardController'
       );
       assert(cardControllerType);
@@ -64,29 +68,39 @@ describe('one to many relationships', () => {
       ) as ICaliobaseController<Card>;
       assert(cardController);
 
-      const noteControllerType = entityModule.EntityControllers?.find(
+      const cardNoteControllerType = cardEntityModule.EntityControllers?.find(
         (c) => c.name === 'CardNoteRelationController'
+      );
+      assert(cardNoteControllerType);
+      const cardNoteController = module.get(
+        cardNoteControllerType
+      ) as IOneToManyRelationController<Note>;
+      assert(cardNoteController);
+
+      const noteControllerType = noteEntityModule.EntityControllers?.find(
+        (c) => c.name === 'NoteController'
       );
       assert(noteControllerType);
       const noteController = module.get(
         noteControllerType
-      ) as IOneToManyRelationController<Note>;
+      ) as ICaliobaseController<Note>;
       assert(noteController);
 
       const createOrganization = await createTestOrganization(module);
 
       return {
         module,
-        entityModule,
+        cardEntityModule,
+        noteEntityModule,
         cardController,
+        cardNoteController,
         noteController,
         ...createOrganization,
       };
-    }
-  );
+    });
 
   it('should create relation controller', async () => {
-    expect(noteController).not.toBeNull();
+    expect(cardNoteController).not.toBeNull();
   });
 
   it('should create related content', async () => {
@@ -96,7 +110,7 @@ describe('one to many relationships', () => {
       { user: owner }
     );
 
-    const { item: note } = await noteController.create(
+    const { item: note } = await cardNoteController.create(
       {
         text: faker.lorem.sentence(),
       },
@@ -107,8 +121,14 @@ describe('one to many relationships', () => {
     expect(note).not.toBeNull();
 
     expect(
+      (await cardNoteController.findOne(note, { user: owner })).item
+    ).toMatchObject({
+      ...omit(note, ['card', 'organization']),
+    });
+
+    expect(
       (await noteController.findOne(note, { user: owner })).item
-    ).toMatchObject(omit(note, ['card']));
+    ).toMatchObject(omit(note, ['card', 'organization']));
 
     expect(
       (await cardController.findOne(card, { user: owner })).item?.notes
