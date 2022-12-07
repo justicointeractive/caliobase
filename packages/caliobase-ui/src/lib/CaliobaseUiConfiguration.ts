@@ -69,7 +69,14 @@ export class CaliobaseUiConfiguration<TApi extends ICaliobaseApi> {
             console.log({ xhr, e })
           );
           xhr.addEventListener('load', () => {
-            const etag = xhr.getResponseHeader('etag') ?? '';
+            const etag = xhr.getResponseHeader('etag');
+            if (!etag) {
+              return reject(
+                new Error(
+                  `etag not found in response, configure object storage provider CORS policy to expose ETag header`
+                )
+              );
+            }
             return resolve({
               etag,
               part: signedUrl.part,
