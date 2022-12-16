@@ -3,6 +3,7 @@ import { EcsJwtKeyPair } from '@ji-constructs/ecs-jwt-keypair';
 import { SecretValue, Stack } from 'aws-cdk-lib';
 import { Distribution } from 'aws-cdk-lib/aws-cloudfront';
 import {
+  Connections,
   InstanceClass,
   InstanceSize,
   InstanceType,
@@ -25,7 +26,7 @@ import {
   PostgresEngineVersion,
 } from 'aws-cdk-lib/aws-rds';
 import { Bucket, HttpMethods } from 'aws-cdk-lib/aws-s3';
-import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
+import { ISecret, Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 
 export class Caliobase extends Construct {
@@ -45,10 +46,19 @@ export class Caliobase extends Construct {
       taskRole?: IRole;
       s3Bucket?: Bucket;
       s3KeyPrefix?: string;
-      dbInstanceProps?: Partial<DatabaseInstanceProps>;
       environment?: Record<string, string>;
       secrets?: Record<string, EcsSecret>;
-    }
+    } & (
+      | {
+          dbInstanceProps?: Partial<DatabaseInstanceProps>;
+        }
+      | {
+          db: {
+            secret: ISecret;
+            connections: Connections;
+          };
+        }
+    )
   ) {
     super(scope, id);
 
@@ -76,14 +86,20 @@ export class Caliobase extends Construct {
       defaultBehavior: imageResize.behaviorOptions,
     });
 
-    const db = new DatabaseInstance(this, 'ApiDb', {
-      vpc: props.vpc,
-      engine: DatabaseInstanceEngine.postgres({
-        version: PostgresEngineVersion.VER_14_2,
-      }),
-      instanceType: InstanceType.of(InstanceClass.T4G, InstanceSize.MICRO),
-      ...props.dbInstanceProps,
-    });
+    const db =
+      'db' in props
+        ? props.db
+        : new DatabaseInstance(this, 'ApiDb', {
+            vpc: props.vpc,
+            engine: DatabaseInstanceEngine.postgres({
+              version: PostgresEngineVersion.VER_14_2,
+            }),
+            instanceType: InstanceType.of(
+              InstanceClass.T4G,
+              InstanceSize.MICRO
+            ),
+            ...props.dbInstanceProps,
+          });
 
     const keys = new EcsJwtKeyPair(this, 'JwtKeys');
 
