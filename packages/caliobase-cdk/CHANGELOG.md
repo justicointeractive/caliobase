@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.2.0](https://github.com/justicointeractive/caliobase/compare/caliobase-cdk-0.1.3...caliobase-cdk-0.2.0) (2022-12-16)
+
+
+### Features
+
+* **caliobase-cdk:** allow an externally created database (or shared db) to be used ([7c97362](https://github.com/justicointeractive/caliobase/commit/7c9736250a77610854bcae79b91d43d6fe94bd2b))
+
 ### [0.1.3](https://github.com/justicointeractive/caliobase/compare/caliobase-cdk-0.1.2...caliobase-cdk-0.1.3) (2022-08-24)
 
 
