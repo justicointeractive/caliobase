@@ -13,9 +13,11 @@ import { useFormContext } from './FormContext';
 function EditorJs(props: {
   label: string;
   placeholder?: string;
-  defaultValue: OutputData;
+  defaultValue?: OutputData;
   onChange: (data: OutputData) => void;
 }) {
+  props.defaultValue ??= { blocks: [] };
+
   const { caliobaseUiConfiguration } = useApiContext();
   const { userOrgApi } = useUserContext();
   const [holder, setHolder] = useState<HTMLElement | null>(null);
@@ -65,7 +67,7 @@ function EditorJs(props: {
                     },
                   };
                 },
-                async uploadByUrl(url: string) {
+                async uploadByUrl() {
                   throw new Error('not implemented');
                 },
               },
