@@ -10,19 +10,20 @@ import { assert } from '../../lib/assert';
 import { LabeledInput } from '../LabeledInput';
 import { useFormContext } from './FormContext';
 
-function EditorJs(props: {
+function EditorJs({
+  defaultValue = { blocks: [] },
+  ...props
+}: {
   label: string;
   placeholder?: string;
   defaultValue?: OutputData;
   onChange: (data: OutputData) => void;
 }) {
-  props.defaultValue ??= { blocks: [] };
-
   const { caliobaseUiConfiguration } = useApiContext();
   const { userOrgApi } = useUserContext();
   const [holder, setHolder] = useState<HTMLElement | null>(null);
 
-  const initialValueRef = useRef(props.defaultValue);
+  const initialValueRef = useRef(defaultValue);
 
   const onChangeRef = useLatestValueRef(props.onChange);
   const caliobaseUiConfigurationRef = useLatestValueRef(
@@ -31,9 +32,7 @@ function EditorJs(props: {
   const userOrgApiRef = useLatestValueRef(userOrgApi);
   const formContext = useFormContext();
 
-  const [hasBlocks, setHasBlocks] = useState(
-    props.defaultValue.blocks.length > 0
-  );
+  const [hasBlocks, setHasBlocks] = useState(defaultValue.blocks.length > 0);
 
   useEffect(() => {
     if (holder) {
