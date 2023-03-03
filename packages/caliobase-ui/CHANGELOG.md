@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.1.36](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.35...caliobase-ui-0.1.36) (2023-03-03)
+
+
+### Bug Fixes
+
+* **caliobase-ui:** issue with null blocks ([e934e16](https://github.com/justicointeractive/caliobase/commit/e934e169fcb36972f7106b1cd3b38b4f9a0737fd))
+
 ### [0.1.35](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.34...caliobase-ui-0.1.35) (2023-03-03)
 
 ### [0.1.34](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.33...caliobase-ui-0.1.34) (2022-10-20)
