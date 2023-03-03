@@ -11,14 +11,16 @@ import { LabeledInput } from '../LabeledInput';
 import { useFormContext } from './FormContext';
 
 function EditorJs({
-  defaultValue = { blocks: [] },
+  defaultValue,
   ...props
 }: {
   label: string;
   placeholder?: string;
-  defaultValue?: OutputData;
+  defaultValue?: OutputData | null;
   onChange: (data: OutputData) => void;
 }) {
+  defaultValue ??= { blocks: [] };
+
   const { caliobaseUiConfiguration } = useApiContext();
   const { userOrgApi } = useUserContext();
   const [holder, setHolder] = useState<HTMLElement | null>(null);
