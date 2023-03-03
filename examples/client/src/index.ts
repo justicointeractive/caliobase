@@ -914,7 +914,7 @@ export class Api<
         skip?: number;
         relations?: any[];
         orderBy?: number[];
-        select?: ('id' | 'name')[];
+        select?: ('id' | 'name' | 'blocks')[];
       },
       params: RequestParams = {}
     ) =>

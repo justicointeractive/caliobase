@@ -7,9 +7,12 @@ import { useEffect, useRef, useState } from 'react';
 import { useLatestValueRef } from 'use-async-effect-state';
 import { useApiContext, useUserContext } from '../../context';
 import { assert } from '../../lib/assert';
+import { LabeledInput } from '../LabeledInput';
 import { useFormContext } from './FormContext';
 
 function EditorJs(props: {
+  label: string;
+  placeholder?: string;
   defaultValue: OutputData;
   onChange: (data: OutputData) => void;
 }) {
@@ -25,6 +28,10 @@ function EditorJs(props: {
   );
   const userOrgApiRef = useLatestValueRef(userOrgApi);
   const formContext = useFormContext();
+
+  const [hasBlocks, setHasBlocks] = useState(
+    props.defaultValue.blocks.length > 0
+  );
 
   useEffect(() => {
     if (holder) {
@@ -98,6 +105,9 @@ function EditorJs(props: {
             },
           },
         },
+        onChange: () => {
+          setHasBlocks(editor.blocks.getBlocksCount() > 0);
+        },
       });
 
       const removeFormControl = formContext.addFormControl({
@@ -127,9 +137,19 @@ function EditorJs(props: {
   ]);
 
   return (
-    <div className="prose mx-auto max-w-none">
-      <div ref={setHolder}></div>
-    </div>
+    <LabeledInput
+      value={hasBlocks}
+      label={props.label}
+      placeholder={props.placeholder}
+    >
+      {/* this wrapper div is not only to add padding but also to preserve the full-width-ness inside 
+          the grid that we lose with the max-w-none that follows it */}
+      <div className="pt-3">
+        <div className="prose relative mx-auto max-w-none">
+          <div ref={setHolder}></div>
+        </div>
+      </div>
+    </LabeledInput>
   );
 }
 

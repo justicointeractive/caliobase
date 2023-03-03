@@ -4,13 +4,22 @@ import { DetailEditorComponent } from './DetailEditorComponent';
 
 const LazyEditorJs = lazy(() => import('./EditorJs'));
 
+export type EditorJsValueEditorOptions = {
+  placeholder?: string;
+};
+
 export const EditorJsValueEditor: DetailEditorComponent<
   OutputData,
-  unknown
-> = ({ value, field, onChange }) => {
+  EditorJsValueEditorOptions
+> = ({ value, field, options, onChange }) => {
   return (
     <div key={field.property}>
-      <LazyEditorJs defaultValue={value} onChange={onChange} />
+      <LazyEditorJs
+        label={field.label}
+        placeholder={options?.placeholder}
+        defaultValue={value}
+        onChange={onChange}
+      />
     </div>
   );
 };

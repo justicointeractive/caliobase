@@ -2,10 +2,12 @@ import {
   CaliobaseUI,
   CaliobaseUiConfigurationBuilder,
   ContentFieldInput,
+  EditorJsValueEditor,
   TextValueEditor,
   TitleTextValueEditor,
 } from '@caliobase/caliobase-ui';
 import { Api } from '@caliobase/examples-client';
+import type { OutputData } from '@editorjs/editorjs';
 import { faObjectGroup } from '@fortawesome/free-regular-svg-icons';
 import { faTents } from '@fortawesome/free-solid-svg-icons';
 import { ComponentProps } from 'react';
@@ -70,7 +72,20 @@ const appConfig = new CaliobaseUiConfigurationBuilder(Api, {
   })
   .addEntity('example', {
     label: { singular: 'Example', plural: 'Examples' },
-    fields: [idField, nameField],
+    fields: [
+      idField,
+      nameField,
+      {
+        label: 'Content',
+        property: 'blocks',
+        defaultValue: (): OutputData => ({
+          blocks: [],
+        }),
+        editor: EditorJsValueEditor,
+        tableCell: null,
+        editorOptions: { placeholder: 'Add Content' },
+      },
+    ],
     menuItemIcon: faObjectGroup,
   })
   .build();

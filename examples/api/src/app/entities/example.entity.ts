@@ -2,7 +2,8 @@ import {
   CaliobaseEntity,
   PrimaryGeneratedPrefixedNanoIdColumn,
 } from '@caliobase/caliobase';
-import { IsString } from 'class-validator';
+import type { OutputData } from '@editorjs/editorjs';
+import { IsObject, IsString } from 'class-validator';
 import { Column } from 'typeorm';
 
 @CaliobaseEntity({
@@ -17,4 +18,8 @@ export class Example {
   @Column()
   @IsString()
   name!: string;
+
+  @Column({ type: 'simple-json', nullable: true })
+  @IsObject()
+  blocks?: OutputData;
 }
