@@ -109,10 +109,10 @@ export function entityServiceQueryBuilder<TEntity>(
   // console.log(query.getQueryAndParameters());
 
   if (limit != null) {
-    query.limit(limit);
+    query.take(limit);
   }
   if (skip != null) {
-    query.offset(skip);
+    query.skip(skip);
   }
 
   if (select) {
