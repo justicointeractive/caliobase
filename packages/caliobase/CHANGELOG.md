@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.3.26](https://github.com/justicointeractive/caliobase/compare/caliobase-0.3.25...caliobase-0.3.26) (2023-03-04)
+
+
+### Bug Fixes
+
+* limit/skip parameters for pagination with joins ([a090bf6](https://github.com/justicointeractive/caliobase/commit/a090bf676426f41c3759b3e5fd45336723f7a97b))
+
 ### [0.3.25](https://github.com/justicointeractive/caliobase/compare/caliobase-0.3.24...caliobase-0.3.25) (2023-03-03)
 
 ### [0.3.24](https://github.com/justicointeractive/caliobase/compare/caliobase-0.3.23...caliobase-0.3.24) (2022-11-11)
