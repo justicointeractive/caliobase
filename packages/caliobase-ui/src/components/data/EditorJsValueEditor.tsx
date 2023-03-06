@@ -11,14 +11,14 @@ export type EditorJsValueEditorOptions = {
 export const EditorJsValueEditor: DetailEditorComponent<
   OutputData,
   EditorJsValueEditorOptions
-> = ({ value, field, options, onChange }) => {
+> = ({ value, field, options }) => {
   return (
     <div key={field.property}>
       <LazyEditorJs
         label={field.label}
         placeholder={options?.placeholder}
         defaultValue={value}
-        onChange={onChange}
+        field={field}
       />
     </div>
   );

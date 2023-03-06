@@ -3,8 +3,10 @@ import {
   PrimaryGeneratedPrefixedNanoIdColumn,
 } from '@caliobase/caliobase';
 import type { OutputData } from '@editorjs/editorjs';
-import { IsObject, IsString } from 'class-validator';
-import { Column } from 'typeorm';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { Allow, IsObject, IsOptional, IsString } from 'class-validator';
+import { Column, ManyToOne } from 'typeorm';
+import { Image } from './image.entity';
 
 @CaliobaseEntity({
   controller: {
@@ -19,7 +21,20 @@ export class Example {
   @IsString()
   name!: string;
 
+  @Column({ nullable: true })
+  @IsString()
+  @IsOptional()
+  @ApiPropertyOptional()
+  imageId?: string;
+
+  @Allow()
+  @IsOptional()
+  @ApiPropertyOptional()
+  @ManyToOne(() => Image, { eager: true })
+  image?: Image;
+
   @Column({ type: 'simple-json', nullable: true })
   @IsObject()
+  @ApiPropertyOptional()
   blocks?: OutputData;
 }

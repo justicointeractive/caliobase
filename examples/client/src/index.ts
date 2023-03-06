@@ -175,11 +175,87 @@ export interface CreateRootRequest {
   organization: ConcreteCreateOrganizationRequest;
 }
 
-export type Example = object;
+export interface ObjectStorageCreateRequest {
+  fileName: string;
+  contentType: string;
+  contentLength: number;
+}
 
-export type CreateExampleDto = object;
+export interface ObjectStorageObject {
+  id: string;
+  organization: Organization;
+  key: string;
+  cdnUrl: string;
+  contentLength: number;
+  contentType: string;
+  status: 'pending' | 'processing' | 'ready';
+  uploadedBy: User;
+}
 
-export type UpdateExampleDto = object;
+export interface SignedUploadUrl {
+  url: string;
+  method: string;
+  rangeStart: number;
+  rangeEnd: number;
+  part: number;
+}
+
+export interface Upload {
+  uploadId: string;
+  parts: SignedUploadUrl[];
+}
+
+export interface ObjectStorageCreateResponse {
+  object: ObjectStorageObject;
+  upload: Upload;
+}
+
+export interface SignedUploadUrlResult {
+  part: number;
+  etag: string;
+}
+
+export interface CompleteUploadRequest {
+  uploadId: string;
+  parts: SignedUploadUrlResult[];
+}
+
+export interface Image {
+  width: number;
+  height: number;
+  objectStorageObjectId: string;
+  objectStorageObject: ObjectStorageObject;
+}
+
+export interface CreateImageDto {
+  width: number;
+  height: number;
+  objectStorageObjectId: string;
+}
+
+export interface UpdateImageDto {
+  width?: number;
+  height?: number;
+  objectStorageObjectId?: string;
+}
+
+export interface Example {
+  imageId?: string;
+  image?: Image;
+  blocks?: object;
+}
+
+export interface CreateExampleDto {
+  imageId?: string;
+  image?: Image;
+  blocks?: object;
+}
+
+export interface UpdateExampleDto {
+  imageId?: string;
+  image?: Image;
+  blocks?: object;
+}
 
 export interface UpdateOrganizationProfileDto {
   name?: string;
@@ -880,6 +956,152 @@ export class Api<
         ...params,
       }),
   };
+  objectStorage = {
+    /**
+     * No description
+     *
+     * @tags object-storage
+     * @name CreateObjectStorageObject
+     * @request POST:/api/object-storage
+     * @secure
+     */
+    createObjectStorageObject: (
+      data: ObjectStorageCreateRequest,
+      params: RequestParams = {}
+    ) =>
+      this.request<ObjectStorageCreateResponse, any>({
+        path: `/api/object-storage`,
+        method: 'POST',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags object-storage
+     * @name CompleteUpload
+     * @request POST:/api/object-storage/{objectId}/complete
+     * @secure
+     */
+    completeUpload: (
+      objectId: string,
+      data: CompleteUploadRequest,
+      params: RequestParams = {}
+    ) =>
+      this.request<ObjectStorageObject, any>({
+        path: `/api/object-storage/${objectId}/complete`,
+        method: 'POST',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+  };
+  image = {
+    /**
+     * No description
+     *
+     * @tags image
+     * @name Create
+     * @request POST:/api/image
+     * @secure
+     */
+    create: (data: CreateImageDto, params: RequestParams = {}) =>
+      this.request<{ item: Image }, any>({
+        path: `/api/image`,
+        method: 'POST',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags image
+     * @name FindAll
+     * @request GET:/api/image
+     * @secure
+     */
+    findAll: (
+      query?: {
+        limit?: number;
+        skip?: number;
+        relations?: any[];
+        orderBy?: number[];
+        select?: ('id' | 'width' | 'height' | 'objectStorageObjectId')[];
+      },
+      params: RequestParams = {}
+    ) =>
+      this.request<{ items: Image[]; count?: number }, any>({
+        path: `/api/image`,
+        method: 'GET',
+        query: query,
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags image
+     * @name FindOne
+     * @request GET:/api/image/{id}
+     * @secure
+     */
+    findOne: (id: any, params: RequestParams = {}) =>
+      this.request<{ item?: Image }, any>({
+        path: `/api/image/${id}`,
+        method: 'GET',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags image
+     * @name Update
+     * @request PATCH:/api/image/{id}
+     * @secure
+     */
+    update: (id: any, data: UpdateImageDto, params: RequestParams = {}) =>
+      this.request<{ items: Image[]; count?: number }, any>({
+        path: `/api/image/${id}`,
+        method: 'PATCH',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags image
+     * @name Remove
+     * @request DELETE:/api/image/{id}
+     * @secure
+     */
+    remove: (id: any, params: RequestParams = {}) =>
+      this.request<{ items: Image[]; count?: number }, any>({
+        path: `/api/image/${id}`,
+        method: 'DELETE',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+  };
   example = {
     /**
      * No description
@@ -914,7 +1136,7 @@ export class Api<
         skip?: number;
         relations?: any[];
         orderBy?: number[];
-        select?: ('id' | 'name' | 'blocks')[];
+        select?: ('id' | 'name' | 'imageId' | 'blocks')[];
       },
       params: RequestParams = {}
     ) =>

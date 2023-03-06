@@ -16,10 +16,7 @@ export function Fieldset<T extends Record<string, unknown>>(props: {
             item: props.item,
             value: get(props.item, f.property),
             onChange: (e) => {
-              // also mutate because onBeforeSave needs to have all the latest when it exits
-              // TODO: it would be nicer to not need to mutate here
-              props.item[f.property as keyof T] = e;
-              props.onChange({ ...props.item });
+              props.onChange({ ...props.item, [f.property]: e });
             },
             options: f.editorOptions,
             readOnly: f.readOnly,

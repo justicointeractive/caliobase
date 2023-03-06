@@ -6,18 +6,20 @@ import List from '@editorjs/list';
 import { useEffect, useRef, useState } from 'react';
 import { useLatestValueRef } from 'use-async-effect-state';
 import { useApiContext, useUserContext } from '../../context';
+import { ContentField } from '../../lib';
 import { assert } from '../../lib/assert';
 import { LabeledInput } from '../LabeledInput';
 import { useFormContext } from './FormContext';
 
 function EditorJs({
   defaultValue,
+  field,
   ...props
 }: {
+  field: ContentField;
   label: string;
   placeholder?: string;
   defaultValue?: OutputData | null;
-  onChange: (data: OutputData) => void;
 }) {
   defaultValue ??= { blocks: [] };
 
@@ -27,7 +29,6 @@ function EditorJs({
 
   const initialValueRef = useRef(defaultValue);
 
-  const onChangeRef = useLatestValueRef(props.onChange);
   const caliobaseUiConfigurationRef = useLatestValueRef(
     caliobaseUiConfiguration
   );
@@ -114,9 +115,10 @@ function EditorJs({
       });
 
       const removeFormControl = formContext.addFormControl({
-        onBeforeSave: async () => {
+        field,
+        onBeforeSave: async (item, f) => {
           const savedValue = await editor.saver.save();
-          onChangeRef.current(savedValue);
+          return { ...item, [f.property]: savedValue };
         },
       });
 
@@ -131,13 +133,7 @@ function EditorJs({
       };
     }
     return;
-  }, [
-    caliobaseUiConfigurationRef,
-    formContext,
-    holder,
-    onChangeRef,
-    userOrgApiRef,
-  ]);
+  }, [caliobaseUiConfigurationRef, field, formContext, holder, userOrgApiRef]);
 
   return (
     <LabeledInput

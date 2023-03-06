@@ -3,12 +3,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { MouseEventHandler, useCallback, useEffect, useState } from 'react';
 import { useFileDrop } from '../hooks/useFileDrop';
 import { useUploadImage } from '../hooks/useUploadImage';
+import { ContentField } from '../lib';
 import { useFormContext } from './data/FormContext';
 
 export function ImageUpload({
   image: existingFile,
   onChange,
+  field,
 }: {
+  field: ContentField;
   image: unknown | null;
   onChange: (value: unknown | null) => void;
 }) {
@@ -43,10 +46,10 @@ export function ImageUpload({
   useEffect(() => {
     if (pendingFile) {
       const removeFormControl = formContext.addFormControl({
-        onBeforeSave: async () => {
+        field,
+        onBeforeSave: async (item, f) => {
           const image = await uploadImageFile(pendingFile.file);
-          onChange(image);
-          setPendingFile(null);
+          return { ...item, [f.property]: image };
         },
       });
 
@@ -55,7 +58,14 @@ export function ImageUpload({
       };
     }
     return () => void 0;
-  }, [formContext, onChange, pendingFile, setPendingFile, uploadImageFile]);
+  }, [
+    field,
+    formContext,
+    onChange,
+    pendingFile,
+    setPendingFile,
+    uploadImageFile,
+  ]);
 
   const hasFile = !!(pendingFile || existingFile);
 

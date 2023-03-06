@@ -1,10 +1,15 @@
-import { CaliobaseModule, TOKEN_TOKEN } from '@caliobase/caliobase';
+import {
+  CaliobaseModule,
+  S3ObjectStorageProvider,
+  TOKEN_TOKEN,
+} from '@caliobase/caliobase';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { Example } from './entities/example.entity';
+import { Image } from './entities/image.entity';
 import { OrganizationProfile } from './entities/organization-profile.entity';
 import { UserProfile } from './entities/user-profile.entity';
 
@@ -17,7 +22,7 @@ import { UserProfile } from './entities/user-profile.entity';
     }),
     CaliobaseModule.forRootAsync({
       allowCreateOwnOrganizations: true,
-      controllerEntities: [Example],
+      controllerEntities: [Image, Example],
       otherEntities: [],
       profileEntities: {
         OrganizationProfile,
@@ -25,7 +30,12 @@ import { UserProfile } from './entities/user-profile.entity';
         socialProfileToUserProfile: null,
       },
       emailTransport: null!,
-      objectStorageProvider: null,
+      objectStorageProvider: new S3ObjectStorageProvider({
+        bucket: process.env.S3_BUCKET!,
+        cdnUrlPrefix: process.env.STATIC_FILE_BASEURL!,
+        keyPrefix: '',
+        endpoint: process.env.S3_ENDPOINT,
+      }),
       urls: {
         forgotPassword: `https://example.org/forgotPassword?token=${TOKEN_TOKEN}`,
       },

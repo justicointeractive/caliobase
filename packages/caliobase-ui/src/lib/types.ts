@@ -232,9 +232,11 @@ export type ContentFieldInput<
   } | null;
 };
 
-export type ContentField<TProperty extends string, TValue, TOptions> = Required<
-  ContentFieldInput<TProperty, TValue, TOptions>
->;
+export type ContentField<
+  TProperty extends string = string,
+  TValue = any,
+  TOptions = any
+> = Required<ContentFieldInput<TProperty, TValue, TOptions>>;
 
 export type MenuItemDescriptionInput = {
   label: string;

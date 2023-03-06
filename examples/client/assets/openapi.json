@@ -734,6 +734,371 @@
         ]
       }
     },
+    "/api/object-storage": {
+      "post": {
+        "operationId": "ObjectStorageController_createObjectStorageObject",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ObjectStorageCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectStorageCreateResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "object-storage"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/object-storage/{objectId}/complete": {
+      "post": {
+        "operationId": "ObjectStorageController_completeUpload",
+        "parameters": [
+          {
+            "name": "objectId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteUploadRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectStorageObject"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "object-storage"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/image": {
+      "post": {
+        "operationId": "ImageController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateImageDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "item": {
+                      "$ref": "#/components/schemas/Image"
+                    }
+                  },
+                  "required": [
+                    "item"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "image"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "get": {
+        "operationId": "ImageController_findAll",
+        "parameters": [
+          {
+            "required": false,
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "required": false,
+            "name": "skip",
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "required": false,
+            "name": "relations",
+            "in": "query",
+            "schema": {
+              "type": "array"
+            }
+          },
+          {
+            "required": false,
+            "name": "orderBy",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "enum": []
+              }
+            }
+          },
+          {
+            "required": false,
+            "name": "select",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "id",
+                  "width",
+                  "height",
+                  "objectStorageObjectId"
+                ]
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Image"
+                          }
+                        },
+                        "count": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "items"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "image"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/image/{id}": {
+      "get": {
+        "operationId": "ImageController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "item": {
+                      "$ref": "#/components/schemas/Image"
+                    }
+                  },
+                  "required": []
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "image"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "ImageController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {}
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateImageDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Image"
+                          }
+                        },
+                        "count": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "items"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "image"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "ImageController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Image"
+                          }
+                        },
+                        "count": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "items"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "image"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
     "/api/example": {
       "post": {
         "operationId": "ExampleController_create",
@@ -827,6 +1192,7 @@
                 "enum": [
                   "id",
                   "name",
+                  "imageId",
                   "blocks"
                 ]
               }
@@ -2115,17 +2481,259 @@
           "organization"
         ]
       },
+      "ObjectStorageCreateRequest": {
+        "type": "object",
+        "properties": {
+          "fileName": {
+            "type": "string"
+          },
+          "contentType": {
+            "type": "string"
+          },
+          "contentLength": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "fileName",
+          "contentType",
+          "contentLength"
+        ]
+      },
+      "ObjectStorageObject": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "organization": {
+            "$ref": "#/components/schemas/Organization"
+          },
+          "key": {
+            "type": "string"
+          },
+          "cdnUrl": {
+            "type": "string"
+          },
+          "contentLength": {
+            "type": "number"
+          },
+          "contentType": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "processing",
+              "ready"
+            ]
+          },
+          "uploadedBy": {
+            "$ref": "#/components/schemas/User"
+          }
+        },
+        "required": [
+          "id",
+          "organization",
+          "key",
+          "cdnUrl",
+          "contentLength",
+          "contentType",
+          "status",
+          "uploadedBy"
+        ]
+      },
+      "SignedUploadUrl": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "rangeStart": {
+            "type": "number"
+          },
+          "rangeEnd": {
+            "type": "number"
+          },
+          "part": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "url",
+          "method",
+          "rangeStart",
+          "rangeEnd",
+          "part"
+        ]
+      },
+      "Upload": {
+        "type": "object",
+        "properties": {
+          "uploadId": {
+            "type": "string"
+          },
+          "parts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SignedUploadUrl"
+            }
+          }
+        },
+        "required": [
+          "uploadId",
+          "parts"
+        ]
+      },
+      "ObjectStorageCreateResponse": {
+        "type": "object",
+        "properties": {
+          "object": {
+            "$ref": "#/components/schemas/ObjectStorageObject"
+          },
+          "upload": {
+            "$ref": "#/components/schemas/Upload"
+          }
+        },
+        "required": [
+          "object",
+          "upload"
+        ]
+      },
+      "SignedUploadUrlResult": {
+        "type": "object",
+        "properties": {
+          "part": {
+            "type": "number"
+          },
+          "etag": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "part",
+          "etag"
+        ]
+      },
+      "CompleteUploadRequest": {
+        "type": "object",
+        "properties": {
+          "uploadId": {
+            "type": "string"
+          },
+          "parts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SignedUploadUrlResult"
+            }
+          }
+        },
+        "required": [
+          "uploadId",
+          "parts"
+        ]
+      },
+      "Image": {
+        "type": "object",
+        "properties": {
+          "width": {
+            "type": "number"
+          },
+          "height": {
+            "type": "number"
+          },
+          "objectStorageObjectId": {
+            "type": "string"
+          },
+          "objectStorageObject": {
+            "$ref": "#/components/schemas/ObjectStorageObject"
+          }
+        },
+        "required": [
+          "width",
+          "height",
+          "objectStorageObjectId",
+          "objectStorageObject"
+        ]
+      },
+      "CreateImageDto": {
+        "type": "object",
+        "properties": {
+          "width": {
+            "type": "number"
+          },
+          "height": {
+            "type": "number"
+          },
+          "objectStorageObjectId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "width",
+          "height",
+          "objectStorageObjectId"
+        ]
+      },
+      "UpdateImageDto": {
+        "type": "object",
+        "properties": {
+          "width": {
+            "type": "number"
+          },
+          "height": {
+            "type": "number"
+          },
+          "objectStorageObjectId": {
+            "type": "string"
+          }
+        }
+      },
       "Example": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "imageId": {
+            "type": "string"
+          },
+          "image": {
+            "$ref": "#/components/schemas/Image"
+          },
+          "blocks": {
+            "type": "object"
+          }
+        }
       },
       "CreateExampleDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "imageId": {
+            "type": "string"
+          },
+          "image": {
+            "$ref": "#/components/schemas/Image"
+          },
+          "blocks": {
+            "type": "object"
+          }
+        }
       },
       "UpdateExampleDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "imageId": {
+            "type": "string"
+          },
+          "image": {
+            "$ref": "#/components/schemas/Image"
+          },
+          "blocks": {
+            "type": "object"
+          }
+        }
       },
       "UpdateOrganizationProfileDto": {
         "type": "object",

@@ -1,8 +1,10 @@
 import { remove } from 'lodash';
 import { createContext, ReactNode, useContext, useMemo } from 'react';
+import { ContentField } from '../../lib';
 
 export type FormControl = {
-  onBeforeSave: () => Promise<void>;
+  field: ContentField<any, any, any>;
+  onBeforeSave: <T>(value: T, field: ContentField<any, any, any>) => Promise<T>;
 };
 
 export class FormContextValue {
@@ -16,10 +18,11 @@ export class FormContextValue {
     };
   }
 
-  async onBeforeSave() {
+  async onBeforeSave<T>(value: T) {
     for (const control of this.controls) {
-      await control.onBeforeSave();
+      value = await control.onBeforeSave(value, control.field);
     }
+    return value;
   }
 }
 

@@ -83,8 +83,8 @@ export function DetailView() {
             <PendingButton
               onClick={async () => {
                 if (item) {
-                  await formContext.onBeforeSave();
-                  await onSave(item);
+                  const savedItem = await formContext.onBeforeSave(item);
+                  await onSave(savedItem);
                 }
               }}
             >

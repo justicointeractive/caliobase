@@ -71,5 +71,10 @@ export const ImageValueEditor: DetailEditorComponent<
   unknown | null,
   unknown
 > = ({ value, field, onChange }) => (
-  <ImageUpload key={field.property} image={value} onChange={onChange} />
+  <ImageUpload
+    key={field.property}
+    image={value}
+    onChange={onChange}
+    field={field}
+  />
 );

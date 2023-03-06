@@ -3,10 +3,13 @@ import {
   CaliobaseUiConfigurationBuilder,
   ContentFieldInput,
   EditorJsValueEditor,
+  ImageTableCell,
+  ImageValueEditor,
+  loadImage,
   TextValueEditor,
   TitleTextValueEditor,
 } from '@caliobase/caliobase-ui';
-import { Api } from '@caliobase/examples-client';
+import { Api, Image } from '@caliobase/examples-client';
 import type { OutputData } from '@editorjs/editorjs';
 import { faObjectGroup } from '@fortawesome/free-regular-svg-icons';
 import { faTents } from '@fortawesome/free-solid-svg-icons';
@@ -36,6 +39,31 @@ const appConfig = new CaliobaseUiConfigurationBuilder(Api, {
   frontEndBaseUrl: '',
   preferredLoginMethod: 'password',
 })
+  .useImageHandler((api, builder) => ({
+    toUrl: (image: Image) => image.objectStorageObject.cdnUrl,
+    uploadImageFile: async (file) => {
+      const previewUrl = URL.createObjectURL(file);
+
+      const { width, height } = await loadImage(previewUrl);
+
+      const objectStorageObject = await builder.uploadFile(api, file);
+
+      const {
+        data: { item: image },
+      } = await api.image.create({
+        objectStorageObjectId: objectStorageObject.id,
+        width,
+        height,
+      });
+
+      image.objectStorageObject = objectStorageObject;
+
+      return image;
+    },
+    uploadImageUrl: async () => {
+      throw new Error('not implemented');
+    },
+  }))
   .addMenuItem({
     label: 'Test Dialog',
     menuItemIcon: faTents,
@@ -75,6 +103,13 @@ const appConfig = new CaliobaseUiConfigurationBuilder(Api, {
     fields: [
       idField,
       nameField,
+      {
+        label: 'Image',
+        property: 'image',
+        defaultValue: () => null,
+        editor: ImageValueEditor,
+        tableCell: { component: ImageTableCell, width: '6rem' },
+      },
       {
         label: 'Content',
         property: 'blocks',
