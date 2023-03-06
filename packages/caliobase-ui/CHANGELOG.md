@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.1.39](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.38...caliobase-ui-0.1.39) (2023-03-06)
+
+
+### Bug Fixes
+
+* issue with two onBeforeSave controls in a DetailView ([e356dc9](https://github.com/justicointeractive/caliobase/commit/e356dc9fe352d2888d28fdee71f7f9b79c67f72a))
+
 ### [0.1.38](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.37...caliobase-ui-0.1.38) (2023-03-03)
 
 
