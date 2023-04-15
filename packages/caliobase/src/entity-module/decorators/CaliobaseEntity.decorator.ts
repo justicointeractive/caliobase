@@ -2,6 +2,7 @@ import {
   applyDecorators,
   Controller,
   ModuleMetadata,
+  Provider,
   Type,
 } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
@@ -38,6 +39,7 @@ export type CaliobaseEntityOptions<TEntity> = {
     | ((moduleRef: ModuleRef) => EntitySubscriberInput<TEntity>)
     | EntitySubscriberInput<TEntity>
   >;
+  providers?: Provider[];
   accessPolicy?: PolicyStatements<TEntity>;
   organizationOwner?: false;
 };
