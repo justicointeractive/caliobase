@@ -2,6 +2,16 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.4.0](https://github.com/justicointeractive/caliobase/compare/caliobase-0.3.26...caliobase-0.4.0) (2023-04-15)
+
+### Dependency Updates
+
+* `typeorm-migrations` updated to version `0.0.3`
+
+### Features
+
+* add a way for entity subscribers to have injections ([9fb3377](https://github.com/justicointeractive/caliobase/commit/9fb3377baa714bab72d444c50ec0a38abe159127))
+
 ### [0.3.26](https://github.com/justicointeractive/caliobase/compare/caliobase-0.3.25...caliobase-0.3.26) (2023-03-04)
 
 
