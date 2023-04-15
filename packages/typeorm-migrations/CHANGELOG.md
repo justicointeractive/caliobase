@@ -2,6 +2,8 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.3](https://github.com/justicointeractive/caliobase/compare/typeorm-migrations-0.0.2...typeorm-migrations-0.0.3) (2023-04-15)
+
 ### [0.0.2](https://github.com/justicointeractive/caliobase/compare/typeorm-migrations-0.0.1...typeorm-migrations-0.0.2) (2022-11-11)
 
 
