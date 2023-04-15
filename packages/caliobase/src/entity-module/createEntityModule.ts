@@ -1,5 +1,6 @@
 import { Module, Provider, Type, ValidationPipeOptions } from '@nestjs/common';
 import { PATH_METADATA } from '@nestjs/common/constants';
+import { ModuleRef } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {
   DataSource,
@@ -9,17 +10,17 @@ import {
 } from 'typeorm';
 import {
   CaliobaseEntity,
-  createFindManyQueryParamClass,
   ToFindOptions,
+  createFindManyQueryParamClass,
 } from '.';
 import { EntityOwner, getOwnerProperty } from '../auth';
 import { getAclEntity } from '../auth/acl/getAclEntityAndProperty';
 import { defaultValidatorOptions } from '../defaultValidatorOptions';
 import { getEntityDtos } from '../lib/getEntityDtos';
+import { ICaliobaseServiceType } from './ICaliobaseService';
 import { createEntityController } from './createEntityController';
 import { createEntityService } from './createEntityService';
 import { RenameClass } from './decorators/RenameClass.decorator';
-import { ICaliobaseServiceType } from './ICaliobaseService';
 
 export function createEntityModule<TEntity>(
   entityType: Type<TEntity>,
@@ -67,16 +68,18 @@ export function createEntityModule<TEntity>(
     @EventSubscriber()
     @RenameClass(entityType)
     class EntitySubscriber implements EntitySubscriberInterface<TEntity> {
-      constructor(dataSource: DataSource) {
+      constructor(dataSource: DataSource, moduleRef: ModuleRef) {
         dataSource.subscribers.push(this);
+        Object.assign(
+          this,
+          typeof subscriber === 'function' ? subscriber(moduleRef) : subscriber
+        );
       }
 
       listenTo() {
         return entityType;
       }
     }
-
-    Object.assign(EntitySubscriber.prototype, subscriber);
 
     providers.push(EntitySubscriber);
   }

@@ -4,6 +4,7 @@ import {
   ModuleMetadata,
   Type,
 } from '@nestjs/common';
+import { ModuleRef } from '@nestjs/core';
 import { ApiTags } from '@nestjs/swagger';
 import { Entity, EntityOptions, EntitySubscriberInterface } from 'typeorm';
 import { EntityControllerConstructor } from '../createEntityController';
@@ -12,6 +13,11 @@ import { ICaliobaseServiceType } from '../ICaliobaseService';
 import { AccessPolicies, PolicyStatements } from './AccessPolicies.decorator';
 
 const METADATA_KEY = Symbol('caliobase:entity');
+
+type EntitySubscriberInput<TEntity> = Omit<
+  EntitySubscriberInterface<TEntity>,
+  'listenTo'
+>;
 
 export type CaliobaseEntityOptions<TEntity> = {
   imports?: ModuleMetadata['imports'];
@@ -28,7 +34,10 @@ export type CaliobaseEntityOptions<TEntity> = {
       >
     ) => Type<ICaliobaseController<TEntity>>;
   };
-  subscribers?: Omit<EntitySubscriberInterface<TEntity>, 'listenTo'>[];
+  subscribers?: Array<
+    | ((moduleRef: ModuleRef) => EntitySubscriberInput<TEntity>)
+    | EntitySubscriberInput<TEntity>
+  >;
   accessPolicy?: PolicyStatements<TEntity>;
   organizationOwner?: false;
 };
