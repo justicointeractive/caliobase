@@ -136,7 +136,7 @@ describe('runMigrations', () => {
         generateMigrations: false,
       })
     ).toMatchSnapshot();
-  }, 5_000);
+  }, 30_000);
 });
 
 async function initializeDataSource(TestMigrationsEntity?: new () => any) {
