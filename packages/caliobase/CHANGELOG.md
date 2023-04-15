@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.4.2](https://github.com/justicointeractive/caliobase/compare/caliobase-0.4.1...caliobase-0.4.2) (2023-04-15)
+
+
+### Bug Fixes
+
+* add entity providers to module ([36c003e](https://github.com/justicointeractive/caliobase/commit/36c003e194c6c6e5f9009d6c35a9c32ccbce3ef3))
+
 ### [0.4.1](https://github.com/justicointeractive/caliobase/compare/caliobase-0.4.0...caliobase-0.4.1) (2023-04-15)
 
 
