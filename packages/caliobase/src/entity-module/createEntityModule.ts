@@ -62,7 +62,10 @@ export function createEntityModule<TEntity>(
     EntityOwner()(entityType.prototype, 'organization');
   }
 
-  const providers: Provider[] = [EntityService];
+  const providers: Provider[] = [
+    ...(entityOptions?.providers ?? []),
+    EntityService,
+  ];
 
   for (const subscriber of entityOptions?.subscribers ?? []) {
     @EventSubscriber()
