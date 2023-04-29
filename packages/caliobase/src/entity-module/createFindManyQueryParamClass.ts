@@ -9,7 +9,6 @@ import {
   FindOptionsOrderProperty,
   FindOptionsWhere,
   FindOptionsWhereProperty,
-  getMetadataArgsStorage,
   ILike,
   In,
   LessThan,
@@ -18,6 +17,7 @@ import {
   MoreThan,
   MoreThanOrEqual,
   Not,
+  getMetadataArgsStorage,
 } from 'typeorm';
 import { CaliobaseEntity, QueryProperty } from '.';
 import { ensureArray } from '../lib/ensureArray';
@@ -210,14 +210,18 @@ export function createFindManyQueryParamClass<TEntity>(
           const queryParamNotName = toQueryParamName(key, symbol, true);
 
           if (this[queryParamName] != null) {
-            where[key as keyof TEntity] = findOperator(
+            const operator = findOperator(
               this[queryParamName]
             ) as FindOptionsWhereProperty<NonNullable<TEntity[keyof TEntity]>>;
+            // TODO: clean up these `any`s
+            where[key as keyof TEntity] = operator as any;
           }
           if (this[queryParamNotName] != null) {
-            where[key as keyof TEntity] = Not(
+            const operator = Not(
               findOperator(this[queryParamNotName])
             ) as FindOptionsWhereProperty<NonNullable<TEntity[keyof TEntity]>>;
+            // TODO: clean up these `any`s
+            where[key as keyof TEntity] = operator as any;
           }
         });
       });
@@ -230,10 +234,13 @@ export function createFindManyQueryParamClass<TEntity>(
       )?.forEach((order) => {
         // TODO: create more clear error message for invalid order by
         const [key, direction] = order.split('.') as [keyof TEntity, string];
-        const orderDirection = direction.toUpperCase() as 'ASC' | 'DESC';
-        orderBy[key] = orderDirection as FindOptionsOrderProperty<
+        const orderDirection = direction.toUpperCase() as
+          | 'ASC'
+          | 'DESC' as FindOptionsOrderProperty<
           NonNullable<TEntity[keyof TEntity]>
         >;
+        // TODO: clean up these `any`s
+        orderBy[key] = orderDirection as any;
       });
 
       const findManyOptions: CaliobaseFindOptions<TEntity> = {

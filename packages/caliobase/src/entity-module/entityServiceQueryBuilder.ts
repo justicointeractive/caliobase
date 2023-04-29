@@ -4,6 +4,7 @@ import {
   Brackets,
   EntityManager,
   FindOptionsWhere,
+  ObjectLiteral,
   SelectQueryBuilder,
 } from 'typeorm';
 import { RelationMetadata } from 'typeorm/metadata/RelationMetadata';
@@ -122,8 +123,8 @@ export function entityServiceQueryBuilder<TEntity>(
   return query;
 }
 
-function recursiveJoinEagerRelations(
-  query: SelectQueryBuilder<unknown>,
+function recursiveJoinEagerRelations<T extends ObjectLiteral>(
+  query: SelectQueryBuilder<T>,
   prefix: string,
   relations: RelationMetadata[],
   stack: RelationMetadata[] = []
