@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.4.3](https://github.com/justicointeractive/caliobase/compare/caliobase-0.4.2...caliobase-0.4.3) (2023-04-29)
+
+
+### Bug Fixes
+
+* updates needed to work with typeorm update ([d6220a4](https://github.com/justicointeractive/caliobase/commit/d6220a435c67868bdf80726090afccd319ab3fb0))
+
 ### [0.4.2](https://github.com/justicointeractive/caliobase/compare/caliobase-0.4.1...caliobase-0.4.2) (2023-04-15)
 
 
