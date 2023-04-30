@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.5.1](https://github.com/justicointeractive/caliobase/compare/caliobase-0.5.0...caliobase-0.5.1) (2023-04-30)
+
+
+### Bug Fixes
+
+* **caliobase:** in operator when a single item is provided ([39ab645](https://github.com/justicointeractive/caliobase/commit/39ab6456b4e9b33d182a13b714783520e98e6a34))
+
 ## [0.5.0](https://github.com/justicointeractive/caliobase/compare/caliobase-0.4.4...caliobase-0.5.0) (2023-04-30)
 
 
