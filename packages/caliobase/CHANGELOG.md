@@ -2,6 +2,11 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.4.4](https://github.com/justicointeractive/caliobase/compare/caliobase-0.4.3...caliobase-0.4.4) (2023-04-30)
+
+### Dependency Updates
+
+* `typeorm-migrations` updated to version `0.0.5`
 ### [0.4.3](https://github.com/justicointeractive/caliobase/compare/caliobase-0.4.2...caliobase-0.4.3) (2023-04-29)
 
 
