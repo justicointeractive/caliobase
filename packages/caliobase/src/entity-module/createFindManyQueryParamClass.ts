@@ -114,7 +114,7 @@ const filterOperators: Array<Operator<any>> = [
   // eslint-disable-next-line @typescript-eslint/ban-types
   new Operator({
     symbol: 'in',
-    findOperator: (values) => In(values),
+    findOperator: (values) => In(ensureArray(values)),
     // eslint-disable-next-line @typescript-eslint/ban-types
     description: (name, not) => `${name} ${not ? 'not in' : 'in'}`,
     types: [[Object]],
