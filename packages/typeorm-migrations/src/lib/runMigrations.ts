@@ -3,8 +3,15 @@ import { nonNull } from 'circumspect';
 import { mkdir, readdir, readFile, writeFile } from 'fs/promises';
 import { orderBy } from 'lodash';
 import { join } from 'path';
-import { DataSource, EntityManager, Table, TableColumn } from 'typeorm';
+import {
+  DataSource,
+  EntityManager,
+  QueryRunner,
+  Table,
+  TableColumn,
+} from 'typeorm';
 import { SqlInMemory } from 'typeorm/driver/SqlInMemory';
+import { RdbmsSchemaBuilder } from 'typeorm/schema-builder/RdbmsSchemaBuilder';
 import { parse, stringify } from 'yaml';
 
 const migrationFileNamePattern = /^(?<timestamp>-?\d+)-(?<label>[^.]*).yml$/;
@@ -102,7 +109,12 @@ export class Migrations {
     );
     const pendingQueryExecuted: QueryExecution[] = [];
 
-    await this.createMigrationsTableIfNotExists();
+    const runner = this.dataSource.createQueryRunner();
+    const schemaBuilder = this.dataSource.driver.createSchemaBuilder();
+    await this.createMigrationsTableIfNotExists(runner);
+    if (schemaBuilder instanceof RdbmsSchemaBuilder) {
+      await schemaBuilder.createMetadataTableIfNecessary(runner);
+    }
 
     // run pending migrations
     await this.dataSource.transaction(async (transaction) => {
@@ -225,9 +237,8 @@ export class Migrations {
       .execute();
   }
 
-  private async createMigrationsTableIfNotExists() {
+  private async createMigrationsTableIfNotExists(runner: QueryRunner) {
     const migrationsTableName = this.options.migrationsTableName;
-    const runner = this.dataSource.createQueryRunner();
 
     const migrationTable = await createTableIfNotExists(
       new Table({
