@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.5.0](https://github.com/justicointeractive/caliobase/compare/caliobase-0.4.4...caliobase-0.5.0) (2023-04-30)
+
+
+### Features
+
+* **caliobase:** allow custom operators on queryable properties ([64a1fbc](https://github.com/justicointeractive/caliobase/commit/64a1fbc88a29bc9472058ff3e3924d5b42fc2728))
+
 ### [0.4.4](https://github.com/justicointeractive/caliobase/compare/caliobase-0.4.3...caliobase-0.4.4) (2023-04-30)
 
 ### Dependency Updates
