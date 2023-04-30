@@ -4,7 +4,6 @@ import { Transform, Type as TransformType } from 'class-transformer';
 import { IsDate, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
 import {
   Equal,
-  FindOperator,
   FindOptionsOrder,
   FindOptionsOrderProperty,
   FindOptionsWhere,
@@ -21,20 +20,10 @@ import {
 } from 'typeorm';
 import { CaliobaseEntity, QueryProperty } from '.';
 import { ensureArray } from '../lib/ensureArray';
+import { Operator } from './Operator';
 import { RenameClass } from './decorators/RenameClass.decorator';
 
-type OperatorType<T> = T extends [Type<infer U>] ? [Type<U>] : Type<T>;
-
-class Operator<T> {
-  public symbol!: string;
-  public findOperator!: (value: T) => FindOperator<T>;
-  public description!: (name: string, not: boolean) => string;
-  public types!: OperatorType<T>[];
-
-  constructor(operator: Operator<T>) {
-    Object.assign(this, operator);
-  }
-}
+export type OperatorType<T> = T extends [Type<infer U>] ? [Type<U>] : Type<T>;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const filterOperators: Array<Operator<any>> = [
@@ -178,7 +167,11 @@ function matchArrayness<TLeader, TFollower>(
 export function createFindManyQueryParamClass<TEntity>(
   entityType: Type<TEntity>
 ): Type<ToFindOptions<TEntity>> {
-  const keys = QueryProperty.getKeys(entityType.prototype);
+  const queryableProperties = QueryProperty.getKeys(entityType.prototype);
+
+  const entityColumns = getMetadataArgsStorage().columns.filter(
+    (col) => col.target === entityType
+  );
 
   @RenameClass(entityType)
   class FindManyParams implements ToFindOptions<TEntity> {
@@ -204,26 +197,32 @@ export function createFindManyQueryParamClass<TEntity>(
     toFindOptions() {
       const where: FindOptionsWhere<TEntity> = {};
 
-      keys.forEach(({ key }) => {
-        filterOperators.forEach(({ symbol, findOperator }) => {
-          const queryParamName = toQueryParamName(key, symbol);
-          const queryParamNotName = toQueryParamName(key, symbol, true);
+      queryableProperties.forEach(({ key, operators }) => {
+        [...filterOperators, ...operators].forEach(
+          ({ symbol, findOperator }) => {
+            const queryParamName = toQueryParamName(key, symbol);
+            const queryParamNotName = toQueryParamName(key, symbol, true);
 
-          if (this[queryParamName] != null) {
-            const operator = findOperator(
-              this[queryParamName]
-            ) as FindOptionsWhereProperty<NonNullable<TEntity[keyof TEntity]>>;
-            // TODO: clean up these `any`s
-            where[key as keyof TEntity] = operator as any;
+            if (this[queryParamName] != null) {
+              const operator = findOperator(
+                this[queryParamName]
+              ) as FindOptionsWhereProperty<
+                NonNullable<TEntity[keyof TEntity]>
+              >;
+              // TODO: clean up these `any`s
+              where[key as keyof TEntity] = operator as any;
+            }
+            if (this[queryParamNotName] != null) {
+              const operator = Not(
+                findOperator(this[queryParamNotName])
+              ) as FindOptionsWhereProperty<
+                NonNullable<TEntity[keyof TEntity]>
+              >;
+              // TODO: clean up these `any`s
+              where[key as keyof TEntity] = operator as any;
+            }
           }
-          if (this[queryParamNotName] != null) {
-            const operator = Not(
-              findOperator(this[queryParamNotName])
-            ) as FindOptionsWhereProperty<NonNullable<TEntity[keyof TEntity]>>;
-            // TODO: clean up these `any`s
-            where[key as keyof TEntity] = operator as any;
-          }
-        });
+        );
       });
 
       const orderBy: FindOptionsOrder<TEntity> = {};
@@ -263,8 +262,8 @@ export function createFindManyQueryParamClass<TEntity>(
     [key: string]: unknown;
   }
 
-  keys.forEach(({ key, type: propertyType }) => {
-    filterOperators
+  queryableProperties.forEach(({ key, type: propertyType, operators }) => {
+    [...filterOperators, ...operators]
       .map(({ types, ...operator }) => {
         const operatorType = types.find(
           (operatorType) =>
@@ -323,7 +322,7 @@ export function createFindManyQueryParamClass<TEntity>(
       });
   });
 
-  const orderParams = keys.flatMap(({ key }) => [
+  const orderParams = queryableProperties.flatMap(({ key }) => [
     `${String(key)}.asc`,
     `${String(key)}.desc`,
   ]);
@@ -343,9 +342,7 @@ export function createFindManyQueryParamClass<TEntity>(
     void 0
   );
 
-  const selectableFields = getMetadataArgsStorage()
-    .columns.filter((col) => col.target === entityType)
-    .map((col) => col.propertyName);
+  const selectableFields = entityColumns.map((col) => col.propertyName);
 
   Reflect.decorate(
     [

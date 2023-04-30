@@ -1,13 +1,21 @@
 import { Type } from '@nestjs/common';
+import { Operator } from '../Operator';
 
 const METADATA_KEY = Symbol('QueryProperty');
 
 export type QueryPropertyItem = {
   key: string | symbol;
   type: Type<unknown>;
+  operators: Operator<unknown>[];
 };
 
-function QueryPropertyDecorator(): PropertyDecorator {
+export type QueryPropertyDecoratorOptions = {
+  operators?: Operator<unknown>[];
+};
+
+function QueryPropertyDecorator(
+  options?: QueryPropertyDecoratorOptions
+): PropertyDecorator {
   return (target, key) => {
     const properties: Array<QueryPropertyItem> =
       Reflect.getMetadata(METADATA_KEY, target) ?? [];
@@ -17,6 +25,7 @@ function QueryPropertyDecorator(): PropertyDecorator {
     properties.push({
       key,
       type,
+      operators: options?.operators ?? [],
     });
 
     Reflect.defineMetadata(METADATA_KEY, properties, target);
