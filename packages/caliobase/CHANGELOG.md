@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.5.2](https://github.com/justicointeractive/caliobase/compare/caliobase-0.5.1...caliobase-0.5.2) (2023-05-06)
+
+
+### Bug Fixes
+
+* **caliobase:** define orgId column ([2fffb7a](https://github.com/justicointeractive/caliobase/commit/2fffb7a4271327984d40d04b878294b8c1358f3a))
+
 ### [0.5.1](https://github.com/justicointeractive/caliobase/compare/caliobase-0.5.0...caliobase-0.5.1) (2023-04-30)
 
 
