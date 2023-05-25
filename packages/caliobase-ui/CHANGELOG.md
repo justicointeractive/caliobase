@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.1.40](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.39...caliobase-ui-0.1.40) (2023-05-25)
+
+
+### Bug Fixes
+
+* **caliobase-ui:** only allow saving defined fields ([952ec76](https://github.com/justicointeractive/caliobase/commit/952ec762f23dd36574e9df4c45ce931cfe0415b4))
+
 ### [0.1.39](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.38...caliobase-ui-0.1.39) (2023-03-06)
 
 
