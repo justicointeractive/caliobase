@@ -1,3 +1,4 @@
+import { pick } from 'lodash';
 import { useCallback } from 'react';
 import { useApiContext, useUserContext } from '../context';
 import { createInstanceFromFields } from '../lib';
@@ -25,13 +26,17 @@ export function useContentType(contentTypeName: string) {
 
   const save = useCallback(
     async <T extends { id?: string }>({ id, ...item }: T) => {
+      const itemFields = pick(
+        item,
+        fields.map((f) => f.property)
+      );
       if (id != null) {
-        return (await contentTypeApi?.update(id, item))?.data.items?.[0];
+        return (await contentTypeApi?.update(id, itemFields))?.data.items?.[0];
       } else {
-        return (await contentTypeApi?.create(item))?.data.item;
+        return (await contentTypeApi?.create(itemFields))?.data.item;
       }
     },
-    [contentTypeApi]
+    [contentTypeApi, fields]
   );
 
   return {
