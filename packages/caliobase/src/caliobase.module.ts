@@ -1,5 +1,6 @@
 import {
   MigrationsOptions,
+  RunLockOptions,
   runMigrations,
 } from '@caliobase/typeorm-migrations';
 import { DynamicModule, INestApplication, Module } from '@nestjs/common';
@@ -39,7 +40,9 @@ export type CaliobaseModuleOptions<
 export class CaliobaseModule {
   static async bootstrap(
     app: INestApplication,
-    options: { migration?: MigrationsOptions } = {}
+    options: {
+      migration?: MigrationsOptions & RunLockOptions;
+    } = {}
   ) {
     const document = SwaggerModule.createDocument(
       app,

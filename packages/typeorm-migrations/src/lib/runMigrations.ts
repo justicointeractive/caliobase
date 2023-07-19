@@ -43,11 +43,26 @@ export type RunMigrationsOptions = {
   timestamp?: Date;
 };
 
+export type RunLockOptions = {
+  lock: {
+    acquire: () => Promise<{
+      // extend: () => Promise<void>;
+      release: () => Promise<void>;
+    }>;
+  };
+};
+
 export async function runMigrations(
   dataSource: DataSource,
-  options: MigrationsOptions & RunMigrationsOptions = {}
+  options: MigrationsOptions & RunMigrationsOptions & RunLockOptions
 ) {
-  return await new Migrations(dataSource, options).runMigrations(options);
+  const runner = new Migrations(dataSource, options);
+  const lock = await options.lock.acquire();
+  try {
+    return await runner.runMigrations(options);
+  } finally {
+    await lock.release();
+  }
 }
 
 /**
@@ -175,7 +190,7 @@ export class Migrations {
     return { pendingQueryExecuted, newQueryExcuted };
   }
 
-  async generateMigrationFileContents(queries: SqlInMemory) {
+  private async generateMigrationFileContents(queries: SqlInMemory) {
     return stringify({
       upQueries: queries.upQueries.map(({ query, parameters }) => ({
         query: format(query),
@@ -188,7 +203,7 @@ export class Migrations {
     });
   }
 
-  async executeMigrationFileContents(
+  private async executeMigrationFileContents(
     transaction: EntityManager,
     fileSource: string,
     migrationName: string,
@@ -206,7 +221,7 @@ export class Migrations {
     return { name: migrationName, querySet };
   }
 
-  async getAlreadyRunMigrations() {
+  private async getAlreadyRunMigrations() {
     const runner = this.dataSource.createQueryRunner();
     const migrationsTableName = this.options.migrationsTableName;
     const tableExists = await runner.hasTable(migrationsTableName);
@@ -226,7 +241,7 @@ export class Migrations {
     }));
   }
 
-  async insertRunMigration(transaction: EntityManager, name: string) {
+  private async insertRunMigration(transaction: EntityManager, name: string) {
     const migrationsTableName = this.options.migrationsTableName;
 
     await transaction
