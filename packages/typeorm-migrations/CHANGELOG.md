@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.0.6](https://github.com/justicointeractive/caliobase/compare/typeorm-migrations-0.0.5...typeorm-migrations-0.0.6) (2023-07-19)
+
+
+### Bug Fixes
+
+* **typeorm-migrations:** add ability acquire a mutex/lock ([43c0794](https://github.com/justicointeractive/caliobase/commit/43c07948228365ef89a39fc9e44ed69897924437))
+
 ### [0.0.5](https://github.com/justicointeractive/caliobase/compare/typeorm-migrations-0.0.4...typeorm-migrations-0.0.5) (2023-04-30)
 
 
