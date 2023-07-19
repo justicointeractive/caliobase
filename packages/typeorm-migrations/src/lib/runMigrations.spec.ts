@@ -1,6 +1,7 @@
 import { rm } from 'fs/promises';
 import { resolve } from 'path';
 import { Column, DataSource, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { PromiseQueueLock } from './promiseQueueLock';
 import { runMigrations } from './runMigrations';
 
 describe('runMigrations', () => {
@@ -37,6 +38,7 @@ describe('runMigrations', () => {
       await runMigrations(dataSource, {
         ...migrationOptions,
         timestamp: new Date(order++),
+        lock: new PromiseQueueLock(),
       })
     ).toMatchSnapshot();
   });
@@ -59,6 +61,7 @@ describe('runMigrations', () => {
       await runMigrations(dataSource, {
         ...migrationOptions,
         timestamp: new Date(order++),
+        lock: new PromiseQueueLock(),
       })
     ).toMatchSnapshot();
   });
@@ -78,6 +81,7 @@ describe('runMigrations', () => {
       await runMigrations(dataSource, {
         ...migrationOptions,
         timestamp: new Date(order++),
+        lock: new PromiseQueueLock(),
       })
     ).toMatchSnapshot();
   });
@@ -92,6 +96,7 @@ describe('runMigrations', () => {
       await runMigrations(dataSource, {
         ...migrationOptions,
         timestamp: new Date(order++),
+        lock: new PromiseQueueLock(),
       })
     ).toMatchSnapshot();
   });
@@ -116,6 +121,7 @@ describe('runMigrations', () => {
         ...migrationOptions,
         timestamp: new Date(0),
         generateMigrations: false,
+        lock: new PromiseQueueLock(),
       })
     ).toMatchSnapshot();
 
@@ -126,6 +132,7 @@ describe('runMigrations', () => {
         ...migrationOptions,
         timestamp: new Date(order++),
         generateMigrations: false,
+        lock: new PromiseQueueLock(),
       })
     ).toMatchSnapshot();
 
@@ -134,6 +141,7 @@ describe('runMigrations', () => {
         ...migrationOptions,
         timestamp: new Date(order++),
         generateMigrations: false,
+        lock: new PromiseQueueLock(),
       })
     ).toMatchSnapshot();
   }, 30_000);
