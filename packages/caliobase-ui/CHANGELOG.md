@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.1.41](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.40...caliobase-ui-0.1.41) (2023-08-09)
+
+
+### Bug Fixes
+
+* **caliobase-ui:** upgrade headlessui and limit relation editor items ([59bb0f8](https://github.com/justicointeractive/caliobase/commit/59bb0f8864d57b966d925538140146be3cb0598a))
+
 ### [0.1.40](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.39...caliobase-ui-0.1.40) (2023-05-25)
 
 
