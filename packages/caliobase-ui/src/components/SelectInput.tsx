@@ -11,7 +11,7 @@ import { Float } from '@headlessui-float/react';
 import { Combobox } from '@headlessui/react';
 import clsx from 'clsx';
 import { without } from 'lodash';
-import { ComponentProps, forwardRef, Fragment, Key, ReactNode } from 'react';
+import { ComponentProps, Fragment, Key, ReactNode, forwardRef } from 'react';
 import { ensureArray } from '../lib/ensureArray';
 import { FullHeightLoader } from '../screens/FullScreenLoader';
 import { LabeledInput } from './LabeledInput';

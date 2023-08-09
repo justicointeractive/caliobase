@@ -11,6 +11,7 @@ import { DetailEditorComponent } from './DetailEditorComponent';
 export const RelationalDetailEditor: DetailEditorComponent<
   any,
   {
+    limit?: number;
     relationship: string;
     multiple?: boolean;
   }
@@ -33,7 +34,11 @@ export const RelationalDetailEditor: DetailEditorComponent<
         of(null).pipe(delay(350)),
         defer(async () => {
           const response = await relatedEntityApi.findAll(
-            { skip: 0, ...{ 'title.contains.i': query } },
+            {
+              skip: 0,
+              limit: options?.limit ?? 50,
+              ...{ 'title.contains.i': query },
+            },
             {
               signal,
             }
