@@ -13,10 +13,13 @@ export const RelationalDetailEditor: DetailEditorComponent<
   {
     limit?: number;
     relationship: string;
+    titleField?: string;
     multiple?: boolean;
   }
 > = ({ field, value, onChange, options }) => {
   type RelatedItem = { id: string; title: string };
+
+  const titleField = options?.titleField ?? 'title';
 
   const { userOrgApi } = useUserContext();
 
@@ -37,7 +40,7 @@ export const RelationalDetailEditor: DetailEditorComponent<
             {
               skip: 0,
               limit: options?.limit ?? 50,
-              ...{ 'title.contains.i': query },
+              ...{ [`${titleField}.contains.i`]: query },
             },
             {
               signal,
@@ -54,14 +57,14 @@ export const RelationalDetailEditor: DetailEditorComponent<
     async (title: string) => {
       const created = (
         await relatedEntityApi.create({
-          title,
+          [titleField]: title,
         })
       ).data.item;
       onChange(options?.multiple ? [...value, created] : created);
       setItems((items) => items && [created, ...items]);
       return created;
     },
-    [onChange, options?.multiple, relatedEntityApi, setItems, value]
+    [onChange, options?.multiple, relatedEntityApi, setItems, titleField, value]
   );
 
   return (
@@ -75,7 +78,7 @@ export const RelationalDetailEditor: DetailEditorComponent<
       onQuery={setQuery}
       onCreateFromQuery={createRelatedItem}
       options={items}
-      renderOption={(option) => option?.['title'] as string}
+      renderOption={(option) => option?.[titleField] as string}
     />
   );
 };
