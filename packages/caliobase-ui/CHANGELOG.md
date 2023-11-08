@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.2.0](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.41...caliobase-ui-0.2.0) (2023-11-08)
+
+
+### Features
+
+* **caliobase-ui:** make relation editor title field configurable ([d47ca7a](https://github.com/justicointeractive/caliobase/commit/d47ca7ae9ad81f3c114df8329e5610d2bed46574))
+
 ### [0.1.41](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.40...caliobase-ui-0.1.41) (2023-08-09)
 
 
