@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.2.1](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.2.0...caliobase-ui-0.2.1) (2023-11-09)
+
+
+### Bug Fixes
+
+* **caliobase-ui:** coalesce null string values to empty strings ([da525bb](https://github.com/justicointeractive/caliobase/commit/da525bbea11c2b257262a586499cd427456474cc))
+
 ## [0.2.0](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.1.41...caliobase-ui-0.2.0) (2023-11-08)
 
 
