@@ -15,7 +15,7 @@ export const StringTableCell: TableCellComponent<{
   property?: string;
 }> = ({ value, options }) => (
   <div className="line-clamp-1">
-    {String(options?.property ? get(value, options.property) : value)}
+    {String((options?.property ? get(value, options.property) : value) ?? '')}
   </div>
 );
 
