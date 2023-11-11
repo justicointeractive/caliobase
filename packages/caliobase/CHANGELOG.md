@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.5.4](https://github.com/justicointeractive/caliobase/compare/caliobase-0.5.3...caliobase-0.5.4) (2023-11-11)
+
+
+### Bug Fixes
+
+* **caliobase:** only write swagger spec if it has changed ([5f56960](https://github.com/justicointeractive/caliobase/commit/5f56960618636026f23abcfa4721ee396560bd04))
+
 ### [0.5.3](https://github.com/justicointeractive/caliobase/compare/caliobase-0.5.2...caliobase-0.5.3) (2023-07-19)
 
 ### Dependency Updates
