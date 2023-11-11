@@ -6,7 +6,7 @@ import {
 import { DynamicModule, INestApplication, Module } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Command } from 'commander';
-import { mkdir, writeFile } from 'fs/promises';
+import { mkdir } from 'fs/promises';
 import { join } from 'path';
 import { DataSource } from 'typeorm';
 import {
@@ -23,6 +23,7 @@ import {
   CaliobaseEntitiesModule,
   CaliobaseEntitiesModuleOptions,
 } from './entity-module/entities-module.module';
+import { writeFileIfDifferent } from './lib/writeFileIfDifferent';
 import {
   CaliobaseObjectStorageModule,
   CaliobaseObjectStorageModuleOptions,
@@ -74,7 +75,10 @@ export class CaliobaseModule {
       await mkdir(join(swaggerPath, '..'), {
         recursive: true,
       });
-      await writeFile(swaggerPath, JSON.stringify(document, null, 2));
+      await writeFileIfDifferent(
+        swaggerPath,
+        JSON.stringify(document, null, 2)
+      );
       if (writeSwaggerAndExit) {
         await app.close();
         process.exit(0);
