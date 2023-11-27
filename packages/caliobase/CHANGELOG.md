@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.6.0](https://github.com/justicointeractive/caliobase/compare/caliobase-0.5.4...caliobase-0.6.0) (2023-11-27)
+
+
+### Features
+
+* **caliobase:** allow a controller to set default find params ([92c7624](https://github.com/justicointeractive/caliobase/commit/92c7624db8c68084205de08a87abb62d53d50c2e))
+
 ### [0.5.4](https://github.com/justicointeractive/caliobase/compare/caliobase-0.5.3...caliobase-0.5.4) (2023-11-11)
 
 
