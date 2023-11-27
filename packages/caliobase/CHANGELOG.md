@@ -2,6 +2,14 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+### [0.6.2](https://github.com/justicointeractive/caliobase/compare/caliobase-0.6.1...caliobase-0.6.2) (2023-11-27)
+
+
+### Bug Fixes
+
+* **caliobase:** also apply find options to find one ([7b404e8](https://github.com/justicointeractive/caliobase/commit/7b404e821a93d706da6e216271b2aa25dafcf0c5))
+* **caliobase:** tests ([ebe3be1](https://github.com/justicointeractive/caliobase/commit/ebe3be152538ac7cdf0ba998eadea2be605deca0))
+
 ### [0.6.1](https://github.com/justicointeractive/caliobase/compare/caliobase-0.6.0...caliobase-0.6.1) (2023-11-27)
 
 
