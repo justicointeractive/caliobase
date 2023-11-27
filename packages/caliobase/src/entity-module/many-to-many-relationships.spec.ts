@@ -127,11 +127,11 @@ describe('many to many relationships', () => {
     expect(tag).not.toBeNull();
 
     expect(
-      (await tagController.findOne(tag, { user: owner })).item
+      (await tagController.findOne(tag, null, { user: owner })).item
     ).toMatchObject(omit(tag, ['organization']));
 
     expect(
-      (await cardController.findOne(card, { user: owner })).item?.tags
+      (await cardController.findOne(card, null, { user: owner })).item?.tags
     ).toHaveLength(1);
 
     await cardTagController.remove(
@@ -142,7 +142,7 @@ describe('many to many relationships', () => {
     );
 
     expect(
-      (await cardController.findOne(card, { user: owner })).item?.tags
+      (await cardController.findOne(card, null, { user: owner })).item?.tags
     ).toHaveLength(0);
 
     expect(tag).not.toBeNull();

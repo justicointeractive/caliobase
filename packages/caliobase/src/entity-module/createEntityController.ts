@@ -196,14 +196,14 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
             ...validatorOptions,
           })
         )
-        listOptions: ToFindOptions<TEntity>,
+        listOptions: ToFindOptions<TEntity> | null,
         @Request() { user }: RequestUser
       ) {
         assert(user, UnauthorizedException);
         return new PaginationItemResponse(
           await this.service.findOne(
             {
-              ...listOptions.toFindOptions(),
+              ...listOptions?.toFindOptions(),
               where: pickColumnProperties(primaryColumns, params as unknown),
             },
             {

@@ -15,7 +15,7 @@ export interface ICaliobaseController<TEntity> {
   ): Promise<{ items: TEntity[] }>;
   findOne(
     params: Partial<TEntity>,
-    query: ToFindOptions<TEntity>,
+    query: ToFindOptions<TEntity> | null,
     user: RequestUser
   ): Promise<{ item: TEntity | null }>;
   update(

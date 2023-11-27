@@ -127,11 +127,11 @@ describe('one to many relationships', () => {
     });
 
     expect(
-      (await noteController.findOne(note, { user: owner })).item
+      (await noteController.findOne(note, null, { user: owner })).item
     ).toMatchObject(omit(note, ['card', 'organization']));
 
     expect(
-      (await cardController.findOne(card, { user: owner })).item?.notes
+      (await cardController.findOne(card, null, { user: owner })).item?.notes
     ).toHaveLength(1);
 
     expect(note).not.toBeNull();
