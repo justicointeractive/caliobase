@@ -168,6 +168,8 @@ export type FindManyParams<TEntity> = {
   limit?: number;
   skip?: number;
   relations?: string[];
+  orderBy?: string[];
+  select?: (keyof TEntity & string)[];
 };
 
 export function createFindManyQueryParamClass<TEntity>(
@@ -180,7 +182,9 @@ export function createFindManyQueryParamClass<TEntity>(
   );
 
   @RenameClass(entityType)
-  class FindManyParams implements ToFindOptions<TEntity> {
+  class FindManyParamsClass
+    implements FindManyParams<TEntity>, ToFindOptions<TEntity>
+  {
     @IsOptional()
     @IsNumber()
     @ApiPropertyOptional()
@@ -206,9 +210,14 @@ export function createFindManyQueryParamClass<TEntity>(
       const defaultFindParams = controllerOptions?.defaultFindParams || {};
 
       const thisWithDefaults = {
-        ...defaultFindParams,
         ...this,
       };
+
+      Object.entries(defaultFindParams).forEach(([key, value]) => {
+        if (thisWithDefaults[key] == null) {
+          thisWithDefaults[key] = value;
+        }
+      });
 
       const where: FindOptionsWhere<TEntity> = {};
 
@@ -272,9 +281,8 @@ export function createFindManyQueryParamClass<TEntity>(
     }
   }
 
-  interface FindManyParams {
-    orderBy?: string[];
-    select?: (keyof TEntity & string)[];
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  interface FindManyParamsClass extends FindManyParams<TEntity> {
     [key: string]: unknown;
   }
 
@@ -314,7 +322,7 @@ export function createFindManyQueryParamClass<TEntity>(
               description: description(String(key), false),
             }),
           ],
-          FindManyParams.prototype,
+          FindManyParamsClass.prototype,
           queryParamName,
           void 0
         );
@@ -331,7 +339,7 @@ export function createFindManyQueryParamClass<TEntity>(
               description: description(String(key), true),
             }),
           ],
-          FindManyParams.prototype,
+          FindManyParamsClass.prototype,
           queryParamNotName,
           void 0
         );
@@ -353,7 +361,7 @@ export function createFindManyQueryParamClass<TEntity>(
         enum: orderParams,
       }),
     ],
-    FindManyParams.prototype,
+    FindManyParamsClass.prototype,
     'orderBy',
     void 0
   );
@@ -369,10 +377,10 @@ export function createFindManyQueryParamClass<TEntity>(
         enum: selectableFields,
       }),
     ],
-    FindManyParams.prototype,
+    FindManyParamsClass.prototype,
     'select',
     void 0
   );
 
-  return FindManyParams;
+  return FindManyParamsClass;
 }

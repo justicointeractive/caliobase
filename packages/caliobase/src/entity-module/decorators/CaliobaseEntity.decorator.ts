@@ -27,6 +27,7 @@ export type CaliobaseEntityOptions<TEntity> = {
   controller?: {
     name: string;
     defaultFindParams?: FindManyParams<TEntity>;
+    /** @deprecated */
     defaultOrderBy?: string[];
     extend?: (
       controllerClass: EntityControllerConstructor<TEntity>,
