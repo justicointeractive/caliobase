@@ -190,12 +190,22 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
       @ApiParams(primaryColumnParams)
       async findOne(
         @Param() params: Partial<TEntity>,
+        @Query(
+          new ValidationPipe({
+            expectedType: findManyOptions,
+            ...validatorOptions,
+          })
+        )
+        listOptions: ToFindOptions<TEntity>,
         @Request() { user }: RequestUser
       ) {
         assert(user, UnauthorizedException);
         return new PaginationItemResponse(
           await this.service.findOne(
-            { where: pickColumnProperties(primaryColumns, params as unknown) },
+            {
+              ...listOptions.toFindOptions(),
+              where: pickColumnProperties(primaryColumns, params as unknown),
+            },
             {
               user,
               ...getOwnerIdMixIn(user),
