@@ -164,6 +164,12 @@ function matchArrayness<TLeader, TFollower>(
   return propertyType;
 }
 
+export type FindManyParams<TEntity> = {
+  limit?: number;
+  skip?: number;
+  relations?: string[];
+};
+
 export function createFindManyQueryParamClass<TEntity>(
   entityType: Type<TEntity>
 ): Type<ToFindOptions<TEntity>> {
@@ -195,6 +201,15 @@ export function createFindManyQueryParamClass<TEntity>(
     relations?: string[];
 
     toFindOptions() {
+      const controllerOptions = CaliobaseEntity.get(entityType)?.controller;
+
+      const defaultFindParams = controllerOptions?.defaultFindParams || {};
+
+      const thisWithDefaults = {
+        ...defaultFindParams,
+        ...this,
+      };
+
       const where: FindOptionsWhere<TEntity> = {};
 
       queryableProperties.forEach(({ key, operators }) => {
@@ -203,18 +218,18 @@ export function createFindManyQueryParamClass<TEntity>(
             const queryParamName = toQueryParamName(key, symbol);
             const queryParamNotName = toQueryParamName(key, symbol, true);
 
-            if (this[queryParamName] != null) {
+            if (thisWithDefaults[queryParamName] != null) {
               const operator = findOperator(
-                this[queryParamName]
+                thisWithDefaults[queryParamName]
               ) as FindOptionsWhereProperty<
                 NonNullable<TEntity[keyof TEntity]>
               >;
               // TODO: clean up these `any`s
               where[key as keyof TEntity] = operator as any;
             }
-            if (this[queryParamNotName] != null) {
+            if (thisWithDefaults[queryParamNotName] != null) {
               const operator = Not(
-                findOperator(this[queryParamNotName])
+                findOperator(thisWithDefaults[queryParamNotName])
               ) as FindOptionsWhereProperty<
                 NonNullable<TEntity[keyof TEntity]>
               >;
@@ -228,8 +243,9 @@ export function createFindManyQueryParamClass<TEntity>(
       const orderBy: FindOptionsOrder<TEntity> = {};
 
       (
-        this.orderBy ??
-        CaliobaseEntity.get(entityType)?.controller?.defaultOrderBy
+        thisWithDefaults.orderBy ||
+        controllerOptions?.defaultOrderBy ||
+        null
       )?.forEach((order) => {
         // TODO: create more clear error message for invalid order by
         const [key, direction] = order.split('.') as [keyof TEntity, string];
@@ -245,11 +261,11 @@ export function createFindManyQueryParamClass<TEntity>(
       const findManyOptions: CaliobaseFindOptions<TEntity> = {
         where,
         order: orderBy,
-        select: this.select,
-        limit: this.limit,
-        skip: this.skip,
-        relations: this.relations,
-        loadEagerRelations: this.relations == null,
+        select: thisWithDefaults.select,
+        limit: thisWithDefaults.limit,
+        skip: thisWithDefaults.skip,
+        relations: thisWithDefaults.relations,
+        loadEagerRelations: thisWithDefaults.relations == null,
       };
 
       return findManyOptions;

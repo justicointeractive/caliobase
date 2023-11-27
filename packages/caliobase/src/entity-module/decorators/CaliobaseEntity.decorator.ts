@@ -8,6 +8,7 @@ import {
 import { ModuleRef } from '@nestjs/core';
 import { ApiTags } from '@nestjs/swagger';
 import { Entity, EntityOptions, EntitySubscriberInterface } from 'typeorm';
+import { FindManyParams } from '../..';
 import { EntityControllerConstructor } from '../createEntityController';
 import { ICaliobaseController } from '../ICaliobaseController';
 import { ICaliobaseServiceType } from '../ICaliobaseService';
@@ -25,6 +26,7 @@ export type CaliobaseEntityOptions<TEntity> = {
   entity?: EntityOptions;
   controller?: {
     name: string;
+    defaultFindParams?: FindManyParams<TEntity>;
     defaultOrderBy?: string[];
     extend?: (
       controllerClass: EntityControllerConstructor<TEntity>,
