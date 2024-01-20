@@ -251,6 +251,9 @@ export type ContentTypeDescriptionInput<TEntity> = {
   };
   fields: ContentFieldInput<keyof TEntity & string, any, any>[];
   menuItemIcon?: IconDefinition;
+  accessories?: (
+    props: { items: TEntity[] } | { item: TEntity }
+  ) => ReactElement;
   frontEndPath?: {
     item?: (item: TEntity) => string;
   };
