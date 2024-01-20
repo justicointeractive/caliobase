@@ -24,6 +24,7 @@ export function ListView() {
     fields,
     label: { singular, plural },
     frontEndUrl,
+    accessories,
   } = useContentType(contentType);
 
   const [itemsPerPage, setItemsPerPage] = useState(50);
@@ -58,6 +59,9 @@ export function ListView() {
     <FocusView
       preTitle="Content Management"
       title={plural}
+      accessories={accessories?.({
+        items: list?.items ?? [],
+      })}
       buttons={[
         <NavLink to="./create" className="flex items-center gap-2">
           <FontAwesomeIcon icon={faPlus} />

@@ -1,5 +1,5 @@
 import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import type { ComponentClass, FunctionComponent } from 'react';
+import type { ComponentClass, FunctionComponent, ReactElement } from 'react';
 import type { DetailEditorComponent } from '../components/data/DetailEditorComponent';
 import type { TableCellComponent } from '../components/data/TableCellComponent';
 import type { CaliobaseUiConfiguration } from './CaliobaseUiConfiguration';
@@ -269,6 +269,9 @@ export type ContentTypeDescription<
   frontEndUrl?: {
     item?: (item: TEntity) => string;
   };
+  accessories?: (
+    props: { items: TEntity[] } | { item: TEntity }
+  ) => ReactElement;
   getApi: (api: TApi) => ICaliobaseEntityApi<TEntity>;
 };
 

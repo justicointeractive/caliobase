@@ -5,9 +5,9 @@ import { useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAsyncEffectState } from 'use-async-effect-state';
 import { ConfirmButton } from '../components/ConfirmButton';
+import { PendingButton } from '../components/PendingButton';
 import { FormContextProvider } from '../components/data/FormContext';
 import { ItemView } from '../components/data/ItemView';
-import { PendingButton } from '../components/PendingButton';
 import { useContentType } from '../hooks/useContentType';
 import { assert } from '../lib/assert';
 import { FocusView } from '../patterns/FocusView';
@@ -25,6 +25,7 @@ export function DetailView() {
     createInstance,
     save,
     label: { plural },
+    accessories,
     ...contentTypeDescription
   } = useContentType(contentType);
 
@@ -71,6 +72,9 @@ export function DetailView() {
           onGoBack={navigateToList}
           preTitle="Content Management"
           title={plural}
+          accessories={accessories?.({
+            item,
+          })}
           buttons={[
             item?.id ? (
               <ConfirmButton
