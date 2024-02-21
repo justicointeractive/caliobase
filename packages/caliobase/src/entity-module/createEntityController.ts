@@ -21,6 +21,7 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { ValidatorOptions } from 'class-validator';
+import { DeepPartial } from 'typeorm';
 import { ToFindOptions } from '.';
 import { CaliobaseRequestUser, Organization } from '../auth';
 import { getAclEntity } from '../auth/acl/getAclEntityAndProperty';
@@ -39,21 +40,29 @@ import {
   PaginationItemResponse,
   PaginationItemsResponse,
 } from '../lib/envelopes';
+import { ICaliobaseController } from './ICaliobaseController';
+import { ICaliobaseService, ICaliobaseServiceType } from './ICaliobaseService';
+import { RequestUser } from './RequestUser';
 import { createAclController } from './createAclController';
 import { createManyToManyController } from './createManyToManyController';
 import { createOneToManyController } from './createOneToManyController';
 import { CaliobaseEntity, getRelationController } from './decorators';
 import { RenameClass } from './decorators/RenameClass.decorator';
 import { findRelationMetadataArgs } from './findRelationMetadataArgs';
-import { ICaliobaseController } from './ICaliobaseController';
-import { ICaliobaseService, ICaliobaseServiceType } from './ICaliobaseService';
-import { RequestUser } from './RequestUser';
 
 export type EntityControllerConstructor<TEntity> = new (
-  service: ICaliobaseService<TEntity, Partial<TEntity>, Partial<TEntity>>
+  service: ICaliobaseService<
+    TEntity,
+    DeepPartial<TEntity>,
+    DeepPartial<TEntity>
+  >
 ) => ICaliobaseController<TEntity>;
 
-export function createEntityController<TEntity, TCreate, TUpdate>(
+export function createEntityController<
+  TEntity,
+  TCreate extends DeepPartial<TEntity>,
+  TUpdate extends DeepPartial<TEntity>
+>(
   ControllerService: ICaliobaseServiceType<TEntity, TCreate, TUpdate>,
   findManyOptions: Type<ToFindOptions<TEntity>>,
   validatorOptions: ValidatorOptions
@@ -137,7 +146,7 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
           })
         )
         createDto: TCreate,
-        @Param() params: Partial<TEntity>,
+        @Param() params: DeepPartial<TEntity>,
         @Request() { user }: RequestUser
       ) {
         assert(user, UnauthorizedException);
@@ -189,7 +198,7 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
       )
       @ApiParams(primaryColumnParams)
       async findOne(
-        @Param() params: Partial<TEntity>,
+        @Param() params: DeepPartial<TEntity>,
         @Query(
           new ValidationPipe({
             expectedType: findManyOptions,
@@ -223,7 +232,7 @@ export function createEntityController<TEntity, TCreate, TUpdate>(
         type: ControllerService.Entity,
       })
       async update(
-        @Param() params: Partial<TEntity>,
+        @Param() params: DeepPartial<TEntity>,
         @Body(
           new ValidationPipe({
             expectedType: ControllerService.UpdateDto,

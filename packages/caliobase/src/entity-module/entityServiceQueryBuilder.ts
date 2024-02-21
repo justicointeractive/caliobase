@@ -13,7 +13,7 @@ import { getAclEntity } from '../auth/acl/getAclEntityAndProperty';
 import { getOrganizationFilter } from '../auth/decorators/owner.decorator';
 import { AllRoles, Role } from './roles';
 
-export function entityServiceQueryBuilder<TEntity>(
+export function entityServiceQueryBuilder<TEntity extends ObjectLiteral>(
   entityType: Type<TEntity>,
   entityManager: EntityManager,
   {

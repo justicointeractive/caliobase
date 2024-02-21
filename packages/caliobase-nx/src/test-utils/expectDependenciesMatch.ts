@@ -1,6 +1,7 @@
 import { Tree } from '@nx/devkit';
 import { readFile } from 'fs/promises';
 import { pickBy } from 'lodash';
+import { intersects } from 'semver';
 import { workspaceProjectVersions } from '../lib/versions';
 
 export async function expectDependenciesMatch(tree: Tree, path: string) {
@@ -19,16 +20,31 @@ export async function expectDependenciesMatch(tree: Tree, path: string) {
     tree.read(path)?.toString() ?? '{}'
   );
 
-  expect(workspacePackageJson.dependencies).toMatchObject(
+  expectToMatchSemverRanges(
+    workspacePackageJson.dependencies,
     pickBy(
       projectPackageJson.dependencies,
       (value, key) => key in workspacePackageJson.dependencies
     )
   );
-  expect(workspacePackageJson.devDependencies).toMatchObject(
+  expectToMatchSemverRanges(
+    workspacePackageJson.devDependencies,
     pickBy(
       projectPackageJson.devDependencies,
       (value, key) => key in workspacePackageJson.devDependencies
     )
   );
+}
+
+function expectToMatchSemverRanges(
+  actual: Record<string, string>,
+  expected: Record<string, string>
+) {
+  for (const [key, value] of Object.entries(expected)) {
+    if (!intersects(actual[key], value)) {
+      throw new Error(
+        `Expected ${key} to intersect ${value} but found ${actual[key]}`
+      );
+    }
+  }
 }

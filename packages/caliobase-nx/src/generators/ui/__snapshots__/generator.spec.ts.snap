@@ -2,99 +2,86 @@
 
 exports[`ui generator should run successfully: apps/ui/project.json 1`] = `
 "{
-  \\"name\\": \\"ui\\",
-  \\"$schema\\": \\"../../node_modules/nx/schemas/project-schema.json\\",
-  \\"sourceRoot\\": \\"apps/ui/src\\",
-  \\"projectType\\": \\"application\\",
-  \\"targets\\": {
-    \\"build\\": {
-      \\"executor\\": \\"@nrwl/webpack:webpack\\",
-      \\"outputs\\": [
-        \\"{options.outputPath}\\"
-      ],
-      \\"defaultConfiguration\\": \\"production\\",
-      \\"options\\": {
-        \\"compiler\\": \\"babel\\",
-        \\"outputPath\\": \\"dist/apps/ui\\",
-        \\"index\\": \\"apps/ui/src/index.html\\",
-        \\"baseHref\\": \\"/\\",
-        \\"main\\": \\"apps/ui/src/main.tsx\\",
-        \\"polyfills\\": \\"apps/ui/src/polyfills.ts\\",
-        \\"tsConfig\\": \\"apps/ui/tsconfig.app.json\\",
-        \\"assets\\": [
-          \\"apps/ui/src/favicon.ico\\",
-          \\"apps/ui/src/assets\\"
-        ],
-        \\"styles\\": [
-          \\"apps/ui/src/styles.css\\"
-        ],
-        \\"scripts\\": [],
-        \\"webpackConfig\\": \\"@nrwl/react/plugins/webpack\\"
+  "name": "ui",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/ui/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "compiler": "babel",
+        "outputPath": "dist/apps/ui",
+        "index": "apps/ui/src/index.html",
+        "baseHref": "/",
+        "main": "apps/ui/src/main.tsx",
+        "tsConfig": "apps/ui/tsconfig.app.json",
+        "assets": ["apps/ui/src/favicon.ico", "apps/ui/src/assets"],
+        "styles": ["apps/ui/src/styles.css"],
+        "scripts": [],
+        "webpackConfig": "apps/ui/webpack.config.js"
       },
-      \\"configurations\\": {
-        \\"development\\": {
-          \\"extractLicenses\\": false,
-          \\"optimization\\": false,
-          \\"sourceMap\\": true,
-          \\"vendorChunk\\": true
+      "configurations": {
+        "development": {
+          "extractLicenses": false,
+          "optimization": false,
+          "sourceMap": true,
+          "vendorChunk": true
         },
-        \\"production\\": {
-          \\"fileReplacements\\": [
+        "production": {
+          "fileReplacements": [
             {
-              \\"replace\\": \\"apps/ui/src/environments/environment.ts\\",
-              \\"with\\": \\"apps/ui/src/environments/environment.prod.ts\\"
+              "replace": "apps/ui/src/environments/environment.ts",
+              "with": "apps/ui/src/environments/environment.prod.ts"
             }
           ],
-          \\"optimization\\": true,
-          \\"outputHashing\\": \\"all\\",
-          \\"sourceMap\\": false,
-          \\"namedChunks\\": false,
-          \\"extractLicenses\\": true,
-          \\"vendorChunk\\": false
+          "optimization": true,
+          "outputHashing": "all",
+          "sourceMap": false,
+          "namedChunks": false,
+          "extractLicenses": true,
+          "vendorChunk": false
         }
       }
     },
-    \\"serve\\": {
-      \\"executor\\": \\"@nrwl/webpack:dev-server\\",
-      \\"defaultConfiguration\\": \\"development\\",
-      \\"options\\": {
-        \\"buildTarget\\": \\"ui:build\\",
-        \\"hmr\\": true,
-        \\"proxyConfig\\": \\"apps/ui/proxy.conf.json\\"
+    "serve": {
+      "executor": "@nx/webpack:dev-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "ui:build",
+        "hmr": true,
+        "proxyConfig": "./apps/ui/proxy.conf.json"
       },
-      \\"configurations\\": {
-        \\"development\\": {
-          \\"buildTarget\\": \\"ui:build:development\\"
+      "configurations": {
+        "development": {
+          "buildTarget": "ui:build:development"
         },
-        \\"production\\": {
-          \\"buildTarget\\": \\"ui:build:production\\",
-          \\"hmr\\": false
+        "production": {
+          "buildTarget": "ui:build:production",
+          "hmr": false
         }
       }
     },
-    \\"lint\\": {
-      \\"executor\\": \\"@nrwl/linter:eslint\\",
-      \\"outputs\\": [
-        \\"{options.outputFile}\\"
-      ],
-      \\"options\\": {
-        \\"lintFilePatterns\\": [
-          \\"apps/ui/**/*.{ts,tsx,js,jsx}\\"
-        ]
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "serve-static": {
+      "executor": "@nx/web:file-server",
+      "options": {
+        "buildTarget": "ui:build"
       }
     },
-    \\"test\\": {
-      \\"executor\\": \\"@nrwl/jest:jest\\",
-      \\"outputs\\": [
-        \\"coverage/apps/ui\\"
-      ],
-      \\"options\\": {
-        \\"jestConfig\\": \\"apps/ui/jest.config.ts\\",
-        \\"passWithNoTests\\": true
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/ui/jest.config.ts"
       }
     }
   },
-  \\"tags\\": []
+  "tags": []
 }
 "
 `;
@@ -103,12 +90,15 @@ exports[`ui generator should run successfully: apps/ui/src/main.tsx 1`] = `
 "import { StrictMode } from 'react';
 import * as ReactDOM from 'react-dom/client';
 
-
 import App from './app/app';
 
-const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
+const root = ReactDOM.createRoot(
+  document.getElementById('root') as HTMLElement
+);
 root.render(
-<StrictMode><App /></StrictMode>
+  <StrictMode>
+    <App />
+  </StrictMode>
 );
 "
 `;
@@ -122,43 +112,52 @@ exports[`ui generator should run successfully: apps/ui/src/styles.css 1`] = `
 
 exports[`ui generator should run successfully: package.json 1`] = `
 "{
-  \\"name\\": \\"test-name\\",
-  \\"dependencies\\": {
-    \\"@caliobase/caliobase-ui\\": \\"*\\",
-    \\"core-js\\": \\"^3.6.5\\",
-    \\"react\\": \\"18.2.0\\",
-    \\"react-dom\\": \\"18.2.0\\",
-    \\"regenerator-runtime\\": \\"0.13.7\\",
-    \\"tslib\\": \\"^2.3.0\\"
+  "name": "@proj/source",
+  "dependencies": {
+    "@caliobase/caliobase-ui": "*",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "tslib": "^2.3.0"
   },
-  \\"devDependencies\\": {
-    \\"@nrwl/cypress\\": \\"14.7.18\\",
-    \\"@nrwl/eslint-plugin-nx\\": \\"14.7.18\\",
-    \\"@nrwl/jest\\": \\"14.7.18\\",
-    \\"@nrwl/linter\\": \\"14.7.18\\",
-    \\"@nrwl/react\\": \\"14.7.18\\",
-    \\"@nrwl/web\\": \\"14.7.18\\",
-    \\"@testing-library/react\\": \\"13.4.0\\",
-    \\"@types/jest\\": \\"28.1.1\\",
-    \\"@types/node\\": \\"16.11.7\\",
-    \\"@types/react\\": \\"18.0.20\\",
-    \\"@types/react-dom\\": \\"18.0.6\\",
-    \\"@typescript-eslint/eslint-plugin\\": \\"^5.36.1\\",
-    \\"@typescript-eslint/parser\\": \\"^5.36.1\\",
-    \\"babel-jest\\": \\"28.1.1\\",
-    \\"cypress\\": \\"^10.7.0\\",
-    \\"eslint\\": \\"~8.15.0\\",
-    \\"eslint-config-prettier\\": \\"8.1.0\\",
-    \\"eslint-plugin-cypress\\": \\"^2.10.3\\",
-    \\"eslint-plugin-import\\": \\"2.26.0\\",
-    \\"eslint-plugin-jsx-a11y\\": \\"6.6.1\\",
-    \\"eslint-plugin-react\\": \\"7.31.8\\",
-    \\"eslint-plugin-react-hooks\\": \\"4.6.0\\",
-    \\"jest\\": \\"28.1.1\\",
-    \\"jest-environment-jsdom\\": \\"28.1.1\\",
-    \\"react-test-renderer\\": \\"18.2.0\\",
-    \\"ts-jest\\": \\"28.0.5\\",
-    \\"ts-node\\": \\"10.9.1\\"
+  "devDependencies": {
+    "@babel/core": "^7.14.5",
+    "@babel/preset-react": "^7.14.5",
+    "@nx/eslint": "18.0.4",
+    "@nx/eslint-plugin": "18.0.4",
+    "@nx/jest": "18.0.4",
+    "@nx/js": "18.0.4",
+    "@nx/react": "18.0.4",
+    "@nx/web": "18.0.4",
+    "@nx/webpack": "18.0.4",
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.5.7",
+    "@svgr/webpack": "^8.0.1",
+    "@swc-node/register": "~1.8.0",
+    "@swc/cli": "~0.1.62",
+    "@swc/core": "~1.3.85",
+    "@swc/helpers": "~0.5.2",
+    "@testing-library/react": "14.0.0",
+    "@types/jest": "^29.4.0",
+    "@types/node": "18.16.9",
+    "@types/react": "18.2.33",
+    "@types/react-dom": "18.2.14",
+    "@typescript-eslint/eslint-plugin": "^6.13.2",
+    "@typescript-eslint/parser": "^6.13.2",
+    "babel-jest": "^29.4.1",
+    "eslint": "~8.48.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-cypress": "^2.13.4",
+    "eslint-plugin-import": "2.27.5",
+    "eslint-plugin-jsx-a11y": "6.7.1",
+    "eslint-plugin-react": "7.32.2",
+    "eslint-plugin-react-hooks": "4.6.0",
+    "jest": "^29.4.1",
+    "jest-environment-jsdom": "^29.4.1",
+    "prettier": "^2.6.2",
+    "react-refresh": "^0.10.0",
+    "ts-jest": "^29.1.0",
+    "ts-node": "10.9.1",
+    "typescript": "~5.3.2",
+    "url-loader": "^4.1.1"
   }
 }
 "

@@ -10,11 +10,12 @@ describe('client generator', () => {
   const options: ClientGeneratorSchema = {
     name: 'client',
     apiProjectName: 'api',
+    directory: 'libs',
   };
 
   beforeEach(async () => {
     appTree = createTreeWithEmptyWorkspace();
-    await apiGenerator(appTree, { name: 'api' });
+    await apiGenerator(appTree, { name: 'api', directory: 'apps' });
   });
 
   it('should run successfully', async () => {

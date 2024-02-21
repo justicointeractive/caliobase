@@ -7,7 +7,12 @@ import {
 } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { ApiTags } from '@nestjs/swagger';
-import { Entity, EntityOptions, EntitySubscriberInterface } from 'typeorm';
+import {
+  DeepPartial,
+  Entity,
+  EntityOptions,
+  EntitySubscriberInterface,
+} from 'typeorm';
 import { FindManyParams } from '../..';
 import { EntityControllerConstructor } from '../createEntityController';
 import { ICaliobaseController } from '../ICaliobaseController';
@@ -33,8 +38,8 @@ export type CaliobaseEntityOptions<TEntity> = {
       controllerClass: EntityControllerConstructor<TEntity>,
       serviceClass: ICaliobaseServiceType<
         TEntity,
-        Partial<TEntity>,
-        Partial<TEntity>
+        DeepPartial<TEntity>,
+        DeepPartial<TEntity>
       >
     ) => Type<ICaliobaseController<TEntity>>;
   };

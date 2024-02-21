@@ -9,18 +9,18 @@ import { CaliobaseFindOptions, RenameClass, ToFindOptions } from '.';
 import { CaliobaseRequestUser, Organization } from '../auth';
 import { getAclEntity } from '../auth/acl/getAclEntityAndProperty';
 import { getOrganizationFilter } from '../auth/decorators/owner.decorator';
-import { AccessPolicies } from './decorators/AccessPolicies.decorator';
-import { entityServiceQueryBuilder } from './entityServiceQueryBuilder';
-import { getPolicyFromStatements } from './getPolicyFromStatements';
 import {
   ICaliobaseService,
   ICaliobaseServiceOptions,
   ICaliobaseServiceType,
 } from './ICaliobaseService';
+import { AccessPolicies } from './decorators/AccessPolicies.decorator';
+import { entityServiceQueryBuilder } from './entityServiceQueryBuilder';
+import { getPolicyFromStatements } from './getPolicyFromStatements';
 import { EntityActions, Roles } from './roles';
 
 export function createEntityService<
-  TEntity,
+  TEntity extends ObjectLiteral,
   TCreate extends DeepPartial<TEntity>,
   TUpdate extends DeepPartial<TEntity>
 >(

@@ -7,6 +7,7 @@ import {
   DeepPartial,
   EntitySubscriberInterface,
   EventSubscriber,
+  ObjectLiteral,
 } from 'typeorm';
 import {
   CaliobaseEntity,
@@ -22,7 +23,7 @@ import { createEntityController } from './createEntityController';
 import { createEntityService } from './createEntityService';
 import { RenameClass } from './decorators/RenameClass.decorator';
 
-export function createEntityModule<TEntity>(
+export function createEntityModule<TEntity extends ObjectLiteral>(
   entityType: Type<TEntity>,
   validatorOptions: ValidationPipeOptions = defaultValidatorOptions
 ): ICaliobaseEntityModule<TEntity> {

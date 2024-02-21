@@ -8,6 +8,7 @@ describe('ui generator', () => {
   let appTree: Tree;
   const options: UiGeneratorSchema = {
     name: 'ui',
+    directory: 'apps',
   };
 
   beforeEach(async () => {

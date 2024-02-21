@@ -5,10 +5,10 @@ import {
   getWorkspaceLayout,
   names,
   offsetFromRoot,
+  runTasksInSerial,
   Tree,
 } from '@nx/devkit';
 import { applicationGenerator } from '@nx/nest/src/generators/application/application';
-import { runTasksInSerial } from '@nx/workspace/src/utilities/run-tasks-in-serial';
 import * as path from 'path';
 import { modifyProjectConfiguration } from '../../lib/modifyProjectConfiguration';
 import { addDependencyVersionsToPackageJson } from '../../lib/versions';
@@ -66,7 +66,10 @@ export default async function (tree: Tree, options: ApiGeneratorSchema) {
 
   const normalizedOptions = normalizeOptions(tree, options);
 
-  await applicationGenerator(tree, { name: options.name });
+  await applicationGenerator(tree, {
+    name: options.name,
+    directory: options.directory,
+  });
 
   addFiles(tree, normalizedOptions);
 

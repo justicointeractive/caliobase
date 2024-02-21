@@ -1,12 +1,17 @@
+import { DeepPartial } from 'typeorm';
 import { ICaliobaseService, ToFindOptions } from '.';
 import { RequestUser } from './RequestUser';
 
 export interface ICaliobaseController<TEntity> {
-  service: ICaliobaseService<TEntity, Partial<TEntity>, Partial<TEntity>>;
+  service: ICaliobaseService<
+    TEntity,
+    DeepPartial<TEntity>,
+    DeepPartial<TEntity>
+  >;
 
   create(
-    body: Partial<TEntity>,
-    params: Partial<TEntity>,
+    body: DeepPartial<TEntity>,
+    params: DeepPartial<TEntity>,
     req: RequestUser
   ): Promise<{ item: TEntity }>;
   findAll(
@@ -14,17 +19,17 @@ export interface ICaliobaseController<TEntity> {
     req: RequestUser
   ): Promise<{ items: TEntity[] }>;
   findOne(
-    params: Partial<TEntity>,
+    params: DeepPartial<TEntity>,
     query: ToFindOptions<TEntity> | null,
     user: RequestUser
   ): Promise<{ item: TEntity | null }>;
   update(
-    body: Partial<TEntity>,
-    params: Partial<TEntity>,
+    body: DeepPartial<TEntity>,
+    params: DeepPartial<TEntity>,
     req: RequestUser
   ): Promise<{ items: TEntity[] }>;
   remove(
-    params: Partial<TEntity>,
+    params: DeepPartial<TEntity>,
     req: RequestUser
   ): Promise<{ items: TEntity[] }>;
 }

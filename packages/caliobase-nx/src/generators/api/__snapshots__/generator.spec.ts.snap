@@ -2,78 +2,58 @@
 
 exports[`api generator should run successfully: apps/api/project.json 1`] = `
 "{
-  \\"name\\": \\"api\\",
-  \\"$schema\\": \\"../../node_modules/nx/schemas/project-schema.json\\",
-  \\"sourceRoot\\": \\"apps/api/src\\",
-  \\"projectType\\": \\"application\\",
-  \\"targets\\": {
-    \\"build\\": {
-      \\"executor\\": \\"@nrwl/webpack:webpack\\",
-      \\"outputs\\": [
-        \\"{options.outputPath}\\"
-      ],
-      \\"options\\": {
-        \\"target\\": \\"node\\",
-        \\"compiler\\": \\"tsc\\",
-        \\"outputPath\\": \\"dist/apps/api\\",
-        \\"main\\": \\"apps/api/src/main.ts\\",
-        \\"tsConfig\\": \\"apps/api/tsconfig.app.json\\",
-        \\"assets\\": [
-          \\"apps/api/src/assets\\"
-        ],
-        \\"tsPlugins\\": [
-          \\"@nestjs/swagger/plugin\\"
-        ],
-        \\"generatePackageJson\\": true
+  "name": "api",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/api/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/apps/api",
+        "main": "apps/api/src/main.ts",
+        "tsConfig": "apps/api/tsconfig.app.json",
+        "assets": ["apps/api/src/assets"],
+        "webpackConfig": "apps/api/webpack.config.js",
+        "tsPlugins": ["@nestjs/swagger/plugin"],
+        "generatePackageJson": true
       },
-      \\"configurations\\": {
-        \\"production\\": {
-          \\"optimization\\": true,
-          \\"extractLicenses\\": true,
-          \\"inspect\\": false,
-          \\"fileReplacements\\": [
-            {
-              \\"replace\\": \\"apps/api/src/environments/environment.ts\\",
-              \\"with\\": \\"apps/api/src/environments/environment.prod.ts\\"
-            }
-          ]
+      "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "api:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "api:build:development"
+        },
+        "production": {
+          "buildTarget": "api:build:production"
         }
       }
     },
-    \\"serve\\": {
-      \\"executor\\": \\"@nrwl/js:node\\",
-      \\"options\\": {
-        \\"buildTarget\\": \\"api:build\\"
-      },
-      \\"configurations\\": {
-        \\"production\\": {
-          \\"buildTarget\\": \\"api:build:production\\"
-        }
-      }
+    "lint": {
+      "executor": "@nx/eslint:lint"
     },
-    \\"lint\\": {
-      \\"executor\\": \\"@nrwl/linter:eslint\\",
-      \\"outputs\\": [
-        \\"{options.outputFile}\\"
-      ],
-      \\"options\\": {
-        \\"lintFilePatterns\\": [
-          \\"apps/api/**/*.ts\\"
-        ]
-      }
-    },
-    \\"test\\": {
-      \\"executor\\": \\"@nrwl/jest:jest\\",
-      \\"outputs\\": [
-        \\"coverage/apps/api\\"
-      ],
-      \\"options\\": {
-        \\"jestConfig\\": \\"apps/api/jest.config.ts\\",
-        \\"passWithNoTests\\": true
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/api/jest.config.ts"
       }
     }
   },
-  \\"tags\\": []
+  "tags": []
 }
 "
 `;
@@ -94,7 +74,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { OrganizationProfile } from './entities/organization-profile.entity';
 import { UserProfile } from './entities/user-profile.entity';
-
 
 const ses = new SES({});
 
@@ -136,7 +115,7 @@ export class AppModule {
           url: envVars.pgConnectionString,
           autoLoadEntities: true,
         }),
-        
+
         CaliobaseModule.forRootAsync({
           allowCreateOwnOrganizations: true,
           urls: {
@@ -217,7 +196,7 @@ async function bootstrap() {
 
   await CaliobaseModule.bootstrap(app, {
     migration: {
-      migrationsDir: './apps/api/migrations',
+      migrationsDir: './apps/apps-api/migrations',
     },
   });
 
@@ -237,38 +216,47 @@ bootstrap().catch((err) => {
 
 exports[`api generator should run successfully: package.json 1`] = `
 "{
-  \\"name\\": \\"test-name\\",
-  \\"dependencies\\": {
-    \\"@aws-sdk/client-ses\\": \\"^3.171.0\\",
-    \\"@caliobase/caliobase\\": \\"*\\",
-    \\"@nestjs/common\\": \\"^9.0.0\\",
-    \\"@nestjs/core\\": \\"^9.0.0\\",
-    \\"@nestjs/platform-express\\": \\"^9.0.0\\",
-    \\"@nestjs/swagger\\": \\"6.1.2\\",
-    \\"nodemailer\\": \\"^6.7.5\\",
-    \\"reflect-metadata\\": \\"^0.1.13\\",
-    \\"rxjs\\": \\"^7.0.0\\",
-    \\"tslib\\": \\"^2.3.0\\"
+  "name": "@proj/source",
+  "dependencies": {
+    "@aws-sdk/client-ses": "^3.171.0",
+    "@caliobase/caliobase": "*",
+    "@nestjs/common": "^10.0.2",
+    "@nestjs/core": "^10.0.2",
+    "@nestjs/platform-express": "^10.0.2",
+    "@nestjs/swagger": "7.3.0",
+    "axios": "^1.6.0",
+    "nodemailer": "^6.7.5",
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^7.8.0",
+    "tslib": "^2.3.0"
   },
-  \\"devDependencies\\": {
-    \\"@nestjs/schematics\\": \\"^9.0.0\\",
-    \\"@nestjs/testing\\": \\"^9.0.0\\",
-    \\"@nrwl/eslint-plugin-nx\\": \\"14.7.18\\",
-    \\"@nrwl/jest\\": \\"14.7.18\\",
-    \\"@nrwl/linter\\": \\"14.7.18\\",
-    \\"@nrwl/nest\\": \\"14.7.18\\",
-    \\"@nrwl/node\\": \\"14.7.18\\",
-    \\"@types/jest\\": \\"28.1.1\\",
-    \\"@types/node\\": \\"16.11.7\\",
-    \\"@types/nodemailer\\": \\"^6.4.4\\",
-    \\"@typescript-eslint/eslint-plugin\\": \\"^5.36.1\\",
-    \\"@typescript-eslint/parser\\": \\"^5.36.1\\",
-    \\"eslint\\": \\"~8.15.0\\",
-    \\"eslint-config-prettier\\": \\"8.1.0\\",
-    \\"jest\\": \\"28.1.1\\",
-    \\"jest-environment-jsdom\\": \\"28.1.1\\",
-    \\"ts-jest\\": \\"28.0.5\\",
-    \\"ts-node\\": \\"10.9.1\\"
+  "devDependencies": {
+    "@nestjs/schematics": "^10.0.1",
+    "@nestjs/testing": "^10.0.2",
+    "@nx/eslint": "18.0.4",
+    "@nx/eslint-plugin": "18.0.4",
+    "@nx/jest": "18.0.4",
+    "@nx/js": "18.0.4",
+    "@nx/nest": "18.0.4",
+    "@nx/node": "18.0.4",
+    "@nx/web": "18.0.4",
+    "@nx/webpack": "18.0.4",
+    "@swc-node/register": "~1.8.0",
+    "@swc/core": "~1.3.85",
+    "@swc/helpers": "~0.5.2",
+    "@types/jest": "^29.4.0",
+    "@types/node": "~18.16.9",
+    "@types/nodemailer": "^6.4.4",
+    "@typescript-eslint/eslint-plugin": "^6.13.2",
+    "@typescript-eslint/parser": "^6.13.2",
+    "eslint": "~8.48.0",
+    "eslint-config-prettier": "^9.0.0",
+    "jest": "^29.4.1",
+    "jest-environment-node": "^29.4.1",
+    "prettier": "^2.6.2",
+    "ts-jest": "^29.1.0",
+    "ts-node": "10.9.1",
+    "typescript": "~5.3.2"
   }
 }
 "

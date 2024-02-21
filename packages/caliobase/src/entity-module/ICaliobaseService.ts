@@ -1,5 +1,5 @@
 import { Type } from '@nestjs/common';
-import { DataSource, FindOptionsWhere } from 'typeorm';
+import { DataSource, DeepPartial, FindOptionsWhere } from 'typeorm';
 import { CaliobaseRequestUser } from '../auth';
 import { CaliobaseFindOptions } from './createFindManyQueryParamClass';
 
@@ -29,7 +29,11 @@ export interface ICaliobaseService<TEntity, TCreate, TUpdate> {
   ): Promise<TEntity[]>;
 }
 
-export interface ICaliobaseServiceType<TEntity, TCreate, TUpdate> {
+export interface ICaliobaseServiceType<
+  TEntity,
+  TCreate extends DeepPartial<TEntity>,
+  TUpdate extends DeepPartial<TEntity>
+> {
   new (dataSource: DataSource): ICaliobaseService<TEntity, TCreate, TUpdate>;
   Entity: Type<TEntity>;
   CreateDto: Type<TCreate>;

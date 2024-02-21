@@ -8,7 +8,7 @@ import { ApiGeneratorSchema } from './schema';
 
 describe('api generator', () => {
   let appTree: Tree;
-  const options: ApiGeneratorSchema = { name: 'api' };
+  const options: ApiGeneratorSchema = { name: 'api', directory: 'apps' };
 
   beforeEach(() => {
     appTree = createTreeWithEmptyWorkspace();

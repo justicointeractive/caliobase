@@ -5,11 +5,11 @@ import {
   getWorkspaceLayout,
   names,
   offsetFromRoot,
+  runTasksInSerial,
   Tree,
 } from '@nx/devkit';
 import { Linter } from '@nx/eslint';
 import { applicationGenerator } from '@nx/react';
-import { runTasksInSerial } from '@nx/workspace/src/utilities/run-tasks-in-serial';
 import * as path from 'path';
 import { modifyProjectConfiguration } from '../../lib/modifyProjectConfiguration';
 import { addDependencyVersionsToPackageJson } from '../../lib/versions';

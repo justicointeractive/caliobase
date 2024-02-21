@@ -2,6 +2,7 @@ import { Module, Type } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { nonNull } from 'circumspect';
 import { ValidatorOptions } from 'class-validator';
+import { ObjectLiteral } from 'typeorm';
 import { defaultValidatorOptions } from '../defaultValidatorOptions';
 import { createEntityModule } from './createEntityModule';
 
@@ -34,7 +35,7 @@ export class CaliobaseEntitiesModule {
         ]
           .filter(nonNull)
           .map((entity) =>
-            createEntityModule(entity, {
+            createEntityModule(entity as Type<ObjectLiteral>, {
               ...defaultValidatorOptions,
               ...validatorOptions,
             })
