@@ -62,16 +62,14 @@ export function useFileDrop({
 
 async function getFilesFromDrop(e: React.DragEvent, acceptType: RegExp) {
   const files: File[] = [];
-  if ('items' in e.dataTransfer) {
-    await addFilesRecursive(
-      Array.from(e.dataTransfer.items, (item) =>
-        item.webkitGetAsEntry()
-      ).filter(nonNull),
-      files
-    );
-  } else {
-    files.push(...Array.from(e.dataTransfer.files));
-  }
+
+  await addFilesRecursive(
+    Array.from(e.dataTransfer.items, (item) => item.webkitGetAsEntry()).filter(
+      nonNull
+    ),
+    files
+  );
+
   return files.filter(nonNull).filter((file) => acceptType.test(file.type));
 }
 
