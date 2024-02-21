@@ -5,6 +5,6 @@
   "generators": "./generators.json",
   "executors": "./executors.json",
   "peerDependencies": {
-    "@nrwl/nest": "^14.3.6"
+    "@nrwl/nest": "*"
   }
 }
