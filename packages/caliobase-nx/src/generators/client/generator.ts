@@ -5,8 +5,8 @@ import {
   names,
   offsetFromRoot,
   Tree,
-} from '@nrwl/devkit';
-import { libraryGenerator } from '@nrwl/js/src/generators/library/library';
+} from '@nx/devkit';
+import { libraryGenerator } from '@nx/js/src/generators/library/library';
 import * as path from 'path';
 import { modifyProjectConfiguration } from '../../lib/modifyProjectConfiguration';
 import { ClientGeneratorSchema } from './schema';

@@ -1,10 +1,11 @@
 {
+  "name": "example",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "examples/example/src",
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "@nrwl/webpack:webpack",
+      "executor": "@nx/webpack:webpack",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/examples/example",
@@ -29,24 +30,20 @@
       }
     },
     "serve": {
-      "executor": "@nrwl/node:node",
+      "executor": "@nx/js:node",
       "options": {
         "buildTarget": "example:build"
       }
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": ["examples/example/**/*.ts"]
-      }
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
     },
     "test": {
-      "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/examples/example"],
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/examples/example"],
       "options": {
-        "jestConfig": "examples/example/jest.config.ts",
-        "passWithNoTests": true
+        "jestConfig": "examples/example/jest.config.ts"
       }
     },
     "version": {

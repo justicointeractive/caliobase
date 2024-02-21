@@ -6,10 +6,10 @@ import {
   names,
   offsetFromRoot,
   Tree,
-} from '@nrwl/devkit';
-import { Linter } from '@nrwl/linter';
-import { applicationGenerator } from '@nrwl/react';
-import { runTasksInSerial } from '@nrwl/workspace/src/utilities/run-tasks-in-serial';
+} from '@nx/devkit';
+import { Linter } from '@nx/eslint';
+import { applicationGenerator } from '@nx/react';
+import { runTasksInSerial } from '@nx/workspace/src/utilities/run-tasks-in-serial';
 import * as path from 'path';
 import { modifyProjectConfiguration } from '../../lib/modifyProjectConfiguration';
 import { addDependencyVersionsToPackageJson } from '../../lib/versions';

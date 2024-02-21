@@ -1,10 +1,11 @@
 {
+  "name": "examples-cms",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "examples/cms/src",
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "@nrwl/webpack:webpack",
+      "executor": "@nx/webpack:webpack",
       "outputs": ["{options.outputPath}"],
       "options": {
         "compiler": "babel",
@@ -17,7 +18,7 @@
         "assets": ["examples/cms/src/favicon.ico", "examples/cms/src/assets"],
         "styles": ["examples/cms/src/styles.css"],
         "scripts": [],
-        "webpackConfig": "@nrwl/react/plugins/webpack"
+        "webpackConfig": "@nx/react/plugins/webpack"
       },
       "configurations": {
         "development": {
@@ -43,7 +44,7 @@
       }
     },
     "serve": {
-      "executor": "@nrwl/webpack:dev-server",
+      "executor": "@nx/webpack:dev-server",
       "options": {
         "buildTarget": "examples-cms:build",
         "hmr": true,
@@ -59,18 +60,14 @@
       }
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": ["examples/cms/**/*.{ts,tsx,js,jsx}"]
-      }
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
     },
     "test": {
-      "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/examples/cms"],
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/examples/cms"],
       "options": {
-        "jestConfig": "examples/cms/jest.config.ts",
-        "passWithNoTests": true
+        "jestConfig": "examples/cms/jest.config.ts"
       }
     }
   },

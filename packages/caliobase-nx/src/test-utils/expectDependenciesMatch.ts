@@ -1,4 +1,4 @@
-import { Tree } from '@nrwl/devkit';
+import { Tree } from '@nx/devkit';
 import { readFile } from 'fs/promises';
 import { pickBy } from 'lodash';
 import { workspaceProjectVersions } from '../lib/versions';

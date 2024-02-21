@@ -6,9 +6,9 @@ import {
   names,
   offsetFromRoot,
   Tree,
-} from '@nrwl/devkit';
-import { applicationGenerator } from '@nrwl/nest/src/generators/application/application';
-import { runTasksInSerial } from '@nrwl/workspace/src/utilities/run-tasks-in-serial';
+} from '@nx/devkit';
+import { applicationGenerator } from '@nx/nest/src/generators/application/application';
+import { runTasksInSerial } from '@nx/workspace/src/utilities/run-tasks-in-serial';
 import * as path from 'path';
 import { modifyProjectConfiguration } from '../../lib/modifyProjectConfiguration';
 import { addDependencyVersionsToPackageJson } from '../../lib/versions';

@@ -1,10 +1,11 @@
 {
+  "name": "examples-api",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "examples/api/src",
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "@nrwl/webpack:webpack",
+      "executor": "@nx/webpack:webpack",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/examples/api",
@@ -30,11 +31,10 @@
     },
     "swagger": {
       "executor": "nx:run-commands",
-      "outputs": ["examples/client/assets"],
+      "outputs": ["{workspaceRoot}/examples/client/assets"],
       "dependsOn": [
         {
-          "target": "build",
-          "projects": "self"
+          "target": "build"
         }
       ],
       "options": {
@@ -46,24 +46,20 @@
       }
     },
     "serve": {
-      "executor": "@nrwl/node:node",
+      "executor": "@nx/js:node",
       "options": {
         "buildTarget": "examples-api:build"
       }
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": ["examples/api/**/*.ts"]
-      }
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
     },
     "test": {
-      "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/examples/api"],
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/examples/api"],
       "options": {
-        "jestConfig": "examples/api/jest.config.ts",
-        "passWithNoTests": true
+        "jestConfig": "examples/api/jest.config.ts"
       }
     }
   },

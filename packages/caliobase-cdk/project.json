@@ -1,10 +1,11 @@
 {
+  "name": "caliobase-cdk",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/caliobase-cdk/src",
   "projectType": "library",
   "targets": {
     "build": {
-      "executor": "@nrwl/js:tsc",
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/packages/caliobase-cdk",
@@ -36,18 +37,14 @@
       }
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": ["packages/caliobase-cdk/**/*.ts"]
-      }
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
     },
     "test": {
-      "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/packages/caliobase-cdk"],
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/packages/caliobase-cdk"],
       "options": {
-        "jestConfig": "packages/caliobase-cdk/jest.config.ts",
-        "passWithNoTests": true
+        "jestConfig": "packages/caliobase-cdk/jest.config.ts"
       }
     },
     "deploy": {

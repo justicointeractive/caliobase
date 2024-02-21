@@ -3,7 +3,7 @@ import {
   readProjectConfiguration,
   Tree,
   updateProjectConfiguration,
-} from '@nrwl/devkit';
+} from '@nx/devkit';
 
 export function modifyProjectConfiguration(
   tree: Tree,

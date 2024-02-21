@@ -1,11 +1,12 @@
 {
+  "name": "use-async-effect-state",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/use-async-effect-state/src",
   "projectType": "library",
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@nrwl/web:rollup",
+      "executor": "@nrwl/rollup:rollup",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/packages/use-async-effect-state",
@@ -13,7 +14,7 @@
         "project": "packages/use-async-effect-state/package.json",
         "entryFile": "packages/use-async-effect-state/src/index.ts",
         "external": ["react/jsx-runtime"],
-        "rollupConfig": "@nrwl/react/plugins/bundle-rollup",
+        "rollupConfig": "@nx/react/plugins/bundle-rollup",
         "compiler": "babel",
         "assets": [
           {
@@ -25,20 +26,14 @@
       }
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": [
-          "packages/use-async-effect-state/**/*.{ts,tsx,js,jsx}"
-        ]
-      }
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
     },
     "test": {
-      "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/packages/use-async-effect-state"],
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/packages/use-async-effect-state"],
       "options": {
-        "jestConfig": "packages/use-async-effect-state/jest.config.ts",
-        "passWithNoTests": true
+        "jestConfig": "packages/use-async-effect-state/jest.config.ts"
       }
     },
     "deploy": {

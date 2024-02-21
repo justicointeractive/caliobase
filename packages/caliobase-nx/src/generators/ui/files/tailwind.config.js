@@ -1,4 +1,4 @@
-const { createGlobPatternsForDependencies } = require('@nrwl/react/tailwind');
+const { createGlobPatternsForDependencies } = require('@nx/react/tailwind');
 const path = require('path');
 const caliobaseUiDir = path.resolve(
   require.resolve('@caliobase/caliobase-ui'),

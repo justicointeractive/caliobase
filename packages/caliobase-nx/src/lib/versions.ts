@@ -1,6 +1,6 @@
 import { version as caliobaseUiVersion } from '@caliobase/caliobase-ui/package.json';
 import { version as caliobaseVersion } from '@caliobase/caliobase/package.json';
-import { addDependenciesToPackageJson, Tree } from '@nrwl/devkit';
+import { addDependenciesToPackageJson, Tree } from '@nx/devkit';
 import { pick } from 'lodash';
 
 /* eslint-disable @typescript-eslint/no-var-requires */

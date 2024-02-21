@@ -1,10 +1,11 @@
 {
+  "name": "caliobase-nx",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/caliobase-nx/src",
   "projectType": "library",
   "targets": {
     "build": {
-      "executor": "@nrwl/js:tsc",
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/packages/caliobase-nx",
@@ -36,23 +37,14 @@
       }
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": [
-          "packages/caliobase-nx/**/*.ts",
-          "packages/caliobase-nx/generators.json",
-          "packages/caliobase-nx/executors.json",
-          "packages/caliobase-nx/package.json"
-        ]
-      }
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
     },
     "test": {
-      "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/packages/caliobase-nx"],
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/packages/caliobase-nx"],
       "options": {
-        "jestConfig": "packages/caliobase-nx/jest.config.ts",
-        "passWithNoTests": true
+        "jestConfig": "packages/caliobase-nx/jest.config.ts"
       }
     },
     "deploy": {
