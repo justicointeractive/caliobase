@@ -5,10 +5,10 @@ import clsx from 'clsx';
 import { useCallback, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAsyncEffectState } from 'use-async-effect-state';
+import { ModalDialog } from '../components/ModalDialog';
 import { ContentTable } from '../components/data/ContentTable';
 import { ItemView } from '../components/data/ItemView';
 import { RoleDetailEditor } from '../components/data/RoleDetailEditor';
-import { ModalDialog } from '../components/ModalDialog';
 import { useApiContext } from '../context';
 import { useUserContext } from '../context/UserContext';
 import { rolesField } from '../lib/commonFields';
@@ -200,8 +200,8 @@ function CopyValueButton(props: { value: string }) {
 
   const timeoutRef = useRef(0);
 
-  const copyValueToClipboard = useCallback(() => {
-    navigator.clipboard.writeText(props.value);
+  const copyValueToClipboard = useCallback(async () => {
+    await navigator.clipboard.writeText(props.value);
     setDidCopy(true);
     window.clearTimeout(timeoutRef.current);
     timeoutRef.current = window.setTimeout(() => setDidCopy(false), 1250);

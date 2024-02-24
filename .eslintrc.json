@@ -44,7 +44,20 @@
     {
       "files": "*.json",
       "parser": "jsonc-eslint-parser",
-      "rules": {}
+      "rules": {
+        "@nx/dependency-checks": [
+          "error",
+          {
+            // theoretically, this rule should derrive the list of ignoredDependencies from the workspace's package.json devDependencies
+            "ignoredDependencies": [
+              "jest-mock-axios",
+              "@faker-js/faker",
+              "tslib",
+              "supertest"
+            ]
+          }
+        ]
+      }
     }
   ]
 }

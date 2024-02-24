@@ -28,15 +28,15 @@ import {
   getTable,
   toColumnRoutePath,
 } from '../lib/columnUtils';
-import { ApiParams } from './createEntityController';
-import {
-  getNamedEntityClassName,
-  RenameClass,
-} from './decorators/RenameClass.decorator';
-import { findRelationMetadataArgs } from './findRelationMetadataArgs';
 import { IManyToManyRelationController } from './IManyToManyRelationController';
 import { RelationPermissionChecker } from './RelationPermissionChecker';
 import { RequestUser } from './RequestUser';
+import { ApiParams } from './createEntityController';
+import {
+  RenameClass,
+  getNamedEntityClassName,
+} from './decorators/RenameClass.decorator';
+import { findRelationMetadataArgs } from './findRelationMetadataArgs';
 
 export function createManyToManyController<T>(
   ReferenceEntity: Type<T>,

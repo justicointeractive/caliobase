@@ -182,6 +182,7 @@ export function createFindManyQueryParamClass<TEntity>(
   );
 
   @RenameClass(entityType)
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
   class FindManyParamsClass
     implements FindManyParams<TEntity>, ToFindOptions<TEntity>
   {
@@ -281,7 +282,7 @@ export function createFindManyQueryParamClass<TEntity>(
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface, @typescript-eslint/no-unsafe-declaration-merging
   interface FindManyParamsClass extends FindManyParams<TEntity> {
     [key: string]: unknown;
   }

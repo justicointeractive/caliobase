@@ -4,7 +4,18 @@
   "main": "src/index.js",
   "generators": "./generators.json",
   "executors": "./executors.json",
-  "peerDependencies": {
-    "@nx/nest": "*"
+  "dependencies": {
+    "@caliobase/caliobase-ui": "0.3.4",
+    "@caliobase/caliobase": "0.6.3",
+    "@nestjs/swagger": "7.3.0",
+    "@nx/devkit": "18.0.4",
+    "@nx/eslint": "18.0.4",
+    "@nx/js": "18.0.4",
+    "@nx/nest": "18.0.4",
+    "@nx/react": "18.0.4",
+    "lodash": "^4.17.21",
+    "semver": "7.3.4",
+    "swagger-typescript-api-nextgen": "^10.0.1",
+    "tslib": "^2.0.0"
   }
 }

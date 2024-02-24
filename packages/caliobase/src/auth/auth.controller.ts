@@ -249,7 +249,7 @@ export function createAuthController<
     @Post('social/authUrl/return')
     @ApiOkResponse()
     @Header('Content-Type', 'text/html')
-    async socialAuthUrlReturnPost(@Body() body: {}): Promise<string> {
+    async socialAuthUrlReturnPost(@Body() body: unknown): Promise<string> {
       return html`
         <!DOCTYPE html>
         <script>
