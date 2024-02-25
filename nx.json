@@ -79,7 +79,11 @@
     },
     "@nx/eslint:lint": {
       "cache": true,
-      "inputs": ["default", "{workspaceRoot}/.eslintrc.json"]
+      "inputs": [
+        "default",
+        "{workspaceRoot}/.eslintrc.js",
+        "{workspaceRoot}/.eslintrc.json"
+      ]
     },
     "@nx/jest:jest": {
       "cache": true,
