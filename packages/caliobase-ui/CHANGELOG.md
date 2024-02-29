@@ -2,6 +2,11 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.3.5](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.3.4...caliobase-ui-0.3.5) (2024-02-29)
+
+### Dependency Updates
+
+* `use-async-effect-state` updated to version `0.2.4`
 ## [0.3.4](https://github.com/justicointeractive/caliobase/compare/caliobase-ui-0.3.3...caliobase-ui-0.3.4) (2024-02-21)
 
 
