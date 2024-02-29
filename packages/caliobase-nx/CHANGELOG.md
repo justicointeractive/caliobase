@@ -2,6 +2,12 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.3.9](https://github.com/justicointeractive/caliobase/compare/caliobase-nx-0.3.8...caliobase-nx-0.3.9) (2024-02-29)
+
+### Dependency Updates
+
+* `caliobase-ui` updated to version `0.3.5`
+* `caliobase` updated to version `0.6.4`
 ## [0.3.8](https://github.com/justicointeractive/caliobase/compare/caliobase-nx-0.3.7...caliobase-nx-0.3.8) (2024-02-21)
 
 ### Dependency Updates
