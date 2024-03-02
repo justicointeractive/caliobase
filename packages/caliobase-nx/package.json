@@ -5,8 +5,8 @@
   "generators": "./generators.json",
   "executors": "./executors.json",
   "dependencies": {
-    "@caliobase/caliobase-ui": "0.3.4",
-    "@caliobase/caliobase": "0.6.3",
+    "@caliobase/caliobase-ui": "0.3.5",
+    "@caliobase/caliobase": "0.6.4",
     "@nestjs/swagger": "7.3.0",
     "@nx/devkit": "18.0.4",
     "@nx/eslint": "18.0.4",

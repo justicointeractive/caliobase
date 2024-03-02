@@ -17,7 +17,7 @@
     "@editorjs/header": "^2.6.2",
     "@editorjs/image": "^2.6.2",
     "@editorjs/list": "^1.7.0",
-    "use-async-effect-state": "0.2.3",
+    "use-async-effect-state": "0.2.4",
     "rxjs": "^7.0.0",
     "react-router-dom": "6.11.2",
     "circumspect": "^0.1.1",
