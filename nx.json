@@ -99,5 +99,15 @@
       }
     }
   },
-  "nxCloudAccessToken": "MTMyODlkOTctOTU5Yi00NzkwLWE1NGEtNWFlMDg2MDY4MTIxfHJlYWQtd3JpdGU="
+  "nxCloudAccessToken": "MTMyODlkOTctOTU5Yi00NzkwLWE1NGEtNWFlMDg2MDY4MTIxfHJlYWQtd3JpdGU=",
+  "release": {
+    "projects": [
+      "packages/caliobase",
+      "packages/caliobase-cdk",
+      "packages/caliobase-nx",
+      "packages/caliobase-ui",
+      "packages/typeorm-migrations",
+      "packages/use-async-effect-state"
+    ]
+  }
 }
