@@ -1,3 +1,7 @@
+## 0.2.5 (2024-03-04)
+
+This was a version bump only for use-async-effect-state to align it with other projects, there were no code changes.
+
 ## [0.2.4](https://github.com/justicointeractive/caliobase/compare/use-async-effect-state-0.2.3...use-async-effect-state-0.2.4) (2024-02-29)
 
 ## [0.2.3](https://github.com/justicointeractive/caliobase/compare/use-async-effect-state-0.2.2...use-async-effect-state-0.2.3) (2024-02-21)

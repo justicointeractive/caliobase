@@ -1,3 +1,7 @@
+## 0.3.10 (2024-03-04)
+
+This was a version bump only for caliobase-nx to align it with other projects, there were no code changes.
+
 ## [0.3.9](https://github.com/justicointeractive/caliobase/compare/caliobase-nx-0.3.8...caliobase-nx-0.3.9) (2024-02-29)
 
 ### Dependency Updates

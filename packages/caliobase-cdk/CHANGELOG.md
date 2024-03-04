@@ -1,3 +1,7 @@
+## 0.2.4 (2024-03-04)
+
+This was a version bump only for caliobase-cdk to align it with other projects, there were no code changes.
+
 ## [0.2.3](https://github.com/justicointeractive/caliobase/compare/caliobase-cdk-0.2.2...caliobase-cdk-0.2.3) (2024-02-29)
 
 ## [0.2.2](https://github.com/justicointeractive/caliobase/compare/caliobase-cdk-0.2.1...caliobase-cdk-0.2.2) (2024-02-21)

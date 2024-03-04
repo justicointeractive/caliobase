@@ -1,3 +1,7 @@
+## 0.6.5 (2024-03-04)
+
+This was a version bump only for caliobase to align it with other projects, there were no code changes.
+
 ## [0.6.4](https://github.com/justicointeractive/caliobase/compare/caliobase-0.6.3...caliobase-0.6.4) (2024-02-29)
 
 ### Dependency Updates
