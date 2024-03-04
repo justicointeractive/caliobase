@@ -101,13 +101,29 @@
   },
   "nxCloudAccessToken": "MTMyODlkOTctOTU5Yi00NzkwLWE1NGEtNWFlMDg2MDY4MTIxfHJlYWQtd3JpdGU=",
   "release": {
+    "releaseTagPattern": "{projectName}-{version}",
     "projects": [
-      "packages/caliobase",
-      "packages/caliobase-cdk",
-      "packages/caliobase-nx",
-      "packages/caliobase-ui",
-      "packages/typeorm-migrations",
-      "packages/use-async-effect-state"
-    ]
+      "example",
+      "caliobase",
+      "caliobase-cdk",
+      "caliobase-nx",
+      "caliobase-ui",
+      "typeorm-migrations",
+      "use-async-effect-state"
+    ],
+    "projectsRelationship": "independent",
+    "version": {
+      "conventionalCommits": true
+    },
+    "git": {
+      "commit": true,
+      "commitArgs": "--no-verify"
+    },
+    "changelog": {
+      "automaticFromRef": true,
+      "projectChangelogs": {
+        "createRelease": false
+      }
+    }
   }
 }

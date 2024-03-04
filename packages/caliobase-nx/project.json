@@ -46,20 +46,6 @@
       "options": {
         "jestConfig": "packages/caliobase-nx/jest.config.ts"
       }
-    },
-    "deploy": {
-      "executor": "ngx-deploy-npm:deploy",
-      "options": {
-        "access": "public"
-      }
-    },
-    "version": {
-      "executor": "@jscutlery/semver:version",
-      "options": {
-        "preset": "conventional",
-        "trackDeps": true,
-        "postTargets": ["caliobase-nx:deploy"]
-      }
     }
   },
   "tags": []
