@@ -1,3 +1,7 @@
+## 0.3.7 (2024-03-04)
+
+This was a version bump only for caliobase-ui to align it with other projects, there were no code changes.
+
 ## 0.3.6 (2024-03-04)
 
 This was a version bump only for caliobase-ui to align it with other projects, there were no code changes.

@@ -1,3 +1,7 @@
+## 0.2.6 (2024-03-04)
+
+This was a version bump only for use-async-effect-state to align it with other projects, there were no code changes.
+
 ## 0.2.5 (2024-03-04)
 
 This was a version bump only for use-async-effect-state to align it with other projects, there were no code changes.
