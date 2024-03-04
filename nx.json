@@ -102,14 +102,7 @@
   "nxCloudAccessToken": "MTMyODlkOTctOTU5Yi00NzkwLWE1NGEtNWFlMDg2MDY4MTIxfHJlYWQtd3JpdGU=",
   "release": {
     "releaseTagPattern": "{projectName}-{version}",
-    "projects": [
-      "caliobase",
-      "caliobase-cdk",
-      "caliobase-nx",
-      "caliobase-ui",
-      "typeorm-migrations",
-      "use-async-effect-state"
-    ],
+    "projects": ["packages/*", "!packages/*-e2e"],
     "projectsRelationship": "independent",
     "version": {
       "conventionalCommits": true
