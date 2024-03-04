@@ -103,7 +103,6 @@
   "release": {
     "releaseTagPattern": "{projectName}-{version}",
     "projects": [
-      "example",
       "caliobase",
       "caliobase-cdk",
       "caliobase-nx",
