@@ -1,3 +1,7 @@
+## 0.0.11-0 (2024-03-04)
+
+This was a version bump only for typeorm-migrations to align it with other projects, there were no code changes.
+
 ## 0.0.10 (2024-03-04)
 
 This was a version bump only for typeorm-migrations to align it with other projects, there were no code changes.

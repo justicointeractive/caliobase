@@ -1,3 +1,7 @@
+## 0.3.12-0 (2024-03-04)
+
+This was a version bump only for caliobase-nx to align it with other projects, there were no code changes.
+
 ## 0.3.11 (2024-03-04)
 
 This was a version bump only for caliobase-nx to align it with other projects, there were no code changes.
