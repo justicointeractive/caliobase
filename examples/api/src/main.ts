@@ -16,6 +16,16 @@ async function bootstrap() {
     migration: {
       migrationsDir: './tmp/test-migrations',
       generateMigrations: true,
+      lock: {
+        acquire: async () => {
+          // do nothing
+          return {
+            release: async () => {
+              // do nothing
+            },
+          };
+        },
+      },
     },
   });
 
