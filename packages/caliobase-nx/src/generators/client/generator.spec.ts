@@ -23,7 +23,7 @@ describe('client generator', () => {
     const config = readProjectConfiguration(appTree, 'client');
     expect(config).toBeDefined();
     expectSnapshot(appTree, 'package.json', [
-      [/"@caliobase\/caliobase": "[0-9.]+"/g, '"@caliobase/caliobase": "*"'],
+      [/"@caliobase\/caliobase": "[0-9.-]+"/g, '"@caliobase/caliobase": "*"'],
     ]);
     expectSnapshot(appTree, 'apps/api/src/main.ts');
     expectSnapshot(appTree, 'libs/client/project.json');
