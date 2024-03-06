@@ -21,7 +21,7 @@ describe('ui generator', () => {
     expect(config).toBeDefined();
     expectSnapshot(appTree, 'package.json', [
       [
-        /"@caliobase\/caliobase-ui": "[0-9.]+"/g,
+        /"@caliobase\/caliobase-ui": "[0-9.-]+"/g,
         '"@caliobase/caliobase-ui": "*"',
       ],
     ]);
