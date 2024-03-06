@@ -9,7 +9,7 @@
     "test": "nx run-many --all --target=test --parallel=100 --output-style=stream",
     "build": "nx run-many --all --target=build --parallel=100 --output-style=stream",
     "version": "nx run-many --all --target=version --parallel=1 --output-style=stream",
-    "release": "git fetch --all --tags && npm run test && nx release && git push --follow-tags",
+    "release": "git fetch --all --tags && npm run test && nx release version prerelease && nx release publish prerelease && git push --follow-tags",
     "start": "run-p start:*",
     "start:example": "nx run-many --projects=examples-api,examples-cms --target=serve --parallel=100 --output-style=stream"
   },

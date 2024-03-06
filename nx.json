@@ -97,6 +97,12 @@
           "codeCoverage": true
         }
       }
+    },
+    "nx-release-publish": {
+      "dependsOn": ["build"],
+      "options": {
+        "packageRoot": "{workspaceRoot}/dist/packages/{projectName}"
+      }
     }
   },
   "nxCloudAccessToken": "MTMyODlkOTctOTU5Yi00NzkwLWE1NGEtNWFlMDg2MDY4MTIxfHJlYWQtd3JpdGU=",
