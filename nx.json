@@ -111,16 +111,20 @@
     "projects": ["packages/*", "!packages/*-e2e"],
     "projectsRelationship": "independent",
     "version": {
-      "conventionalCommits": true
-    },
-    "git": {
-      "commit": true,
-      "commitArgs": "--no-verify"
+      "conventionalCommits": true,
+      "git": {
+        "commit": true,
+        "commitArgs": "--no-verify"
+      }
     },
     "changelog": {
       "automaticFromRef": true,
       "projectChangelogs": {
         "createRelease": false
+      },
+      "git": {
+        "commit": true,
+        "commitArgs": "--no-verify"
       }
     }
   }
