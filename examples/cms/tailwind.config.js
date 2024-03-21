@@ -1,14 +1,11 @@
 const path = require('path');
 const { createGlobPatternsForDependencies } = require('@nx/react/tailwind');
 
-const caliobaseUiDir = path.resolve(
-  require.resolve('../../dist/packages/caliobase-ui'),
-  '..'
-);
+const caliobaseUiDir = path.resolve(__dirname, '../../packages/caliobase-ui');
 
 module.exports = {
   content: [
-    `${caliobaseUiDir}/**/*.js`,
+    `${caliobaseUiDir}/**/*.(ts|tsx)`,
     ...createGlobPatternsForDependencies(__dirname),
   ],
   plugins: [],
