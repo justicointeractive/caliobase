@@ -3,8 +3,8 @@ import {
   MjmlColumn,
   MjmlSection,
   MjmlText,
-  render,
-} from 'mjml-react';
+} from '@faire/mjml-react';
+import { render } from '@faire/mjml-react/utils/render';
 import { EmailLayout } from './layout';
 
 export function forgotPasswordEmail(

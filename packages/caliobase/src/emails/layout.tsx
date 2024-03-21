@@ -1,4 +1,10 @@
-import { Mjml, MjmlBody, MjmlHead, MjmlPreview, MjmlTitle } from 'mjml-react';
+import {
+  Mjml,
+  MjmlBody,
+  MjmlHead,
+  MjmlPreview,
+  MjmlTitle,
+} from '@faire/mjml-react';
 import { ReactNode } from 'react';
 
 export function EmailLayout(props: {
