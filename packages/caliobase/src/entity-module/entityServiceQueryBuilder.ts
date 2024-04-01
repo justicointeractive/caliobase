@@ -67,9 +67,12 @@ export function entityServiceQueryBuilder<TEntity extends ObjectLiteral>(
             r.relationType === 'one-to-many')
       )
     ) {
-      query.innerJoin(`entity.${key}`, key);
+      const joinAlias = `${key}_where`;
+      query.innerJoin(`entity.${key}`, joinAlias);
       for (const [k, v] of Object.entries(value)) {
-        query.andWhere(`${key}.${k} = :${key}_${k}`, { [`${key}_${k}`]: v });
+        query.andWhere(`${joinAlias}.${k} = :${joinAlias}_${k}`, {
+          [`${joinAlias}_${k}`]: v,
+        });
       }
     } else {
       query.andWhere({ [key]: value });
