@@ -2,6 +2,7 @@ import { Type } from '@nestjs/common';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform, Type as TransformType } from 'class-transformer';
 import { IsDate, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
+import { groupBy } from 'lodash';
 import {
   Equal,
   FindOptionsOrder,
@@ -131,6 +132,13 @@ function toQueryParamName(
   return sign + String(key) + operator;
 }
 
+function toRelationParamName(
+  key: string | symbol,
+  relatonPropertyName: string
+) {
+  return `${String(key)}.${relatonPropertyName}`;
+}
+
 export type CaliobaseFindOptions<TEntity> = {
   where: FindOptionsWhere<TEntity>;
   limit?: number;
@@ -177,8 +185,21 @@ export function createFindManyQueryParamClass<TEntity>(
 ): Type<ToFindOptions<TEntity>> {
   const queryableProperties = QueryProperty.getKeys(entityType.prototype);
 
-  const entityColumns = getMetadataArgsStorage().columns.filter(
-    (col) => col.target === entityType
+  const entityColumns = getEntityColumns<TEntity>(entityType);
+
+  const {
+    nonRelation: queryablePropertiesNotRelation,
+    relation: queryablePropertiesRelation,
+  } = groupBy(queryableProperties, ({ key }) =>
+    getMetadataArgsStorage().relations.filter(
+      (rel) =>
+        rel.target === entityType &&
+        rel.propertyName === key &&
+        (rel.relationType === 'many-to-many' ||
+          rel.relationType === 'one-to-many')
+    ).length === 0
+      ? 'nonRelation'
+      : 'relation'
   );
 
   @RenameClass(entityType)
@@ -222,7 +243,7 @@ export function createFindManyQueryParamClass<TEntity>(
 
       const where: FindOptionsWhere<TEntity> = {};
 
-      queryableProperties.forEach(({ key, operators }) => {
+      queryablePropertiesNotRelation?.forEach(({ key, operators }) => {
         [...filterOperators, ...operators].forEach(
           ({ symbol, findOperator }) => {
             const queryParamName = toQueryParamName(key, symbol);
@@ -248,6 +269,40 @@ export function createFindManyQueryParamClass<TEntity>(
             }
           }
         );
+      });
+
+      // *-to-many relations should generate find options like this:
+      // {
+      //   where: {
+      //     category: {
+      //       id: '123'
+      //     }
+      //   }
+      // }
+      // from query params like this:
+      // category.id=123
+      queryablePropertiesRelation?.forEach(({ key }) => {
+        const relation = getMetadataArgsStorage().relations.find(
+          (rel) =>
+            rel.target === entityType &&
+            rel.propertyName === key &&
+            (rel.relationType === 'many-to-many' ||
+              rel.relationType === 'one-to-many')
+        );
+
+        // TODO: clean up these `any`s
+        const relatedType = (relation?.type as any)();
+
+        const relatedColumns = getEntityColumns(relatedType);
+
+        relatedColumns.forEach((col) => {
+          const queryParamName = toRelationParamName(key, col.propertyName);
+          if (thisWithDefaults[queryParamName] != null) {
+            // TODO: clean up these `any`s
+            ((where as any)[key] ??= {})[col.propertyName] =
+              thisWithDefaults[queryParamName];
+          }
+        });
       });
 
       const orderBy: FindOptionsOrder<TEntity> = {};
@@ -384,4 +439,10 @@ export function createFindManyQueryParamClass<TEntity>(
   );
 
   return FindManyParamsClass;
+}
+
+function getEntityColumns<TEntity>(entityType: Type<TEntity>) {
+  return getMetadataArgsStorage().columns.filter(
+    (col) => col.target === entityType
+  );
 }

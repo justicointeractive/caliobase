@@ -1,11 +1,11 @@
 import { faker } from '@faker-js/faker';
-import { Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, JoinTable, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
 import {
   CaliobaseEntity,
-  createEntityModule,
   EntityOwner,
-  getOwnerProperty,
   Organization,
+  createEntityModule,
+  getOwnerProperty,
 } from '..';
 import { AuthService } from '../auth/auth.service';
 import { AbstractOrganizationProfile } from '../auth/entities/abstract-organization-profile.entity';
@@ -116,6 +116,94 @@ describe('entity module', () => {
       );
       expect(relation?.organization).toBeTruthy();
       expect(relation?.organization.profile).toBeTruthy();
+    });
+    it('should query filtered by many to many relation', async () => {
+      @CaliobaseEntity()
+      class TestEntity {
+        @PrimaryGeneratedColumn()
+        id!: string;
+
+        @EntityOwner()
+        organization!: Organization;
+
+        @Column()
+        label!: string;
+
+        @ManyToMany(() => CategoryEntity)
+        @JoinTable()
+        categories!: CategoryEntity[];
+      }
+
+      @CaliobaseEntity()
+      class CategoryEntity {
+        @PrimaryGeneratedColumn()
+        id!: string;
+
+        @Column()
+        label!: string;
+      }
+
+      const testEntityModule = createEntityModule(TestEntity);
+      const categoryModule = createEntityModule(CategoryEntity);
+
+      const module = await createTestingModule({
+        imports: [testEntityModule, categoryModule],
+      });
+
+      const orgService = module.get(OrganizationService);
+      const authService = module.get(AuthService);
+
+      const user = await authService.createUserWithPassword(fakeUser());
+
+      const org = await orgService.createOrganization(user.id, {
+        profile: {
+          name: faker.company.companyName(),
+        } as Partial<AbstractOrganizationProfile>,
+      });
+
+      const categoryService = module.get<
+        InstanceType<typeof categoryModule.EntityService>
+      >(categoryModule.EntityService);
+
+      const category = await categoryService.create(
+        { label: 'test123' },
+        {
+          organization: { id: org.id },
+          user: {
+            user: null,
+            member: null,
+            organization: org,
+          },
+        }
+      );
+
+      const entityService = module.get<
+        InstanceType<typeof testEntityModule.EntityService>
+      >(testEntityModule.EntityService);
+
+      const created = await entityService.create(
+        { label: 'test123', categories: [category] },
+        {
+          organization: { id: org.id },
+          user: {
+            user: null,
+            member: null,
+            organization: org,
+          },
+        }
+      );
+
+      expect(created).not.toBeNull();
+
+      const all = await entityService.findAll(
+        { where: { categories: { id: category.id } } },
+        {
+          organization: { id: org.id },
+          user: { user: null, member: null, organization: org },
+        }
+      );
+
+      expect(all.items).toHaveLength(1);
     });
   });
 

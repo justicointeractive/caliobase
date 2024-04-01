@@ -57,7 +57,33 @@ export function entityServiceQueryBuilder<TEntity extends ObjectLiteral>(
     );
   }
 
-  query.andWhere(where);
+  for (const [key, value] of Object.entries(where)) {
+    // if key is a *-to-many relation, join and filter on the relation
+    if (
+      repository.metadata.relations.find(
+        (r) =>
+          r.propertyName === key &&
+          (r.relationType === 'many-to-many' ||
+            r.relationType === 'one-to-many')
+      )
+    ) {
+      query.innerJoin(`entity.${key}`, key);
+      for (const [k, v] of Object.entries(value)) {
+        query.andWhere(`${key}.${k} = :${key}_${k}`, { [`${key}_${k}`]: v });
+      }
+    } else {
+      query.andWhere({ [key]: value });
+    }
+  }
+
+  // *-to-many relations...
+
+  // query.innerJoin(
+  //   'entity.category',
+  //   'category',
+  //   'category.id = :categoryId',
+  //   {}
+  // );
 
   query.andWhere(
     new Brackets((qb) => {

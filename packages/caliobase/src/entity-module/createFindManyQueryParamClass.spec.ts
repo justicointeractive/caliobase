@@ -1,4 +1,4 @@
-import { FindOperator } from 'typeorm';
+import { FindOperator, ManyToMany, PrimaryColumn } from 'typeorm';
 import { assert } from '../lib/assert';
 import { createFindManyQueryParamClass } from './createFindManyQueryParamClass';
 import { QueryProperty } from './decorators';
@@ -43,5 +43,33 @@ describe('createFindManyQueryParamClass', () => {
     const findOptions = instance.toFindOptions();
     expect(findOptions.relations).toMatchObject(['foo.bar']);
     expect(findOptions.loadEagerRelations).toBeFalsy();
+  });
+  it('should create class against many-to-many relation', async () => {
+    class ReferenceEntity {
+      @PrimaryColumn()
+      id!: string;
+
+      @QueryProperty()
+      @ManyToMany(() => CategoryEntity)
+      categories!: CategoryEntity[];
+    }
+
+    class CategoryEntity {
+      @PrimaryColumn()
+      id!: string;
+    }
+
+    const QueryParamClass = createFindManyQueryParamClass(ReferenceEntity);
+
+    const instance = new QueryParamClass();
+
+    instance['categories.id'] = 'abc123';
+
+    const findOptions = instance.toFindOptions();
+    expect(findOptions.where).toMatchObject({
+      categories: {
+        id: 'abc123',
+      },
+    });
   });
 });
