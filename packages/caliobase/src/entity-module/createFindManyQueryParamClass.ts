@@ -342,64 +342,100 @@ export function createFindManyQueryParamClass<TEntity>(
     [key: string]: unknown;
   }
 
-  queryableProperties.forEach(({ key, type: propertyType, operators }) => {
-    [...filterOperators, ...operators]
-      .map(({ types, ...operator }) => {
-        const operatorType = types.find(
-          (operatorType) =>
-            extractArrayType(operatorType) === propertyType ||
-            extractArrayType(operatorType) === Object
-        );
-        return { ...operator, operatorType };
-      })
-      .filter(({ operatorType }) => operatorType != null)
-      .forEach(({ symbol: symbol, description, operatorType }) => {
-        const queryParamName = toQueryParamName(key, symbol);
-        const queryParamNotName = toQueryParamName(key, symbol, true);
+  queryablePropertiesNotRelation?.forEach(
+    ({ key, type: propertyType, operators }) => {
+      [...filterOperators, ...operators]
+        .map(({ types, ...operator }) => {
+          const operatorType = types.find(
+            (operatorType) =>
+              extractArrayType(operatorType) === propertyType ||
+              extractArrayType(operatorType) === Object
+          );
+          return { ...operator, operatorType };
+        })
+        .filter(({ operatorType }) => operatorType != null)
+        .forEach(({ symbol: symbol, description, operatorType }) => {
+          const queryParamName = toQueryParamName(key, symbol);
+          const queryParamNotName = toQueryParamName(key, symbol, true);
 
-        const each = Array.isArray(operatorType) ? true : false;
+          const each = Array.isArray(operatorType) ? true : false;
 
-        const classTransformerValidatorTypeDecorators =
-          propertyType === Number
-            ? [TransformType(() => Number, {}), IsNumber({}, { each })]
-            : propertyType === Date
-            ? [TransformType(() => Date, {}), IsDate({ each })]
-            : [IsString({ each })];
+          const classTransformerValidatorTypeDecorators =
+            propertyType === Number
+              ? [TransformType(() => Number, {}), IsNumber({}, { each })]
+              : propertyType === Date
+              ? [TransformType(() => Date, {}), IsDate({ each })]
+              : [IsString({ each })];
 
-        Reflect.decorate(
-          [
-            ...classTransformerValidatorTypeDecorators,
-            IsOptional(),
-            ApiPropertyOptional({
-              type:
-                extractArrayType(operatorType) !== Object
-                  ? operatorType
-                  : matchArrayness(operatorType, propertyType),
-              description: description(String(key), false),
-            }),
-          ],
-          FindManyParamsClass.prototype,
-          queryParamName,
-          void 0
-        );
+          Reflect.decorate(
+            [
+              ...classTransformerValidatorTypeDecorators,
+              IsOptional(),
+              ApiPropertyOptional({
+                type:
+                  extractArrayType(operatorType) !== Object
+                    ? operatorType
+                    : matchArrayness(operatorType, propertyType),
+                description: description(String(key), false),
+              }),
+            ],
+            FindManyParamsClass.prototype,
+            queryParamName,
+            void 0
+          );
 
-        Reflect.decorate(
-          [
-            ...classTransformerValidatorTypeDecorators,
-            IsOptional(),
-            ApiPropertyOptional({
-              type:
-                extractArrayType(operatorType) !== Object
-                  ? operatorType
-                  : matchArrayness(operatorType, propertyType),
-              description: description(String(key), true),
-            }),
-          ],
-          FindManyParamsClass.prototype,
-          queryParamNotName,
-          void 0
-        );
-      });
+          Reflect.decorate(
+            [
+              ...classTransformerValidatorTypeDecorators,
+              IsOptional(),
+              ApiPropertyOptional({
+                type:
+                  extractArrayType(operatorType) !== Object
+                    ? operatorType
+                    : matchArrayness(operatorType, propertyType),
+                description: description(String(key), true),
+              }),
+            ],
+            FindManyParamsClass.prototype,
+            queryParamNotName,
+            void 0
+          );
+        });
+    }
+  );
+
+  queryablePropertiesRelation?.forEach(({ key }) => {
+    const relation = getMetadataArgsStorage().relations.find(
+      (rel) =>
+        rel.target === entityType &&
+        rel.propertyName === key &&
+        (rel.relationType === 'many-to-many' ||
+          rel.relationType === 'one-to-many')
+    );
+
+    // TODO: clean up these `any`s
+    const relatedType = (relation?.type as any)();
+
+    const relatedColumns = getEntityColumns(relatedType);
+
+    relatedColumns.forEach((col) => {
+      const queryParamName = toRelationParamName(key, col.propertyName);
+
+      Reflect.decorate(
+        [
+          // TODO: support types that aren't strings
+          IsString(),
+          IsOptional(),
+          ApiPropertyOptional({
+            type: String,
+            description: `Filter by ${String(key)}.${col.propertyName}`,
+          }),
+        ],
+        FindManyParamsClass.prototype,
+        queryParamName,
+        void 0
+      );
+    });
   });
 
   const orderParams = queryableProperties.flatMap(({ key }) => [
