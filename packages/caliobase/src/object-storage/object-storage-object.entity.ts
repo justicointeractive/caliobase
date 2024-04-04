@@ -25,6 +25,10 @@ export class ObjectStorageObject {
   @ApiProperty()
   organization!: Organization;
 
+  @Column({ nullable: true })
+  @ApiProperty()
+  externalId?: string;
+
   @Column()
   @ApiProperty()
   key!: string;
