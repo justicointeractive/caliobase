@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { format } from 'date-fns';
 import { DataSource } from 'typeorm';
+import { URL } from 'url';
 import {
   AbstractObjectStorageProvider,
   CompleteUploadRequest,
@@ -32,7 +33,7 @@ export type ObjectCreateRequest = {
 };
 
 export type ObjectCreateFromUrlRequest = {
-  sourceUrl: string;
+  source: URL | File;
 } & Omit<ObjectCreateRequest, 'contentLength' | 'contentType'>;
 
 @Injectable()
@@ -88,22 +89,35 @@ export class ObjectStorageService {
     return await this.objectRepo.save(object);
   }
 
-  async uploadFileFromUrl(file: ObjectCreateFromUrlRequest) {
-    const response = await fetch(file.sourceUrl);
+  async urlOrFileToFile(sourceUrlOrBuffer: URL | File): Promise<File> {
+    if (sourceUrlOrBuffer instanceof File) {
+      return sourceUrlOrBuffer;
+    }
+
+    const response = await fetch(sourceUrlOrBuffer);
 
     if (!response.ok) {
       throw new Error(
-        `Failed to fetch ${file.sourceUrl}: ${response.status} ${response.statusText}`
+        `Failed to fetch ${sourceUrlOrBuffer}: ${response.status} ${response.statusText}`
       );
     }
 
     const contentType = response.headers.get('content-type') ?? '';
+
     const buffer = await response.arrayBuffer();
+
+    const file = new File([buffer], '', { type: contentType });
+
+    return file;
+  }
+
+  async uploadFileFromUrl(file: ObjectCreateFromUrlRequest) {
+    const buffer = await this.urlOrFileToFile(file.source);
 
     const { object, upload } = await this.createObject({
       ...file,
-      contentLength: buffer.byteLength,
-      contentType,
+      contentLength: buffer.size,
+      contentType: buffer.type,
     });
 
     const uploadedParts: SignedUploadUrlResult[] = [];

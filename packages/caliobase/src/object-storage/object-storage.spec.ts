@@ -1,3 +1,4 @@
+import { URL } from 'url';
 import {
   createTestOrganization,
   createTestingModule,
@@ -43,7 +44,7 @@ describe('object storage', () => {
     const objectStorageService = module.get(ObjectStorageService);
 
     const request: ObjectCreateFromUrlRequest = {
-      sourceUrl: 'https://example.com',
+      source: new URL('https://example.com'),
       fileName: randomFileName,
       organization,
       uploadedBy: owner.user,
