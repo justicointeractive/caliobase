@@ -25,6 +25,10 @@ export type ObjectCreateRequest = {
    * @default new Date()
    * */
   date?: Date;
+  /**
+   * External ID for the object.
+   */
+  externalId?: string;
 };
 
 export type ObjectCreateFromUrlRequest = {
