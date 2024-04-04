@@ -106,4 +106,19 @@ export class S3ObjectStorageProvider extends AbstractObjectStorageProvider {
     });
     return { deleted: true };
   }
+
+  override async fileExists(path: string): Promise<boolean> {
+    try {
+      await this.s3.headObject({
+        Bucket: this.options.bucket,
+        Key: `${this.options.keyPrefix}${path}`,
+      });
+      return true;
+    } catch (e: any) {
+      if (e.name === 'NotFound') {
+        return false;
+      }
+      throw e;
+    }
+  }
 }

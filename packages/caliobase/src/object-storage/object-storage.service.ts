@@ -5,6 +5,7 @@ import {
   AbstractObjectStorageProvider,
   CompleteUploadRequest,
   ObjectStorageObject,
+  SignedUploadUrlResult,
 } from '.';
 
 export type ObjectCreateRequest = {
@@ -13,7 +14,16 @@ export type ObjectCreateRequest = {
   fileName: string;
   organization: { id: string };
   uploadedBy: { id: string };
+  /**
+   * Date used in the object key.
+   * @default new Date()
+   * */
+  date?: Date;
 };
+
+export type ObjectCreateFromUrlRequest = {
+  sourceUrl: string;
+} & Omit<ObjectCreateRequest, 'contentLength' | 'contentType'>;
 
 @Injectable()
 export class ObjectStorageService {
@@ -24,14 +34,18 @@ export class ObjectStorageService {
     private objectStorageProvider: AbstractObjectStorageProvider
   ) {}
 
-  async createObject(file: ObjectCreateRequest) {
-    const { fileName, contentLength, contentType, organization, uploadedBy } =
-      file;
+  getKeyForFile({
+    organization,
+    date = new Date(),
+    fileName,
+  }: Pick<ObjectCreateRequest, 'organization' | 'date' | 'fileName'>) {
+    return `${organization.id}/${format(date, 'yyyy/MM/dd')}/${fileName}`;
+  }
 
-    const key = `${organization.id}/${format(
-      new Date(),
-      'yyyy/MM/dd'
-    )}/${fileName}`;
+  async createObject(file: ObjectCreateRequest) {
+    const { contentLength, contentType, organization, uploadedBy } = file;
+
+    const key = this.getKeyForFile(file);
 
     const cdnUrl = `${this.objectStorageProvider.options.cdnUrlPrefix}${key}`;
 
@@ -62,5 +76,50 @@ export class ObjectStorageService {
     object.status = 'ready';
 
     return await this.objectRepo.save(object);
+  }
+
+  async uploadFileFromUrl(file: ObjectCreateFromUrlRequest) {
+    const response = await fetch(file.sourceUrl);
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch ${file.sourceUrl}: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const contentType = response.headers.get('content-type') ?? '';
+    const buffer = await response.arrayBuffer();
+
+    const { object, upload } = await this.createObject({
+      ...file,
+      contentLength: buffer.byteLength,
+      contentType,
+    });
+
+    const uploadedParts: SignedUploadUrlResult[] = [];
+    for (const part of upload.parts) {
+      const resp = await fetch(part.url, {
+        method: part.method,
+        body: buffer.slice(part.rangeStart, part.rangeEnd),
+      });
+
+      if (!resp.ok) {
+        throw new Error(
+          `Failed to upload part ${part.part}: ${resp.status} ${resp.statusText}`
+        );
+      }
+
+      uploadedParts.push({
+        part: part.part,
+        etag: resp.headers.get('etag') ?? '',
+      });
+    }
+
+    await this.completeUpload(object.id, {
+      uploadId: upload.uploadId,
+      parts: uploadedParts,
+    });
+
+    return object;
   }
 }

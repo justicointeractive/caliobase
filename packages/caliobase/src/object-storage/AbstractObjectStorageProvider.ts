@@ -63,4 +63,6 @@ export abstract class AbstractObjectStorageProvider {
   ): Promise<void>;
 
   abstract deleteFile(file: string): Promise<DeleteResult>;
+
+  abstract fileExists(file: string): Promise<boolean>;
 }
