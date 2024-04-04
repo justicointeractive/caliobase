@@ -1,4 +1,4 @@
-import { DynamicModule, Module } from '@nestjs/common';
+import { DynamicModule, Global, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AbstractObjectStorageProvider } from './AbstractObjectStorageProvider';
 import { ObjectStorageObject } from './object-storage-object.entity';
@@ -11,6 +11,7 @@ export type CaliobaseObjectStorageModuleOptions = {
 
 const builtInEntities = [ObjectStorageObject];
 
+@Global() // TODO: may regret making this global?
 @Module({})
 export class CaliobaseObjectStorageModule {
   static async forRootAsync({
