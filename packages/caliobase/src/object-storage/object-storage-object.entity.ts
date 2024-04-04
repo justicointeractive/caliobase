@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsOptional } from 'class-validator';
 import { Column, Entity, ManyToOne } from 'typeorm';
 import { EntityOwner } from '../auth/decorators/owner.decorator';
 import { Organization } from '../auth/entities/organization.entity';
@@ -44,7 +45,8 @@ export class ObjectStorageObject {
   @ApiProperty({ type: String, enum: ObjectStorageObjectStatuses })
   status!: ObjectStorageObjectStatus;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { nullable: true })
   @ApiProperty()
-  uploadedBy!: User;
+  @IsOptional()
+  uploadedBy?: User;
 }
