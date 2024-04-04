@@ -12,8 +12,14 @@ export type ObjectCreateRequest = {
   contentLength: number;
   contentType: string;
   fileName: string;
+  /**
+   * Organization that owns the file.
+   */
   organization: { id: string };
-  uploadedBy: { id: string };
+  /**
+   * User who uploaded the file.
+   */
+  uploadedBy?: { id: string };
   /**
    * Date used in the object key.
    * @default new Date()
