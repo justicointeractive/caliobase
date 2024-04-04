@@ -27,6 +27,7 @@ export class CaliobaseObjectStorageModule {
         ObjectStorageService,
       ],
       controllers: [ObjectStorageController],
+      exports: [ObjectStorageService],
     };
   }
 }
