@@ -1,6 +1,6 @@
 {
   "name": "@caliobase/typeorm-migrations",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "dependencies": {
     "@sqltools/formatter": "1.2.5",
     "circumspect": "^0.1.1",
