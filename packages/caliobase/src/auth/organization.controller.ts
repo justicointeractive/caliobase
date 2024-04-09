@@ -28,6 +28,7 @@ import { getEntityDtos } from '../lib/getEntityDtos';
 import { AccessTokenResponse } from './auth.controller';
 import { CaliobaseAuthProfileEntities } from './auth.module';
 import { Public } from './decorators/public.decorator';
+import { RequireRoleOrHigher } from './decorators/role.decorator';
 import { AbstractOrganizationProfile } from './entities/abstract-organization-profile.entity';
 import { AbstractUserProfile } from './entities/abstract-user-profile.entity';
 import { MemberInvitationToken } from './entities/member-invitation-token.entity';
@@ -116,20 +117,7 @@ export function createOrganizationController<
     async getRootOrganizationToken(
       @Request() request: RequestUser
     ): Promise<AccessTokenResponse> {
-      const userId = request.user?.user?.id;
-      const organizationId = Organization.RootId;
-
-      const accessToken =
-        userId != null
-          ? await this.orgService.createMemberAccessToken(
-              userId,
-              organizationId
-            )
-          : await this.orgService.createGuestAccessToken(organizationId);
-
-      return {
-        accessToken,
-      };
+      return this.getOrganizationToken(Organization.RootId, request);
     }
 
     @Public()
@@ -148,6 +136,41 @@ export function createOrganizationController<
               organizationId
             )
           : await this.orgService.createGuestAccessToken(organizationId);
+
+      return {
+        accessToken,
+      };
+    }
+
+    @Public()
+    @Post('join')
+    @ApiCreatedResponse({ type: AccessTokenResponse })
+    async selfJoinRootOrganization(
+      @Request() request: RequestUser
+    ): Promise<AccessTokenResponse> {
+      return this.selfJoinOrganization(Organization.RootId, request);
+    }
+
+    @Public()
+    @Post(':id/join')
+    @ApiCreatedResponse({ type: AccessTokenResponse })
+    async selfJoinOrganization(
+      @Param('id') organizationId: string,
+      @Request() request: RequestUser
+    ): Promise<AccessTokenResponse> {
+      const user = request.user?.user;
+      assert(user, UnauthorizedException);
+
+      const organization = await this.orgService.getOrganizationById(
+        organizationId
+      );
+
+      await this.orgService.joinAsGuest(organization, user);
+
+      const accessToken = await this.orgService.createMemberAccessToken(
+        user.id,
+        organizationId
+      );
 
       return {
         accessToken,
@@ -194,6 +217,7 @@ export function createOrganizationController<
 
     @Get('member')
     @ApiOkResponse({ type: [Member] })
+    @RequireRoleOrHigher('manager')
     async listMembers(@Request() request: RequestUser) {
       const orgId = request.user?.organization?.id;
       assert(orgId, UnauthorizedException);
@@ -202,6 +226,7 @@ export function createOrganizationController<
 
     @Get('member/:userId')
     @ApiOkResponse({ type: Member })
+    @RequireRoleOrHigher('manager')
     async getMember(
       @Param('userId') targetUserId: string,
       @Request() request: RequestUser
@@ -218,6 +243,7 @@ export function createOrganizationController<
     @Patch('member/:userId')
     @ApiOkResponse({ type: Member })
     @ApiBody({ type: CreateInvitationRequest })
+    @RequireRoleOrHigher('manager')
     async updateMember(
       @Param('userId') targetUserId: string,
       @Request() request: RequestUser,
@@ -239,6 +265,7 @@ export function createOrganizationController<
 
     @Delete('member/:userId')
     @ApiOkResponse({ type: Member })
+    @RequireRoleOrHigher('manager')
     async removeMember(
       @Param('userId') targetUserId: string,
       @Request() request: RequestUser

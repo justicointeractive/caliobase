@@ -1,8 +1,8 @@
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { omit } from 'lodash';
 import {
-  createTestingModule,
   createTestOrganization,
+  createTestingModule,
   useTestingModule,
 } from '../test/createTestingModule';
 import { fakeUser } from '../test/fakeUser';
@@ -152,6 +152,35 @@ describe('auth', () => {
       expect(
         await orgService.findOrganizationMembers(owner.organizationId)
       ).toHaveLength(1);
+    });
+  });
+
+  describe('self join root organization', () => {
+    const { module, userService, orgService } = useTestingModule(async () => {
+      const module = await createTestingModule({
+        guestRole: 'guest',
+      });
+
+      const userService = module.get<AuthService>(AuthService);
+      const orgService = module.get<OrganizationService>(OrganizationService);
+
+      return {
+        module,
+        userService,
+        orgService,
+      };
+    });
+
+    it('should allow a user to join themselves to an organization as a guest', async () => {
+      const { organization } = await createTestOrganization(module);
+
+      const otherUser = await userService.createUserWithPassword(fakeUser());
+      const otherMember = await orgService.joinAsGuest(organization, otherUser);
+      expect(otherMember).toMatchObject({
+        organization: { id: organization.id },
+        user: { id: otherUser.id },
+        roles: ['guest'],
+      });
     });
   });
 });

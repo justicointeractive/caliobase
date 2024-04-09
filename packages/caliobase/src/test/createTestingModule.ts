@@ -45,11 +45,13 @@ export async function createTestingModule({
   typeormOptions,
   objectStorage = true,
   allowCreateOwnOrganizations = false,
+  guestRole,
   ...metadata
 }: ModuleMetadata & {
   typeormOptions?: TypeOrmModuleOptions;
   objectStorage?: boolean;
   allowCreateOwnOrganizations?: boolean;
+  guestRole?: Role;
 } = {}) {
   const module = await Test.createTestingModule({
     ...metadata,
@@ -82,6 +84,7 @@ export async function createTestingModule({
       }),
       CaliobaseModule.forRootAsync({
         allowCreateOwnOrganizations,
+        guestRole,
         urls: {
           forgotPassword: `https://example.org/?token=${TOKEN_TOKEN}`,
         },

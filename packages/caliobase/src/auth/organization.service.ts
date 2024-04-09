@@ -65,6 +65,12 @@ export class OrganizationService {
     });
   }
 
+  async getOrganizationById(organizationId: string) {
+    return await this.orgRepo.findOneOrFail({
+      where: { id: organizationId },
+    });
+  }
+
   async createOrganization(
     userId: string,
     { profile: createProfile, ...createRequest }: CreateOrganizationRequest

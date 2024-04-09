@@ -6,7 +6,9 @@ import {
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 
+import { CaliobaseRequestUser } from '../..';
 import { IS_PUBLIC } from '../decorators/public.decorator';
+import { GetAllowedRoles } from '../decorators/role.decorator';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
@@ -14,12 +16,9 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     super();
   }
 
-  override handleRequest<TUser = unknown>(
-    err: Error,
-    user: TUser,
-    info: unknown,
-    context: ExecutionContext
-  ): TUser {
+  override handleRequest<
+    TUser extends CaliobaseRequestUser = CaliobaseRequestUser
+  >(err: Error, user: TUser, info: unknown, context: ExecutionContext): TUser {
     if (err) throw err;
 
     const isPublic = this.reflector.getAllAndOverride(IS_PUBLIC, [
@@ -28,6 +27,14 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     ]);
 
     if (!isPublic && !user) {
+      throw new UnauthorizedException();
+    }
+
+    const allowedRoles = GetAllowedRoles(this.reflector, context);
+    if (
+      allowedRoles &&
+      !allowedRoles.some((role) => (user.member?.roles || []).includes(role))
+    ) {
       throw new UnauthorizedException();
     }
 
