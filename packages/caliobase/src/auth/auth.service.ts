@@ -177,10 +177,6 @@ export class AuthService {
     return { ...user, profile };
   }
 
-  async getUserById(request: { userId: string }) {
-    return await this.userRepo.findOneByOrFail({ id: request.userId });
-  }
-
   async setUserPassword(
     id: string,
     {

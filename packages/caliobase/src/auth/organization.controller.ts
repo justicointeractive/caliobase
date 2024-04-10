@@ -17,6 +17,7 @@ import {
   ApiCreatedResponse,
   ApiOkResponse,
   ApiProperty,
+  ApiPropertyOptional,
   ApiTags,
 } from '@nestjs/swagger';
 import { Type as TransformType } from 'class-transformer';
@@ -43,6 +44,11 @@ class CreateInvitationRequest {
   @ApiProperty()
   @IsIn(AllRoles)
   roles!: Role[];
+}
+
+class OrganizationTokenRequest {
+  @ApiPropertyOptional()
+  joinAsGuestIfNotMember?: boolean;
 }
 
 export abstract class AbstractOrganizationController {}
@@ -114,18 +120,22 @@ export function createOrganizationController<
     @Public()
     @Post('token')
     @ApiCreatedResponse({ type: AccessTokenResponse })
+    @ApiBody({ type: OrganizationTokenRequest, required: false })
     async getRootOrganizationToken(
-      @Request() request: RequestUser
+      @Request() request: RequestUser,
+      @Body() body?: OrganizationTokenRequest
     ): Promise<AccessTokenResponse> {
-      return this.getOrganizationToken(Organization.RootId, request);
+      return this.getOrganizationToken(Organization.RootId, request, body);
     }
 
     @Public()
     @Post(':id/token')
     @ApiCreatedResponse({ type: AccessTokenResponse })
+    @ApiBody({ type: OrganizationTokenRequest })
     async getOrganizationToken(
       @Param('id') organizationId: string,
-      @Request() request: RequestUser
+      @Request() request: RequestUser,
+      @Body() body?: OrganizationTokenRequest
     ): Promise<AccessTokenResponse> {
       const userId = request.user?.user?.id;
 
@@ -133,44 +143,10 @@ export function createOrganizationController<
         userId != null
           ? await this.orgService.createMemberAccessToken(
               userId,
-              organizationId
+              organizationId,
+              body
             )
           : await this.orgService.createGuestAccessToken(organizationId);
-
-      return {
-        accessToken,
-      };
-    }
-
-    @Public()
-    @Post('join')
-    @ApiCreatedResponse({ type: AccessTokenResponse })
-    async selfJoinRootOrganization(
-      @Request() request: RequestUser
-    ): Promise<AccessTokenResponse> {
-      return this.selfJoinOrganization(Organization.RootId, request);
-    }
-
-    @Public()
-    @Post(':id/join')
-    @ApiCreatedResponse({ type: AccessTokenResponse })
-    async selfJoinOrganization(
-      @Param('id') organizationId: string,
-      @Request() request: RequestUser
-    ): Promise<AccessTokenResponse> {
-      const user = request.user?.user;
-      assert(user, UnauthorizedException);
-
-      const organization = await this.orgService.getOrganizationById(
-        organizationId
-      );
-
-      await this.orgService.joinAsGuest(organization, user);
-
-      const accessToken = await this.orgService.createMemberAccessToken(
-        user.id,
-        organizationId
-      );
 
       return {
         accessToken,

@@ -65,6 +65,12 @@ export class OrganizationService {
     });
   }
 
+  async getUserById(userId: string) {
+    return await this.userRepo.findOneOrFail({
+      where: { id: userId },
+    });
+  }
+
   async getOrganizationById(organizationId: string) {
     return await this.orgRepo.findOneOrFail({
       where: { id: organizationId },
@@ -98,14 +104,31 @@ export class OrganizationService {
     return { ...organization, profile };
   }
 
-  async createMemberAccessToken(userId: string, organizationId: string) {
-    const member = await this.memberRepo.findOne({
+  async createMemberAccessToken(
+    userId: string,
+    organizationId: string,
+    options?: {
+      joinAsGuestIfNotMember?: boolean;
+    }
+  ) {
+    let member = await this.memberRepo.findOne({
       where: {
         userId,
         organizationId,
       },
       relations: ['user', 'organization'],
     });
+
+    if (
+      member == null &&
+      options?.joinAsGuestIfNotMember &&
+      this.caliobaseConfig.guestRole
+    ) {
+      member = await this.joinAsGuest(
+        await this.getOrganizationById(organizationId),
+        await this.getUserById(userId)
+      );
+    }
 
     if (member == null) {
       throw new UnauthorizedException(
