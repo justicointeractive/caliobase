@@ -1,6 +1,6 @@
 {
   "name": "use-async-effect-state",
-  "version": "0.2.21",
+  "version": "0.2.22",
   "dependencies": {
     "react": "^18.2.0",
     "rxjs": "^7.0.0"

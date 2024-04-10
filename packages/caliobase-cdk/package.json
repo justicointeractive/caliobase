@@ -1,6 +1,6 @@
 {
   "name": "@caliobase/caliobase-cdk",
-  "version": "0.2.20",
+  "version": "0.2.21",
   "dependencies": {
     "@ji-constructs/cdk-image-resize-behavior": "^0.5.9",
     "@ji-constructs/ecs-jwt-keypair": "^0.1.7",
