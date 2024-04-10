@@ -689,6 +689,23 @@ export class Api<
      * No description
      *
      * @tags auth
+     * @name ListUserMemberships
+     * @request GET:/api/auth/me/memberships
+     * @secure
+     */
+    listUserMemberships: (params: RequestParams = {}) =>
+      this.request<Member[], any>({
+        path: `/api/auth/me/memberships`,
+        method: 'GET',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags auth
      * @name EmailResetToken
      * @request POST:/api/auth/user/password/emailResetToken
      * @secure
@@ -721,23 +738,6 @@ export class Api<
         body: data,
         secure: true,
         type: ContentType.Json,
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags auth
-     * @name ListUserMemberships
-     * @request GET:/api/auth
-     * @secure
-     */
-    listUserMemberships: (params: RequestParams = {}) =>
-      this.request<Member[], any>({
-        path: `/api/auth`,
-        method: 'GET',
-        secure: true,
-        format: 'json',
         ...params,
       }),
   };

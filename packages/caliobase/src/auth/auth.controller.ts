@@ -339,6 +339,14 @@ export function createAuthController<
       return { success: true };
     }
 
+    @Get('me/memberships')
+    @ApiOkResponse({ type: [Member] })
+    async listUserMemberships(@Request() request: RequestUser) {
+      const userId = request.user?.user?.id;
+      assert(userId, UnauthorizedException);
+      return await this.orgService.findUserMemberships(userId);
+    }
+
     @Public()
     @Post('user/password/emailResetToken')
     @ApiBody({ type: CreatePasswordResetTokenBody })
@@ -364,14 +372,6 @@ export function createAuthController<
       return {
         success: true,
       };
-    }
-
-    @Get()
-    @ApiOkResponse({ type: [Member] })
-    async listUserMemberships(@Request() request: RequestUser) {
-      const userId = request.user?.user?.id;
-      assert(userId, UnauthorizedException);
-      return await this.orgService.findUserMemberships(userId);
     }
   }
 
