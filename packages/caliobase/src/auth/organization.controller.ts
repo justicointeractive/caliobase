@@ -131,7 +131,7 @@ export function createOrganizationController<
     @Public()
     @Post(':id/token')
     @ApiCreatedResponse({ type: AccessTokenResponse })
-    @ApiBody({ type: OrganizationTokenRequest })
+    @ApiBody({ type: OrganizationTokenRequest, required: false })
     async getOrganizationToken(
       @Param('id') organizationId: string,
       @Request() request: RequestUser,
