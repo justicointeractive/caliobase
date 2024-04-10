@@ -9,8 +9,8 @@ import { useApiContext } from '../context/ApiContext';
 import { useToastContext } from '../context/ToastContext';
 import { useUserContext } from '../context/UserContext';
 import { CaliobaseOrganization, createInstanceFromFields } from '../lib';
-import { bearerToken } from '../lib/bearerToken';
 import { CancelationError } from '../lib/CancelationError';
+import { bearerToken } from '../lib/bearerToken';
 import { promisePopup } from '../lib/promisePopup';
 import { DescribeInvitation } from './AcceptInvitationView';
 
@@ -104,9 +104,13 @@ export function useLogin() {
 
       const {
         data: { accessToken: userOrgToken },
-      } = await api.organization.getOrganizationToken(organizationId, {
-        headers: { ...bearerToken(userAccessToken) },
-      });
+      } = await api.organization.getOrganizationToken(
+        organizationId,
+        {},
+        {
+          headers: { ...bearerToken(userAccessToken) },
+        }
+      );
 
       setAccessToken(userOrgToken);
     },

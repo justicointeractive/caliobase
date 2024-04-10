@@ -51,9 +51,13 @@ export function CreateRoot() {
 
     const {
       data: { accessToken: orgAccessToken },
-    } = await api.organization.getOrganizationToken(organizationId, {
-      headers: { ...bearerToken(accessToken) },
-    });
+    } = await api.organization.getOrganizationToken(
+      organizationId,
+      {},
+      {
+        headers: { ...bearerToken(accessToken) },
+      }
+    );
 
     setAccessToken(orgAccessToken);
     reloadRoot();

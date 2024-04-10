@@ -131,6 +131,10 @@ export interface ConcreteCreateOrganizationRequest {
   profile: CreateOrganizationProfileDto;
 }
 
+export interface OrganizationTokenRequest {
+  joinAsGuestIfNotMember?: boolean;
+}
+
 export interface AccessTokenResponse {
   accessToken: string;
 }
@@ -184,6 +188,7 @@ export interface ObjectStorageCreateRequest {
 export interface ObjectStorageObject {
   id: string;
   organization: Organization;
+  externalId: string;
   key: string;
   cdnUrl: string;
   contentLength: number;
@@ -767,11 +772,16 @@ export class Api<
      * @request POST:/api/organization/token
      * @secure
      */
-    getRootOrganizationToken: (params: RequestParams = {}) =>
+    getRootOrganizationToken: (
+      data?: OrganizationTokenRequest,
+      params: RequestParams = {}
+    ) =>
       this.request<AccessTokenResponse, any>({
         path: `/api/organization/token`,
         method: 'POST',
+        body: data,
         secure: true,
+        type: ContentType.Json,
         format: 'json',
         ...params,
       }),
@@ -784,11 +794,17 @@ export class Api<
      * @request POST:/api/organization/{id}/token
      * @secure
      */
-    getOrganizationToken: (id: string, params: RequestParams = {}) =>
+    getOrganizationToken: (
+      id: string,
+      data?: OrganizationTokenRequest,
+      params: RequestParams = {}
+    ) =>
       this.request<AccessTokenResponse, any>({
         path: `/api/organization/${id}/token`,
         method: 'POST',
+        body: data,
         secure: true,
+        type: ContentType.Json,
         format: 'json',
         ...params,
       }),

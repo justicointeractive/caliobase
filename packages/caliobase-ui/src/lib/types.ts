@@ -55,6 +55,12 @@ export type ICaliobaseApiRequestWithParamAndBody<TParam, TBody, T> = (
   options?: RequestInit
 ) => Promise<{ data: T }>;
 
+export type ICaliobaseApiRequestWithParamAndOptionalBody<TParam, TBody, T> = (
+  param: TParam,
+  body?: TBody,
+  options?: RequestInit
+) => Promise<{ data: T }>;
+
 export type InferApiResponseType<TRequest> = TRequest extends (
   ...args: any[]
 ) => Promise<{ data: infer D }>

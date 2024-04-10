@@ -7,6 +7,7 @@ import {
   ICaliobaseApiRequestWithBody,
   ICaliobaseApiRequestWithParam,
   ICaliobaseApiRequestWithParamAndBody,
+  ICaliobaseApiRequestWithParamAndOptionalBody,
   ICaliobaseCompleteUploadRequest,
   ICaliobaseCreateObjectRequest,
   ICaliobaseCreateOrganizationRequest,
@@ -82,8 +83,9 @@ export type ICaliobaseApi = {
     >;
     claimInvitation: ICaliobaseApiRequestWithParam<string, CaliobaseMember>;
 
-    getOrganizationToken: ICaliobaseApiRequestWithParam<
+    getOrganizationToken: ICaliobaseApiRequestWithParamAndOptionalBody<
       string,
+      { joinAsGuestIfNotMember?: boolean },
       { accessToken: string }
     >;
 

@@ -381,6 +381,16 @@
       "post": {
         "operationId": "OrganizationController_getRootOrganizationToken",
         "parameters": [],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrganizationTokenRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": "",
@@ -416,6 +426,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrganizationTokenRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": "",
@@ -2352,6 +2372,14 @@
           "profile"
         ]
       },
+      "OrganizationTokenRequest": {
+        "type": "object",
+        "properties": {
+          "joinAsGuestIfNotMember": {
+            "type": "boolean"
+          }
+        }
+      },
       "AccessTokenResponse": {
         "type": "object",
         "properties": {
@@ -2509,6 +2537,9 @@
           "organization": {
             "$ref": "#/components/schemas/Organization"
           },
+          "externalId": {
+            "type": "string"
+          },
           "key": {
             "type": "string"
           },
@@ -2536,6 +2567,7 @@
         "required": [
           "id",
           "organization",
+          "externalId",
           "key",
           "cdnUrl",
           "contentLength",
