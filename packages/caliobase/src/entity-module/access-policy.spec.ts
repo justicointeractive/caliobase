@@ -106,19 +106,17 @@ describe('access policy', () => {
           )
       ).rejects.toThrow();
     });
-    it('should disallow other organization owner write draft', async () => {
-      await expect(
-        async () =>
-          await blogPostService.create(
-            {
-              title: 'test 123',
-              published: false,
-            },
-            {
-              user: otherOrganization.owner,
-            }
-          )
-      ).rejects.toThrow();
+    it('should disallow other organization owner read draft', async () => {
+      expect(
+        await blogPostService.findOne(
+          {
+            where: { id: blogPost.id },
+          },
+          {
+            user: otherOrganization.owner,
+          }
+        )
+      ).toBeNull();
     });
     it('should disallow guest unpublished list/get', async () => {
       expect(
