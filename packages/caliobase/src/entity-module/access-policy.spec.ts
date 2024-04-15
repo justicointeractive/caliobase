@@ -3,8 +3,8 @@ import { Column, In, ManyToOne } from 'typeorm';
 import { User } from '../auth';
 import {
   createGuestUser,
-  createTestingModule,
   createTestOrganization,
+  createTestingModule,
   testAnonymousUser,
   useTestingModule,
 } from '../test/createTestingModule';
@@ -86,7 +86,6 @@ describe('access policy', () => {
           published: false,
         },
         {
-          organization,
           user: owner,
         }
       );
@@ -102,7 +101,6 @@ describe('access policy', () => {
               published: false,
             },
             {
-              organization,
               user: readerUser,
             }
           )
@@ -117,7 +115,6 @@ describe('access policy', () => {
               published: false,
             },
             {
-              organization,
               user: otherOrganization.owner,
             }
           )
@@ -130,7 +127,6 @@ describe('access policy', () => {
             where: { id: blogPost.id },
           },
           {
-            organization,
             user: testAnonymousUser(organization),
           }
         )
@@ -141,7 +137,6 @@ describe('access policy', () => {
             where: { id: blogPost.id },
           },
           {
-            organization,
             user: testAnonymousUser(organization),
           }
         )
@@ -155,7 +150,6 @@ describe('access policy', () => {
             published: true,
           },
           {
-            organization,
             user: owner,
           }
         )
@@ -170,7 +164,6 @@ describe('access policy', () => {
             where: { id: blogPost.id },
           },
           {
-            organization,
             user: testAnonymousUser(organization),
           }
         )
@@ -181,7 +174,6 @@ describe('access policy', () => {
             where: { id: blogPost.id },
           },
           {
-            organization,
             user: testAnonymousUser(organization),
           }
         )
@@ -194,7 +186,6 @@ describe('access policy', () => {
             where: { id: blogPost.id },
           },
           {
-            organization,
             user: owner,
           }
         )
@@ -205,7 +196,6 @@ describe('access policy', () => {
             where: { id: blogPost.id },
           },
           {
-            organization,
             user: owner,
           }
         )
@@ -286,7 +276,6 @@ describe('access policy', () => {
           createdById: guest1.user?.id, // TODO: enforce createdById by service
         },
         {
-          organization,
           user: guest1,
         }
       );
@@ -302,7 +291,6 @@ describe('access policy', () => {
             },
           },
           {
-            organization,
             user: guest1,
           }
         )
@@ -315,7 +303,6 @@ describe('access policy', () => {
             },
           },
           {
-            organization,
             user: guest2,
           }
         )
@@ -331,7 +318,6 @@ describe('access policy', () => {
             text: 'test 234',
           },
           {
-            organization,
             user: guest1,
           }
         )
@@ -347,7 +333,6 @@ describe('access policy', () => {
             text: 'test 345',
           },
           {
-            organization,
             user: guest2,
           }
         )
@@ -360,7 +345,6 @@ describe('access policy', () => {
             id: comment.id,
           },
           {
-            organization,
             user: guest2,
           }
         )
@@ -376,7 +360,6 @@ describe('access policy', () => {
             text: 'test 456',
           },
           {
-            organization,
             user: owner,
           }
         )
@@ -389,7 +372,6 @@ describe('access policy', () => {
             id: comment.id,
           },
           {
-            organization,
             user: owner,
           }
         )
@@ -488,7 +470,6 @@ describe('access policy', () => {
           visibility: 'unlisted',
         },
         {
-          organization,
           user: uploader,
         }
       );
@@ -504,7 +485,6 @@ describe('access policy', () => {
             },
           },
           {
-            organization,
             user: uploader,
           }
         )
@@ -517,7 +497,6 @@ describe('access policy', () => {
             },
           },
           {
-            organization,
             user: viewer,
           }
         )
@@ -533,7 +512,6 @@ describe('access policy', () => {
             title: 'test 234',
           },
           {
-            organization,
             user: uploader,
           }
         )
@@ -548,7 +526,6 @@ describe('access policy', () => {
             },
           },
           {
-            organization,
             user: viewer,
           }
         )
@@ -564,7 +541,6 @@ describe('access policy', () => {
             title: 'test 345',
           },
           {
-            organization,
             user: viewer,
           }
         )
@@ -577,7 +553,6 @@ describe('access policy', () => {
             id: video.id,
           },
           {
-            organization,
             user: viewer,
           }
         )
@@ -593,7 +568,6 @@ describe('access policy', () => {
             title: 'test 456',
           },
           {
-            organization,
             user: owner,
           }
         )
@@ -606,7 +580,6 @@ describe('access policy', () => {
             id: video.id,
           },
           {
-            organization,
             user: owner,
           }
         )
@@ -673,7 +646,6 @@ describe('access policy', () => {
           title: 'test 123',
         },
         {
-          organization,
           user: owner,
         }
       );
@@ -689,7 +661,6 @@ describe('access policy', () => {
             },
           },
           {
-            organization,
             user: user,
           }
         )
@@ -702,7 +673,6 @@ describe('access policy', () => {
             },
           },
           {
-            organization,
             user: user,
           }
         )
@@ -721,7 +691,6 @@ describe('access policy', () => {
               },
             },
             {
-              organization,
               user: testAnonymousUser(organization),
             }
           )
@@ -735,7 +704,6 @@ describe('access policy', () => {
               },
             },
             {
-              organization,
               user: testAnonymousUser(organization),
             }
           )
@@ -856,7 +824,6 @@ describe('access policy', () => {
               },
             },
             {
-              organization,
               user: testAnonymousUser(organization),
             }
           )
@@ -870,7 +837,6 @@ describe('access policy', () => {
               },
             },
             {
-              organization,
               user: testAnonymousUser(organization),
             }
           )
@@ -931,7 +897,6 @@ describe('access policy', () => {
           name: faker.commerce.productName(),
         },
         {
-          organization,
           user: owner,
         }
       );
@@ -976,7 +941,6 @@ describe('access policy', () => {
               },
             },
             {
-              organization,
               user: testAnonymousUser(organization),
             }
           )
@@ -990,7 +954,6 @@ describe('access policy', () => {
               },
             },
             {
-              organization,
               user: testAnonymousUser(organization),
             }
           )

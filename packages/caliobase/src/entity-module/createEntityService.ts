@@ -1,4 +1,5 @@
 import { Injectable, Type } from '@nestjs/common';
+import { invariant } from 'circumspect';
 import {
   DataSource,
   DeepPartial,
@@ -6,7 +7,7 @@ import {
   ObjectLiteral,
 } from 'typeorm';
 import { CaliobaseFindOptions, RenameClass, ToFindOptions } from '.';
-import { CaliobaseRequestUser, Organization } from '../auth';
+import { CaliobaseRequestUser } from '../auth';
 import { getAclEntity } from '../auth/acl/getAclEntityAndProperty';
 import { getOrganizationFilter } from '../auth/decorators/owner.decorator';
 import {
@@ -33,16 +34,11 @@ export function createEntityService<
 
   const policyStatements = AccessPolicies.get(entityType);
 
-  function getUserPolicy(
-    action: EntityActions,
-    user: CaliobaseRequestUser,
-    organization: Pick<Organization, 'id'> | null
-  ) {
+  function getUserPolicy(action: EntityActions, user: CaliobaseRequestUser) {
     return getPolicyFromStatements<TEntity>({
       entityType,
       action,
       policyStatements,
-      organization,
       user,
     });
   }
@@ -62,29 +58,27 @@ export function createEntityService<
 
     constructor(private dataSource: DataSource) {}
 
-    async create(
-      createDto: TCreate,
-      { organization, user }: ICaliobaseServiceOptions
-    ) {
+    async create(createDto: TCreate, { user }: ICaliobaseServiceOptions) {
       return await this.dataSource.transaction(async (manager) => {
         const entityRepository = manager.getRepository(entityType);
 
-        getUserPolicy('create', user, organization);
+        getUserPolicy('create', user);
 
         const created: TEntity = await entityRepository.save(
           entityRepository.create({
             ...createDto,
-            ...getOrganizationFilter(entityType, organization),
+            ...getOrganizationFilter(entityType, user.organization),
           })
         );
 
-        if (AclEntity != null && organization) {
+        if (AclEntity != null) {
+          invariant(user.organization, 'User must have an organization');
           const aclEntityRepository = manager.getRepository(AclEntity);
           await aclEntityRepository.save(
             aclEntityRepository.create({
               access: 'owner',
               object: created as TEntity,
-              organization: organization,
+              organization: user.organization,
             })
           );
         }
@@ -95,16 +89,16 @@ export function createEntityService<
 
     async findAll(
       findOptions: CaliobaseFindOptions<TEntity>,
-      { organization, user }: ICaliobaseServiceOptions
+      { user }: ICaliobaseServiceOptions
     ) {
-      const policy = getUserPolicy('list', user, organization);
+      const policy = getUserPolicy('list', user);
 
       return await this.dataSource.transaction(async (manager) => {
         const [items, total] = await entityServiceQueryBuilder(
           entityType,
           manager,
           findOptions,
-          { organization, itemFilters: policy?.itemFilters }
+          { organization: user.organization, itemFilters: policy?.itemFilters }
         ).getManyAndCount();
         return { items, total };
       });
@@ -112,16 +106,16 @@ export function createEntityService<
 
     async findOne(
       findOptions: CaliobaseFindOptions<TEntity>,
-      { organization, user }: ICaliobaseServiceOptions
+      { user }: ICaliobaseServiceOptions
     ) {
-      const policy = getUserPolicy('get', user, organization);
+      const policy = getUserPolicy('get', user);
 
       return await this.dataSource.transaction(async (manager) => {
         return await entityServiceQueryBuilder(
           entityType,
           manager,
           findOptions,
-          { organization, itemFilters: policy?.itemFilters }
+          { organization: user.organization, itemFilters: policy?.itemFilters }
         ).getOne();
       });
     }
@@ -129,9 +123,9 @@ export function createEntityService<
     async update(
       where: FindOptionsWhere<TEntity>,
       updateDto: TUpdate,
-      { organization, user }: ICaliobaseServiceOptions
+      { user }: ICaliobaseServiceOptions
     ) {
-      const policy = getUserPolicy('update', user, organization);
+      const policy = getUserPolicy('update', user);
 
       return await this.dataSource.transaction(async (manager) => {
         const allFound = await entityServiceQueryBuilder(
@@ -139,7 +133,7 @@ export function createEntityService<
           manager,
           { where },
           {
-            organization,
+            organization: user.organization,
             itemFilters: policy?.itemFilters,
             aclAccessLevels: Roles.fromMiniumLevel('writer'),
           }
@@ -156,9 +150,9 @@ export function createEntityService<
 
     async remove(
       where: FindOptionsWhere<TEntity>,
-      { organization, user }: ICaliobaseServiceOptions
+      { user }: ICaliobaseServiceOptions
     ) {
-      const policy = getUserPolicy('delete', user, organization);
+      const policy = getUserPolicy('delete', user);
 
       return await this.dataSource.transaction(async (manager) => {
         const allFound = await entityServiceQueryBuilder(
@@ -166,7 +160,7 @@ export function createEntityService<
           manager,
           { where },
           {
-            organization,
+            organization: user.organization,
             itemFilters: policy?.itemFilters,
             aclAccessLevels: Roles.fromMiniumLevel('writer'),
           }

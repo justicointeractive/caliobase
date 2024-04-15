@@ -23,7 +23,7 @@ import {
 import { ValidatorOptions } from 'class-validator';
 import { DeepPartial } from 'typeorm';
 import { ToFindOptions } from '.';
-import { CaliobaseRequestUser, Organization } from '../auth';
+import { CaliobaseRequestUser, Organization, User } from '../auth';
 import { getAclEntity } from '../auth/acl/getAclEntityAndProperty';
 import { cloneMetadata } from '../internal-utils/cloneMetadata';
 import { assert } from '../lib/assert';
@@ -71,23 +71,45 @@ export function createEntityController<
 
   const entityOptions = CaliobaseEntity.get<TEntity>(Entity);
   const entityHasOrganizationOwner = entityOptions?.organizationOwner !== false;
+  const entityHasUserOwner = entityOptions?.userOwner === true;
 
   function getOwnerIdMixIn(user?: CaliobaseRequestUser): {
     organization: Pick<Organization, 'id'> | null;
+    user: Pick<User, 'id'> | null;
   } {
-    if (!entityHasOrganizationOwner) {
-      return { organization: null };
+    const mixin: {
+      user: Pick<User, 'id'> | null;
+      organization: Pick<Organization, 'id'> | null;
+    } = {
+      user: null,
+      organization: null,
+    };
+
+    if (entityHasOrganizationOwner) {
+      const organizationId = user?.organization?.id;
+
+      if (organizationId == null) {
+        throw new Error(
+          'supplied access token does not provide an appropriate owner id'
+        );
+      }
+
+      mixin.organization = { id: organizationId };
     }
 
-    const organizationId = user?.organization?.id;
+    if (entityHasUserOwner) {
+      const userId = user?.user?.id;
 
-    if (organizationId == null) {
-      throw new Error(
-        'supplied access token does not provide an appropriate owner id'
-      );
+      if (userId == null) {
+        throw new Error(
+          'supplied access token does not provide an appropriate owner id'
+        );
+      }
+
+      mixin.user = { id: userId };
     }
 
-    return { organization: { id: organizationId } };
+    return mixin;
   }
 
   const AclEntity = getAclEntity(ControllerService.Entity);
@@ -155,7 +177,6 @@ export function createEntityController<
             { ...createDto, ...params, ...getOwnerIdMixIn(user) },
             {
               user,
-              ...getOwnerIdMixIn(user),
             }
           )
         );
@@ -183,7 +204,6 @@ export function createEntityController<
           listOptions.toFindOptions(),
           {
             user,
-            ...getOwnerIdMixIn(user),
           }
         );
         return new PaginationItemsResponse(items, total);
@@ -217,7 +237,6 @@ export function createEntityController<
             },
             {
               user,
-              ...getOwnerIdMixIn(user),
             }
           )
         );
@@ -249,7 +268,6 @@ export function createEntityController<
             updateDto,
             {
               user,
-              ...getOwnerIdMixIn(user),
             }
           )
         );
@@ -267,7 +285,6 @@ export function createEntityController<
             pickColumnProperties(primaryColumns, params),
             {
               user,
-              ...getOwnerIdMixIn(user),
             }
           )
         );

@@ -50,6 +50,7 @@ export type CaliobaseEntityOptions<TEntity> = {
   providers?: Provider[];
   accessPolicy?: PolicyStatements<TEntity>;
   organizationOwner?: false;
+  userOwner?: true;
 };
 
 export const CaliobaseEntity = Object.assign(

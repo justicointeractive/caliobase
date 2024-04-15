@@ -1,5 +1,5 @@
 import { Type, UnauthorizedException } from '@nestjs/common';
-import { CaliobaseRequestUser, Organization } from '../auth';
+import { CaliobaseRequestUser } from '../auth';
 import { getAclEntity } from '../auth/acl/getAclEntityAndProperty';
 import { assert } from '../lib/assert';
 import { unwrapValueWithContext } from '../lib/unwrapValueWithContext';
@@ -13,21 +13,13 @@ export function getPolicyFromStatements<TEntity>({
   entityType,
   action,
   policyStatements,
-  organization,
   user,
 }: {
   entityType: Type<TEntity>;
   action: EntityActions;
   policyStatements: PolicyStatements<TEntity> | undefined;
-  organization: Pick<Organization, 'id'> | null;
   user: CaliobaseRequestUser;
 }) {
-  if (user.organization?.id !== organization?.id) {
-    throw new UnauthorizedException(
-      'access token supplied is not applicable to this organization context'
-    );
-  }
-
   const policy = policyStatements
     ?.filter((statement) => {
       if (statement.effect === 'deny') {

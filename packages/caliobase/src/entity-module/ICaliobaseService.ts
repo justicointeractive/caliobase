@@ -4,7 +4,6 @@ import { CaliobaseRequestUser } from '../auth';
 import { CaliobaseFindOptions } from './createFindManyQueryParamClass';
 
 export interface ICaliobaseServiceOptions {
-  organization: { id: string } | null;
   user: CaliobaseRequestUser;
 }
 

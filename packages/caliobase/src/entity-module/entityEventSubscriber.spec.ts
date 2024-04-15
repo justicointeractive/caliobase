@@ -3,8 +3,8 @@ import { Column, PrimaryGeneratedColumn } from 'typeorm';
 import { CaliobaseEntity, ICaliobaseService } from '..';
 import { EntityOwner, Organization } from '../auth';
 import {
-  createTestingModule,
   createTestOrganization,
+  createTestingModule,
   useTestingModule,
 } from '../test/createTestingModule';
 import { createEntityModule } from './createEntityModule';
@@ -75,23 +75,15 @@ describe('entityEventSubscriber', () => {
       { label: 'Test 123' },
       {
         user: owner,
-        organization: owner.organization,
       }
     );
     expect(beforeInsert).toHaveBeenCalled();
     expect(beforeInsert2).toHaveBeenCalled();
     expect(afterInsert).toHaveBeenCalled();
-    await entityService.update(
-      { id },
-      { label: 'Test 234' },
-      { user: owner, organization: owner.organization }
-    );
+    await entityService.update({ id }, { label: 'Test 234' }, { user: owner });
     expect(beforeUpdate).toHaveBeenCalled();
     expect(afterUpdate).toHaveBeenCalled();
-    await entityService.remove(
-      { id },
-      { user: owner, organization: owner.organization }
-    );
+    await entityService.remove({ id }, { user: owner });
     expect(beforeRemove).toHaveBeenCalled();
     expect(afterRemove).toHaveBeenCalled();
   });

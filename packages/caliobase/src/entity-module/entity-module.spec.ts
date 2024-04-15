@@ -60,7 +60,6 @@ describe('entity module', () => {
       const created = await entityService.create(
         { label: 'test123' },
         {
-          organization: { id: org.id },
           user: {
             user: null,
             member: null,
@@ -73,7 +72,6 @@ describe('entity module', () => {
       const created2 = await entityService.create(
         { label: 'test245' },
         {
-          organization: { id: org.id },
           user: {
             user: null,
             member: null,
@@ -86,7 +84,6 @@ describe('entity module', () => {
       const all = await entityService.findAll(
         { where: {} },
         {
-          organization: { id: org.id },
           user: { user: null, member: null, organization: org },
         }
       );
@@ -94,7 +91,6 @@ describe('entity module', () => {
       const allLimitOne = await entityService.findAll(
         { where: {}, limit: 1 },
         {
-          organization: { id: org.id },
           user: { user: null, member: null, organization: org },
         }
       );
@@ -102,7 +98,6 @@ describe('entity module', () => {
       const one = await entityService.findOne(
         { where: {} },
         {
-          organization: { id: org.id },
           user: { user: null, member: null, organization: org },
         }
       );
@@ -110,7 +105,6 @@ describe('entity module', () => {
       const relation = await entityService.findOne(
         { where: {}, relations: ['organization', 'organization.profile'] },
         {
-          organization: { id: org.id },
           user: { user: null, member: null, organization: org },
         }
       );
@@ -168,7 +162,6 @@ describe('entity module', () => {
       const category = await categoryService.create(
         { label: 'test123' },
         {
-          organization: { id: org.id },
           user: {
             user: null,
             member: null,
@@ -184,7 +177,6 @@ describe('entity module', () => {
       const created = await entityService.create(
         { label: 'test123', categories: [category] },
         {
-          organization: { id: org.id },
           user: {
             user: null,
             member: null,
@@ -198,7 +190,6 @@ describe('entity module', () => {
       const all = await entityService.findAll(
         { where: { categories: { id: category.id } } },
         {
-          organization: { id: org.id },
           user: { user: null, member: null, organization: org },
         }
       );
