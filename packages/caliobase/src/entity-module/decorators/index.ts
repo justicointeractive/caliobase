@@ -1,3 +1,4 @@
+export * from './AccessPolicies.decorator';
 export * from './CaliobaseEntity.decorator';
 export * from './PrimaryGeneratedPrefixedNanoIdColumn.decorator';
 export * from './QueryProperty.decorator';
