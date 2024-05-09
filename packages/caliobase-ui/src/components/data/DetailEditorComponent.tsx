@@ -7,7 +7,7 @@ import {
   parseDateTimeLocal,
 } from '../../lib';
 import { ImageUpload } from '../ImageUpload';
-import { TextareaInput, TextInput, TitleTextInput } from '../TextInput';
+import { TextInput, TextareaInput, TitleTextInput } from '../TextInput';
 
 export type DetailEditorComponent<TValue, TOptions> = FunctionComponent<{
   item: Record<string, unknown>;
@@ -62,7 +62,11 @@ export const DateValueEditor: DetailEditorComponent<string, unknown> = ({
     label={field.label}
     type={'datetime-local'}
     value={value && formatDateTimeLocal(parseISO(value))}
-    onChange={(e) => onChange(parseDateTimeLocal(e.target.value).toISOString())}
+    onChange={(e) =>
+      onChange(
+        e.target.value && parseDateTimeLocal(e.target.value).toISOString()
+      )
+    }
     readOnly={field.readOnly}
   />
 );
