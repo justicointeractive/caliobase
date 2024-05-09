@@ -227,6 +227,7 @@ export type ContentFieldInput<
   label: string;
   property: TProperty;
   readOnly?: boolean;
+  required?: boolean;
   defaultValue: () => TValue | null;
   editorColumn?: 'main' | 'meta';
   editor?: DetailEditorComponent<TValue, TEditorOptions> | null;

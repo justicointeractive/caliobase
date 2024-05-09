@@ -52,7 +52,7 @@ export const TextareaValueEditor: DetailEditorComponent<
   />
 );
 
-export const DateValueEditor: DetailEditorComponent<string, unknown> = ({
+export const DateValueEditor: DetailEditorComponent<string | null, unknown> = ({
   value,
   field,
   onChange,
@@ -60,11 +60,12 @@ export const DateValueEditor: DetailEditorComponent<string, unknown> = ({
   <TextInput
     key={field.property}
     label={field.label}
+    required={field.required}
     type={'datetime-local'}
-    value={value && formatDateTimeLocal(parseISO(value))}
+    value={value ? formatDateTimeLocal(parseISO(value)) : ''}
     onChange={(e) =>
       onChange(
-        e.target.value && parseDateTimeLocal(e.target.value).toISOString()
+        e.target.value ? parseDateTimeLocal(e.target.value).toISOString() : null
       )
     }
     readOnly={field.readOnly}

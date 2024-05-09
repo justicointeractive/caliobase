@@ -15,6 +15,7 @@ export const defaultFieldValues: Omit<
   RequiredContentFields
 > = {
   readOnly: false,
+  required: false,
   editor: TextValueEditor,
   editorColumn: 'main',
   editorOptions: {},
