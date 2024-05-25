@@ -1,5 +1,11 @@
 import { faker } from '@faker-js/faker';
-import { Column, JoinTable, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  JoinTable,
+  ManyToMany,
+  PrimaryColumn,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import {
   CaliobaseEntity,
   EntityOwner,
@@ -221,6 +227,110 @@ describe('entity module', () => {
       createEntityModule(TestEntity);
 
       expect(getOwnerProperty(TestEntity)).toEqual('organization');
+    });
+  });
+
+  describe('upsertable entity', function () {
+    const { module, entityModule } = useTestingModule(async () => {
+      @CaliobaseEntity()
+      class TestUpsertEntity {
+        @PrimaryColumn()
+        surveyId!: string;
+
+        @PrimaryColumn()
+        questionId!: string;
+
+        @Column()
+        label!: string;
+
+        @EntityOwner()
+        organization!: Organization;
+      }
+
+      const entityModule = createEntityModule(TestUpsertEntity);
+
+      const module = await createTestingModule({
+        imports: [entityModule],
+      });
+
+      return { module, entityModule };
+    });
+
+    it('should upsert entity', async () => {
+      const orgService = module.get(OrganizationService);
+      const authService = module.get(AuthService);
+
+      const user = await authService.createUserWithPassword(fakeUser());
+
+      const org = await orgService.createOrganization(user.id, {
+        profile: {
+          name: faker.company.companyName(),
+        } as Partial<AbstractOrganizationProfile>,
+      });
+
+      const entityService = module.get<
+        InstanceType<typeof entityModule.EntityService>
+      >(entityModule.EntityService);
+
+      const created = await entityService.upsert(
+        { surveyId: '1', questionId: '1' },
+        { label: 'test123' },
+        {
+          organization: { id: org.id },
+          user: {
+            user: null,
+            member: null,
+            organization: org,
+          },
+        }
+      );
+      expect(created).not.toBeNull();
+      expect(created.label).toEqual('test123');
+
+      await entityService.upsert(
+        { surveyId: '1', questionId: '2' },
+        { label: 'test123' },
+        {
+          organization: { id: org.id },
+          user: {
+            user: null,
+            member: null,
+            organization: org,
+          },
+        }
+      );
+
+      const updated = await entityService.upsert(
+        { surveyId: '1', questionId: '1' },
+        { label: 'test456' },
+        {
+          organization: { id: org.id },
+          user: {
+            user: null,
+            member: null,
+            organization: org,
+          },
+        }
+      );
+      expect(updated).not.toBeNull();
+      expect(updated.label).toEqual('test456');
+
+      const all = await entityService.findAll(
+        {
+          where: {},
+          order: {
+            questionId: 'ASC',
+          },
+        },
+        {
+          organization: { id: org.id },
+          user: { user: null, member: null, organization: org },
+        }
+      );
+
+      expect(all.items).toHaveLength(2);
+      expect(all.items[0].label).toEqual('test456');
+      expect(all.items[1].label).toEqual('test123');
     });
   });
 });

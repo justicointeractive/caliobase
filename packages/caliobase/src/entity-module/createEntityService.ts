@@ -126,6 +126,39 @@ export function createEntityService<
       });
     }
 
+    async upsert(
+      where: FindOptionsWhere<TEntity>,
+      createDto: TUpdate,
+      { organization, user }: ICaliobaseServiceOptions
+    ) {
+      const policy = getUserPolicy('update', user, organization);
+
+      return await this.dataSource.transaction(async (manager) => {
+        const found = await entityServiceQueryBuilder(
+          entityType,
+          manager,
+          { where },
+          {
+            organization,
+            itemFilters: policy?.itemFilters,
+            aclAccessLevels: Roles.fromMiniumLevel('writer'),
+          }
+        ).getOne();
+        if (found) {
+          Object.assign(found, createDto);
+          return await manager
+            .getRepository(entityType)
+            .save(found as TEntity & ObjectLiteral);
+        } else {
+          return await manager.getRepository(entityType).save({
+            ...where,
+            ...createDto,
+            ...getOrganizationFilter(entityType, organization),
+          });
+        }
+      });
+    }
+
     async update(
       where: FindOptionsWhere<TEntity>,
       updateDto: TUpdate,

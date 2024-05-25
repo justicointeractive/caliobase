@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Query,
   Request,
   Type,
@@ -108,6 +109,8 @@ export function createEntityController<
     name: col.propertyName,
     required: true,
   }));
+
+  const hasPrimaryGeneratedColumn = primaryColumns.some(isGenerated);
 
   const primaryUngeneratedColumnRoutePath = toColumnRoutePath(
     primaryUngeneratedColumns
@@ -215,6 +218,44 @@ export function createEntityController<
               ...listOptions?.toFindOptions(),
               where: pickColumnProperties(primaryColumns, params as unknown),
             },
+            {
+              user,
+              ...getOwnerIdMixIn(user),
+            }
+          )
+        );
+      }
+
+      @Decorate(
+        !hasPrimaryGeneratedColumn
+          ? [
+              Put(primaryColumnRoutePath),
+              ApiBody({
+                type: ControllerService.UpdateDto,
+              }),
+              ApiParams(primaryColumnParams),
+              ApiOkPaginatedResponse({
+                type: ControllerService.Entity,
+              }),
+            ]
+          : []
+      )
+      async upsert(
+        @Param() params: DeepPartial<TEntity>,
+        @Body(
+          new ValidationPipe({
+            expectedType: ControllerService.UpdateDto,
+            ...validatorOptions,
+          })
+        )
+        updateDto: TUpdate,
+        @Request() { user }: RequestUser
+      ) {
+        assert(user, UnauthorizedException);
+        return new PaginationItemResponse(
+          await this.service.upsert(
+            pickColumnProperties(primaryColumns, params as unknown),
+            updateDto,
             {
               user,
               ...getOwnerIdMixIn(user),
@@ -343,3 +384,11 @@ export const ApiParams: (
     ApiParam(option)(target, key, descriptor)
   );
 };
+
+export const Decorate: (decorators: MethodDecorator[]) => MethodDecorator =
+  (decorators) => (target, key, descriptor) => {
+    decorators
+      .slice()
+      .reverse()
+      .forEach((decorator) => decorator(target, key, descriptor));
+  };

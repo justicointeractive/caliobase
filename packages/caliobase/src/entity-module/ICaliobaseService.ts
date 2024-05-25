@@ -18,6 +18,11 @@ export interface ICaliobaseService<TEntity, TCreate, TUpdate> {
     findOptions: CaliobaseFindOptions<TEntity>,
     options: ICaliobaseServiceOptions
   ): Promise<TEntity | null>;
+  upsert(
+    conditions: FindOptionsWhere<TEntity>,
+    create: TUpdate,
+    options: ICaliobaseServiceOptions
+  ): Promise<TEntity>;
   update(
     conditions: FindOptionsWhere<TEntity>,
     update: TUpdate,
