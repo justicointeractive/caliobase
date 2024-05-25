@@ -234,9 +234,14 @@ export function createEntityController<
                 type: ControllerService.UpdateDto,
               }),
               ApiParams(primaryColumnParams),
-              ApiOkPaginatedResponse({
-                type: ControllerService.Entity,
-              }),
+              ApiOkItemResponse(
+                {
+                  type: ControllerService.Entity,
+                },
+                {
+                  nullable: false,
+                }
+              ),
             ]
           : []
       )
