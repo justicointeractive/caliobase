@@ -1,3 +1,15 @@
+## 0.7.0 (2024-05-25)
+
+
+### 🚀 Features
+
+- **caliobase:** if an entity has no generated ids, then we can upsert
+
+
+### ❤️  Thank You
+
+- Joe Flateau
+
 ## 0.6.7-0 (2024-03-04)
 
 This was a version bump only for caliobase to align it with other projects, there were no code changes.
