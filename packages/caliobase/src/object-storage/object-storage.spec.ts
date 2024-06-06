@@ -44,7 +44,7 @@ describe('object storage', () => {
     const objectStorageService = module.get(ObjectStorageService);
 
     const request: ObjectCreateFromUrlRequest = {
-      source: new URL('https://example.com'),
+      source: new URL('https://google.com'),
       fileName: randomFileName,
       organization,
       uploadedBy: owner.user,
