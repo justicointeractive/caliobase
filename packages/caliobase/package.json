@@ -1,10 +1,10 @@
 {
   "name": "@caliobase/caliobase",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.282.0",
     "@aws-sdk/s3-request-presigner": "^3.282.0",
-    "@caliobase/typeorm-migrations": "0.0.34",
+    "@caliobase/typeorm-migrations": "0.0.35",
     "@faire/mjml-react": "^3.3.0",
     "@nestjs/common": "10.3.3",
     "@nestjs/config": "3.2.0",
