@@ -670,6 +670,22 @@ export class Api<
      * No description
      *
      * @tags auth
+     * @name DeleteMe
+     * @request DELETE:/api/auth/me
+     * @secure
+     */
+    deleteMe: (params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/api/auth/me`,
+        method: 'DELETE',
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags auth
      * @name UpdatePassword
      * @request PATCH:/api/auth/me/password
      * @secure
@@ -1263,6 +1279,29 @@ export class Api<
      * No description
      *
      * @tags organization_profile
+     * @name Upsert
+     * @request PUT:/api/organization_profile/{organizationId}
+     * @secure
+     */
+    upsert: (
+      organizationId: any,
+      data: UpdateOrganizationProfileDto,
+      params: RequestParams = {}
+    ) =>
+      this.request<{ item: OrganizationProfile }, any>({
+        path: `/api/organization_profile/${organizationId}`,
+        method: 'PUT',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags organization_profile
      * @name Update
      * @request PATCH:/api/organization_profile/{organizationId}
      * @secure
@@ -1363,6 +1402,29 @@ export class Api<
         path: `/api/user_profile/${userId}`,
         method: 'GET',
         secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags user_profile
+     * @name Upsert
+     * @request PUT:/api/user_profile/{userId}
+     * @secure
+     */
+    upsert: (
+      userId: any,
+      data: UpdateUserProfileDto,
+      params: RequestParams = {}
+    ) =>
+      this.request<{ item: UserProfile }, any>({
+        path: `/api/user_profile/${userId}`,
+        method: 'PUT',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
         format: 'json',
         ...params,
       }),

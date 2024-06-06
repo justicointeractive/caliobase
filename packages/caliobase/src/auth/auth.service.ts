@@ -177,6 +177,10 @@ export class AuthService {
     return { ...user, profile };
   }
 
+  async deleteUser(user: User) {
+    await this.userRepo.remove(user);
+  }
+
   async setUserPassword(
     id: string,
     {

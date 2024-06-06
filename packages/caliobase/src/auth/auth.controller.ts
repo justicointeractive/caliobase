@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Header,
   Patch,
@@ -13,6 +14,7 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
+  ApiNoContentResponse,
   ApiOkResponse,
   ApiProperty,
   ApiPropertyOptional,
@@ -325,6 +327,14 @@ export function createAuthController<
     ): Promise<CaliobaseRequestUser> {
       assert(user);
       return user;
+    }
+
+    @Delete('me')
+    @ApiNoContentResponse()
+    async deleteMe(@Request() request: RequestUser) {
+      const user = request.user?.user;
+      assert(user);
+      await this.authService.deleteUser(user);
     }
 
     @Patch('me/password')
