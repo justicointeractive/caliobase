@@ -56,6 +56,19 @@ describe('auth', () => {
     ).rejects.toThrow(BadRequestException);
   });
 
+  it('should treat email as case insensitive', async () => {
+    const userDetails = fakeUser();
+    const user = await userService.createUserWithPassword(userDetails);
+    const loggedInUser = await userService.loginUser({
+      email: userDetails.email.toUpperCase(),
+      password: userDetails.password,
+    });
+    expect(loggedInUser).toMatchObject({
+      accessToken: expect.stringContaining(''),
+      user: omit(user.user, ['profile']),
+    });
+  });
+
   describe('get me', () => {
     it('should get me properly', async () => {
       const user1 = await userService.createUserWithPassword(fakeUser());

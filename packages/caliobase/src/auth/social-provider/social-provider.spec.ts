@@ -5,7 +5,7 @@ import {
   createTestingModule,
   useTestingModule,
 } from '../../test/createTestingModule';
-import { AuthService } from '../auth.service';
+import { AuthService, normalizeEmailOf } from '../auth.service';
 
 describe('social provider', () => {
   describe('facebook', () => {
@@ -45,13 +45,15 @@ describe('social provider', () => {
         }
       );
       expect(await result).toMatchObject({
-        user: expect.objectContaining({
-          email: user.email,
-          profile: expect.objectContaining({
-            firstName: user.first_name,
-            lastName: user.last_name,
-          }),
-        }),
+        user: expect.objectContaining(
+          normalizeEmailOf({
+            email: user.email,
+            profile: expect.objectContaining({
+              firstName: user.first_name,
+              lastName: user.last_name,
+            }),
+          })
+        ),
       });
     });
   });

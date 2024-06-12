@@ -81,8 +81,9 @@ export class AuthService {
       validationResult
     );
 
-    const { providerUserId, provider, email, emailVerified } =
-      validationResult.socialProfile;
+    const { providerUserId, provider, email, emailVerified } = normalizeEmailOf(
+      validationResult.socialProfile
+    );
 
     const socialLogin = await this.socialLoginRepo.findOne({
       where: {
@@ -146,7 +147,7 @@ export class AuthService {
     }
 
     const user = await this.userRepo.findOne({
-      where: { email },
+      where: normalizeEmailOf({ email }),
     });
 
     await this.userPasswordRepo.assertCurrentPassword(user, password);
@@ -162,9 +163,7 @@ export class AuthService {
     ...createUser
   }: CreateUserRequest): Promise<User & { profile: unknown }> {
     const user = await this.userRepo.save(
-      this.userRepo.create({
-        ...createUser,
-      })
+      this.userRepo.create(normalizeEmailOf(createUser))
     );
 
     const profile =
@@ -197,7 +196,7 @@ export class AuthService {
 
   async createAndEmailPasswordResetLink(userEmail: string) {
     const user = await this.userRepo.findOne({
-      where: { email: userEmail },
+      where: normalizeEmailOf({ email: userEmail }),
     });
 
     const html = await (async () => {
@@ -250,4 +249,12 @@ export class AuthService {
 
     return { success: true };
   }
+}
+
+export function normalizeEmail(email: string) {
+  return email.toLowerCase().trim();
+}
+
+export function normalizeEmailOf<T extends { email?: string }>(obj: T): T {
+  return { ...obj, email: obj.email && normalizeEmail(obj.email) };
 }
