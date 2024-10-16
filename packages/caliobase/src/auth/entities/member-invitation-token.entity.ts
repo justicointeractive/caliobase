@@ -1,11 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
 import { Role } from '../../entity-module/roles';
+import { BaseEntity } from './base.entity';
 import { Organization } from './organization.entity';
 import { User } from './user.entity';
 
 @Entity()
-export class MemberInvitationToken {
+export class MemberInvitationToken extends BaseEntity {
   @PrimaryColumn()
   @ApiProperty()
   token!: string;
