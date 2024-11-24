@@ -9,10 +9,11 @@ import {
   PrimaryColumn,
   RelationId,
 } from 'typeorm';
+import { BaseEntity } from './base.entity';
 import { User } from './user.entity';
 
 @Entity()
-export class UserPassword {
+export class UserPassword extends BaseEntity {
   @PrimaryColumn()
   @RelationId((password: UserPassword) => password.user)
   userId!: string;
@@ -48,11 +49,13 @@ export class UserPasswordRepository {
       },
 
       async compareUserPassword(user: User | null, password: string) {
-        const { hash } = (await this.findOne({
-          where: { user: user ?? undefined },
-        })) ?? {
-          hash: null,
-        };
+        const fromDb =
+          user &&
+          (await this.findOne({
+            where: { userId: user.id },
+          }));
+
+        const hash = fromDb?.hash;
 
         const result = await compare(password, hash ?? '');
 

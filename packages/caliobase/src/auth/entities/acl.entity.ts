@@ -4,10 +4,11 @@ import { Column, ManyToOne, PrimaryColumn } from 'typeorm';
 import { Organization } from '.';
 import { RequireWriteAccessLevel } from '../../entity-module/decorators/RequireAccessLevel.decorator';
 import { AllRoles, Role } from '../../entity-module/roles';
+import { BaseEntity } from './base.entity';
 
 export type Acl<T> = AclItem<T>[];
 
-export abstract class AclItem<T> {
+export abstract class AclItem<T> extends BaseEntity {
   @PrimaryColumn()
   objectId!: string;
 

@@ -1,7 +1,8 @@
 import { JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
+import { BaseEntity } from './base.entity';
 import { Organization } from './organization.entity';
 
-export class AbstractOrganizationProfile {
+export class AbstractOrganizationProfile extends BaseEntity {
   @PrimaryColumn()
   organizationId!: string;
 

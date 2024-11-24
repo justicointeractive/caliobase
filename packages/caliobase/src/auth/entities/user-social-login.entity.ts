@@ -1,9 +1,9 @@
 import { Column, Entity, ManyToOne, PrimaryColumn, RelationId } from 'typeorm';
-
+import { BaseEntity } from './base.entity';
 import { User } from './user.entity';
 
 @Entity()
-export class UserSocialLogin {
+export class UserSocialLogin extends BaseEntity {
   @RelationId((login: UserSocialLogin) => login.user)
   @Column()
   userId!: string;

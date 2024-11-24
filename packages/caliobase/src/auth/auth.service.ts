@@ -1,6 +1,7 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { async as cryptoRandomString } from 'crypto-random-string';
 import { addHours } from 'date-fns';
+import { omit } from 'lodash';
 import { DataSource, MoreThanOrEqual } from 'typeorm';
 import { CaliobaseConfig, formatWithToken } from '../config/config';
 import { forgotPasswordEmail } from '../emails/forgotPasswordEmail';
@@ -173,7 +174,7 @@ export class AuthService {
 
     await this.userPasswordRepo.setUserPassword(user, password);
 
-    return { ...user, profile };
+    return { ...omit(user, ['createdAt', 'updatedAt']), profile };
   }
 
   async deleteUser(user: User) {

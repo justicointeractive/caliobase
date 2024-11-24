@@ -266,7 +266,7 @@ export class OrganizationService {
   }
 
   async administrativelyAddMember(
-    organization: Organization,
+    organization: Pick<Organization, 'id'>,
     user: User,
     roles: Role[]
   ) {
