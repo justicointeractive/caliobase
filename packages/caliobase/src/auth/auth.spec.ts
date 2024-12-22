@@ -56,6 +56,11 @@ describe('auth', () => {
     ).rejects.toThrow(BadRequestException);
   });
 
+  it('should login user with email otp', async () => {
+    const userDetails = fakeUser();
+    const user = await userService.sendEmailOtp(userDetails.email);
+    
+
   it('should treat email as case insensitive', async () => {
     const userDetails = fakeUser();
     const user = await userService.createUserWithPassword(userDetails);
