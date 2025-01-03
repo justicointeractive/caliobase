@@ -2,6 +2,7 @@ import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import type { ComponentClass, FunctionComponent, ReactElement } from 'react';
 import type { DetailEditorComponent } from '../components/data/DetailEditorComponent';
 import type { TableCellComponent } from '../components/data/TableCellComponent';
+import { UserContextProps } from '../context';
 import type { CaliobaseUiConfiguration } from './CaliobaseUiConfiguration';
 import { ICaliobaseApi } from './ICaliobaseApi';
 
@@ -229,7 +230,11 @@ export type ContentFieldInput<
   readOnly?: boolean;
   required?: boolean;
   defaultValue: () => TValue | null;
-  validator?: (value: TValue) => Promise<
+  validator?: (
+    value: TValue,
+    item: Record<string, unknown>,
+    context: UserContextProps
+  ) => Promise<
     | {
         message: string;
       }[]

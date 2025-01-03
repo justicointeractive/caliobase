@@ -4,8 +4,8 @@ import { CaliobaseUiConfiguration } from '../lib';
 import { ICaliobaseApi } from '../lib/ICaliobaseApi';
 import { ICaliobaseRootResponse } from '../lib/types';
 
-export type ApiContext = {
-  caliobaseUiConfiguration: CaliobaseUiConfiguration<any>;
+export type ApiContext<T extends ICaliobaseApi = any> = {
+  caliobaseUiConfiguration: CaliobaseUiConfiguration<T>;
   api: ICaliobaseApi;
   root?: ICaliobaseRootResponse;
   reloadRoot: () => void;

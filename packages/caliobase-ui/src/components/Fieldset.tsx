@@ -1,5 +1,6 @@
 import { get } from 'lodash';
 import { Fragment, useState } from 'react';
+import { useUserContext } from '../context';
 import { ContentField } from '../lib';
 
 export function Fieldset<T extends Record<string, unknown>>(props: {
@@ -34,6 +35,8 @@ function Field<T extends Record<string, unknown>>({
     { message: string }[] | null
   >(null);
 
+  const userContext = useUserContext();
+
   return (
     <div key={field.property} className="relative">
       {field.editor?.({
@@ -44,7 +47,7 @@ function Field<T extends Record<string, unknown>>({
         onChange: (e) => {
           onChange({ ...item, [field.property]: e });
           field
-            .validator?.(e)
+            .validator?.(e, item, userContext)
             .then((result) => {
               setValidationErrors(result);
             })
