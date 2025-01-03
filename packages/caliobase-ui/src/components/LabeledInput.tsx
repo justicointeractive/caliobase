@@ -6,7 +6,7 @@ export function LabeledInput<TValue>({
   value,
   label,
   placeholder,
-  isValid,
+  isValid = true,
   children,
 }: {
   value: TValue;
@@ -25,7 +25,7 @@ export function LabeledInput<TValue>({
     <div
       className={clsxo(
         'group relative grid',
-        isValid === false
+        !isValid
           ? 'border-red-500 [--bg:theme(colors.red.50)] [--ring:theme(colors.red.500)]'
           : !isEditable
           ? '[--bg:theme(colors.gray.100)] [--ring:theme(colors.gray.300)]'
