@@ -17,6 +17,7 @@ export const defaultFieldValues: Omit<
   readOnly: false,
   required: false,
   editor: TextValueEditor,
+  validator: async () => null,
   editorColumn: 'main',
   editorOptions: {},
   tableCell: { component: StringTableCell },

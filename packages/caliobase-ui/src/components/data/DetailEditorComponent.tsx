@@ -12,6 +12,7 @@ import { TextInput, TextareaInput, TitleTextInput } from '../TextInput';
 export type DetailEditorComponent<TValue, TOptions> = FunctionComponent<{
   item: Record<string, unknown>;
   value: TValue;
+  isValid: boolean;
   // should this be a specific key for type inferrence?
   //  no, editors are for editors can be used to edit many fields of a certain data type
   field: ContentField<string, TValue, TOptions>;
@@ -23,12 +24,13 @@ export type DetailEditorComponent<TValue, TOptions> = FunctionComponent<{
 export const TitleTextValueEditor: DetailEditorComponent<
   string,
   ComponentProps<'input'>
-> = ({ value, field, onChange, options }) => (
+> = ({ value, field, isValid, onChange, options }) => (
   <TitleTextInput
     key={field.property}
     label={field.label}
     value={value}
     onChange={(e) => onChange(e.target.value)}
+    isValid={isValid}
     readOnly={field.readOnly}
     {...options}
   />
@@ -41,12 +43,13 @@ export function slugify(titleCase: string) {
 export const TextareaValueEditor: DetailEditorComponent<
   string,
   ComponentProps<'textarea'>
-> = ({ value, field, onChange, options }) => (
+> = ({ value, field, isValid, onChange, options }) => (
   <TextareaInput
     key={field.property}
     label={field.label}
     value={value}
     onChange={(e) => onChange(e.target.value)}
+    isValid={isValid}
     readOnly={field.readOnly}
     {...options}
   />
@@ -55,6 +58,7 @@ export const TextareaValueEditor: DetailEditorComponent<
 export const DateValueEditor: DetailEditorComponent<string | null, unknown> = ({
   value,
   field,
+  isValid,
   onChange,
 }) => (
   <TextInput
@@ -68,6 +72,7 @@ export const DateValueEditor: DetailEditorComponent<string | null, unknown> = ({
         e.target.value ? parseDateTimeLocal(e.target.value).toISOString() : null
       )
     }
+    isValid={isValid}
     readOnly={field.readOnly}
   />
 );
@@ -75,11 +80,12 @@ export const DateValueEditor: DetailEditorComponent<string | null, unknown> = ({
 export const ImageValueEditor: DetailEditorComponent<
   unknown | null,
   unknown
-> = ({ value, field, onChange }) => (
+> = ({ value, field, isValid, onChange }) => (
   <ImageUpload
     key={field.property}
     image={value}
     onChange={onChange}
     field={field}
+    isValid={isValid}
   />
 );

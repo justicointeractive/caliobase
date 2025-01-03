@@ -9,10 +9,19 @@ function createTextInput<T extends 'input' | 'textarea'>(
   return function TextInput({
     label,
     placeholder,
+    isValid,
     ...props
-  }: { label: string } & ComponentProps<T>) {
+  }: {
+    label: string;
+    isValid?: boolean;
+  } & ComponentProps<T>) {
     return (
-      <LabeledInput value={props.value} label={label} placeholder={placeholder}>
+      <LabeledInput
+        value={props.value}
+        label={label}
+        placeholder={placeholder}
+        isValid={isValid}
+      >
         {createElement(as, {
           ...componentProps,
           ...props,

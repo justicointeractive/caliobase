@@ -6,11 +6,13 @@ export function LabeledInput<TValue>({
   value,
   label,
   placeholder,
+  isValid,
   children,
 }: {
   value: TValue;
   label?: string;
   placeholder?: string;
+  isValid?: boolean;
   children: ReactElement<{ readOnly?: boolean; disabled?: boolean }>;
 }) {
   const [focus, setFocus] = useState(false);
@@ -23,9 +25,11 @@ export function LabeledInput<TValue>({
     <div
       className={clsxo(
         'group relative grid',
-        isEditable
-          ? '[--bg:theme(colors.gray.50)] hover:[--bg:theme(colors.indigo.50)] [--ring:theme(colors.indigo.500)]'
-          : '[--bg:theme(colors.gray.100)] [--ring:theme(colors.gray.300)]',
+        isValid === false
+          ? 'border-red-500 [--bg:theme(colors.red.50)] [--ring:theme(colors.red.500)]'
+          : !isEditable
+          ? '[--bg:theme(colors.gray.100)] [--ring:theme(colors.gray.300)]'
+          : '[--bg:theme(colors.gray.50)] [--ring:theme(colors.indigo.500)] hover:[--bg:theme(colors.indigo.50)]',
         'bg-[color:var(--bg)]',
         'transition-all',
         'rounded border',
@@ -37,8 +41,9 @@ export function LabeledInput<TValue>({
       <div className="relative grid">{children}</div>
       <label
         className={clsx(
-          'pointer-events-none absolute bg-[color:var(--bg)] font-bold text-gray-500',
+          'pointer-events-none absolute bg-[color:var(--bg)] font-bold ',
           'transition-all',
+          !isValid ? 'text-red-800' : 'text-gray-500',
           showLargeLabel
             ? 'left-2 top-[calc(0.5em+0.125em)] opacity-0'
             : 'left-2 top-1 text-xs'
@@ -48,8 +53,9 @@ export function LabeledInput<TValue>({
       </label>
       <label
         className={clsx(
-          'pointer-events-none absolute bg-[color:var(--bg)] font-bold text-gray-500',
+          'pointer-events-none absolute bg-[color:var(--bg)] font-bold',
           'transition-all',
+          !isValid ? 'text-red-800' : 'text-gray-500',
           showLargeLabel
             ? 'left-2 top-[calc(0.5em+0.125em)]'
             : 'left-2 top-1 text-xs opacity-0'

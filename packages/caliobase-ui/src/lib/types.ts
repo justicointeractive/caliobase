@@ -229,6 +229,12 @@ export type ContentFieldInput<
   readOnly?: boolean;
   required?: boolean;
   defaultValue: () => TValue | null;
+  validator?: (value: TValue) => Promise<
+    | {
+        message: string;
+      }[]
+    | null
+  >;
   editorColumn?: 'main' | 'meta';
   editor?: DetailEditorComponent<TValue, TEditorOptions> | null;
   editorOptions?: TEditorOptions;

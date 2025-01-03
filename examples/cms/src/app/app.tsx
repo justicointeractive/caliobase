@@ -32,6 +32,17 @@ const nameField: ContentFieldInput<'name', string, ComponentProps<'input'>> = {
   defaultValue: () => '',
   editor: TitleTextValueEditor,
   editorOptions: { placeholder: 'Add Name' },
+  validator: async (value) => {
+    if (value.length < 3) {
+      return [{ message: 'Name must be at least 3 characters' }];
+    }
+
+    if (value === 'Invalid') {
+      return [{ message: 'Name cannot be "Invalid"' }];
+    }
+
+    return null;
+  },
 };
 
 const appConfig = new CaliobaseUiConfigurationBuilder(Api, {

@@ -167,6 +167,7 @@ function InviteUserView() {
         value={roles}
         onChange={setRoles}
         field={rolesField}
+        isValid
       />
       <button
         className={clsx(

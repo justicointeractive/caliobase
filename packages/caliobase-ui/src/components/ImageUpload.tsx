@@ -14,6 +14,7 @@ export function ImageUpload({
   field: ContentField;
   image: unknown | null;
   onChange: (value: unknown | null) => void;
+  isValid: boolean;
 }) {
   const { uploadImageFile, toUrl } = useUploadImage();
 
