@@ -1,12 +1,12 @@
 {
   "name": "@caliobase/caliobase-nx",
-  "version": "0.3.39",
+  "version": "0.3.40",
   "main": "src/index.js",
   "generators": "./generators.json",
   "executors": "./executors.json",
   "dependencies": {
-    "@caliobase/caliobase-ui": "0.3.35",
-    "@caliobase/caliobase": "0.7.6",
+    "@caliobase/caliobase-ui": "0.3.36",
+    "@caliobase/caliobase": "0.7.7",
     "@nestjs/swagger": "7.3.0",
     "@nx/devkit": "18.0.4",
     "@nx/eslint": "18.0.4",
