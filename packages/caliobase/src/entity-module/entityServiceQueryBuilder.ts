@@ -146,7 +146,7 @@ export function entityServiceQueryBuilder<TEntity extends ObjectLiteral>(
   }
 
   if (select) {
-    query.select(select);
+    query.select(select.map(quote));
   }
 
   return query;
@@ -183,4 +183,8 @@ function prepareInClause<T extends string>(prefix: string, values: T[]) {
   }, {} as Record<string, string>);
   const inPlaceholders = values.map((_, i) => `:${prefix}${i}`).join(',');
   return { inPlaceholders, inValues };
+}
+
+function quote(key: string) {
+  return `"${key}"`;
 }
