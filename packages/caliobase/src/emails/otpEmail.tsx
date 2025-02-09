@@ -1,9 +1,4 @@
-import {
-  MjmlButton,
-  MjmlColumn,
-  MjmlSection,
-  MjmlText,
-} from '@faire/mjml-react';
+import { MjmlColumn, MjmlSection, MjmlText } from '@faire/mjml-react';
 import { render } from '@faire/mjml-react/utils/render';
 import { EmailLayout } from './layout';
 
@@ -21,28 +16,23 @@ export function otpEmail(
         <MjmlColumn>
           <MjmlText>
             We've received a request to login to your account. If you did not
-            request that you can safely ignore this email.{' '}
-            {options.accountExists ? (
-              <>If you would like to login click the button below.</>
-            ) : (
-              <>No account was found for this email address.</>
-            )}
+            request that you can safely ignore this email.
           </MjmlText>
         </MjmlColumn>
       </MjmlSection>
-      {options.accountExists && (
-        <MjmlSection>
-          <MjmlColumn>
-            <MjmlButton
-              padding="20px"
-              backgroundColor="#346DB7"
-              href={options.otp}
-            >
-              Login
-            </MjmlButton>
-          </MjmlColumn>
-        </MjmlSection>
-      )}
+      <MjmlSection>
+        <MjmlColumn>
+          {options.accountExists ? (
+            <MjmlText>
+              Your one time password is: <span data-otp>{options.otp}</span>
+            </MjmlText>
+          ) : (
+            <MjmlText>
+              You do not have an account with us. Please create one.
+            </MjmlText>
+          )}
+        </MjmlColumn>
+      </MjmlSection>
     </EmailLayout>,
     {}
   );

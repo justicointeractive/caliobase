@@ -5,6 +5,7 @@ import { omit } from 'lodash';
 import { DataSource, MoreThanOrEqual } from 'typeorm';
 import { CaliobaseConfig, formatWithToken } from '../config/config';
 import { forgotPasswordEmail } from '../emails/forgotPasswordEmail';
+import { otpEmail } from '../emails/otpEmail';
 import { assert } from '../lib/assert';
 import { AbstractUserProfile } from './entities/abstract-user-profile.entity';
 import { PasswordResetToken } from './entities/password-reset-token.entity';
@@ -205,6 +206,25 @@ export class AuthService {
       undefined;
 
     return { ...omit(user, ['createdAt', 'updatedAt']), profile };
+  }
+
+  async sendOtpByEmail(email: string) {
+    const user = await this.userRepo.findOne({
+      where: normalizeEmailOf({ email }),
+    });
+    let emailBody;
+    if (user == null) {
+      emailBody = otpEmail({ accountExists: false });
+    } else {
+      const { otp } = await this.userOtpRepo.createUserOtp(user);
+      emailBody = otpEmail({ accountExists: true, otp });
+    }
+
+    await this.config.emailTransport.sendMail({
+      to: email,
+      subject: `One Time Password`,
+      html: emailBody,
+    });
   }
 
   async deleteUser(user: User) {

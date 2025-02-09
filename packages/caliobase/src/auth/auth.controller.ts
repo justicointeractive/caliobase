@@ -75,6 +75,12 @@ class UserLoginBody {
   password!: string;
 }
 
+class OtpRequest {
+  @IsString()
+  @ApiProperty()
+  email!: string;
+}
+
 class UserLoginWithOtpBody {
   @IsString()
   @MinLength(1)
@@ -92,12 +98,13 @@ export class AccessTokenResponse {
   accessToken!: string;
 }
 
-export abstract class AbstractAuthController {
-  abstract createUserWithPassword(userDetails: any): any;
-  abstract createUserWithoutPassword(userDetails: any): any;
-  abstract loginUser(body: UserLoginBody): any;
-  abstract loginUserWithOtp(body: UserLoginWithOtpBody): any;
-  abstract getMe(user: RequestUser): any;
+export abstract class AbstractAuthController<TUser = any> {
+  abstract createUserWithPassword(userDetails: TUser): Promise<TUser>;
+  abstract createUserWithoutPassword(userDetails: TUser): Promise<TUser>;
+  abstract loginUser(body: UserLoginBody): Promise<TUser>;
+  abstract loginUserWithOtp(body: UserLoginWithOtpBody): Promise<TUser>;
+  abstract sendOtpByEmail(request: OtpRequest): Promise<void>;
+  abstract getMe(user: RequestUser): Promise<TUser>;
 }
 
 export function createAuthController<
@@ -353,6 +360,14 @@ export function createAuthController<
           userId: user.id,
         }),
       };
+    }
+
+    @Public()
+    @Post('user/sendOtpByEmail')
+    @ApiBody({ type: OtpRequest })
+    @ApiOkResponse()
+    async sendOtpByEmail(@Body() body: OtpRequest) {
+      await this.authService.sendOtpByEmail(body.email);
     }
 
     @Public()

@@ -4,7 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { IsString } from 'class-validator';
-import { createTransport } from 'nodemailer';
+import nodemailerMock from 'nodemailer-mock';
 import * as supertest from 'supertest';
 import { Column, DataSource, Entity } from 'typeorm';
 import {
@@ -98,7 +98,7 @@ export async function createTestingModule({
         },
         controllerEntities: [],
         otherEntities: [],
-        emailTransport: createTransport({}),
+        emailTransport: nodemailerMock.createTransport({}),
         objectStorageProvider: objectStorage
           ? new S3ObjectStorageProvider({
               bucket: 'caliobase',

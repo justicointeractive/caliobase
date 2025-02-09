@@ -1,6 +1,7 @@
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { JSDOM } from 'jsdom';
 import { omit } from 'lodash';
-import { DataSource } from 'typeorm';
+import nodemailerMock from 'nodemailer-mock';
 import {
   createTestOrganization,
   createTestingModule,
@@ -11,13 +12,12 @@ import { AbstractAuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { Member } from './entities/member.entity';
 import { Organization } from './entities/organization.entity';
-import { UserOtpRepository } from './entities/user-otp.entity';
 import { OrganizationService } from './organization.service';
 
 describe('auth', () => {
-  const { module, userService } = useTestingModule(async () => {
+  const { userService } = useTestingModule(async () => {
     const module = await createTestingModule();
-    const userService = module.get(AbstractAuthController);
+    const userService = module.get(AbstractAuthController<any>);
     return { module, userService };
   });
 
@@ -62,9 +62,20 @@ describe('auth', () => {
   it('should login user with email otp', async () => {
     const userDetails = fakeUser();
     const { user } = await userService.createUserWithoutPassword(userDetails);
-    const { otp } = await UserOtpRepository.forDataSource(
-      module.get(DataSource)
-    ).createUserOtp(user);
+
+    await userService.sendOtpByEmail({
+      email: userDetails.email,
+    });
+
+    const sent = nodemailerMock.mock.getSentMail()[0];
+
+    const dom = new JSDOM(sent.html).window.document;
+
+    const otp = dom.querySelector('[data-otp]')?.textContent;
+
+    if (!otp) {
+      throw new Error('otp not found in email');
+    }
 
     const loggedInUser = await userService.loginUserWithOtp({
       email: userDetails.email,
