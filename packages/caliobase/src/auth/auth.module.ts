@@ -11,13 +11,13 @@ import {
   createAuthController,
 } from './auth.controller';
 import { AuthService, CreateUserRequest } from './auth.service';
-import { UserOtp } from './entities';
 import { AbstractOrganizationProfile } from './entities/abstract-organization-profile.entity';
 import { AbstractUserProfile } from './entities/abstract-user-profile.entity';
 import { MemberInvitationToken } from './entities/member-invitation-token.entity';
 import { Member } from './entities/member.entity';
 import { Organization } from './entities/organization.entity';
 import { PasswordResetToken } from './entities/password-reset-token.entity';
+import { UserOtp } from './entities/user-otp.entity';
 import { UserPassword } from './entities/user-password.entity';
 import { UserSocialLogin } from './entities/user-social-login.entity';
 import { User } from './entities/user.entity';

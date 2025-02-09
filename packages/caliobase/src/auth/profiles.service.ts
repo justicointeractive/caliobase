@@ -1,9 +1,9 @@
 import { Injectable, Type } from '@nestjs/common';
 import { DataSource, DeepPartial, Repository } from 'typeorm';
 import { CaliobaseAuthProfileEntities } from './auth.module';
-import { Organization } from './entities';
 import { AbstractOrganizationProfile } from './entities/abstract-organization-profile.entity';
 import { AbstractUserProfile } from './entities/abstract-user-profile.entity';
+import { Organization } from './entities/organization.entity';
 import { User } from './entities/user.entity';
 import { SocialProfile } from './social-provider';
 

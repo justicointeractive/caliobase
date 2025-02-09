@@ -6,12 +6,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import {
   ExtractJwt,
   JwtFromRequestFunction,
-  Strategy,
   StrategyOptions as JwtStrategyOptions,
+  Strategy,
 } from 'passport-jwt';
 import { Repository } from 'typeorm';
 import { pemKeyMaybeFromBase64 } from '../lib/pemKeyMaybeFromBase64';
-import { Member, Organization, User } from './entities';
+import { Member } from './entities/member.entity';
+import { Organization } from './entities/organization.entity';
+import { User } from './entities/user.entity';
 import { CaliobaseJwtPayload } from './jwt-payload';
 
 export class CaliobaseRequestUser {

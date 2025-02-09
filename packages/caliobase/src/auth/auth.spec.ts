@@ -9,7 +9,9 @@ import {
 import { fakeUser } from '../test/fakeUser';
 import { AbstractAuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { Member, Organization, UserOtpRepository } from './entities';
+import { Member } from './entities/member.entity';
+import { Organization } from './entities/organization.entity';
+import { UserOtpRepository } from './entities/user-otp.entity';
 import { OrganizationService } from './organization.service';
 
 describe('auth', () => {
@@ -59,7 +61,7 @@ describe('auth', () => {
 
   it('should login user with email otp', async () => {
     const userDetails = fakeUser();
-    const user = await userService.createUserWithoutPassword(userDetails);
+    const { user } = await userService.createUserWithoutPassword(userDetails);
     const { otp } = await UserOtpRepository.forDataSource(
       module.get(DataSource)
     ).createUserOtp(user);
@@ -85,7 +87,7 @@ describe('auth', () => {
           email: '',
           otp: otp,
         })
-    ).rejects.toThrow(BadRequestException);
+    ).rejects.toThrow(UnauthorizedException);
     await expect(
       async () =>
         await userService.loginUserWithOtp({
@@ -99,7 +101,7 @@ describe('auth', () => {
           email: userDetails.email,
           otp: '',
         })
-    ).rejects.toThrow(BadRequestException);
+    ).rejects.toThrow(UnauthorizedException);
   });
 
   it('should treat email as case insensitive', async () => {
