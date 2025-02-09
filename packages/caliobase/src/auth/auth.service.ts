@@ -6,6 +6,7 @@ import { DataSource, MoreThanOrEqual } from 'typeorm';
 import { CaliobaseConfig, formatWithToken } from '../config/config';
 import { forgotPasswordEmail } from '../emails/forgotPasswordEmail';
 import { assert } from '../lib/assert';
+import { UserOtpRepository } from './entities';
 import { AbstractUserProfile } from './entities/abstract-user-profile.entity';
 import { PasswordResetToken } from './entities/password-reset-token.entity';
 import { UserPasswordRepository } from './entities/user-password.entity';
@@ -37,6 +38,11 @@ export class AuthService {
   private readonly userPasswordRepo = UserPasswordRepository.forDataSource(
     this.dataSource
   );
+
+  private readonly userOtpRepo = UserOtpRepository.forDataSource(
+    this.dataSource
+  );
+
   private readonly passwordResetTokenRepo =
     this.dataSource.getRepository(PasswordResetToken);
 
@@ -158,11 +164,37 @@ export class AuthService {
     return user;
   }
 
+  async validateOtp({ email, otp }: { email: string; otp: string }) {
+    const user = await this.userRepo.findOne({
+      where: normalizeEmailOf({ email }),
+    });
+
+    await this.userOtpRepo.assertCurrentOtp(user, otp);
+
+    assert(user);
+
+    return user;
+  }
+
   async createUserWithPassword({
     password,
     profile: createProfile,
     ...createUser
   }: CreateUserRequest): Promise<User & { profile: unknown }> {
+    const user = await this.createUserWithoutPassword({
+      ...createUser,
+      profile: createProfile,
+    });
+
+    await this.userPasswordRepo.setUserPassword(user, password);
+
+    return user;
+  }
+
+  async createUserWithoutPassword({
+    profile: createProfile,
+    ...createUser
+  }: Omit<CreateUserRequest, 'password'>) {
     const user = await this.userRepo.save(
       this.userRepo.create(normalizeEmailOf(createUser))
     );
@@ -171,8 +203,6 @@ export class AuthService {
       (createProfile &&
         (await this.profileService.createUserProfile(user, createProfile))) ||
       undefined;
-
-    await this.userPasswordRepo.setUserPassword(user, password);
 
     return { ...omit(user, ['createdAt', 'updatedAt']), profile };
   }

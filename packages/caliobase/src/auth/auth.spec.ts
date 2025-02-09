@@ -1,5 +1,6 @@
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { omit } from 'lodash';
+import { DataSource } from 'typeorm';
 import {
   createTestOrganization,
   createTestingModule,
@@ -8,11 +9,11 @@ import {
 import { fakeUser } from '../test/fakeUser';
 import { AbstractAuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { Member, Organization } from './entities';
+import { Member, Organization, UserOtpRepository } from './entities';
 import { OrganizationService } from './organization.service';
 
 describe('auth', () => {
-  const { userService } = useTestingModule(async () => {
+  const { module, userService } = useTestingModule(async () => {
     const module = await createTestingModule();
     const userService = module.get(AbstractAuthController);
     return { module, userService };
@@ -58,8 +59,48 @@ describe('auth', () => {
 
   it('should login user with email otp', async () => {
     const userDetails = fakeUser();
-    const user = await userService.sendEmailOtp(userDetails.email);
-    
+    const user = await userService.createUserWithoutPassword(userDetails);
+    const { otp } = await UserOtpRepository.forDataSource(
+      module.get(DataSource)
+    ).createUserOtp(user);
+
+    const loggedInUser = await userService.loginUserWithOtp({
+      email: userDetails.email,
+      otp: otp,
+    });
+    expect(loggedInUser).toMatchObject({
+      accessToken: expect.stringContaining(''),
+      user: omit(user.user, ['profile']),
+    });
+    await expect(
+      async () =>
+        await userService.loginUserWithOtp({
+          email: userDetails.email,
+          otp: 'not the right otp',
+        })
+    ).rejects.toThrow(UnauthorizedException);
+    await expect(
+      async () =>
+        await userService.loginUserWithOtp({
+          email: '',
+          otp: otp,
+        })
+    ).rejects.toThrow(BadRequestException);
+    await expect(
+      async () =>
+        await userService.loginUserWithOtp({
+          email: 'not-the-right-email@example.org',
+          otp: otp,
+        })
+    ).rejects.toThrow(UnauthorizedException);
+    await expect(
+      async () =>
+        await userService.loginUserWithOtp({
+          email: userDetails.email,
+          otp: '',
+        })
+    ).rejects.toThrow(BadRequestException);
+  });
 
   it('should treat email as case insensitive', async () => {
     const userDetails = fakeUser();

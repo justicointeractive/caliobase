@@ -11,6 +11,7 @@ import {
   createAuthController,
 } from './auth.controller';
 import { AuthService, CreateUserRequest } from './auth.service';
+import { UserOtp } from './entities';
 import { AbstractOrganizationProfile } from './entities/abstract-organization-profile.entity';
 import { AbstractUserProfile } from './entities/abstract-user-profile.entity';
 import { MemberInvitationToken } from './entities/member-invitation-token.entity';
@@ -84,6 +85,7 @@ export class CaliobaseAuthModule {
       Member,
       Organization,
       UserPassword,
+      UserOtp,
       UserSocialLogin,
       User,
       PasswordResetToken,

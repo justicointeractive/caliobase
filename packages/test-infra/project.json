@@ -1,0 +1,16 @@
+{
+  "name": "test-infra",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/test-infra",
+  "projectType": "application",
+  "targets": {
+    "start": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker-compose -p caliobase-test-infra up",
+        "cwd": "packages/test-infra"
+      }
+    },
+    "lint": { "executor": "nx:noop" }
+  }
+}

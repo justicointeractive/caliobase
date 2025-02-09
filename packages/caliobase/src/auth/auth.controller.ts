@@ -75,6 +75,18 @@ class UserLoginBody {
   password!: string;
 }
 
+class UserLoginWithOtpBody {
+  @IsString()
+  @MinLength(1)
+  @ApiProperty()
+  email!: string;
+
+  @IsString()
+  @MinLength(1)
+  @ApiProperty()
+  otp!: string;
+}
+
 export class AccessTokenResponse {
   @ApiProperty()
   accessToken!: string;
@@ -82,7 +94,9 @@ export class AccessTokenResponse {
 
 export abstract class AbstractAuthController {
   abstract createUserWithPassword(userDetails: any): any;
+  abstract createUserWithoutPassword(userDetails: any): any;
   abstract loginUser(body: UserLoginBody): any;
+  abstract loginUserWithOtp(body: UserLoginWithOtpBody): any;
   abstract getMe(user: RequestUser): any;
 }
 
@@ -133,14 +147,10 @@ export function createAuthController<
     nonce?: string;
   }
 
-  class UserSignupBody {
+  class UserWithoutPasswordSignupBody {
     @IsString()
     @ApiProperty()
     email!: string;
-
-    @IsString()
-    @ApiProperty()
-    password!: string;
 
     profile!: AbstractUserProfile | null;
   }
@@ -151,9 +161,16 @@ export function createAuthController<
       ValidateNested(),
       TransformType(() => CreateUserProfileEntityDto ?? Object),
     ],
-    UserSignupBody.prototype,
+    UserWithoutPasswordSignupBody.prototype,
     'profile'
   );
+
+  class UserSignupBody extends UserWithoutPasswordSignupBody {
+    @IsString()
+    @MinLength(1)
+    @ApiProperty()
+    password!: string;
+  }
 
   class User extends UserEntity {}
 
@@ -303,6 +320,24 @@ export function createAuthController<
     }
 
     @Public()
+    @Post('user/createWithoutPassword')
+    @ApiBody({ type: UserWithoutPasswordSignupBody })
+    @ApiCreatedResponse({ type: User })
+    async createUserWithoutPassword(
+      @Body()
+      body: UserWithoutPasswordSignupBody
+    ): Promise<AuthenticationResponse> {
+      const user = await this.authService.createUserWithoutPassword(body);
+
+      return {
+        user,
+        accessToken: await this.jwtSigner.sign({
+          userId: user.id,
+        }),
+      };
+    }
+
+    @Public()
     @Post('user/login')
     @ApiBody({ type: UserLoginBody })
     @ApiCreatedResponse({ type: AuthenticationResponse })
@@ -311,6 +346,24 @@ export function createAuthController<
       body: UserLoginBody
     ): Promise<AuthenticationResponse> {
       const user = await this.authService.validatePassword(body);
+
+      return {
+        user,
+        accessToken: await this.jwtSigner.sign({
+          userId: user.id,
+        }),
+      };
+    }
+
+    @Public()
+    @Post('user/loginWithOtp')
+    @ApiBody({ type: UserLoginWithOtpBody })
+    @ApiCreatedResponse({ type: AuthenticationResponse })
+    async loginUserWithOtp(
+      @Body()
+      body: UserLoginWithOtpBody
+    ): Promise<AuthenticationResponse> {
+      const user = await this.authService.validateOtp(body);
 
       return {
         user,

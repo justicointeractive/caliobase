@@ -101,10 +101,11 @@ export async function createTestingModule({
         emailTransport: createTransport({}),
         objectStorageProvider: objectStorage
           ? new S3ObjectStorageProvider({
-              bucket: 'test',
-              cdnUrlPrefix: 'http://test.s3.localhost.localstack.cloud:4566',
+              bucket: 'caliobase',
+              cdnUrlPrefix:
+                'http://caliobase.s3.localhost.localstack.cloud:9000',
               keyPrefix: '',
-              endpoint: 'http://s3.localhost.localstack.cloud:4566',
+              endpoint: 'http://s3.localhost.localstack.cloud:9000',
             })
           : null,
       }),
