@@ -67,11 +67,11 @@ describe('auth', () => {
       email: userDetails.email,
     });
 
-    const sent = nodemailerMock.mock.getSentMail()[0];
+    const sent = nodemailerMock.mock.getSentMail().at(-1);
 
-    const dom = new JSDOM(sent.html).window.document;
-
-    const otp = dom.querySelector('[data-otp]')?.textContent;
+    const jsdomContext = new JSDOM(sent.html);
+    const doc = jsdomContext.window.document;
+    const otp = doc.querySelector('[data-otp]')?.textContent;
 
     if (!otp) {
       throw new Error('otp not found in email');
