@@ -37,7 +37,7 @@ import { Public } from './decorators/public.decorator';
 import { AbstractOrganizationProfile } from './entities/abstract-organization-profile.entity';
 import { AbstractUserProfile } from './entities/abstract-user-profile.entity';
 import { Member } from './entities/member.entity';
-import { User as UserEntity } from './entities/user.entity';
+import { User, User as UserEntity } from './entities/user.entity';
 import { JwtSignerService } from './jwt-signer.service';
 import { CaliobaseRequestUser } from './jwt.strategy';
 import { OrganizationService } from './organization.service';
@@ -75,25 +75,63 @@ class UserLoginBody {
   password!: string;
 }
 
+class OtpRequest {
+  @IsString()
+  @ApiProperty()
+  email!: string;
+}
+
+class UserLoginWithOtpBody {
+  @IsString()
+  @MinLength(1)
+  @ApiProperty()
+  email!: string;
+
+  @IsString()
+  @MinLength(1)
+  @ApiProperty()
+  otp!: string;
+}
+
 export class AccessTokenResponse {
   @ApiProperty()
   accessToken!: string;
 }
 
-export abstract class AbstractAuthController {
-  abstract createUserWithPassword(userDetails: any): any;
-  abstract loginUser(body: UserLoginBody): any;
-  abstract getMe(user: RequestUser): any;
+export type AccessTokenUserResponse<
+  TUserProfile extends AbstractUserProfile = AbstractUserProfile
+> = AccessTokenResponse & {
+  user: User<TUserProfile>;
+};
+
+export abstract class AbstractAuthController<
+  TUserProfile extends AbstractUserProfile = AbstractUserProfile
+> {
+  abstract createUserWithPassword(userDetails: {
+    email: string;
+    password: string;
+    profile: Omit<TUserProfile, 'user' | 'userId'> | null;
+  }): Promise<AccessTokenUserResponse>;
+  abstract createUserWithoutPassword(userDetails: {
+    email: string;
+    profile: Omit<TUserProfile, 'user' | 'userId'> | null;
+  }): Promise<AccessTokenUserResponse>;
+  abstract loginUser(body: UserLoginBody): Promise<AccessTokenUserResponse>;
+  abstract loginUserWithOtp(
+    body: UserLoginWithOtpBody
+  ): Promise<AccessTokenUserResponse>;
+  abstract sendOtpByEmail(request: OtpRequest): Promise<void>;
+  abstract getMe(user: RequestUser): Promise<CaliobaseRequestUser>;
 }
 
 export function createAuthController<
-  TUser extends AbstractUserProfile,
+  TUserProfile extends AbstractUserProfile,
   TOrganization extends AbstractOrganizationProfile
 >({
   profileEntities: { UserProfile },
   socialProviders,
 }: {
-  profileEntities: CaliobaseAuthProfileEntities<TUser, TOrganization>;
+  profileEntities: CaliobaseAuthProfileEntities<TUserProfile, TOrganization>;
   socialProviders: SocialProvider[];
 }): Type<AbstractAuthController> & {
   CreateUserRequest: Type<CreateUserRequest>;
@@ -133,16 +171,12 @@ export function createAuthController<
     nonce?: string;
   }
 
-  class UserSignupBody {
+  class UserWithoutPasswordSignupBody {
     @IsString()
     @ApiProperty()
     email!: string;
 
-    @IsString()
-    @ApiProperty()
-    password!: string;
-
-    profile!: AbstractUserProfile | null;
+    profile!: Omit<TUserProfile, 'user' | 'userId'> | null;
   }
 
   Reflect.decorate(
@@ -151,9 +185,16 @@ export function createAuthController<
       ValidateNested(),
       TransformType(() => CreateUserProfileEntityDto ?? Object),
     ],
-    UserSignupBody.prototype,
+    UserWithoutPasswordSignupBody.prototype,
     'profile'
   );
+
+  class UserSignupBody extends UserWithoutPasswordSignupBody {
+    @IsString()
+    @MinLength(1)
+    @ApiProperty()
+    password!: string;
+  }
 
   class User extends UserEntity {}
 
@@ -303,6 +344,24 @@ export function createAuthController<
     }
 
     @Public()
+    @Post('user/createWithoutPassword')
+    @ApiBody({ type: UserWithoutPasswordSignupBody })
+    @ApiCreatedResponse({ type: User })
+    async createUserWithoutPassword(
+      @Body()
+      body: UserWithoutPasswordSignupBody
+    ): Promise<AuthenticationResponse> {
+      const user = await this.authService.createUserWithoutPassword(body);
+
+      return {
+        user,
+        accessToken: await this.jwtSigner.sign({
+          userId: user.id,
+        }),
+      };
+    }
+
+    @Public()
     @Post('user/login')
     @ApiBody({ type: UserLoginBody })
     @ApiCreatedResponse({ type: AuthenticationResponse })
@@ -311,6 +370,32 @@ export function createAuthController<
       body: UserLoginBody
     ): Promise<AuthenticationResponse> {
       const user = await this.authService.validatePassword(body);
+
+      return {
+        user,
+        accessToken: await this.jwtSigner.sign({
+          userId: user.id,
+        }),
+      };
+    }
+
+    @Public()
+    @Post('user/sendOtpByEmail')
+    @ApiBody({ type: OtpRequest })
+    @ApiOkResponse()
+    async sendOtpByEmail(@Body() body: OtpRequest) {
+      await this.authService.sendOtpByEmail(body.email);
+    }
+
+    @Public()
+    @Post('user/loginWithOtp')
+    @ApiBody({ type: UserLoginWithOtpBody })
+    @ApiCreatedResponse({ type: AuthenticationResponse })
+    async loginUserWithOtp(
+      @Body()
+      body: UserLoginWithOtpBody
+    ): Promise<AuthenticationResponse> {
+      const user = await this.authService.validateOtp(body);
 
       return {
         user,

@@ -1,5 +1,8 @@
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { JSDOM } from 'jsdom';
 import { omit } from 'lodash';
+import { SendMailOptions } from 'nodemailer';
+import nodemailerMock from 'nodemailer-mock';
 import {
   createTestOrganization,
   createTestingModule,
@@ -8,13 +11,15 @@ import {
 import { fakeUser } from '../test/fakeUser';
 import { AbstractAuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { Member, Organization } from './entities';
+import { Member } from './entities/member.entity';
+import { Organization } from './entities/organization.entity';
 import { OrganizationService } from './organization.service';
+import { UserExistsError } from './user-exists-error';
 
 describe('auth', () => {
   const { userService } = useTestingModule(async () => {
     const module = await createTestingModule();
-    const userService = module.get(AbstractAuthController);
+    const userService = module.get(AbstractAuthController<any>);
     return { module, userService };
   });
 
@@ -54,6 +59,73 @@ describe('auth', () => {
           password: '',
         })
     ).rejects.toThrow(BadRequestException);
+  });
+
+  it('should login user with email otp', async () => {
+    const userDetails = fakeUser();
+    const { user } = await userService.createUserWithoutPassword(userDetails);
+
+    await expect(
+      async () => await userService.createUserWithoutPassword(userDetails)
+    ).rejects.toThrow(UserExistsError);
+
+    await userService.sendOtpByEmail({
+      email: userDetails.email,
+    });
+
+    const otp = extractHtmlContent(
+      nodemailerMock.mock.getSentMail().at(-1),
+      '[data-otp]'
+    );
+
+    if (!otp) {
+      throw new Error('otp not found in email');
+    }
+
+    const loggedInUser = await userService.loginUserWithOtp({
+      email: userDetails.email,
+      otp: otp,
+    });
+    expect(loggedInUser).toMatchObject({
+      accessToken: expect.stringContaining(''),
+      user: omit(user, ['profile']),
+    });
+    // don't allow reusing the otp
+    await expect(
+      async () =>
+        await userService.loginUserWithOtp({
+          email: userDetails.email,
+          otp: otp,
+        })
+    ).rejects.toThrow(UnauthorizedException);
+    await expect(
+      async () =>
+        await userService.loginUserWithOtp({
+          email: userDetails.email,
+          otp: 'not the right otp',
+        })
+    ).rejects.toThrow(UnauthorizedException);
+    await expect(
+      async () =>
+        await userService.loginUserWithOtp({
+          email: '',
+          otp: otp,
+        })
+    ).rejects.toThrow(UnauthorizedException);
+    await expect(
+      async () =>
+        await userService.loginUserWithOtp({
+          email: 'not-the-right-email@example.org',
+          otp: otp,
+        })
+    ).rejects.toThrow(UnauthorizedException);
+    await expect(
+      async () =>
+        await userService.loginUserWithOtp({
+          email: userDetails.email,
+          otp: '',
+        })
+    ).rejects.toThrow(UnauthorizedException);
   });
 
   it('should treat email as case insensitive', async () => {
@@ -197,3 +269,13 @@ describe('auth', () => {
     });
   });
 });
+
+function extractHtmlContent(sent: SendMailOptions, selector: string) {
+  if (typeof sent.html !== 'string' && !Buffer.isBuffer(sent.html)) {
+    throw new Error('Invalid HTML content');
+  }
+  const jsdomContext = new JSDOM(sent.html);
+  const doc = jsdomContext.window.document;
+  const textContent = doc.querySelector(selector)?.textContent;
+  return textContent;
+}
