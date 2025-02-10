@@ -24,7 +24,10 @@ export function otpEmail(
         <MjmlColumn>
           {options.accountExists ? (
             <MjmlText>
-              Your one time password is: <span data-otp>{options.otp}</span>
+              Your one time password is:{' '}
+              <b>
+                <span data-otp>{options.otp}</span>
+              </b>
             </MjmlText>
           ) : (
             <MjmlText>
