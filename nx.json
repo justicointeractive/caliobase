@@ -108,7 +108,7 @@
   "// nxCloudAccessToken": "MTMyODlkOTctOTU5Yi00NzkwLWE1NGEtNWFlMDg2MDY4MTIxfHJlYWQtd3JpdGU=",
   "release": {
     "releaseTagPattern": "{projectName}-{version}",
-    "projects": ["packages/*", "!packages/*-e2e"],
+    "projects": ["packages/*", "!packages/*-e2e", "!packages/test-infra"],
     "projectsRelationship": "independent",
     "version": {
       "conventionalCommits": true,
