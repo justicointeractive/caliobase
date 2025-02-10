@@ -21,6 +21,7 @@ import {
   SocialRequest,
   SocialValidation,
 } from './social-provider/social-provider';
+import { UserExistsError } from './user-exists-error';
 
 export type CreateUserRequest = {
   email: string;
@@ -196,9 +197,14 @@ export class AuthService {
     profile: createProfile,
     ...createUser
   }: Omit<CreateUserRequest, 'password'>) {
-    const user = await this.userRepo.save(
-      this.userRepo.create(normalizeEmailOf(createUser))
-    );
+    const user = await this.userRepo
+      .save(this.userRepo.create(normalizeEmailOf(createUser)))
+      .catch((e) => {
+        if (e.code === '23505') {
+          throw new UserExistsError();
+        }
+        throw e;
+      });
 
     const profile =
       (createProfile &&

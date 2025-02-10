@@ -14,6 +14,7 @@ import { AuthService } from './auth.service';
 import { Member } from './entities/member.entity';
 import { Organization } from './entities/organization.entity';
 import { OrganizationService } from './organization.service';
+import { UserExistsError } from './user-exists-error';
 
 describe('auth', () => {
   const { userService } = useTestingModule(async () => {
@@ -63,6 +64,10 @@ describe('auth', () => {
   it('should login user with email otp', async () => {
     const userDetails = fakeUser();
     const { user } = await userService.createUserWithoutPassword(userDetails);
+
+    await expect(
+      async () => await userService.createUserWithoutPassword(userDetails)
+    ).rejects.toThrow(UserExistsError);
 
     await userService.sendOtpByEmail({
       email: userDetails.email,
