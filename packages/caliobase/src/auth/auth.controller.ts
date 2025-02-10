@@ -37,7 +37,7 @@ import { Public } from './decorators/public.decorator';
 import { AbstractOrganizationProfile } from './entities/abstract-organization-profile.entity';
 import { AbstractUserProfile } from './entities/abstract-user-profile.entity';
 import { Member } from './entities/member.entity';
-import { User as UserEntity } from './entities/user.entity';
+import { User, User as UserEntity } from './entities/user.entity';
 import { JwtSignerService } from './jwt-signer.service';
 import { CaliobaseRequestUser } from './jwt.strategy';
 import { OrganizationService } from './organization.service';
@@ -98,23 +98,40 @@ export class AccessTokenResponse {
   accessToken!: string;
 }
 
-export abstract class AbstractAuthController<TUser = any> {
-  abstract createUserWithPassword(userDetails: TUser): Promise<TUser>;
-  abstract createUserWithoutPassword(userDetails: TUser): Promise<TUser>;
-  abstract loginUser(body: UserLoginBody): Promise<TUser>;
-  abstract loginUserWithOtp(body: UserLoginWithOtpBody): Promise<TUser>;
+export type AccessTokenUserResponse<
+  TUserProfile extends AbstractUserProfile = AbstractUserProfile
+> = AccessTokenResponse & {
+  user: User<TUserProfile>;
+};
+
+export abstract class AbstractAuthController<
+  TUserProfile extends AbstractUserProfile = AbstractUserProfile
+> {
+  abstract createUserWithPassword(userDetails: {
+    email: string;
+    password: string;
+    profile: Omit<TUserProfile, 'user' | 'userId'> | null;
+  }): Promise<AccessTokenUserResponse>;
+  abstract createUserWithoutPassword(userDetails: {
+    email: string;
+    profile: Omit<TUserProfile, 'user' | 'userId'> | null;
+  }): Promise<AccessTokenUserResponse>;
+  abstract loginUser(body: UserLoginBody): Promise<AccessTokenUserResponse>;
+  abstract loginUserWithOtp(
+    body: UserLoginWithOtpBody
+  ): Promise<AccessTokenUserResponse>;
   abstract sendOtpByEmail(request: OtpRequest): Promise<void>;
-  abstract getMe(user: RequestUser): Promise<TUser>;
+  abstract getMe(user: RequestUser): Promise<CaliobaseRequestUser>;
 }
 
 export function createAuthController<
-  TUser extends AbstractUserProfile,
+  TUserProfile extends AbstractUserProfile,
   TOrganization extends AbstractOrganizationProfile
 >({
   profileEntities: { UserProfile },
   socialProviders,
 }: {
-  profileEntities: CaliobaseAuthProfileEntities<TUser, TOrganization>;
+  profileEntities: CaliobaseAuthProfileEntities<TUserProfile, TOrganization>;
   socialProviders: SocialProvider[];
 }): Type<AbstractAuthController> & {
   CreateUserRequest: Type<CreateUserRequest>;
@@ -159,7 +176,7 @@ export function createAuthController<
     @ApiProperty()
     email!: string;
 
-    profile!: AbstractUserProfile | null;
+    profile!: Omit<TUserProfile, 'user' | 'userId'> | null;
   }
 
   Reflect.decorate(

@@ -1,6 +1,7 @@
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { JSDOM } from 'jsdom';
 import { omit } from 'lodash';
+import { SendMailOptions } from 'nodemailer';
 import nodemailerMock from 'nodemailer-mock';
 import {
   createTestOrganization,
@@ -67,11 +68,10 @@ describe('auth', () => {
       email: userDetails.email,
     });
 
-    const sent = nodemailerMock.mock.getSentMail().at(-1);
-
-    const jsdomContext = new JSDOM(sent.html);
-    const doc = jsdomContext.window.document;
-    const otp = doc.querySelector('[data-otp]')?.textContent;
+    const otp = extractHtmlContent(
+      nodemailerMock.mock.getSentMail().at(-1),
+      '[data-otp]'
+    );
 
     if (!otp) {
       throw new Error('otp not found in email');
@@ -83,7 +83,7 @@ describe('auth', () => {
     });
     expect(loggedInUser).toMatchObject({
       accessToken: expect.stringContaining(''),
-      user: omit(user.user, ['profile']),
+      user: omit(user, ['profile']),
     });
     await expect(
       async () =>
@@ -256,3 +256,13 @@ describe('auth', () => {
     });
   });
 });
+
+function extractHtmlContent(sent: SendMailOptions, selector: string) {
+  if (typeof sent.html !== 'string' && !Buffer.isBuffer(sent.html)) {
+    throw new Error('Invalid HTML content');
+  }
+  const jsdomContext = new JSDOM(sent.html);
+  const doc = jsdomContext.window.document;
+  const textContent = doc.querySelector(selector)?.textContent;
+  return textContent;
+}
