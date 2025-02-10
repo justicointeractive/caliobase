@@ -90,6 +90,14 @@ describe('auth', () => {
       accessToken: expect.stringContaining(''),
       user: omit(user, ['profile']),
     });
+    // don't allow reusing the otp
+    await expect(
+      async () =>
+        await userService.loginUserWithOtp({
+          email: userDetails.email,
+          otp: otp,
+        })
+    ).rejects.toThrow(UnauthorizedException);
     await expect(
       async () =>
         await userService.loginUserWithOtp({

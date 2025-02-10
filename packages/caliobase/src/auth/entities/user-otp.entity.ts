@@ -11,6 +11,7 @@ import {
   PrimaryColumn,
   RelationId,
 } from 'typeorm';
+import { assert } from '../../lib/assert';
 import { BaseEntity } from './base.entity';
 import { User } from './user.entity';
 
@@ -51,11 +52,21 @@ export class UserOtpRepository {
         return { otp };
       },
 
-      async assertCurrentOtp(user: User | null, otp: string) {
+      async assertCurrentOtp(
+        user: User | null,
+        otp: string,
+        consumeOtp = true
+      ) {
         const matches = await this.compareUserOtp(user, otp);
 
         if (!matches) {
           throw new UnauthorizedException('otps do not match');
+        }
+
+        assert(user, Error, 'user is null');
+
+        if (consumeOtp) {
+          await this.manager.delete(UserOtp, { user });
         }
       },
 
