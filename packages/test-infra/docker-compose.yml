@@ -37,7 +37,7 @@ services:
   init-localstack:
     image: localstack/localstack
     entrypoint: /bin/bash
-    command: -c "awslocal s3 mb s3://test && awslocal s3 mb s3://caliobase && awslocal sqs create-queue --queue-name caliobase-shared-queue-dead-letter-queue && awslocal sqs create-queue --queue-name caliobase-shared-queue --attributes RedrivePolicy.deadLetterTargetArn=arn:aws:sqs:us-east-1:000000000000:caliobase-shared-queue-dead-letter-queue,RedrivePolicy.maxReceiveCount=3"
+    command: -c "awslocal s3 mb s3://test && awslocal s3 mb s3://caliobase && awslocal sqs create-queue --queue-name caliobase-shared-queue-dead-letter-queue && awslocal sqs create-queue --queue-name caliobase-shared-queue"
     environment:
       - AWS_ACCESS_KEY_ID=test
       - AWS_SECRET_ACCESS_KEY=test
