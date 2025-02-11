@@ -98,20 +98,12 @@ export class CaliobaseModule {
     controllerEntities,
     otherEntities,
     validatorOptions,
-    urls,
-    emailTransport,
-    guestRole,
-    allowCreateOwnOrganizations,
+    ...config
   }: CaliobaseModuleOptions<TUser, TOrganization>): Promise<DynamicModule> {
     return {
       module: CaliobaseModule,
       imports: [
-        CaliobaseConfigModule.forRootAsync({
-          urls,
-          emailTransport,
-          guestRole,
-          allowCreateOwnOrganizations,
-        }),
+        CaliobaseConfigModule.forRootAsync(config),
         CaliobaseAuthModule.forRootAsync({ socialProviders, profileEntities }),
         ...(objectStorageProvider
           ? [
