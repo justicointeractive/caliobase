@@ -346,7 +346,7 @@ export function createAuthController<
     @Public()
     @Post('user/createWithoutPassword')
     @ApiBody({ type: UserWithoutPasswordSignupBody })
-    @ApiCreatedResponse({ type: User })
+    @ApiCreatedResponse({ type: AuthenticationResponse })
     async createUserWithoutPassword(
       @Body()
       body: UserWithoutPasswordSignupBody
