@@ -1,8 +1,9 @@
 import { MjmlColumn, MjmlSection, MjmlText } from '@faire/mjml-react';
 import { render } from '@faire/mjml-react/utils/render';
-import { EmailLayout } from './layout';
+import type { EmailLayout as EmailLayoutType } from './layout';
 
 export function otpEmail(
+  EmailLayout: typeof EmailLayoutType,
   options:
     | {
         accountExists: true;

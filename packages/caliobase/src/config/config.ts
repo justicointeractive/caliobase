@@ -1,4 +1,5 @@
 import { Transporter } from 'nodemailer';
+import { EmailLayout } from '../emails/layout';
 import { Role } from '../entity-module/roles';
 
 export const TOKEN_TOKEN = `\${token}` as const;
@@ -19,6 +20,9 @@ export class CaliobaseConfig {
   emailTransport!: Transporter;
   guestRole!: Role | false;
   allowCreateOwnOrganizations!: boolean;
+  emailTemplates?: {
+    layout?: typeof EmailLayout;
+  };
 
   constructor(options: CaliobaseConfig) {
     Object.assign(this, options);

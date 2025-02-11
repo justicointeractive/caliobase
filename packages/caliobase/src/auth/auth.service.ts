@@ -5,6 +5,7 @@ import { omit } from 'lodash';
 import { DataSource, MoreThanOrEqual } from 'typeorm';
 import { CaliobaseConfig, formatWithToken } from '../config/config';
 import { forgotPasswordEmail } from '../emails/forgotPasswordEmail';
+import { EmailLayout } from '../emails/layout';
 import { otpEmail } from '../emails/otpEmail';
 import { assert } from '../lib/assert';
 import { AbstractUserProfile } from './entities/abstract-user-profile.entity';
@@ -220,10 +221,15 @@ export class AuthService {
     });
     let emailBody;
     if (user == null) {
-      emailBody = otpEmail({ accountExists: false });
+      emailBody = otpEmail(this.config.emailTemplates?.layout ?? EmailLayout, {
+        accountExists: false,
+      });
     } else {
       const { otp } = await this.userOtpRepo.createUserOtp(user);
-      emailBody = otpEmail({ accountExists: true, otp });
+      emailBody = otpEmail(this.config.emailTemplates?.layout ?? EmailLayout, {
+        accountExists: true,
+        otp,
+      });
     }
 
     await this.config.emailTransport.sendMail({
@@ -271,17 +277,23 @@ export class AuthService {
           })
         );
 
-        const html = forgotPasswordEmail({
-          accountExists: true,
-          resetUrl: formatWithToken(this.config.urls.forgotPassword, token),
-        });
+        const html = forgotPasswordEmail(
+          this.config.emailTemplates?.layout ?? EmailLayout,
+          {
+            accountExists: true,
+            resetUrl: formatWithToken(this.config.urls.forgotPassword, token),
+          }
+        );
 
         return html;
       }
 
-      return forgotPasswordEmail({
-        accountExists: false,
-      });
+      return forgotPasswordEmail(
+        this.config.emailTemplates?.layout ?? EmailLayout,
+        {
+          accountExists: false,
+        }
+      );
     })();
 
     await this.config.emailTransport.sendMail({
