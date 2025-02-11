@@ -15,6 +15,15 @@ export function formatWithToken(url: TokenAbsoluteUrl, token: string) {
   return url.replaceAll(TOKEN_TOKEN, token);
 }
 
+type Overwrite<T, U> = Omit<T, keyof U> & U;
+
+export type CaliobaseConfigOptions = Overwrite<
+  CaliobaseConfig,
+  {
+    guestRole?: Role | false;
+  }
+>;
+
 export class CaliobaseConfig {
   urls!: MetaUrls;
   emailTransport!: Transporter;
@@ -24,7 +33,8 @@ export class CaliobaseConfig {
     layout?: typeof EmailLayout;
   };
 
-  constructor(options: CaliobaseConfig) {
+  constructor(options: CaliobaseConfigOptions) {
     Object.assign(this, options);
+    this.guestRole = options.guestRole ?? 'guest';
   }
 }

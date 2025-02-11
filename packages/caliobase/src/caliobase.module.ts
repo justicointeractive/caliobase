@@ -15,10 +15,8 @@ import {
 } from './auth/auth.module';
 import { AbstractOrganizationProfile } from './auth/entities/abstract-organization-profile.entity';
 import { AbstractUserProfile } from './auth/entities/abstract-user-profile.entity';
-import {
-  CaliobaseConfigModule,
-  CaliobaseConfigModuleOptions,
-} from './config/config.module';
+import { CaliobaseConfigOptions } from './config';
+import { CaliobaseConfigModule } from './config/config.module';
 import {
   CaliobaseEntitiesModule,
   CaliobaseEntitiesModuleOptions,
@@ -35,7 +33,7 @@ export type CaliobaseModuleOptions<
 > = CaliobaseEntitiesModuleOptions &
   (CaliobaseObjectStorageModuleOptions | { objectStorageProvider: null }) &
   CaliobaseAuthModuleOptions<TUser, TOrganization> &
-  CaliobaseConfigModuleOptions;
+  CaliobaseConfigOptions;
 
 @Module({})
 export class CaliobaseModule {
