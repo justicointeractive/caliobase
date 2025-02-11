@@ -215,6 +215,12 @@ export class AuthService {
     return { ...omit(user, ['createdAt', 'updatedAt']), profile };
   }
 
+  async userExistsWithEmail(email: string) {
+    return await this.userRepo.exists({
+      where: normalizeEmailOf({ email }),
+    });
+  }
+
   async sendOtpByEmail(email: string) {
     const user = await this.userRepo.findOne({
       where: normalizeEmailOf({ email }),

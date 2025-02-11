@@ -6,6 +6,7 @@ import {
   Header,
   Patch,
   Post,
+  Query,
   Request,
   Type,
   UnauthorizedException,
@@ -18,6 +19,7 @@ import {
   ApiOkResponse,
   ApiProperty,
   ApiPropertyOptional,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import { Type as TransformType } from 'class-transformer';
@@ -107,6 +109,7 @@ export type AccessTokenUserResponse<
 export abstract class AbstractAuthController<
   TUserProfile extends AbstractUserProfile = AbstractUserProfile
 > {
+  abstract userExistsWithEmail(email: string): Promise<boolean>;
   abstract createUserWithPassword(userDetails: {
     email: string;
     password: string;
@@ -341,6 +344,14 @@ export function createAuthController<
           userId: user.id,
         }),
       };
+    }
+
+    @Public()
+    @Get('user/existsWithEmail')
+    @ApiQuery({ name: 'email', type: String })
+    @ApiOkResponse({ type: Boolean })
+    async userExistsWithEmail(@Query('email') email: string): Promise<boolean> {
+      return await this.authService.userExistsWithEmail(email);
     }
 
     @Public()

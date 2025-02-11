@@ -25,7 +25,11 @@ describe('auth', () => {
 
   it('should login user with password', async () => {
     const userDetails = fakeUser();
+    expect(await userService.userExistsWithEmail(userDetails.email)).toBe(
+      false
+    );
     const user = await userService.createUserWithPassword(userDetails);
+    expect(await userService.userExistsWithEmail(userDetails.email)).toBe(true);
     const loggedInUser = await userService.loginUser(userDetails);
     expect(loggedInUser).toMatchObject({
       accessToken: expect.stringContaining(''),
