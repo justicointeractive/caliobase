@@ -1,4 +1,6 @@
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { plainToInstance } from 'class-transformer';
+import { validate } from 'class-validator';
 import { JSDOM } from 'jsdom';
 import { omit } from 'lodash';
 import { SendMailOptions } from 'nodemailer';
@@ -9,7 +11,7 @@ import {
   useTestingModule,
 } from '../test/createTestingModule';
 import { fakeUser } from '../test/fakeUser';
-import { AbstractAuthController } from './auth.controller';
+import { AbstractAuthController, ResetWithTokenBody } from './auth.controller';
 import { AuthService } from './auth.service';
 import { Member } from './entities/member.entity';
 import { Organization } from './entities/organization.entity';
@@ -145,6 +147,70 @@ describe('auth', () => {
     });
   });
 
+  it('should send password reset emails', async () => {
+    const userDetails = fakeUser();
+
+    await userService.createUserWithPassword(userDetails);
+
+    await userService.emailResetToken({
+      email: userDetails.email,
+    });
+
+    const resetToken = extractHtmlContent(
+      nodemailerMock.mock.getSentMail().at(-1),
+      '[data-reset-token]',
+      'data-reset-token'
+    );
+
+    if (!resetToken) {
+      throw new Error('reset token not found in email');
+    }
+
+    // don't allow using an empty password
+    expect(
+      await validate(
+        plainToInstance(ResetWithTokenBody, {
+          token: resetToken,
+          password: '',
+        })
+      )
+    ).toHaveLength(1);
+
+    // don't allow using an empty token
+    expect(
+      await validate(
+        plainToInstance(ResetWithTokenBody, {
+          token: '',
+          password: 'new-password',
+        })
+      )
+    ).toHaveLength(1);
+
+    // allow using the token and a new password
+    await userService.resetWithToken({
+      token: resetToken,
+      password: 'new-password',
+    });
+
+    // don't allow reusing the token
+    await expect(
+      async () =>
+        await userService.resetWithToken({
+          token: resetToken,
+          password: 'new-password',
+        })
+    ).rejects.toThrow(UnauthorizedException);
+
+    // don't allow using the wrong token
+    await expect(
+      async () =>
+        await userService.resetWithToken({
+          token: 'not the right token',
+          password: 'new-password',
+        })
+    ).rejects.toThrow(UnauthorizedException);
+  });
+
   describe('get me', () => {
     it('should get me properly', async () => {
       const user1 = await userService.createUserWithPassword(fakeUser());
@@ -274,12 +340,22 @@ describe('auth', () => {
   });
 });
 
-function extractHtmlContent(sent: SendMailOptions, selector: string) {
+function extractHtmlContent(
+  sent: SendMailOptions,
+  selector: string,
+  extract = 'textContent'
+) {
   if (typeof sent.html !== 'string' && !Buffer.isBuffer(sent.html)) {
     throw new Error('Invalid HTML content');
   }
   const jsdomContext = new JSDOM(sent.html);
   const doc = jsdomContext.window.document;
-  const textContent = doc.querySelector(selector)?.textContent;
-  return textContent;
+  const selectedElement = doc.querySelector(selector);
+  if (!selectedElement) {
+    return null;
+  }
+  if (extract === 'textContent') {
+    return selectedElement.textContent;
+  }
+  return selectedElement.getAttribute(extract);
 }

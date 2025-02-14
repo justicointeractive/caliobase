@@ -55,13 +55,15 @@ class CreatePasswordResetTokenBody {
   email!: string;
 }
 
-class ResetWithTokenBody {
+export class ResetWithTokenBody {
   @IsString()
   @ApiProperty()
+  @MinLength(1)
   password!: string;
 
   @IsString()
   @ApiProperty()
+  @MinLength(1)
   token!: string;
 }
 
@@ -119,6 +121,12 @@ export abstract class AbstractAuthController<
     email: string;
     profile: Omit<TUserProfile, 'user' | 'userId'> | null;
   }): Promise<AccessTokenUserResponse>;
+  abstract emailResetToken(body: CreatePasswordResetTokenBody): Promise<{
+    success: boolean;
+  }>;
+  abstract resetWithToken(body: ResetWithTokenBody): Promise<{
+    success: boolean;
+  }>;
   abstract loginUser(body: UserLoginBody): Promise<AccessTokenUserResponse>;
   abstract loginUserWithOtp(
     body: UserLoginWithOtpBody

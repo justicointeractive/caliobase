@@ -1,4 +1,9 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { async as cryptoRandomString } from 'crypto-random-string';
 import { addHours } from 'date-fns';
 import { omit } from 'lodash';
@@ -264,7 +269,7 @@ export class AuthService {
   }
 
   async createAndEmailPasswordResetLink(userEmail: string) {
-    const user = await this.userRepo.findOne({
+    const user = await this.userRepo.findOneOrFail({
       where: normalizeEmailOf({ email: userEmail }),
     });
 
@@ -272,7 +277,7 @@ export class AuthService {
       if (user) {
         const token = await cryptoRandomString({
           length: 128,
-          type: 'url-safe',
+          type: 'hex',
         });
 
         await this.passwordResetTokenRepo.save(
@@ -288,6 +293,7 @@ export class AuthService {
           {
             accountExists: true,
             resetUrl: formatWithToken(this.config.urls.forgotPassword, token),
+            resetToken: token,
           }
         );
 
@@ -310,12 +316,20 @@ export class AuthService {
   }
 
   async setPasswordWithResetToken(resetToken: string, newPassword: string) {
-    const token = await this.passwordResetTokenRepo.findOneOrFail({
-      where: {
-        token: resetToken,
-        validUntil: MoreThanOrEqual(new Date()),
-      },
-    });
+    const token = await this.passwordResetTokenRepo
+      .findOneOrFail({
+        where: {
+          token: resetToken,
+          validUntil: MoreThanOrEqual(new Date()),
+        },
+        relations: ['user'],
+      })
+      .catch((e) => {
+        if (e.name === 'EntityNotFoundError') {
+          throw new UnauthorizedException('invalid or expired token');
+        }
+        throw e;
+      });
 
     await this.userPasswordRepo.setUserPassword(token.user, newPassword);
 

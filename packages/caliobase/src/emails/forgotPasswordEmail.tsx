@@ -13,6 +13,7 @@ export function forgotPasswordEmail(
     | {
         accountExists: true;
         resetUrl: string;
+        resetToken: string;
       }
     | { accountExists: false }
 ) {
@@ -41,7 +42,7 @@ export function forgotPasswordEmail(
               backgroundColor="#346DB7"
               href={options.resetUrl}
             >
-              Reset Password
+              <span data-reset-token={options.resetToken}>Reset Password</span>
             </MjmlButton>
           </MjmlColumn>
         </MjmlSection>
