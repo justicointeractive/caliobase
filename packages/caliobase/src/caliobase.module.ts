@@ -7,6 +7,7 @@ import { DynamicModule, INestApplication, Module } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Command } from 'commander';
 import { mkdir } from 'fs/promises';
+import { Server } from 'http';
 import { join } from 'path';
 import { DataSource } from 'typeorm';
 import {
@@ -41,6 +42,10 @@ export class CaliobaseModule {
     app: INestApplication,
     options: {
       migration?: MigrationsOptions & RunLockOptions;
+      keepAlive?: {
+        keepAliveTimeout?: number;
+        headersTimeout?: number;
+      };
     } = {}
   ) {
     const document = SwaggerModule.createDocument(
@@ -85,6 +90,22 @@ export class CaliobaseModule {
 
     if (options.migration != null) {
       await runMigrations(app.get(DataSource), options.migration);
+    }
+
+    const server = app.getHttpServer();
+    if (server instanceof Server) {
+      // AWS ALB default keep-alive timeout is 3600 seconds. We want to match that.
+      const DEFAULT_HTTP_KEEP_ALIVE_TIMEOUT_SECONDS = 3600;
+      server.keepAliveTimeout =
+        options.keepAlive?.keepAliveTimeout ??
+        DEFAULT_HTTP_KEEP_ALIVE_TIMEOUT_SECONDS * 1000;
+      server.headersTimeout =
+        options.keepAlive?.headersTimeout ??
+        (DEFAULT_HTTP_KEEP_ALIVE_TIMEOUT_SECONDS + 1) * 1000;
+    } else if (options.keepAlive != null) {
+      throw new Error(
+        `keepAlive option is only supported when using the built-in HTTP server.`
+      );
     }
   }
 
