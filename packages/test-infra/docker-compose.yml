@@ -27,17 +27,17 @@ services:
     ports:
       - '4566:4566'
     environment:
-      - SERVICES=s3,sqs
+      - SERVICES=sqs
       - EDGE_PORT=4566
     healthcheck:
-      test: "bash -c 'awslocal s3 ls && awslocal sqs list-queues"
-      interval: 30s
+      test: ['CMD', 'awslocal', 'sqs', 'list-queues']
+      interval: 5s
       timeout: 10s
       retries: 5
   init-localstack:
     image: localstack/localstack
     entrypoint: /bin/bash
-    command: -c "awslocal s3 mb s3://test && awslocal s3 mb s3://caliobase && awslocal sqs create-queue --queue-name caliobase-shared-queue-dead-letter-queue && awslocal sqs create-queue --queue-name caliobase-shared-queue"
+    command: -c "awslocal sqs create-queue --queue-name caliobase-shared-queue-dead-letter-queue && awslocal sqs create-queue --queue-name caliobase-shared-queue"
     environment:
       - AWS_ACCESS_KEY_ID=test
       - AWS_SECRET_ACCESS_KEY=test
@@ -45,7 +45,8 @@ services:
       - AWS_DEFAULT_REGION=us-east-1
       - AWS_ENDPOINT_URL=http://localstack:4566
     depends_on:
-      - localstack
+      localstack:
+        condition: service_healthy
   minio:
     image: minio/minio
     command: server --console-address ":9001" /data
@@ -53,12 +54,12 @@ services:
       - '9000:9000'
       - '9001:9001'
     environment:
-      MINIO_ACCESS_KEY: testtest
-      MINIO_SECRET_KEY: testtest
+      MINIO_ROOT_USER: testtest
+      MINIO_ROOT_PASSWORD: testtest
       MINIO_DOMAIN: s3.localhost.localstack.cloud
     healthcheck:
       test: ['CMD', 'mc', 'ready', 'local']
-      interval: 30s
+      interval: 5s
       timeout: 10s
       retries: 5
     volumes:
@@ -66,9 +67,10 @@ services:
   init-minio:
     image: minio/mc
     entrypoint: /bin/sh
-    command: -c "mc alias set minio http://minio:9000 testtest testtest; mc mb minio/caliobase; mc anonymous set public minio/caliobase"
+    command: -c "mc alias set local http://minio:9000 testtest testtest && mc mb local/caliobase"
     depends_on:
-      - minio
+      minio:
+        condition: service_healthy
 volumes:
   minio:
   postgres:
