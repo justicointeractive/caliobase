@@ -55,6 +55,8 @@ export function ModalDialog({
           <FloatingOverlay
             lockScroll
             className="z-20 grid place-items-center bg-gray-800/80"
+            onPointerEnterCapture={undefined}
+            onPointerLeaveCapture={undefined}
             onClick={(e) => {
               if (e.target === e.currentTarget) {
                 setOpen(false);
