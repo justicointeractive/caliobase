@@ -41,5 +41,7 @@ Thumbs.db
 .env
 *.env
 !/.env
+!*.env.test
+!.env.test
 
 .nx
