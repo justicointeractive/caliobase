@@ -13,6 +13,22 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+  mysql:
+    image: mysql:8.0
+    ports:
+      - '3306:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: typeormtest
+      MYSQL_USER: typeormtest
+      MYSQL_PASSWORD: typeormtest
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - mysql:/var/lib/mysql
   redis:
     image: redis:6.0.9
     ports:
@@ -83,4 +99,5 @@ services:
 volumes:
   minio:
   postgres:
+  mysql:
   redis:
