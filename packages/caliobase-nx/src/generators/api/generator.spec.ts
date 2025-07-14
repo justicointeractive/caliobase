@@ -16,7 +16,7 @@ describe('api generator', () => {
 
   it('should run successfully', async () => {
     await generator(appTree, options);
-    const config = readProjectConfiguration(appTree, 'api');
+    const config = readProjectConfiguration(appTree, 'apps-api');
     expect(config).toBeDefined();
 
     expectSnapshot(appTree, 'package.json', [

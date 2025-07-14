@@ -17,8 +17,9 @@ describe('ui generator', () => {
 
   it('should run successfully', async () => {
     await generator(appTree, options);
-    const config = readProjectConfiguration(appTree, 'ui');
+    const config = readProjectConfiguration(appTree, 'apps-ui');
     expect(config).toBeDefined();
+    
     expectSnapshot(appTree, 'package.json', [
       [
         /"@caliobase\/caliobase-ui": "[0-9.-]+"/g,

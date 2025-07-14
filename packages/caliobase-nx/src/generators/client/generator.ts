@@ -58,13 +58,14 @@ function addFiles(tree: Tree, options: NormalizedSchema) {
 
 export default async function (tree: Tree, options: ClientGeneratorSchema) {
   const normalizedOptions = normalizeOptions(tree, options);
+  const normalizedApiProjectName = `apps-${options.apiProjectName}`;
   await libraryGenerator(tree, {
-    name: options.name,
-    directory: options.directory,
+    name: normalizedOptions.projectName,
+    directory: normalizedOptions.projectDirectory,
     skipFormat: true,
   });
   addFiles(tree, normalizedOptions);
-  modifyProjectConfiguration(tree, options.name, (config) => {
+  modifyProjectConfiguration(tree, normalizedOptions.projectName, (config) => {
     config.targets = {
       ...config.targets,
       'generate-sources': {
@@ -80,14 +81,14 @@ export default async function (tree: Tree, options: ClientGeneratorSchema) {
     };
     config.implicitDependencies = [
       ...(config.implicitDependencies ?? []),
-      options.apiProjectName,
+      normalizedApiProjectName,
     ];
 
     return config;
   });
   modifyProjectConfiguration(
     tree,
-    options.apiProjectName,
+    normalizedApiProjectName,
     (apiProjectConfig) => {
       apiProjectConfig.targets = {
         ...apiProjectConfig.targets,

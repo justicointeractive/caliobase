@@ -2,10 +2,11 @@
 
 exports[`api generator should run successfully: apps/api/project.json 1`] = `
 "{
-  "name": "api",
+  "name": "apps-api",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/api/src",
   "projectType": "application",
+  "tags": [],
   "targets": {
     "build": {
       "executor": "@nx/webpack:webpack",
@@ -19,26 +20,31 @@ exports[`api generator should run successfully: apps/api/project.json 1`] = `
         "tsConfig": "apps/api/tsconfig.app.json",
         "assets": ["apps/api/src/assets"],
         "webpackConfig": "apps/api/webpack.config.js",
-        "tsPlugins": ["@nestjs/swagger/plugin"],
-        "generatePackageJson": true
+        "generatePackageJson": true,
+        "tsPlugins": ["@nestjs/swagger/plugin"]
       },
       "configurations": {
-        "development": {},
+        "development": {
+          "outputHashing": "none"
+        },
         "production": {}
       }
     },
     "serve": {
+      "continuous": true,
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
+      "dependsOn": ["build"],
       "options": {
-        "buildTarget": "api:build"
+        "buildTarget": "apps-api:build",
+        "runBuildTargetDependencies": false
       },
       "configurations": {
         "development": {
-          "buildTarget": "api:build:development"
+          "buildTarget": "apps-api:build:development"
         },
         "production": {
-          "buildTarget": "api:build:production"
+          "buildTarget": "apps-api:build:production"
         }
       }
     },
@@ -46,14 +52,11 @@ exports[`api generator should run successfully: apps/api/project.json 1`] = `
       "executor": "@nx/eslint:lint"
     },
     "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "apps/api/jest.config.ts"
+        "passWithNoTests": true
       }
     }
-  },
-  "tags": []
+  }
 }
 "
 `;
@@ -220,9 +223,9 @@ exports[`api generator should run successfully: package.json 1`] = `
   "dependencies": {
     "@aws-sdk/client-ses": "^3.171.0",
     "@caliobase/caliobase": "*",
-    "@nestjs/common": "^10.0.2",
-    "@nestjs/core": "^10.0.2",
-    "@nestjs/platform-express": "^10.0.2",
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/core": "^11.0.0",
+    "@nestjs/platform-express": "^11.0.0",
     "@nestjs/swagger": "7.3.0",
     "axios": "^1.6.0",
     "nodemailer": "^6.7.5",
@@ -231,32 +234,32 @@ exports[`api generator should run successfully: package.json 1`] = `
     "tslib": "^2.3.0"
   },
   "devDependencies": {
-    "@nestjs/schematics": "^10.0.1",
-    "@nestjs/testing": "^10.0.2",
-    "@nx/eslint": "18.0.4",
-    "@nx/eslint-plugin": "18.0.4",
-    "@nx/jest": "18.0.4",
-    "@nx/js": "18.0.4",
-    "@nx/nest": "18.0.4",
-    "@nx/node": "18.0.4",
-    "@nx/web": "18.0.4",
-    "@nx/webpack": "18.0.4",
-    "@swc-node/register": "~1.8.0",
-    "@swc/core": "~1.3.85",
-    "@swc/helpers": "~0.5.2",
-    "@types/jest": "^29.4.0",
+    "@nestjs/schematics": "11.0.5",
+    "@nestjs/testing": "^11.0.0",
+    "@nx/eslint": "21.2.3",
+    "@nx/eslint-plugin": "21.2.3",
+    "@nx/jest": "21.2.3",
+    "@nx/js": "21.2.3",
+    "@nx/nest": "21.2.3",
+    "@nx/node": "21.2.3",
+    "@nx/web": "21.2.3",
+    "@nx/webpack": "21.2.3",
+    "@swc-node/register": "~1.9.1",
+    "@swc/core": "~1.5.7",
+    "@swc/helpers": "~0.5.11",
+    "@types/jest": "^29.5.12",
     "@types/node": "~18.16.9",
     "@types/nodemailer": "^6.4.4",
-    "@typescript-eslint/eslint-plugin": "^6.13.2",
-    "@typescript-eslint/parser": "^6.13.2",
-    "eslint": "~8.48.0",
-    "eslint-config-prettier": "^9.0.0",
-    "jest": "^29.4.1",
-    "jest-environment-node": "^29.4.1",
+    "@typescript-eslint/eslint-plugin": "^7.16.0",
+    "@typescript-eslint/parser": "^7.16.0",
+    "eslint": "~8.57.0",
+    "eslint-config-prettier": "^10.0.0",
+    "jest": "^29.7.0",
+    "jest-environment-node": "^29.7.0",
     "prettier": "^2.6.2",
     "ts-jest": "^29.1.0",
     "ts-node": "10.9.1",
-    "typescript": "~5.3.2"
+    "typescript": "~5.8.2"
   }
 }
 "
