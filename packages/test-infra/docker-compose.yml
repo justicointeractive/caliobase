@@ -14,14 +14,12 @@ services:
       timeout: 10s
       retries: 5
   mysql:
-    image: mysql:5.7
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
     ports:
-      - '3306:3306'
+      - '3307:3306'
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: typeormtest
-      MYSQL_USER: typeormtest
-      MYSQL_PASSWORD: typeormtest
     healthcheck:
       test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
       interval: 30s
@@ -95,6 +93,13 @@ services:
       PGPASSWORD: test
     depends_on:
       postgres:
+        condition: service_healthy
+  init-mysql:
+    image: mysql:8.0
+    entrypoint: /bin/bash
+    command: -c "mysql -h mysql -u root -proot -e 'CREATE DATABASE IF NOT EXISTS typeormtest; CREATE USER IF NOT EXISTS \"typeormtest\"@\"%\" IDENTIFIED BY \"typeormtest\"; GRANT ALL PRIVILEGES ON typeormtest.* TO \"typeormtest\"@\"%\"; FLUSH PRIVILEGES;'"
+    depends_on:
+      mysql:
         condition: service_healthy
 volumes:
   minio:
