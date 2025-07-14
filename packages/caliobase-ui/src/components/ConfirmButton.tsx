@@ -38,6 +38,8 @@ export function ConfirmButton({
           <FloatingOverlay
             lockScroll
             className="z-20 grid place-items-center bg-gray-800/80"
+            onPointerEnterCapture={() => {}}
+            onPointerLeaveCapture={() => {}}
           >
             <FloatingFocusManager context={context}>
               <div

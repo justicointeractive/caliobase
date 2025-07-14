@@ -27,7 +27,7 @@ function normalizeOptions(
   tree: Tree,
   options: UiGeneratorSchema
 ): NormalizedSchema {
-  const name = names(options.name).fileName;
+  const name = names(options.name!).fileName;
   const projectDirectory = options.directory
     ? `${names(options.directory).fileName}/${name}`
     : name;
@@ -49,7 +49,7 @@ function normalizeOptions(
 function addFiles(tree: Tree, options: NormalizedSchema) {
   const templateOptions = {
     ...options,
-    ...names(options.name),
+    ...names(options.name!),
     offsetFromRoot: offsetFromRoot(options.projectRoot),
     template: '',
   };
@@ -73,7 +73,7 @@ export default async function (tree: Tree, options: UiGeneratorSchema) {
     style: 'css',
   });
   addFiles(tree, normalizedOptions);
-  modifyProjectConfiguration(tree, options.name, (config) => {
+  modifyProjectConfiguration(tree, options.name!, (config) => {
     assert(config.targets);
     config.targets['serve'].options[
       'proxyConfig'
