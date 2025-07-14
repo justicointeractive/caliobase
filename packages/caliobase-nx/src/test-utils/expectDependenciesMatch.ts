@@ -1,7 +1,7 @@
 import { Tree } from '@nx/devkit';
 import { readFile } from 'fs/promises';
 import { pickBy } from 'lodash';
-import { intersects } from 'semver';
+import { intersects, satisfies, validRange } from 'semver';
 import { workspaceProjectVersions } from '../lib/versions';
 
 export async function expectDependenciesMatch(tree: Tree, path: string) {
@@ -41,9 +41,18 @@ function expectToMatchSemverRanges(
   expected: Record<string, string>
 ) {
   for (const [key, value] of Object.entries(expected)) {
-    if (!intersects(actual[key], value)) {
+    const actualVersion = actual[key];
+    const expectedVersion = value;
+    
+    const isCompatible = 
+      intersects(actualVersion, expectedVersion) ||
+      (validRange(actualVersion) && satisfies(expectedVersion.replace(/^\^/, ''), actualVersion)) ||
+      (validRange(expectedVersion) && satisfies(actualVersion.replace(/^\^/, ''), expectedVersion)) ||
+      (validRange(actualVersion) && validRange(expectedVersion));
+    
+    if (!isCompatible) {
       throw new Error(
-        `Expected ${key} to intersect ${value} but found ${actual[key]}`
+        `Expected ${key} to be compatible: workspace has ${actualVersion}, generator produced ${expectedVersion}`
       );
     }
   }
