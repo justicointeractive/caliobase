@@ -21,17 +21,17 @@ export async function expectDependenciesMatch(tree: Tree, path: string) {
   );
 
   expectToMatchSemverRanges(
-    workspacePackageJson.dependencies,
+    workspacePackageJson.dependencies || {},
     pickBy(
-      projectPackageJson.dependencies,
-      (value, key) => key in workspacePackageJson.dependencies
+      projectPackageJson.dependencies || {},
+      (value, key) => key in (workspacePackageJson.dependencies || {})
     )
   );
   expectToMatchSemverRanges(
-    workspacePackageJson.devDependencies,
+    workspacePackageJson.devDependencies || {},
     pickBy(
-      projectPackageJson.devDependencies,
-      (value, key) => key in workspacePackageJson.devDependencies
+      projectPackageJson.devDependencies || {},
+      (value, key) => key in (workspacePackageJson.devDependencies || {})
     )
   );
 }

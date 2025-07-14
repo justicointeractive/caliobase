@@ -20,7 +20,7 @@ describe('client generator', () => {
 
   it('should run successfully', async () => {
     await generator(appTree, options);
-    const config = readProjectConfiguration(appTree, 'client');
+    const config = readProjectConfiguration(appTree, 'libs-client');
     expect(config).toBeDefined();
     expectSnapshot(appTree, 'package.json', [
       [/"@caliobase\/caliobase": "[0-9.-]+"/g, '"@caliobase/caliobase": "*"'],
@@ -28,6 +28,6 @@ describe('client generator', () => {
     expectSnapshot(appTree, 'apps/api/src/main.ts');
     expectSnapshot(appTree, 'libs/client/project.json');
     expectSnapshot(appTree, 'libs/client/src/index.ts');
-    expectSnapshot(appTree, 'libs/client/src/lib/client.ts');
+    expectSnapshot(appTree, 'libs/client/src/lib/libs-client.ts');
   });
 });

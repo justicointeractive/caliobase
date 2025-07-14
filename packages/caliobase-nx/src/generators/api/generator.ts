@@ -67,13 +67,13 @@ export default async function (tree: Tree, options: ApiGeneratorSchema) {
   const normalizedOptions = normalizeOptions(tree, options);
 
   await applicationGenerator(tree, {
-    name: options.name,
-    directory: options.directory,
+    name: normalizedOptions.projectName,
+    directory: normalizedOptions.projectDirectory,
   });
 
   addFiles(tree, normalizedOptions);
 
-  modifyProjectConfiguration(tree, options.name, (config) => {
+  modifyProjectConfiguration(tree, normalizedOptions.projectName, (config) => {
     assert(config.targets);
     Object.assign(config.targets['build'].options, {
       tsPlugins: ['@nestjs/swagger/plugin'],
@@ -83,12 +83,19 @@ export default async function (tree: Tree, options: ApiGeneratorSchema) {
   });
 
   tasks.push(
-    addDependencyVersionsToPackageJson(tree, [
-      'nodemailer',
-      '@caliobase/caliobase',
-      '@nestjs/swagger',
-      '@aws-sdk/client-ses',
-    ])
+    addDependencyVersionsToPackageJson(
+      tree,
+      [
+        'nodemailer',
+        '@caliobase/caliobase',
+        '@nestjs/swagger',
+        '@nestjs/common',
+        '@nestjs/core',
+        '@nestjs/platform-express',
+        '@aws-sdk/client-ses',
+      ],
+      ['@nestjs/schematics', '@nestjs/testing']
+    )
   );
 
   await formatFiles(tree);

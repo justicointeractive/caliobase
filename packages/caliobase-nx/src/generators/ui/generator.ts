@@ -65,7 +65,8 @@ export default async function (tree: Tree, options: UiGeneratorSchema) {
   const tasks: GeneratorCallback[] = [];
   const normalizedOptions = normalizeOptions(tree, options);
   await applicationGenerator(tree, {
-    ...options,
+    name: normalizedOptions.projectName,
+    directory: normalizedOptions.projectDirectory,
     e2eTestRunner: 'cypress',
     linter: Linter.EsLint,
     unitTestRunner: 'jest',
@@ -73,7 +74,7 @@ export default async function (tree: Tree, options: UiGeneratorSchema) {
     style: 'css',
   });
   addFiles(tree, normalizedOptions);
-  modifyProjectConfiguration(tree, options.name!, (config) => {
+  modifyProjectConfiguration(tree, normalizedOptions.projectName, (config) => {
     assert(config.targets);
     config.targets['serve'].options[
       'proxyConfig'
