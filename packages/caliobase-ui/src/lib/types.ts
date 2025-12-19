@@ -169,6 +169,11 @@ export type ICaliobaseSignedObjectPutUrl = {
   rangeEnd: number;
 };
 
+export type ICaliobaseRefreshUploadUrlsRequest = {
+  uploadId: string;
+  parts: number[];
+};
+
 export type ICaliobaseEntityApi<T extends { id: string }> = {
   create: ICaliobaseApiRequestWithBody<any, { item: T }>;
   findOne: ICaliobaseApiRequestWithParam<string, { item?: T }>;

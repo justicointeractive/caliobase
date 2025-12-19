@@ -46,6 +46,14 @@ export class CompleteUploadRequest {
   parts!: SignedUploadUrlResult[];
 }
 
+export class RefreshSignedUrlsRequest {
+  @ApiProperty()
+  uploadId!: string;
+
+  @ApiProperty({ type: [Number] })
+  parts!: number[];
+}
+
 export type ObjectStorageProviderOptions = {
   cdnUrlPrefix: string;
 };
@@ -56,6 +64,11 @@ export abstract class AbstractObjectStorageProvider {
   ) {}
 
   abstract createUpload(object: ObjectStorageObject): Promise<Upload>;
+
+  abstract refreshSignedUrls(
+    object: ObjectStorageObject,
+    request: RefreshSignedUrlsRequest
+  ): Promise<SignedUploadUrl[]>;
 
   abstract completeUpload(
     object: ObjectStorageObject,

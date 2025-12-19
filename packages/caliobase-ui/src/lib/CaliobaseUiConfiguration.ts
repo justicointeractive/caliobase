@@ -17,6 +17,13 @@ export type FileUploadProgressHandler = (event: {
   total: number;
 }) => void;
 
+class ExpiredSignedUrlError extends Error {
+  constructor(public readonly partNumber: number) {
+    super(`Signed URL expired for part ${partNumber}`);
+    this.name = 'ExpiredSignedUrlError';
+  }
+}
+
 export class CaliobaseUiConfiguration<TApi extends ICaliobaseApi> {
   constructor(
     private readonly builder: CaliobaseUiConfigurationBuilder<TApi>
@@ -57,46 +64,87 @@ export class CaliobaseUiConfiguration<TApi extends ICaliobaseApi> {
       fileName: file.name,
     });
 
-    const partProgress: number[] = [];
+    const signedUrlMap = new Map(signedPartUrls.map((p) => [p.part, p]));
+    const partProgressMap = new Map<number, number>();
 
-    const completedParts = await pMap(
-      signedPartUrls,
-      (signedUrl, i) => {
-        return new Promise<ICaliobaseCompletedUploadPart>((resolve, reject) => {
-          const xhr = new XMLHttpRequest();
-          xhr.open(signedUrl.method, signedUrl.url);
-          xhr.addEventListener('readystatechange', (e) =>
-            console.log({ xhr, e })
-          );
-          xhr.addEventListener('load', () => {
-            const etag = xhr.getResponseHeader('etag');
-            if (!etag) {
-              return reject(
-                new Error(
-                  `etag not found in response, configure object storage provider CORS policy to expose ETag header`
-                )
-              );
-            }
-            return resolve({
-              etag,
-              part: signedUrl.part,
-            });
-          });
-          xhr.addEventListener('error', (err) => reject(err));
-          if (onProgress) {
-            xhr.upload.addEventListener('progress', (e) => {
-              partProgress[i] = e.loaded;
-              onProgress({
-                loaded: partProgress.reduce((sum, part) => sum + part, 0),
-                total: file.size,
-              });
-            });
+    const reportProgress = () => {
+      if (onProgress) {
+        let loaded = 0;
+        for (const bytes of partProgressMap.values()) {
+          loaded += bytes;
+        }
+        onProgress({ loaded, total: file.size });
+      }
+    };
+
+    const uploadPart = (
+      partNumber: number
+    ): Promise<ICaliobaseCompletedUploadPart> => {
+      const signedUrl = signedUrlMap.get(partNumber);
+      invariant(signedUrl, `signed URL not found for part ${partNumber}`);
+
+      return new Promise<ICaliobaseCompletedUploadPart>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open(signedUrl.method, signedUrl.url);
+
+        xhr.addEventListener('load', () => {
+          if (xhr.status === 403) {
+            // Signed URL expired
+            return reject(new ExpiredSignedUrlError(partNumber));
           }
-          xhr.send(file.slice(signedUrl.rangeStart, signedUrl.rangeEnd));
+          if (xhr.status < 200 || xhr.status >= 300) {
+            return reject(new Error(`Upload failed with status ${xhr.status}`));
+          }
+          const etag = xhr.getResponseHeader('etag');
+          if (!etag) {
+            return reject(
+              new Error(
+                `etag not found in response, configure object storage provider CORS policy to expose ETag header`
+              )
+            );
+          }
+          return resolve({ etag, part: partNumber });
         });
-      },
-      { concurrency: 5 }
-    );
+
+        xhr.addEventListener('error', () =>
+          reject(new Error('Network error during upload'))
+        );
+
+        xhr.upload.addEventListener('progress', (e) => {
+          partProgressMap.set(partNumber, e.loaded);
+          reportProgress();
+        });
+
+        xhr.send(file.slice(signedUrl.rangeStart, signedUrl.rangeEnd));
+      });
+    };
+
+    const uploadPartWithRetry = async (
+      partNumber: number
+    ): Promise<ICaliobaseCompletedUploadPart> => {
+      try {
+        return await uploadPart(partNumber);
+      } catch (err) {
+        if (err instanceof ExpiredSignedUrlError) {
+          invariant(api.objectStorage, 'object storage not available');
+          const { data: refreshedUrls } =
+            await api.objectStorage.refreshUploadUrls(object.id, {
+              uploadId,
+              parts: [partNumber],
+            });
+          for (const refreshedUrl of refreshedUrls) {
+            signedUrlMap.set(refreshedUrl.part, refreshedUrl);
+          }
+          return await uploadPart(partNumber);
+        }
+        throw err;
+      }
+    };
+
+    const partNumbers = signedPartUrls.map((p) => p.part);
+    const completedParts = await pMap(partNumbers, uploadPartWithRetry, {
+      concurrency: 5,
+    });
 
     const { data: objectStorageObject } =
       await api.objectStorage.completeUpload(object.id, {

@@ -14,10 +14,14 @@ import {
   ApiProperty,
   ApiTags,
 } from '@nestjs/swagger';
-import { IsNumber, IsString } from 'class-validator';
+import { IsArray, IsNumber, IsString } from 'class-validator';
 import { RequestUser } from '../entity-module/RequestUser';
 import { assert } from '../lib/assert';
-import { CompleteUploadRequest, Upload } from './AbstractObjectStorageProvider';
+import {
+  CompleteUploadRequest,
+  SignedUploadUrl,
+  Upload,
+} from './AbstractObjectStorageProvider';
 import { ObjectStorageObject } from './object-storage-object.entity';
 import { ObjectStorageService } from './object-storage.service';
 
@@ -41,6 +45,17 @@ export class ObjectStorageCreateResponse {
 
   @ApiProperty()
   upload!: Upload;
+}
+
+export class RefreshUploadUrlsRequest {
+  @IsString()
+  @ApiProperty()
+  uploadId!: string;
+
+  @IsArray()
+  @IsNumber({}, { each: true })
+  @ApiProperty({ type: [Number] })
+  parts!: number[];
 }
 
 @ApiTags('object-storage')
@@ -89,5 +104,26 @@ export class ObjectStorageController {
     });
 
     return object;
+  }
+
+  @Post(':objectId/refresh-urls')
+  @ApiBody({ type: RefreshUploadUrlsRequest })
+  @ApiOkResponse({
+    type: [SignedUploadUrl],
+  })
+  async refreshUploadUrls(
+    @Param('objectId') objectId: string,
+    @Body() refreshRequest: RefreshUploadUrlsRequest,
+    @Request() request: RequestUser
+  ): Promise<SignedUploadUrl[]> {
+    const member = request.user?.member;
+    assert(member, UnauthorizedException);
+
+    const urls = await this.objectStorageService.refreshUploadUrls(
+      objectId,
+      refreshRequest
+    );
+
+    return urls;
   }
 }

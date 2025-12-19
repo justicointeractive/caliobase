@@ -15,8 +15,10 @@ import {
   ICaliobaseCreateUserWithPasswordRequest,
   ICaliobaseLoginRequest,
   ICaliobaseObjectStorageObject,
+  ICaliobaseRefreshUploadUrlsRequest,
   ICaliobaseRequestPasswordResetRequest,
   ICaliobaseRootResponse,
+  ICaliobaseSignedObjectPutUrl,
   ICaliobaseSignedObjectUpload,
   ICaliobaseSocialAuthBody,
   ISocialAuthUrlResponse,
@@ -43,6 +45,11 @@ export type ICaliobaseApi = {
       string,
       ICaliobaseCompleteUploadRequest,
       ICaliobaseObjectStorageObject
+    >;
+    refreshUploadUrls: ICaliobaseApiRequestWithParamAndBody<
+      string,
+      ICaliobaseRefreshUploadUrlsRequest,
+      ICaliobaseSignedObjectPutUrl[]
     >;
   };
   auth: {

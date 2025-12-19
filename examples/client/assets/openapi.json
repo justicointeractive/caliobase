@@ -156,6 +156,77 @@
         ]
       }
     },
+    "/api/auth/user/existsWithEmail": {
+      "get": {
+        "operationId": "AuthController_userExistsWithEmail",
+        "parameters": [
+          {
+            "name": "email",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "auth"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/auth/user/createWithoutPassword": {
+      "post": {
+        "operationId": "AuthController_createUserWithoutPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserWithoutPasswordSignupBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthenticationResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "auth"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
     "/api/auth/user/login": {
       "post": {
         "operationId": "AuthController_loginUser",
@@ -166,6 +237,71 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/UserLoginBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthenticationResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "auth"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/auth/user/sendOtpByEmail": {
+      "post": {
+        "operationId": "AuthController_sendOtpByEmail",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OtpRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/auth/user/loginWithOtp": {
+      "post": {
+        "operationId": "AuthController_loginUserWithOtp",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserLoginWithOtpBody"
               }
             }
           }
@@ -837,6 +973,54 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ObjectStorageObject"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "object-storage"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/object-storage/{objectId}/refresh-urls": {
+      "post": {
+        "operationId": "ObjectStorageController_refreshUploadUrls",
+        "parameters": [
+          {
+            "name": "objectId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshUploadUrlsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SignedUploadUrl"
+                  }
                 }
               }
             }
@@ -2295,17 +2479,17 @@
           "email": {
             "type": "string"
           },
-          "password": {
-            "type": "string"
-          },
           "profile": {
             "$ref": "#/components/schemas/CreateUserProfileDto"
+          },
+          "password": {
+            "type": "string"
           }
         },
         "required": [
           "email",
-          "password",
-          "profile"
+          "profile",
+          "password"
         ]
       },
       "AuthenticationResponse": {
@@ -2323,6 +2507,21 @@
           "user"
         ]
       },
+      "UserWithoutPasswordSignupBody": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "profile": {
+            "$ref": "#/components/schemas/CreateUserProfileDto"
+          }
+        },
+        "required": [
+          "email",
+          "profile"
+        ]
+      },
       "UserLoginBody": {
         "type": "object",
         "properties": {
@@ -2336,6 +2535,32 @@
         "required": [
           "email",
           "password"
+        ]
+      },
+      "OtpRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "UserLoginWithOtpBody": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "otp": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "otp"
         ]
       },
       "OrganizationProfile": {
@@ -2776,6 +3001,24 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/SignedUploadUrlResult"
+            }
+          }
+        },
+        "required": [
+          "uploadId",
+          "parts"
+        ]
+      },
+      "RefreshUploadUrlsRequest": {
+        "type": "object",
+        "properties": {
+          "uploadId": {
+            "type": "string"
+          },
+          "parts": {
+            "type": "array",
+            "items": {
+              "type": "number"
             }
           }
         },

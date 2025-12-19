@@ -6,6 +6,8 @@ import {
   AbstractObjectStorageProvider,
   CompleteUploadRequest,
   ObjectStorageObject,
+  RefreshSignedUrlsRequest,
+  SignedUploadUrl,
   SignedUploadUrlResult,
 } from '.';
 
@@ -87,6 +89,17 @@ export class ObjectStorageService {
     object.status = 'ready';
 
     return await this.objectRepo.save(object);
+  }
+
+  async refreshUploadUrls(
+    objectId: string,
+    request: RefreshSignedUrlsRequest
+  ): Promise<SignedUploadUrl[]> {
+    const object = await this.objectRepo.findOneOrFail({
+      where: { id: objectId },
+    });
+
+    return await this.objectStorageProvider.refreshSignedUrls(object, request);
   }
 
   async urlOrFileToFile(sourceUrlOrBuffer: URL | File): Promise<File> {

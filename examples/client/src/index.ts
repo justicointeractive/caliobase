@@ -68,8 +68,8 @@ export interface CreateUserProfileDto {
 
 export interface UserSignupBody {
   email: string;
-  password: string;
   profile: CreateUserProfileDto;
+  password: string;
 }
 
 export interface AuthenticationResponse {
@@ -77,9 +77,23 @@ export interface AuthenticationResponse {
   user: User;
 }
 
+export interface UserWithoutPasswordSignupBody {
+  email: string;
+  profile: CreateUserProfileDto;
+}
+
 export interface UserLoginBody {
   email: string;
   password: string;
+}
+
+export interface OtpRequest {
+  email: string;
+}
+
+export interface UserLoginWithOtpBody {
+  email: string;
+  otp: string;
 }
 
 export interface OrganizationProfile {
@@ -223,6 +237,11 @@ export interface SignedUploadUrlResult {
 export interface CompleteUploadRequest {
   uploadId: string;
   parts: SignedUploadUrlResult[];
+}
+
+export interface RefreshUploadUrlsRequest {
+  uploadId: string;
+  parts: number[];
 }
 
 export interface Image {
@@ -634,6 +653,49 @@ export class Api<
      * No description
      *
      * @tags auth
+     * @name UserExistsWithEmail
+     * @request GET:/api/auth/user/existsWithEmail
+     * @secure
+     */
+    userExistsWithEmail: (
+      query: { email: string },
+      params: RequestParams = {}
+    ) =>
+      this.request<boolean, any>({
+        path: `/api/auth/user/existsWithEmail`,
+        method: 'GET',
+        query: query,
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags auth
+     * @name CreateUserWithoutPassword
+     * @request POST:/api/auth/user/createWithoutPassword
+     * @secure
+     */
+    createUserWithoutPassword: (
+      data: UserWithoutPasswordSignupBody,
+      params: RequestParams = {}
+    ) =>
+      this.request<AuthenticationResponse, any>({
+        path: `/api/auth/user/createWithoutPassword`,
+        method: 'POST',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags auth
      * @name LoginUser
      * @request POST:/api/auth/user/login
      * @secure
@@ -641,6 +703,46 @@ export class Api<
     loginUser: (data: UserLoginBody, params: RequestParams = {}) =>
       this.request<AuthenticationResponse, any>({
         path: `/api/auth/user/login`,
+        method: 'POST',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags auth
+     * @name SendOtpByEmail
+     * @request POST:/api/auth/user/sendOtpByEmail
+     * @secure
+     */
+    sendOtpByEmail: (data: OtpRequest, params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/api/auth/user/sendOtpByEmail`,
+        method: 'POST',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags auth
+     * @name LoginUserWithOtp
+     * @request POST:/api/auth/user/loginWithOtp
+     * @secure
+     */
+    loginUserWithOtp: (
+      data: UserLoginWithOtpBody,
+      params: RequestParams = {}
+    ) =>
+      this.request<AuthenticationResponse, any>({
+        path: `/api/auth/user/loginWithOtp`,
         method: 'POST',
         body: data,
         secure: true,
@@ -1026,6 +1128,29 @@ export class Api<
     ) =>
       this.request<ObjectStorageObject, any>({
         path: `/api/object-storage/${objectId}/complete`,
+        method: 'POST',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags object-storage
+     * @name RefreshUploadUrls
+     * @request POST:/api/object-storage/{objectId}/refresh-urls
+     * @secure
+     */
+    refreshUploadUrls: (
+      objectId: string,
+      data: RefreshUploadUrlsRequest,
+      params: RequestParams = {}
+    ) =>
+      this.request<SignedUploadUrl[], any>({
+        path: `/api/object-storage/${objectId}/refresh-urls`,
         method: 'POST',
         body: data,
         secure: true,
