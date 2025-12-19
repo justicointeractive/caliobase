@@ -1,15 +1,17 @@
-version: '3.8'
+version: "3.8"
 services:
   postgres:
     image: postgres:13.1
     ports:
-      - '5832:5432'
+      - "5832:5432"
     environment:
       POSTGRES_USER: test
       POSTGRES_PASSWORD: test
       POSTGRES_DB: test
+    volumes:
+      - ./init-pg.sql:/docker-entrypoint-initdb.d/init-pg.sql
     healthcheck:
-      test: ['CMD', 'pg_isready', '-U', 'test']
+      test: ["CMD", "pg_isready", "-U", "test"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -17,11 +19,11 @@ services:
     image: mysql:8.0
     command: --default-authentication-plugin=mysql_native_password
     ports:
-      - '3307:3306'
+      - "3307:3306"
     environment:
       MYSQL_ROOT_PASSWORD: root
     healthcheck:
-      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -30,21 +32,21 @@ services:
   redis:
     image: redis:6.0.9
     ports:
-      - '6893:6379'
+      - "6893:6379"
     healthcheck:
-      test: ['CMD', 'redis-cli', 'ping']
+      test: ["CMD", "redis-cli", "ping"]
       interval: 30s
       timeout: 10s
       retries: 5
   localstack:
     image: localstack/localstack
     ports:
-      - '4566:4566'
+      - "4566:4566"
     environment:
       - SERVICES=sqs
       - EDGE_PORT=4566
     healthcheck:
-      test: ['CMD', 'awslocal', 'sqs', 'list-queues']
+      test: ["CMD", "awslocal", "sqs", "list-queues"]
       interval: 5s
       timeout: 10s
       retries: 5
@@ -65,14 +67,14 @@ services:
     image: minio/minio
     command: server --console-address ":9001" /data
     ports:
-      - '9000:9000'
-      - '9001:9001'
+      - "9000:9000"
+      - "9001:9001"
     environment:
       MINIO_ROOT_USER: testtest
       MINIO_ROOT_PASSWORD: testtest
       MINIO_DOMAIN: s3.localhost.localstack.cloud
     healthcheck:
-      test: ['CMD', 'mc', 'ready', 'local']
+      test: ["CMD", "mc", "ready", "local"]
       interval: 5s
       timeout: 10s
       retries: 5
