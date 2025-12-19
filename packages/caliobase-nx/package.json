@@ -1,12 +1,12 @@
 {
   "name": "@caliobase/caliobase-nx",
-  "version": "0.3.52",
+  "version": "0.3.53",
   "main": "src/index.js",
   "generators": "./generators.json",
   "executors": "./executors.json",
   "dependencies": {
-    "@caliobase/caliobase-ui": "0.3.48",
-    "@caliobase/caliobase": "0.7.19",
+    "@caliobase/caliobase-ui": "0.3.49",
+    "@caliobase/caliobase": "0.7.20",
     "@nestjs/common": "10.3.3",
     "@nestjs/core": "10.3.3",
     "@nestjs/platform-express": "10.3.3",
