@@ -66,7 +66,8 @@ export default async function (tree: Tree, options: UiGeneratorSchema) {
   const normalizedOptions = normalizeOptions(tree, options);
   await applicationGenerator(tree, {
     name: normalizedOptions.projectName,
-    directory: normalizedOptions.projectDirectory,
+    directory: normalizedOptions.projectRoot,
+    projectNameAndRootFormat: 'as-provided',
     e2eTestRunner: 'cypress',
     linter: Linter.EsLint,
     unitTestRunner: 'jest',

@@ -61,7 +61,8 @@ export default async function (tree: Tree, options: ClientGeneratorSchema) {
   const normalizedApiProjectName = `apps-${options.apiProjectName}`;
   await libraryGenerator(tree, {
     name: normalizedOptions.projectName,
-    directory: normalizedOptions.projectDirectory,
+    directory: normalizedOptions.projectRoot,
+    projectNameAndRootFormat: 'as-provided',
     skipFormat: true,
   });
   addFiles(tree, normalizedOptions);
