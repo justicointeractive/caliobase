@@ -5,6 +5,8 @@ export * from './entities';
 export * from './guards';
 export * from './jwt-payload';
 export * from './jwt.strategy';
+export * from './machine-auth.controller';
+export * from './machine-auth.service';
 export * from './organization.controller';
 export * from './organization.service';
 export * from './social-provider';
