@@ -62,7 +62,6 @@ export default async function (tree: Tree, options: ClientGeneratorSchema) {
   await libraryGenerator(tree, {
     name: normalizedOptions.projectName,
     directory: normalizedOptions.projectRoot,
-    projectNameAndRootFormat: 'as-provided',
     skipFormat: true,
   });
   addFiles(tree, normalizedOptions);
