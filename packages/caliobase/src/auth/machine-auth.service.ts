@@ -1,6 +1,8 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
+  Optional,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -12,6 +14,12 @@ import { Member } from './entities/member.entity';
 import { User } from './entities/user.entity';
 import { JwtSignerService } from './jwt-signer.service';
 import { CaliobaseRequestUser } from './jwt.strategy';
+import {
+  createMachineOidcIdentitySummary,
+  MachineOidcIssuer,
+  MachineOidcIssuersToken,
+  MachineOidcVerifier,
+} from './machine-oidc';
 
 const MACHINE_TOKEN_PREFIX = 'cbm_';
 const DEFAULT_JWT_EXPIRES_IN_SECONDS = 60 * 60;
@@ -41,8 +49,15 @@ export class MachineAuthService {
     private readonly userRepo: Repository<User>,
     @InjectRepository(Member)
     private readonly memberRepo: Repository<Member>,
-    private readonly jwtSignerService: JwtSignerService
-  ) {}
+    private readonly jwtSignerService: JwtSignerService,
+    @Optional()
+    @Inject(MachineOidcIssuersToken)
+    private readonly oidcIssuers: MachineOidcIssuer[] = []
+  ) {
+    this.oidcVerifier = new MachineOidcVerifier(this.oidcIssuers);
+  }
+
+  private readonly oidcVerifier: MachineOidcVerifier;
 
   async createMachineToken(
     requestUser: CaliobaseRequestUser,
@@ -146,6 +161,44 @@ export class MachineAuthService {
       expiresIn: DEFAULT_JWT_EXPIRES_IN_SECONDS,
       machineUser: sanitizeMachineToken(machineToken),
     };
+  }
+
+  async exchangeOidcToken(token: string) {
+    if (this.oidcIssuers.length === 0) {
+      throw new UnauthorizedException('OIDC machine auth is not configured');
+    }
+
+    try {
+      const { issuer, subject, binding } = await this.oidcVerifier.verify(
+        token
+      );
+      const machineIdentity = createMachineOidcIdentitySummary({
+        issuer,
+        subject,
+        binding,
+      });
+
+      return {
+        accessToken: await this.jwtSignerService.sign(
+          {
+            userId: binding.userId,
+            organizationId: binding.organizationId,
+          },
+          { expiresIn: DEFAULT_JWT_EXPIRES_IN_SECONDS }
+        ),
+        tokenType: 'Bearer' as const,
+        expiresIn: DEFAULT_JWT_EXPIRES_IN_SECONDS,
+        machineIdentity,
+      };
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+
+      throw new UnauthorizedException(
+        error instanceof Error ? error.message : 'invalid OIDC machine token'
+      );
+    }
   }
 
   private validateRoles(roles: Role[]) {

@@ -7,6 +7,7 @@ export * from './jwt-payload';
 export * from './jwt.strategy';
 export * from './machine-auth.controller';
 export * from './machine-auth.service';
+export * from './machine-oidc';
 export * from './organization.controller';
 export * from './organization.service';
 export * from './social-provider';
