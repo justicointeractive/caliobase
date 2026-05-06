@@ -126,13 +126,18 @@ export class MachineOidcVerifier {
 
     let discovery = this.jwksUriCache.get(issuer.issuer);
     if (!discovery) {
-      discovery = Issuer.discover(issuer.issuer).then((discoveredIssuer) => {
-        const jwksUri = discoveredIssuer.metadata.jwks_uri;
-        if (!jwksUri) {
-          throw new Error('OIDC issuer discovery did not include jwks_uri');
-        }
-        return jwksUri;
-      });
+      discovery = Issuer.discover(issuer.issuer)
+        .then((discoveredIssuer) => {
+          const jwksUri = discoveredIssuer.metadata.jwks_uri;
+          if (!jwksUri) {
+            throw new Error('OIDC issuer discovery did not include jwks_uri');
+          }
+          return jwksUri;
+        })
+        .catch((error) => {
+          this.jwksUriCache.delete(issuer.issuer);
+          throw error;
+        });
       this.jwksUriCache.set(issuer.issuer, discovery);
     }
 
