@@ -1,10 +1,12 @@
 import { CaliobaseRequestUser } from './jwt.strategy';
 import { exportJWK, generateKeyPair, SignJWT } from 'jose';
+import { Issuer } from 'openid-client';
 import {
   extractMachineToken,
   hashMachineToken,
   MachineAuthService,
 } from './machine-auth.service';
+import { MachineOidcVerifier } from './machine-oidc';
 
 const organization = { id: 'org_0' };
 const owner = { id: 'user_owner' };
@@ -31,6 +33,10 @@ function createRepoMock(): RepoMock {
 }
 
 describe('machine auth', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it('extracts machine tokens from bearer auth', () => {
     expect(extractMachineToken({ authorization: 'Bearer cbm_auth' })).toBe(
       'cbm_auth'
@@ -73,7 +79,7 @@ describe('machine auth', () => {
     });
 
     expect(result.token).toMatch(/^cbm_/);
-    expect(result.machineUser).toMatchObject({
+    expect(result.machineAccessToken).toMatchObject({
       name: 'octavius',
       organizationId: 'org_0',
       userId: 'user_machine',
@@ -133,11 +139,96 @@ describe('machine auth', () => {
       accessToken: 'signed-jwt',
       tokenType: 'Bearer',
       expiresIn: 3600,
-      machineUser: { id: 'mat_123', roles: ['guest'] },
+      machineAccessToken: { id: 'mat_123', roles: ['guest'] },
     });
     expect(machineTokenRepo.save).toHaveBeenCalledWith(
       expect.objectContaining({ lastUsedAt: expect.any(Date) })
     );
+  });
+
+  it('lists machine tokens scoped to the request organization', async () => {
+    const machineTokenRepo = createRepoMock();
+    machineTokenRepo.find.mockResolvedValue([
+      {
+        id: 'mat_123',
+        name: 'octavius',
+        tokenPrefix: 'cbm_testtok',
+        organizationId: 'org_0',
+        userId: 'user_machine',
+        roles: ['guest'],
+        createdByUserId: 'user_owner',
+        createdAt: new Date('2026-05-02T00:00:00Z'),
+        updatedAt: new Date('2026-05-02T00:00:00Z'),
+      },
+    ]);
+    const service = new MachineAuthService(
+      machineTokenRepo as never,
+      createRepoMock() as never,
+      createRepoMock() as never,
+      { sign: jest.fn() } as never
+    );
+
+    await expect(service.listMachineTokens(requestUser)).resolves.toEqual([
+      expect.objectContaining({ id: 'mat_123', roles: ['guest'] }),
+    ]);
+    expect(machineTokenRepo.find).toHaveBeenCalledWith({
+      where: { organizationId: 'org_0' },
+      order: { createdAt: 'DESC' },
+    });
+  });
+
+  it('revokes a machine token in the request organization', async () => {
+    const token = {
+      id: 'mat_123',
+      name: 'octavius',
+      tokenPrefix: 'cbm_testtok',
+      organizationId: 'org_0',
+      userId: 'user_machine',
+      roles: ['guest'],
+      createdByUserId: 'user_owner',
+      createdAt: new Date('2026-05-02T00:00:00Z'),
+      updatedAt: new Date('2026-05-02T00:00:00Z'),
+    };
+    const machineTokenRepo = createRepoMock();
+    machineTokenRepo.findOne.mockResolvedValue(token);
+    const service = new MachineAuthService(
+      machineTokenRepo as never,
+      createRepoMock() as never,
+      createRepoMock() as never,
+      { sign: jest.fn() } as never
+    );
+
+    const result = await service.revokeMachineToken(requestUser, 'mat_123');
+
+    expect(machineTokenRepo.findOne).toHaveBeenCalledWith({
+      where: { id: 'mat_123', organizationId: 'org_0' },
+    });
+    expect(machineTokenRepo.save).toHaveBeenCalledWith(
+      expect.objectContaining({ revokedAt: expect.any(Date) })
+    );
+    expect(result).toMatchObject({ id: 'mat_123', revokedAt: expect.any(Date) });
+  });
+
+  it('rejects revoked machine tokens', async () => {
+    const machineTokenRepo = createRepoMock();
+    machineTokenRepo.findOne.mockResolvedValue({
+      id: 'mat_123',
+      tokenHash: hashMachineToken('cbm_testtoken'),
+      revokedAt: new Date('2026-05-02T00:00:00Z'),
+    });
+    const jwtSignerService = { sign: jest.fn(async () => 'signed-jwt') };
+    const service = new MachineAuthService(
+      machineTokenRepo as never,
+      createRepoMock() as never,
+      createRepoMock() as never,
+      jwtSignerService as never
+    );
+
+    await expect(service.exchangeMachineToken('cbm_testtoken')).rejects.toThrow(
+      'invalid machine token'
+    );
+    expect(jwtSignerService.sign).not.toHaveBeenCalled();
+    expect(machineTokenRepo.save).not.toHaveBeenCalled();
   });
 
   it('exchanges a trusted OIDC machine JWT for a short-lived Caliobase JWT', async () => {
@@ -203,5 +294,49 @@ describe('machine auth', () => {
         userId: 'user_machine',
       },
     });
+  });
+
+  it('returns a generic error for invalid OIDC machine JWTs', async () => {
+    const service = new MachineAuthService(
+      createRepoMock() as never,
+      createRepoMock() as never,
+      createRepoMock() as never,
+      { sign: jest.fn() } as never,
+      [
+        {
+          issuer: 'https://oidc.example.test',
+          audience: 'caliobase-machine-auth',
+          jwks: { keys: [] },
+          subjects: [],
+        },
+      ]
+    );
+
+    await expect(service.exchangeOidcToken('not-a-jwt')).rejects.toThrow(
+      'invalid OIDC machine token'
+    );
+  });
+
+  it('does not permanently cache failed OIDC discovery attempts', async () => {
+    jest
+      .spyOn(Issuer, 'discover')
+      .mockRejectedValue(new Error('temporary discovery failure'));
+    const tokenWithIssuer =
+      'e30.eyJpc3MiOiJodHRwczovL29pZGMuZXhhbXBsZS50ZXN0In0.signature';
+    const verifier = new MachineOidcVerifier([
+      {
+        issuer: 'https://oidc.example.test',
+        audience: 'caliobase-machine-auth',
+        subjects: [],
+      },
+    ]);
+
+    await expect(verifier.verify(tokenWithIssuer)).rejects.toThrow(
+      'temporary discovery failure'
+    );
+    await expect(verifier.verify(tokenWithIssuer)).rejects.toThrow(
+      'temporary discovery failure'
+    );
+    expect(Issuer.discover).toHaveBeenCalledTimes(2);
   });
 });

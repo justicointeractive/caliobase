@@ -100,7 +100,7 @@ export class MachineAuthService {
 
     return {
       token,
-      machineUser: sanitizeMachineToken(machineToken),
+      machineAccessToken: sanitizeMachineToken(machineToken),
     };
   }
 
@@ -159,7 +159,7 @@ export class MachineAuthService {
       ),
       tokenType: 'Bearer' as const,
       expiresIn: DEFAULT_JWT_EXPIRES_IN_SECONDS,
-      machineUser: sanitizeMachineToken(machineToken),
+      machineAccessToken: sanitizeMachineToken(machineToken),
     };
   }
 
@@ -195,9 +195,7 @@ export class MachineAuthService {
         throw error;
       }
 
-      throw new UnauthorizedException(
-        error instanceof Error ? error.message : 'invalid OIDC machine token'
-      );
+      throw new UnauthorizedException('invalid OIDC machine token');
     }
   }
 

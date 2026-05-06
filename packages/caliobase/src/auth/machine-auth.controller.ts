@@ -7,7 +7,6 @@ import {
   Param,
   Post,
   Request,
-  SetMetadata,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiProperty, ApiTags } from '@nestjs/swagger';
@@ -18,9 +17,9 @@ import {
   IsString,
   MinLength,
 } from 'class-validator';
-import { Role, Roles } from '../entity-module/roles';
+import { Role } from '../entity-module/roles';
 import { Public } from './decorators/public.decorator';
-import { ALLOWED_ROLES } from './decorators/role.decorator';
+import { RequireRoleOrHigher } from './decorators/role.decorator';
 import { CaliobaseRequestUser } from './jwt.strategy';
 import {
   extractMachineToken,
@@ -34,9 +33,6 @@ const AllMachineTokenRoles = [
   'moderator',
   'guest',
 ];
-
-const RequireMachineTokenAdmin = (): PropertyDecorator =>
-  SetMetadata(ALLOWED_ROLES, Roles.fromMiniumLevel('owner'));
 
 class CreateMachineTokenDto {
   @IsString()
@@ -71,7 +67,7 @@ export class MachineAuthController {
   constructor(private readonly machineAuthService: MachineAuthService) {}
 
   @Post('tokens')
-  @RequireMachineTokenAdmin()
+  @RequireRoleOrHigher('owner')
   @ApiBearerAuth()
   async createToken(
     @Request() { user }: AuthenticatedRequest,
@@ -84,14 +80,14 @@ export class MachineAuthController {
   }
 
   @Get('tokens')
-  @RequireMachineTokenAdmin()
+  @RequireRoleOrHigher('owner')
   @ApiBearerAuth()
   async listTokens(@Request() { user }: AuthenticatedRequest) {
     return this.machineAuthService.listMachineTokens(user);
   }
 
   @Delete('tokens/:id')
-  @RequireMachineTokenAdmin()
+  @RequireRoleOrHigher('owner')
   @ApiBearerAuth()
   async revokeToken(
     @Request() { user }: AuthenticatedRequest,
