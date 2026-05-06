@@ -51,6 +51,18 @@ class CreateMachineTokenDto {
   roles?: Role[];
 }
 
+class ExchangeMachineOidcTokenDto {
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @ApiProperty({
+    required: false,
+    description:
+      'OIDC JWT to exchange. If omitted, the Bearer token from the Authorization header is used.',
+  })
+  token?: string;
+}
+
 type AuthenticatedRequest = { user: CaliobaseRequestUser };
 
 @Controller('machine-auth')
@@ -101,5 +113,21 @@ export class MachineAuthController {
     }
 
     return this.machineAuthService.exchangeMachineToken(token);
+  }
+
+  @Public()
+  @Post('oidc/exchange')
+  @ApiBearerAuth()
+  async exchangeOidcToken(
+    @Body() body: ExchangeMachineOidcTokenDto | undefined,
+    @Headers('authorization') authorization: string | undefined
+  ) {
+    const token = body?.token ?? extractMachineToken({ authorization });
+
+    if (!token) {
+      throw new UnauthorizedException('OIDC machine token required');
+    }
+
+    return this.machineAuthService.exchangeOidcToken(token);
   }
 }

@@ -27,6 +27,7 @@ import { JwtSignerService } from './jwt-signer.service';
 import { JwtStrategy } from './jwt.strategy';
 import { MachineAuthController } from './machine-auth.controller';
 import { MachineAuthService } from './machine-auth.service';
+import { MachineOidcIssuer, MachineOidcIssuersToken } from './machine-oidc';
 import {
   AbstractOrganizationController,
   createOrganizationController,
@@ -72,6 +73,7 @@ export type CaliobaseAuthModuleOptions<
   TOrganization extends AbstractOrganizationProfile
 > = {
   socialProviders?: SocialProvider[];
+  machineOidcIssuers?: MachineOidcIssuer[];
   profileEntities: CaliobaseAuthProfileEntities<TUser, TOrganization>;
 };
 
@@ -82,6 +84,7 @@ export class CaliobaseAuthModule {
     TOrganization extends AbstractOrganizationProfile
   >({
     socialProviders = DefaultSocialProviders,
+    machineOidcIssuers = [],
     profileEntities,
   }: CaliobaseAuthModuleOptions<TUser, TOrganization>): Promise<DynamicModule> {
     const builtInEntities = [
@@ -172,6 +175,10 @@ export class CaliobaseAuthModule {
         JwtStrategy,
         JwtSignerService,
         MachineAuthService,
+        {
+          provide: MachineOidcIssuersToken,
+          useValue: machineOidcIssuers,
+        },
         AuthService,
         OrganizationService,
         {

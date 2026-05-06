@@ -1,4 +1,5 @@
 import { CaliobaseRequestUser } from './jwt.strategy';
+import { exportJWK, generateKeyPair, SignJWT } from 'jose';
 import {
   extractMachineToken,
   hashMachineToken,
@@ -137,5 +138,70 @@ describe('machine auth', () => {
     expect(machineTokenRepo.save).toHaveBeenCalledWith(
       expect.objectContaining({ lastUsedAt: expect.any(Date) })
     );
+  });
+
+  it('exchanges a trusted OIDC machine JWT for a short-lived Caliobase JWT', async () => {
+    const { privateKey, publicKey } = await generateKeyPair('RS256');
+    const publicJwk = await exportJWK(publicKey);
+    publicJwk.kid = 'test-key';
+    publicJwk.alg = 'RS256';
+    publicJwk.use = 'sig';
+
+    const oidcToken = await new SignJWT({
+      sub: 'repo:justicointeractive/nats2015s:environment:staging',
+    })
+      .setProtectedHeader({ alg: 'RS256', kid: 'test-key' })
+      .setIssuer('https://oidc.example.test')
+      .setAudience('caliobase-machine-auth')
+      .setIssuedAt()
+      .setExpirationTime('5m')
+      .sign(privateKey);
+
+    const jwtSignerService = { sign: jest.fn(async () => 'signed-jwt') };
+    const service = new MachineAuthService(
+      createRepoMock() as never,
+      createRepoMock() as never,
+      createRepoMock() as never,
+      jwtSignerService as never,
+      [
+        {
+          issuer: 'https://oidc.example.test',
+          audience: 'caliobase-machine-auth',
+          jwks: { keys: [publicJwk] },
+          subjects: [
+            {
+              subject: 'repo:justicointeractive/nats2015s:environment:staging',
+              userId: 'user_machine',
+              organizationId: 'org_0',
+              name: 'nats2015s staging',
+            },
+          ],
+        },
+      ]
+    );
+
+    const result = await service.exchangeOidcToken(oidcToken);
+
+    expect(jwtSignerService.sign).toHaveBeenCalledWith(
+      {
+        userId: 'user_machine',
+        organizationId: 'org_0',
+      },
+      { expiresIn: 3600 }
+    );
+    expect(result).toMatchObject({
+      accessToken: 'signed-jwt',
+      tokenType: 'Bearer',
+      expiresIn: 3600,
+      machineIdentity: {
+        id: 'oidc:https://oidc.example.test:repo:justicointeractive/nats2015s:environment:staging',
+        name: 'nats2015s staging',
+        issuer: 'https://oidc.example.test',
+        subject: 'repo:justicointeractive/nats2015s:environment:staging',
+        audience: 'caliobase-machine-auth',
+        organizationId: 'org_0',
+        userId: 'user_machine',
+      },
+    });
   });
 });
