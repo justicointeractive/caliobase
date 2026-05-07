@@ -88,3 +88,16 @@ Nx Cloud pairs with Nx in order to enable you to build and test code more rapidl
 Teams using Nx gain the advantage of building full-stack applications with their preferred framework alongside Nx’s advanced code generation and project dependency graph, plus a unified experience for both frontend and backend developers.
 
 Visit [Nx Cloud](https://nx.app/) to learn more.
+
+## Releases
+
+Caliobase packages are released from GitHub Actions instead of a developer machine.
+
+1. Open **Actions → Release** in GitHub.
+2. Run the workflow from `main`.
+3. Choose the version bump (`patch`, `minor`, `major`, or `prerelease`).
+4. Leave `dry_run` enabled for a smoke test, or disable it to publish.
+
+The release workflow runs tests/builds, uses Nx Release to update package versions and changelogs, publishes packages to npm, and pushes the release commit/tags back to GitHub. The repository must have an `NPM_TOKEN` secret containing an npm automation token with publish access.
+
+Local fallback remains available with `npm run release -- patch`; local publishes prompt for an npm OTP unless `NPM_OTP` is set.
