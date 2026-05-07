@@ -1,0 +1,112 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version bump/specifier to release'
+        required: true
+        default: patch
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - prerelease
+      preid:
+        description: 'Optional prerelease identifier, e.g. beta'
+        required: false
+        type: string
+      dry_run:
+        description: 'Run the release flow without publishing or pushing tags'
+        required: true
+        default: true
+        type: boolean
+
+concurrency:
+  group: caliobase-release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  release:
+    name: Release npm packages
+    runs-on: ubuntu-latest
+    env:
+      CI: true
+      NPM_CONFIG_PROVENANCE: true
+
+    steps:
+      - name: Require main branch
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "Releases must be run from main. Current ref: $GITHUB_REF" >&2
+          exit 1
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Docker Compose
+        uses: docker/setup-compose-action@v1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Use npm with trusted publishing support
+        run: |
+          npm install -g npm@^11.5.1
+          npm --version
+
+      - name: Configure git author
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Start test infrastructure
+        run: |
+          cd packages/test-infra
+          docker compose up -d
+
+      - name: Wait for services to be ready
+        run: |
+          cd packages/test-infra
+          echo "Waiting for services to be healthy..."
+          timeout 60 bash -c 'until docker compose exec -T postgres pg_isready -U test -d test -h localhost; do echo "Waiting for PostgreSQL..."; sleep 5; done'
+          timeout 60 bash -c 'until docker compose exec -T mysql mysqladmin ping -h localhost --silent; do echo "Waiting for MySQL..."; sleep 5; done'
+          timeout 60 bash -c 'until docker compose exec -T redis redis-cli ping; do echo "Waiting for Redis..."; sleep 5; done'
+          timeout 120 bash -c 'until docker compose exec -T localstack awslocal sqs list-queues > /dev/null 2>&1; do echo "Waiting for LocalStack..."; sleep 5; done'
+          timeout 120 bash -c 'until docker compose exec -T minio mc ready local > /dev/null 2>&1; do echo "Waiting for MinIO..."; sleep 5; done'
+          echo "All services are ready!"
+
+      - name: Release
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+          RELEASE_PREID: ${{ inputs.preid }}
+          RELEASE_DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          args=("$RELEASE_VERSION")
+          if [[ -n "$RELEASE_PREID" ]]; then
+            args+=("--preid" "$RELEASE_PREID")
+          fi
+          if [[ "$RELEASE_DRY_RUN" == "true" ]]; then
+            args+=("--dry-run")
+          fi
+          npm run release -- "${args[@]}"
+
+      - name: Cleanup test infrastructure
+        if: always()
+        run: |
+          cd packages/test-infra
+          docker compose down -v
