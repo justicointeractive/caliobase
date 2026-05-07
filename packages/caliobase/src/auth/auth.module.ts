@@ -14,6 +14,7 @@ import { AuthService, CreateUserRequest } from './auth.service';
 import { AbstractOrganizationProfile } from './entities/abstract-organization-profile.entity';
 import { AbstractUserProfile } from './entities/abstract-user-profile.entity';
 import { MemberInvitationToken } from './entities/member-invitation-token.entity';
+import { MachineAccessToken } from './entities/machine-access-token.entity';
 import { Member } from './entities/member.entity';
 import { Organization } from './entities/organization.entity';
 import { PasswordResetToken } from './entities/password-reset-token.entity';
@@ -24,6 +25,9 @@ import { User } from './entities/user.entity';
 import { JwtAuthGuard } from './guards/jwt.guard';
 import { JwtSignerService } from './jwt-signer.service';
 import { JwtStrategy } from './jwt.strategy';
+import { MachineAuthController } from './machine-auth.controller';
+import { MachineAuthService } from './machine-auth.service';
+import { MachineOidcIssuer, MachineOidcIssuersToken } from './machine-oidc';
 import {
   AbstractOrganizationController,
   createOrganizationController,
@@ -69,6 +73,7 @@ export type CaliobaseAuthModuleOptions<
   TOrganization extends AbstractOrganizationProfile
 > = {
   socialProviders?: SocialProvider[];
+  machineOidcIssuers?: MachineOidcIssuer[];
   profileEntities: CaliobaseAuthProfileEntities<TUser, TOrganization>;
 };
 
@@ -79,6 +84,7 @@ export class CaliobaseAuthModule {
     TOrganization extends AbstractOrganizationProfile
   >({
     socialProviders = DefaultSocialProviders,
+    machineOidcIssuers = [],
     profileEntities,
   }: CaliobaseAuthModuleOptions<TUser, TOrganization>): Promise<DynamicModule> {
     const builtInEntities = [
@@ -90,6 +96,7 @@ export class CaliobaseAuthModule {
       User,
       PasswordResetToken,
       MemberInvitationToken,
+      MachineAccessToken,
     ];
 
     for (const socialProvider of socialProviders) {
@@ -167,6 +174,11 @@ export class CaliobaseAuthModule {
       providers: [
         JwtStrategy,
         JwtSignerService,
+        MachineAuthService,
+        {
+          provide: MachineOidcIssuersToken,
+          useValue: machineOidcIssuers,
+        },
         AuthService,
         OrganizationService,
         {
@@ -184,8 +196,13 @@ export class CaliobaseAuthModule {
         },
         { provide: AbstractProfileService, useClass: profilesService },
       ],
-      controllers: [authController, organizationController, rootController],
-      exports: [AuthService],
+      controllers: [
+        authController,
+        organizationController,
+        rootController,
+        MachineAuthController,
+      ],
+      exports: [AuthService, MachineAuthService],
     };
   }
 }
