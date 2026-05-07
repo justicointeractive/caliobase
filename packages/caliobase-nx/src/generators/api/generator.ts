@@ -69,7 +69,6 @@ export default async function (tree: Tree, options: ApiGeneratorSchema) {
   await applicationGenerator(tree, {
     name: normalizedOptions.projectName,
     directory: normalizedOptions.projectRoot,
-    projectNameAndRootFormat: 'as-provided',
   });
 
   addFiles(tree, normalizedOptions);
