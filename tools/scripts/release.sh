@@ -7,7 +7,7 @@ DRY_RUN="false"
 
 usage() {
   cat <<'USAGE'
-Usage: npm run release -- [patch|minor|major|prerelease|<version>] [--preid <id>] [--dry-run]
+Usage: npm run release -- [patch|minor|major|prerelease|prepatch|preminor|premajor|<version>] [--preid <id>|--preid=<id>] [--dry-run]
 
 Runs the caliobase Nx release flow:
   1. fetch tags
@@ -18,7 +18,7 @@ Runs the caliobase Nx release flow:
   6. publish to npm
   7. push commits/tags
 
-Local releases prompt for npm OTP unless NPM_OTP is set.
+Local releases prompt for npm OTP unless NPM_OTP or NPM_TOKEN is set.
 CI releases use npm trusted publishing via GitHub Actions OIDC.
 USAGE
 }
@@ -90,7 +90,7 @@ if [[ "$DRY_RUN" == "true" ]]; then
   exit 0
 fi
 
-if [[ "${CI:-}" != "true" ]]; then
+if [[ "${CI:-}" != "true" && -z "${NPM_TOKEN:-}" ]]; then
   if [[ -z "${NPM_OTP:-}" ]]; then
     echo ""
     echo "Ready to publish to npm."
@@ -98,7 +98,7 @@ if [[ "${CI:-}" != "true" ]]; then
   fi
 
   if [[ -z "${NPM_OTP:-}" ]]; then
-    echo "Error: OTP is required for local releases." >&2
+    echo "Error: OTP is required for local releases unless NPM_TOKEN is set." >&2
     exit 1
   fi
 fi

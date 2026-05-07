@@ -91,12 +91,16 @@ jobs:
           echo "All services are ready!"
 
       - name: Release
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+          RELEASE_PREID: ${{ inputs.preid }}
+          RELEASE_DRY_RUN: ${{ inputs.dry_run }}
         run: |
-          args=("${{ inputs.version }}")
-          if [[ -n "${{ inputs.preid }}" ]]; then
-            args+=("--preid" "${{ inputs.preid }}")
+          args=("$RELEASE_VERSION")
+          if [[ -n "$RELEASE_PREID" ]]; then
+            args+=("--preid" "$RELEASE_PREID")
           fi
-          if [[ "${{ inputs.dry_run }}" == "true" ]]; then
+          if [[ "$RELEASE_DRY_RUN" == "true" ]]; then
             args+=("--dry-run")
           fi
           npm run release -- "${args[@]}"
