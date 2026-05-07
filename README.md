@@ -98,6 +98,6 @@ Caliobase packages are released from GitHub Actions instead of a developer machi
 3. Choose the version bump (`patch`, `minor`, `major`, or `prerelease`).
 4. Leave `dry_run` enabled for a smoke test, or disable it to publish.
 
-The release workflow runs tests/builds, uses Nx Release to update package versions and changelogs, publishes packages to npm, and pushes the release commit/tags back to GitHub. The repository must have an `NPM_TOKEN` secret containing an npm automation token with publish access.
+The release workflow runs tests/builds, uses Nx Release to update package versions and changelogs, publishes packages to npm, and pushes the release commit/tags back to GitHub. npm publishing uses trusted publishing via GitHub Actions OIDC, so each published package must trust this repository/workflow in npm and no `NPM_TOKEN` secret is required.
 
 Local fallback remains available with `npm run release -- patch`; local publishes prompt for an npm OTP unless `NPM_OTP` is set.

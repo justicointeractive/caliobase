@@ -19,7 +19,7 @@ Runs the caliobase Nx release flow:
   7. push commits/tags
 
 Local releases prompt for npm OTP unless NPM_OTP is set.
-CI releases require NPM_TOKEN and use npm automation tokens instead of OTP.
+CI releases use npm trusted publishing via GitHub Actions OIDC.
 USAGE
 }
 
@@ -90,12 +90,7 @@ if [[ "$DRY_RUN" == "true" ]]; then
   exit 0
 fi
 
-if [[ "${CI:-}" == "true" ]]; then
-  if [[ -z "${NPM_TOKEN:-}" ]]; then
-    echo "Error: NPM_TOKEN is required for CI releases." >&2
-    exit 1
-  fi
-else
+if [[ "${CI:-}" != "true" ]]; then
   if [[ -z "${NPM_OTP:-}" ]]; then
     echo ""
     echo "Ready to publish to npm."
