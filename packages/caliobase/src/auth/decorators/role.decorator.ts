@@ -1,6 +1,6 @@
 import { ExecutionContext, SetMetadata } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Role, Roles } from '../../entity-module';
+import { Role, Roles } from '../../entity-module/roles';
 
 export const ALLOWED_ROLES = Symbol('allowed_roles');
 
