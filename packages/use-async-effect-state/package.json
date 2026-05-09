@@ -4,5 +4,10 @@
   "dependencies": {
     "react": "^18.2.0",
     "rxjs": "^7.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/justicointeractive/caliobase",
+    "directory": "packages/use-async-effect-state"
   }
 }

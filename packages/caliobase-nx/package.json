@@ -20,5 +20,10 @@
     "semver": "7.3.4",
     "swagger-typescript-api-nextgen": "^10.0.1",
     "tslib": "^2.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/justicointeractive/caliobase",
+    "directory": "packages/caliobase-nx"
   }
 }
