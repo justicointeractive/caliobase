@@ -6,5 +6,10 @@
     "@ji-constructs/ecs-jwt-keypair": "^0.1.7",
     "aws-cdk-lib": "^2.38.1",
     "constructs": "^10.1.85"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/justicointeractive/caliobase",
+    "directory": "packages/caliobase-cdk"
   }
 }

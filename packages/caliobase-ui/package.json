@@ -25,5 +25,10 @@
     "@fortawesome/fontawesome-svg-core": "^6.2.0",
     "react-modal-promise": "^1.0.2",
     "indefinite": "^2.4.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/justicointeractive/caliobase",
+    "directory": "packages/caliobase-ui"
   }
 }
