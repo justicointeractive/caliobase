@@ -1,10 +1,10 @@
-name: Release
+name: Release Prepare
 
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version bump/specifier to release'
+        description: 'Version bump/specifier to prepare'
         required: true
         default: patch
         type: choice
@@ -18,38 +18,44 @@ on:
         required: false
         type: string
       dry_run:
-        description: 'Run the release flow without publishing or pushing tags'
+        description: 'Run the release preparation without opening a PR'
         required: true
         default: true
         type: boolean
-
 concurrency:
   group: caliobase-release
   cancel-in-progress: false
 
 permissions:
-  contents: write
-  id-token: write
+  contents: read
 
 jobs:
-  release:
-    name: Release npm packages
+  prepare:
+    name: Prepare release PR
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     env:
       CI: true
-      NPM_CONFIG_PROVENANCE: true
+      GH_TOKEN: ${{ github.token }}
 
     steps:
       - name: Require main branch
         if: github.ref != 'refs/heads/main'
         run: |
-          echo "Releases must be run from main. Current ref: $GITHUB_REF" >&2
+          echo "Releases must be prepared from main. Current ref: $GITHUB_REF" >&2
           exit 1
 
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Create release branch
+        if: ${{ !inputs.dry_run }}
+        run: |
+          git switch -c "release/${{ inputs.version }}-${{ github.run_id }}"
 
       - name: Setup Docker Compose
         uses: docker/setup-compose-action@v1
@@ -60,11 +66,6 @@ jobs:
           node-version: '20'
           cache: 'npm'
           registry-url: 'https://registry.npmjs.org'
-
-      - name: Use npm with trusted publishing support
-        run: |
-          npm install -g npm@^11.5.1
-          npm --version
 
       - name: Configure git author
         run: |
@@ -90,13 +91,13 @@ jobs:
           timeout 120 bash -c 'until docker compose exec -T minio mc ready local > /dev/null 2>&1; do echo "Waiting for MinIO..."; sleep 5; done'
           echo "All services are ready!"
 
-      - name: Release
+      - name: Prepare release commit
         env:
           RELEASE_VERSION: ${{ inputs.version }}
           RELEASE_PREID: ${{ inputs.preid }}
           RELEASE_DRY_RUN: ${{ inputs.dry_run }}
         run: |
-          args=("$RELEASE_VERSION")
+          args=(prepare "$RELEASE_VERSION")
           if [[ -n "$RELEASE_PREID" ]]; then
             args+=("--preid" "$RELEASE_PREID")
           fi
@@ -104,6 +105,40 @@ jobs:
             args+=("--dry-run")
           fi
           npm run release -- "${args[@]}"
+
+      - name: Push release branch
+        if: ${{ !inputs.dry_run }}
+        run: |
+          git push --set-upstream origin HEAD
+
+      - name: Open release PR
+        if: ${{ !inputs.dry_run }}
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+          RELEASE_PREID: ${{ inputs.preid }}
+        run: |
+          title="chore(release): ${RELEASE_VERSION} release"
+          if [[ -n "$RELEASE_PREID" ]]; then
+            title="chore(release): ${RELEASE_VERSION} ${RELEASE_PREID} release"
+          fi
+
+          cat > /tmp/release-pr-body.md <<'BODY'
+          ## Summary
+          - prepares the release version bump
+          - publishing is intentionally separate and runs only after this PR merges to `main`
+
+          ## Zero-trust release flow
+          - this PR does not publish to npm
+          - the publish job has no write permission to `main`
+          - npm publishing uses trusted publishing via GitHub Actions OIDC, not an npm token
+          - release tags are pushed by a separate post-publish job with no npm/OIDC permission
+          BODY
+
+          gh pr create \
+            --base main \
+            --head "$(git branch --show-current)" \
+            --title "$title" \
+            --body-file /tmp/release-pr-body.md
 
       - name: Cleanup test infrastructure
         if: always()

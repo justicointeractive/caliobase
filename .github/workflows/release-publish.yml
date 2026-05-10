@@ -1,0 +1,76 @@
+name: Release Publish
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'packages/*/package.json'
+
+concurrency:
+  group: caliobase-release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Publish unpublished npm packages
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      CI: true
+      NPM_CONFIG_PROVENANCE: true
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Use npm with trusted publishing support
+        run: |
+          npm install -g npm@^11.5.1
+          npm --version
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Publish missing versions
+        run: npm run release -- publish
+
+  tag:
+    name: Tag published package versions
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Configure git author
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Push missing release tags
+        run: npm run release -- tag
