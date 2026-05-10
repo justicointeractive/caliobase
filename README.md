@@ -91,13 +91,16 @@ Visit [Nx Cloud](https://nx.app/) to learn more.
 
 ## Releases
 
-Caliobase packages are released from GitHub Actions instead of a developer machine.
+Caliobase packages are released with a PR-first GitHub Actions flow instead of publishing from a developer machine.
 
-1. Open **Actions → Release** in GitHub.
+1. Open **Actions → Release Prepare** in GitHub.
 2. Run the workflow from `main`.
 3. Choose the version bump (`patch`, `minor`, `major`, or `prerelease`).
-4. Leave `dry_run` enabled for a smoke test, or disable it to publish.
+4. Leave `dry_run` enabled for a smoke test, or disable it to open a release version-bump PR.
+5. Merge the release PR after the required checks pass.
 
-The release workflow runs tests/builds, uses Nx Release to update package versions and changelogs, publishes packages to npm, and pushes the release commit/tags back to GitHub. npm publishing uses trusted publishing via GitHub Actions OIDC, so each published package must trust this repository/workflow in npm and no `NPM_TOKEN` secret is required.
+After the release PR merges to `main`, **Release Publish** publishes any workspace package versions that do not already exist on npm. Publishing uses npm trusted publishing via GitHub Actions OIDC, so each published package must trust this repository/workflow in npm and no `NPM_TOKEN` secret is required. The publish job has read-only repository permissions plus `id-token: write`; it cannot write back to `main`.
 
-Local fallback remains available with `npm run release -- patch`; local publishes prompt for an npm OTP unless `NPM_OTP` is set.
+After publishing succeeds, a separate tag job with no npm/OIDC permission creates any missing release tags for the versions on disk. This keeps Nx's tag-based version resolution intact without giving one job both npm publish authority and repository write authority.
+
+Local release preparation remains available with `npm run release -- prepare patch`; local publishing can be tested with `npm run release -- publish --dry-run`; local tag backfill can be tested with `npm run release -- tag`.
