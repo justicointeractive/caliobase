@@ -97,6 +97,54 @@ for (const dirent of readdirSync('packages', { withFileTypes: true })) {
 NODE
 }
 
+release_project_specs_with_roots() {
+  node <<'NODE'
+const { readdirSync, readFileSync, existsSync } = require('node:fs');
+const { join } = require('node:path');
+
+for (const dirent of readdirSync('packages', { withFileTypes: true })) {
+  if (!dirent.isDirectory()) continue;
+  const root = join('packages', dirent.name);
+  const packageJsonPath = join(root, 'package.json');
+  const projectJsonPath = join(root, 'project.json');
+  if (!existsSync(packageJsonPath) || !existsSync(projectJsonPath)) continue;
+
+  const pkg = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
+  const project = JSON.parse(readFileSync(projectJsonPath, 'utf8'));
+  if (!pkg.name || !pkg.version || pkg.private) continue;
+
+  console.log(`${project.name || dirent.name}\t${pkg.name}\t${pkg.version}\t${root}`);
+}
+NODE
+}
+
+changed_release_projects() {
+  local changed_projects=()
+  local project package_name version root tag
+
+  while IFS=$'\t' read -r project package_name version root; do
+    tag="${project}-${version}"
+    if ! git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
+      echo "Including $project because release tag $tag does not exist" >&2
+      changed_projects+=("$project")
+      continue
+    fi
+
+    if ! git diff --quiet "$tag" HEAD -- "$root"; then
+      echo "Including $project because $root changed since $tag" >&2
+      changed_projects+=("$project")
+    fi
+  done < <(release_project_specs_with_roots)
+
+  if [[ "${#changed_projects[@]}" -eq 0 ]]; then
+    return 0
+  fi
+
+  local projects_csv
+  projects_csv=$(IFS=,; echo "${changed_projects[*]}")
+  echo "$projects_csv"
+}
+
 publish_missing_versions() {
   local missing_projects=()
   local project package_name version spec view_output
@@ -128,12 +176,20 @@ publish_missing_versions() {
 }
 
 run_prepare_release() {
-  local before_head after_head
+  local before_head after_head release_projects
   before_head=$(git rev-parse HEAD)
 
   git fetch --all --tags
   npm run test
   npm run build
+
+  release_projects=$(changed_release_projects)
+  if [[ -z "$release_projects" ]]; then
+    echo "Error: no publishable package projects changed since their current release tags; refusing to create an empty release PR." >&2
+    exit 1
+  fi
+
+  NX_VERSION_ARGS+=("--projects=$release_projects")
   npx nx release version "${NX_VERSION_ARGS[@]}"
 
   if [[ "$DRY_RUN" == "true" ]]; then
