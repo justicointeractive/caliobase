@@ -44,7 +44,7 @@ describe('object storage', () => {
     const objectStorageService = module.get(ObjectStorageService);
 
     const request: ObjectCreateFromUrlRequest = {
-      source: new URL('https://google.com'),
+      source: new URL('data:text/plain,object-storage-test'),
       fileName: randomFileName,
       organization,
       uploadedBy: owner.user,
@@ -54,8 +54,8 @@ describe('object storage', () => {
 
     expect(
       await objectStorage.fileExists(
-        objectStorageService.getKeyForFile(request)
-      )
+        objectStorageService.getKeyForFile(request),
+      ),
     ).toEqual(true);
   });
 });
