@@ -67,29 +67,37 @@ export class CaliobaseModule {
 
     SwaggerModule.setup('swagger', app, document);
 
-    const { writeSwagger, writeSwaggerAndExit } = new Command()
-      .option(`--write-swagger [path]`)
-      .option(`--write-swagger-and-exit [path]`)
-      .parse(process.argv)
-      .opts();
+    const { writeSwagger, writeSwaggerAndExit, exitAfterCodegen } =
+      new Command()
+        .option(`--write-swagger [path]`)
+        .option(`--write-swagger-and-exit [path]`)
+        .option(`--exit-after-codegen`)
+        .parse(process.argv)
+        .opts();
 
-    if (writeSwagger || writeSwaggerAndExit) {
-      const swaggerPath = writeSwagger || writeSwaggerAndExit;
-      await mkdir(join(swaggerPath, '..'), {
+    if (writeSwaggerAndExit) {
+      throw new Error(
+        `The --write-swagger-and-exit flag has been removed. Migrate to --write-swagger=<path> --exit-after-codegen so migrations are generated before exit.`
+      );
+    }
+
+    if (writeSwagger) {
+      await mkdir(join(writeSwagger, '..'), {
         recursive: true,
       });
       await writeFileIfDifferent(
-        swaggerPath,
+        writeSwagger,
         JSON.stringify(document, null, 2)
       );
-      if (writeSwaggerAndExit) {
-        await app.close();
-        process.exit(0);
-      }
     }
 
     if (options.migration != null) {
       await runMigrations(app.get(DataSource), options.migration);
+    }
+
+    if (exitAfterCodegen) {
+      await app.close();
+      process.exit(0);
     }
 
     const server = app.getHttpServer();
