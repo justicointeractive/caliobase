@@ -102,7 +102,7 @@ export default async function (tree: Tree, options: ClientGeneratorSchema) {
             },
           ],
           options: {
-            command: `node ./dist/${apiProjectConfig.root}/main.js --write-swagger-and-exit=./${normalizedOptions.projectRoot}/assets/openapi.json`,
+            command: `node ./dist/${apiProjectConfig.root}/main.js --write-swagger=./${normalizedOptions.projectRoot}/assets/openapi.json --exit-after-codegen`,
           },
         },
       };
