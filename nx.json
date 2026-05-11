@@ -108,7 +108,9 @@
     "projects": ["packages/*", "!packages/*-e2e", "!packages/test-infra"],
     "projectsRelationship": "independent",
     "version": {
-      "conventionalCommits": true,
+      "// currentVersionResolver": "Use package manifests as the version source. Release tags can point at side-branch publish commits, which are not always reachable from main.",
+      "currentVersionResolver": "disk",
+      "specifierSource": "prompt",
       "git": {
         "commit": true,
         "commitArgs": "--no-verify",

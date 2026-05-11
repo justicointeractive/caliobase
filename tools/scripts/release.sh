@@ -127,6 +127,33 @@ publish_missing_versions() {
   npx nx release publish --projects="$projects_csv" "${NX_PUBLISH_ARGS[@]}"
 }
 
+run_prepare_release() {
+  local before_head after_head
+  before_head=$(git rev-parse HEAD)
+
+  git fetch --all --tags
+  npm run test
+  npm run build
+  npx nx release version "${NX_VERSION_ARGS[@]}"
+
+  if [[ "$DRY_RUN" == "true" ]]; then
+    return 0
+  fi
+
+  after_head=$(git rev-parse HEAD)
+  if [[ "$after_head" == "$before_head" ]]; then
+    echo "Error: release versioning did not create a release commit." >&2
+    exit 1
+  fi
+
+  if ! git diff --name-only "$before_head..$after_head" -- 'packages/*/package.json' | grep -q .; then
+    echo "Error: release versioning did not change any package manifests; refusing to open an empty release PR." >&2
+    echo "Changed files were:" >&2
+    git diff --name-only "$before_head..$after_head" >&2
+    exit 1
+  fi
+}
+
 tag_published_versions() {
   local tags=()
   local project package_name version tag
@@ -153,10 +180,7 @@ tag_published_versions() {
 
 case "$MODE" in
   prepare)
-    git fetch --all --tags
-    npm run test
-    npm run build
-    npx nx release version "${NX_VERSION_ARGS[@]}"
+    run_prepare_release
     ;;
   publish)
     npm run build
