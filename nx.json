@@ -105,11 +105,13 @@
   "// nxCloudAccessToken": "MTMyODlkOTctOTU5Yi00NzkwLWE1NGEtNWFlMDg2MDY4MTIxfHJlYWQtd3JpdGU=",
   "release": {
     "releaseTagPattern": "{projectName}-{version}",
+    "releaseTagPatternCheckAllBranchesWhen": true,
     "projects": ["packages/*", "!packages/*-e2e", "!packages/test-infra"],
     "projectsRelationship": "independent",
     "version": {
-      "// currentVersionResolver": "Use package manifests as the version source. Release tags can point at side-branch publish commits, which are not always reachable from main.",
-      "currentVersionResolver": "disk",
+      "// currentVersionResolver": "Use release tags as the version source because automated releases publish from main without merging version-bump commits.",
+      "currentVersionResolver": "git-tag",
+      "fallbackCurrentVersionResolver": "disk",
       "specifierSource": "prompt",
       "git": {
         "commit": true,

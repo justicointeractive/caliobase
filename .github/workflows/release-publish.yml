@@ -1,35 +1,83 @@
-name: Release Publish
+name: Release
 
 on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
   push:
     branches:
       - main
-    paths:
-      - 'packages/*/package.json'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version bump/specifier to release'
+        required: true
+        default: patch
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - prerelease
+      preid:
+        description: 'Optional prerelease identifier, e.g. beta'
+        required: false
+        type: string
+      dry_run:
+        description: 'Run release preparation/publishing without publishing or tagging'
+        required: true
+        default: true
+        type: boolean
 
 concurrency:
-  group: caliobase-release
+  group: ${{ github.event_name == 'pull_request' && format('caliobase-release-pr-{0}', github.event.pull_request.number) || 'caliobase-release-main' }}
   cancel-in-progress: false
 
 permissions:
   contents: read
+  issues: write
+  pull-requests: write
 
 jobs:
-  publish:
-    name: Publish unpublished npm packages
+  release:
+    name: Release changed packages
     runs-on: ubuntu-latest
+    if: >-
+      github.event_name != 'push' ||
+      !contains(github.event.head_commit.message, 'chore(release):')
     permissions:
-      contents: read
+      contents: write
+      issues: write
       id-token: write
+      pull-requests: write
     env:
       CI: true
       NPM_CONFIG_PROVENANCE: true
+      RELEASE_VERSION: ${{ inputs.version || 'patch' }}
+      RELEASE_PREID: ${{ inputs.preid || '' }}
+      RELEASE_DRY_RUN: ${{ github.event_name == 'pull_request' && 'true' || inputs.dry_run || 'false' }}
+      RELEASE_PR_DRY_RUN: ${{ github.event_name == 'pull_request' && 'true' || 'false' }}
+      RELEASE_SKIP_EMPTY: ${{ (github.event_name == 'push' || github.event_name == 'pull_request') && 'true' || 'false' }}
 
     steps:
+      - name: Require main branch
+        if: github.event_name != 'pull_request' && github.ref != 'refs/heads/main'
+        run: |
+          echo "Releases must run from main. Current ref: $GITHUB_REF" >&2
+          exit 1
+
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Setup Docker Compose
+        uses: docker/setup-compose-action@v1
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -39,38 +87,149 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
 
       - name: Use npm with trusted publishing support
+        if: env.RELEASE_DRY_RUN != 'true'
         run: |
           npm install -g npm@^11.5.1
           npm --version
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Publish missing versions
-        run: npm run release -- publish
-
-  tag:
-    name: Tag published package versions
-    needs: publish
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
 
       - name: Configure git author
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
+      - name: Record release source commit
+        run: echo "RELEASE_TAG_TARGET=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Start test infrastructure
+        run: |
+          cd packages/test-infra
+          docker compose up -d
+
+      - name: Wait for services to be ready
+        run: |
+          cd packages/test-infra
+          echo "Waiting for services to be healthy..."
+          timeout 60 bash -c 'until docker compose exec -T postgres pg_isready -U test -d test -h localhost; do echo "Waiting for PostgreSQL..."; sleep 5; done'
+          timeout 60 bash -c 'until docker compose exec -T mysql mysqladmin ping -h localhost --silent; do echo "Waiting for MySQL..."; sleep 5; done'
+          timeout 60 bash -c 'until docker compose exec -T redis redis-cli ping; do echo "Waiting for Redis..."; sleep 5; done'
+          timeout 120 bash -c 'until docker compose exec -T localstack awslocal sqs list-queues > /dev/null 2>&1; do echo "Waiting for LocalStack..."; sleep 5; done'
+          timeout 120 bash -c 'until docker compose exec -T minio mc ready local > /dev/null 2>&1; do echo "Waiting for MinIO..."; sleep 5; done'
+          echo "All services are ready!"
+
+      - name: Version changed packages
+        id: version
+        run: |
+          args=(prepare "$RELEASE_VERSION")
+          if [[ -n "$RELEASE_PREID" ]]; then
+            args+=("--preid" "$RELEASE_PREID")
+          fi
+          if [[ "$RELEASE_DRY_RUN" == "true" && "$RELEASE_PR_DRY_RUN" != "true" ]]; then
+            args+=("--dry-run")
+          fi
+          if [[ "$RELEASE_SKIP_EMPTY" == "true" ]]; then
+            args+=("--skip-empty")
+          fi
+
+          before_head=$(git rev-parse HEAD)
+          echo "before_head=$before_head" >> "$GITHUB_OUTPUT"
+          npm run release -- "${args[@]}" 2>&1 | tee release-output.log
+          after_head=$(git rev-parse HEAD)
+          echo "after_head=$after_head" >> "$GITHUB_OUTPUT"
+
+          if [[ "$before_head" == "$after_head" ]]; then
+            echo "created=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "created=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Comment release dry-run preview
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+
+          before_head="${{ steps.version.outputs.before_head }}"
+          after_head="${{ steps.version.outputs.after_head }}"
+          created="${{ steps.version.outputs.created }}"
+          marker='<!-- caliobase-release-preview -->'
+          body_file='.release-preview.md'
+
+          {
+            echo "$marker"
+            echo '## Release dry run'
+            echo
+            echo "Specifier: \`$RELEASE_VERSION\`"
+            echo
+            echo 'This is a PR dry run in the ephemeral CI checkout. It does **not** publish packages, push tags, or push version-bump commits.'
+            echo
+
+            if [[ "$created" == 'true' ]]; then
+              mapfile -t manifests < <(git diff --name-only "$before_head..$after_head" -- 'packages/*/package.json')
+
+              if (( ${#manifests[@]} > 0 )); then
+                echo 'If this PR merged now, the release workflow would publish:'
+                echo
+                for manifest in "${manifests[@]}"; do
+                  old_name=$(git show "$before_head:$manifest" | jq -r '.name // empty')
+                  old_version=$(git show "$before_head:$manifest" | jq -r '.version // empty')
+                  new_name=$(jq -r '.name // empty' "$manifest")
+                  new_version=$(jq -r '.version // empty' "$manifest")
+                  project_json="${manifest%/package.json}/project.json"
+                  project_name=$(jq -r '.name // empty' "$project_json" 2>/dev/null || true)
+                  tag_name="${project_name:-$new_name}-$new_version"
+
+                  echo "- \`${new_name:-$old_name}\`: \`$old_version\` → \`$new_version\` (tag \`$tag_name\`)"
+                done
+              else
+                echo 'The release command created a local release state, but no package manifest version changes were found.'
+              fi
+            else
+              echo 'No publishable package release would be created if this PR merged now.'
+            fi
+
+            if [[ -f release-output.log ]]; then
+              echo
+              echo '<details><summary>Release dry-run log tail</summary>'
+              echo
+              echo '```text'
+              tail -n 160 release-output.log > .release-output-tail.txt
+              if [[ $(wc -c < .release-output-tail.txt) -gt 20000 ]]; then
+                tail -c 20000 .release-output-tail.txt
+              else
+                cat .release-output-tail.txt
+              fi
+              echo '```'
+              echo
+              echo '</details>'
+            fi
+          } > "$body_file"
+
+          jq -n --rawfile body "$body_file" '{body: $body}' > .release-preview-comment.json
+          comment_id=$(gh api "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" --paginate \
+            --jq ".[] | select(.user.type == \"Bot\" and (.body | contains(\"$marker\"))) | .id" \
+            | tail -n 1)
+
+          if [[ -n "$comment_id" ]]; then
+            gh api -X PATCH "repos/${GITHUB_REPOSITORY}/issues/comments/${comment_id}" --input .release-preview-comment.json
+          else
+            gh api -X POST "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" --input .release-preview-comment.json
+          fi
+
+      - name: Publish missing versions
+        if: env.RELEASE_DRY_RUN != 'true' && steps.version.outputs.created == 'true'
+        run: npm run release -- publish
+
       - name: Push missing release tags
+        if: env.RELEASE_DRY_RUN != 'true' && steps.version.outputs.created == 'true'
         run: npm run release -- tag
+
+      - name: Cleanup test infrastructure
+        if: always()
+        run: |
+          cd packages/test-infra
+          docker compose down -v

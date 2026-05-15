@@ -91,16 +91,14 @@ Visit [Nx Cloud](https://nx.app/) to learn more.
 
 ## Releases
 
-Caliobase packages are released with an automatic PR-first GitHub Actions flow instead of publishing from a developer machine.
+Caliobase packages are released automatically from `main` by GitHub Actions instead of using a separate release PR.
 
-1. Merge package changes to `main`.
-2. **Release Prepare** runs automatically, creates a release version-bump PR, enables auto-merge, and explicitly dispatches the required **Test** workflow for that release branch.
-3. After the release PR merges to `main`, **Release Publish** publishes any workspace package versions that do not already exist on npm.
+1. Merge changes to `main`.
+2. **Release** runs automatically, tests/builds the repo, versions changed packages in the workflow checkout, then publishes any workspace package versions that do not already exist on npm. If no publishable package changed since its latest release tag, the workflow exits successfully without publishing.
+3. After publishing succeeds, the same workflow pushes any missing release tags. Release tags are the source of truth for the next automatic version calculation.
 
-Manual **Release Prepare** dispatch is still available as an emergency fallback or dry-run smoke test, but the normal release path starts from pushes to `main`.
+Manual **Release** dispatch remains available as an emergency fallback or dry-run smoke test.
 
-Publishing uses npm trusted publishing via GitHub Actions OIDC, so each published package must trust this repository/workflow in npm and no `NPM_TOKEN` secret is required. The publish job has read-only repository permissions plus `id-token: write`; it cannot write back to `main`.
-
-After publishing succeeds, a separate tag job with no npm/OIDC permission creates any missing release tags for the versions on disk. This keeps Nx's tag-based version resolution intact without giving one job both npm publish authority and repository write authority.
+Publishing uses npm trusted publishing via GitHub Actions OIDC, so each published package must trust this repository/workflow in npm and no `NPM_TOKEN` secret is required. The release job can publish via OIDC and push release tags, but it does not push version-bump commits directly to `main`.
 
 Local release preparation remains available with `npm run release -- prepare patch`; local publishing can be tested with `npm run release -- publish --dry-run`; local tag backfill can be tested with `npm run release -- tag`.
