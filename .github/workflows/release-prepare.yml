@@ -134,11 +134,13 @@ jobs:
           - release tags are pushed by a separate post-publish job with no npm/OIDC permission
           BODY
 
-          gh pr create \
+          pr_url=$(gh pr create \
             --base main \
             --head "$(git branch --show-current)" \
             --title "$title" \
-            --body-file /tmp/release-pr-body.md
+            --body-file /tmp/release-pr-body.md)
+
+          gh pr merge "$pr_url" --auto --merge
 
       - name: Cleanup test infrastructure
         if: always()
