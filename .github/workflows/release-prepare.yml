@@ -70,17 +70,35 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Create release branch
+      - name: Check for existing release PR
+        id: existing_release
         if: env.RELEASE_DRY_RUN != 'true'
+        run: |
+          existing_prs=$(gh pr list \
+            --base main \
+            --state open \
+            --json number,title,headRefName,url \
+            --jq '[.[] | select(.headRefName | startswith("release/"))]')
+          count=$(jq 'length' <<<"$existing_prs")
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+          if [[ "$count" != "0" ]]; then
+            echo "Found existing release PR(s); skipping duplicate release generation."
+            jq -r '.[] | "- #\(.number) \(.title): \(.url)"' <<<"$existing_prs"
+          fi
+
+      - name: Create release branch
+        if: env.RELEASE_DRY_RUN != 'true' && steps.existing_release.outputs.count == '0'
         run: |
           branch="release/${RELEASE_VERSION}-${GITHUB_RUN_ID}"
           git switch -c "$branch"
           echo "RELEASE_BRANCH=$branch" >> "$GITHUB_ENV"
 
       - name: Setup Docker Compose
+        if: env.RELEASE_DRY_RUN == 'true' || steps.existing_release.outputs.count == '0'
         uses: docker/setup-compose-action@v1
 
       - name: Setup Node.js
+        if: env.RELEASE_DRY_RUN == 'true' || steps.existing_release.outputs.count == '0'
         uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -88,19 +106,23 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
 
       - name: Configure git author
+        if: env.RELEASE_DRY_RUN == 'true' || steps.existing_release.outputs.count == '0'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Install dependencies
+        if: env.RELEASE_DRY_RUN == 'true' || steps.existing_release.outputs.count == '0'
         run: npm ci
 
       - name: Start test infrastructure
+        if: env.RELEASE_DRY_RUN == 'true' || steps.existing_release.outputs.count == '0'
         run: |
           cd packages/test-infra
           docker compose up -d
 
       - name: Wait for services to be ready
+        if: env.RELEASE_DRY_RUN == 'true' || steps.existing_release.outputs.count == '0'
         run: |
           cd packages/test-infra
           echo "Waiting for services to be healthy..."
@@ -113,6 +135,7 @@ jobs:
 
       - name: Prepare release commit
         id: prepare
+        if: env.RELEASE_DRY_RUN == 'true' || steps.existing_release.outputs.count == '0'
         run: |
           args=(prepare "$RELEASE_VERSION")
           if [[ -n "$RELEASE_PREID" ]]; then
@@ -136,12 +159,12 @@ jobs:
           fi
 
       - name: Push release branch
-        if: env.RELEASE_DRY_RUN != 'true' && steps.prepare.outputs.created == 'true'
+        if: env.RELEASE_DRY_RUN != 'true' && steps.existing_release.outputs.count == '0' && steps.prepare.outputs.created == 'true'
         run: |
           git push --set-upstream origin HEAD
 
       - name: Open release PR
-        if: env.RELEASE_DRY_RUN != 'true' && steps.prepare.outputs.created == 'true'
+        if: env.RELEASE_DRY_RUN != 'true' && steps.existing_release.outputs.count == '0' && steps.prepare.outputs.created == 'true'
         env:
           RELEASE_BRANCH: ${{ env.RELEASE_BRANCH }}
         run: |
@@ -176,7 +199,7 @@ jobs:
           gh workflow run test.yml --ref "$RELEASE_BRANCH"
 
       - name: Cleanup test infrastructure
-        if: always()
+        if: always() && (env.RELEASE_DRY_RUN == 'true' || steps.existing_release.outputs.count == '0')
         run: |
           cd packages/test-infra
           docker compose down -v

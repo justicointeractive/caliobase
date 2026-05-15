@@ -239,6 +239,30 @@ function nxPublishArgs(options: ReleaseOptions): string[] {
   return args;
 }
 
+function syncPackageLockIntoReleaseCommit(): void {
+  if (!existsSync('package-lock.json')) {
+    return;
+  }
+
+  run('npm', ['install', '--package-lock-only', '--ignore-scripts']);
+
+  const lockDiff = commandResult('git', ['diff', '--quiet', '--', 'package-lock.json']);
+  if (lockDiff.status === 0) {
+    return;
+  }
+
+  run('git', ['add', 'package-lock.json']);
+  run('git', ['commit', '--amend', '--no-edit']);
+}
+
+function validatePackageLock(): void {
+  if (!existsSync('package-lock.json')) {
+    return;
+  }
+
+  run('npm', ['ci', '--ignore-scripts', '--dry-run']);
+}
+
 function prepareRelease(options: ReleaseOptions): void {
   const beforeHead = output('git', ['rev-parse', 'HEAD']);
 
@@ -269,6 +293,9 @@ function prepareRelease(options: ReleaseOptions): void {
   if (options.dryRun) {
     return;
   }
+
+  syncPackageLockIntoReleaseCommit();
+  validatePackageLock();
 
   const afterHead = output('git', ['rev-parse', 'HEAD']);
   if (afterHead === beforeHead) {
