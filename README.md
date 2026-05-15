@@ -91,15 +91,15 @@ Visit [Nx Cloud](https://nx.app/) to learn more.
 
 ## Releases
 
-Caliobase packages are released with a PR-first GitHub Actions flow instead of publishing from a developer machine.
+Caliobase packages are released with an automatic PR-first GitHub Actions flow instead of publishing from a developer machine.
 
-1. Open **Actions → Release Prepare** in GitHub.
-2. Run the workflow from `main`.
-3. Choose the version bump (`patch`, `minor`, `major`, or `prerelease`).
-4. Leave `dry_run` enabled for a smoke test, or disable it to open a release version-bump PR.
-5. Merge the release PR after the required checks pass.
+1. Merge package changes to `main`.
+2. **Release Prepare** runs automatically, creates a release version-bump PR, enables auto-merge, and explicitly dispatches the required **Test** workflow for that release branch.
+3. After the release PR merges to `main`, **Release Publish** publishes any workspace package versions that do not already exist on npm.
 
-After the release PR merges to `main`, **Release Publish** publishes any workspace package versions that do not already exist on npm. Publishing uses npm trusted publishing via GitHub Actions OIDC, so each published package must trust this repository/workflow in npm and no `NPM_TOKEN` secret is required. The publish job has read-only repository permissions plus `id-token: write`; it cannot write back to `main`.
+Manual **Release Prepare** dispatch is still available as an emergency fallback or dry-run smoke test, but the normal release path starts from pushes to `main`.
+
+Publishing uses npm trusted publishing via GitHub Actions OIDC, so each published package must trust this repository/workflow in npm and no `NPM_TOKEN` secret is required. The publish job has read-only repository permissions plus `id-token: write`; it cannot write back to `main`.
 
 After publishing succeeds, a separate tag job with no npm/OIDC permission creates any missing release tags for the versions on disk. This keeps Nx's tag-based version resolution intact without giving one job both npm publish authority and repository write authority.
 

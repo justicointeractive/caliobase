@@ -22,6 +22,7 @@ interface ReleaseOptions {
   specifier: string;
   preid: string;
   dryRun: boolean;
+  skipEmpty: boolean;
 }
 
 interface ReleaseProjectSpec {
@@ -32,7 +33,7 @@ interface ReleaseProjectSpec {
 }
 
 function usage(): string {
-  return `Usage: npm run release -- [prepare|publish|tag] [patch|minor|major|prerelease|prepatch|preminor|premajor|<version>] [--preid <id>|--preid=<id>] [--dry-run]
+  return `Usage: npm run release -- [prepare|publish|tag] [patch|minor|major|prerelease|prepatch|preminor|premajor|<version>] [--preid <id>|--preid=<id>] [--dry-run] [--skip-empty]
 
 Modes:
   prepare  Run tests/builds and create the release version-bump commit for a PR.
@@ -51,6 +52,7 @@ function parseArgs(argv: string[]): ReleaseOptions {
     specifier: 'patch',
     preid: '',
     dryRun: false,
+    skipEmpty: false,
   };
 
   for (let i = 0; i < argv.length; i += 1) {
@@ -63,6 +65,11 @@ function parseArgs(argv: string[]): ReleaseOptions {
 
     if (arg === '--dry-run') {
       options.dryRun = true;
+      continue;
+    }
+
+    if (arg === '--skip-empty') {
+      options.skipEmpty = true;
       continue;
     }
 
@@ -241,9 +248,14 @@ function prepareRelease(options: ReleaseOptions): void {
 
   const releaseProjects = changedReleaseProjects();
   if (releaseProjects.length === 0) {
-    throw new Error(
-      'Error: no publishable package projects changed since their current release tags; refusing to create an empty release PR.'
-    );
+    const message =
+      'No publishable package projects changed since their current release tags; no release PR needed.';
+    if (options.skipEmpty) {
+      console.log(message);
+      return;
+    }
+
+    throw new Error(`Error: ${message}`);
   }
 
   run('npx', [

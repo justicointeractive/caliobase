@@ -1,6 +1,15 @@
 name: Release Prepare
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'packages/**'
+      - 'tools/scripts/release.ts'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'nx.json'
   workflow_dispatch:
     inputs:
       version:
@@ -22,6 +31,7 @@ on:
         required: true
         default: true
         type: boolean
+
 concurrency:
   group: caliobase-release
   cancel-in-progress: false
@@ -33,12 +43,20 @@ jobs:
   prepare:
     name: Prepare release PR
     runs-on: ubuntu-latest
+    if: >-
+      github.event_name != 'push' ||
+      !contains(github.event.head_commit.message, 'chore(release):')
     permissions:
       contents: write
       pull-requests: write
+      actions: write
     env:
       CI: true
       GH_TOKEN: ${{ github.token }}
+      RELEASE_VERSION: ${{ inputs.version || 'patch' }}
+      RELEASE_PREID: ${{ inputs.preid || '' }}
+      RELEASE_DRY_RUN: ${{ inputs.dry_run || 'false' }}
+      RELEASE_SKIP_EMPTY: ${{ github.event_name == 'push' && 'true' || 'false' }}
 
     steps:
       - name: Require main branch
@@ -53,9 +71,11 @@ jobs:
           fetch-depth: 0
 
       - name: Create release branch
-        if: ${{ !inputs.dry_run }}
+        if: env.RELEASE_DRY_RUN != 'true'
         run: |
-          git switch -c "release/${{ inputs.version }}-${{ github.run_id }}"
+          branch="release/${RELEASE_VERSION}-${GITHUB_RUN_ID}"
+          git switch -c "$branch"
+          echo "RELEASE_BRANCH=$branch" >> "$GITHUB_ENV"
 
       - name: Setup Docker Compose
         uses: docker/setup-compose-action@v1
@@ -92,10 +112,7 @@ jobs:
           echo "All services are ready!"
 
       - name: Prepare release commit
-        env:
-          RELEASE_VERSION: ${{ inputs.version }}
-          RELEASE_PREID: ${{ inputs.preid }}
-          RELEASE_DRY_RUN: ${{ inputs.dry_run }}
+        id: prepare
         run: |
           args=(prepare "$RELEASE_VERSION")
           if [[ -n "$RELEASE_PREID" ]]; then
@@ -104,18 +121,29 @@ jobs:
           if [[ "$RELEASE_DRY_RUN" == "true" ]]; then
             args+=("--dry-run")
           fi
+          if [[ "$RELEASE_SKIP_EMPTY" == "true" ]]; then
+            args+=("--skip-empty")
+          fi
+
+          before_head=$(git rev-parse HEAD)
           npm run release -- "${args[@]}"
+          after_head=$(git rev-parse HEAD)
+
+          if [[ "$before_head" == "$after_head" ]]; then
+            echo "created=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "created=true" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Push release branch
-        if: ${{ !inputs.dry_run }}
+        if: env.RELEASE_DRY_RUN != 'true' && steps.prepare.outputs.created == 'true'
         run: |
           git push --set-upstream origin HEAD
 
       - name: Open release PR
-        if: ${{ !inputs.dry_run }}
+        if: env.RELEASE_DRY_RUN != 'true' && steps.prepare.outputs.created == 'true'
         env:
-          RELEASE_VERSION: ${{ inputs.version }}
-          RELEASE_PREID: ${{ inputs.preid }}
+          RELEASE_BRANCH: ${{ env.RELEASE_BRANCH }}
         run: |
           title="chore(release): ${RELEASE_VERSION} release"
           if [[ -n "$RELEASE_PREID" ]]; then
@@ -124,7 +152,7 @@ jobs:
 
           cat > /tmp/release-pr-body.md <<'BODY'
           ## Summary
-          - prepares the release version bump
+          - automatically prepares the release version bump after changes land on `main`
           - publishing is intentionally separate and runs only after this PR merges to `main`
 
           ## Zero-trust release flow
@@ -136,11 +164,16 @@ jobs:
 
           pr_url=$(gh pr create \
             --base main \
-            --head "$(git branch --show-current)" \
+            --head "$RELEASE_BRANCH" \
             --title "$title" \
             --body-file /tmp/release-pr-body.md)
 
           gh pr merge "$pr_url" --auto --merge
+
+          # PRs created by GITHUB_TOKEN do not naturally trigger pull_request workflows.
+          # Dispatch Test explicitly against the release branch so the required `test`
+          # check is attached to the PR head SHA and auto-merge can proceed.
+          gh workflow run test.yml --ref "$RELEASE_BRANCH"
 
       - name: Cleanup test infrastructure
         if: always()
