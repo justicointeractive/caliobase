@@ -70,6 +70,20 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Report existing release PRs
+        if: env.RELEASE_DRY_RUN != 'true'
+        run: |
+          existing_prs=$(gh pr list \
+            --base main \
+            --state open \
+            --json number,title,headRefName,url \
+            --jq '[.[] | select(.headRefName | startswith("release/"))]')
+          count=$(jq 'length' <<<"$existing_prs")
+          if [[ "$count" != "0" ]]; then
+            echo "Existing release PR(s) will be replaced after the new release PR is created."
+            jq -r '.[] | "- #\(.number) \(.title): \(.url)"' <<<"$existing_prs"
+          fi
+
       - name: Create release branch
         if: env.RELEASE_DRY_RUN != 'true'
         run: |
@@ -167,6 +181,18 @@ jobs:
             --head "$RELEASE_BRANCH" \
             --title "$title" \
             --body-file /tmp/release-pr-body.md)
+
+          existing_prs=$(gh pr list \
+            --base main \
+            --state open \
+            --json number,title,headRefName,url)
+          jq -r --arg branch "$RELEASE_BRANCH" \
+            '.[] | select((.headRefName | startswith("release/")) and .headRefName != $branch) | .number' \
+            <<<"$existing_prs" | while read -r pr_number; do
+              gh pr close "$pr_number" \
+                --comment "Closing this release PR because $pr_url replaces it." \
+                --delete-branch
+            done
 
           gh pr merge "$pr_url" --auto --merge
 
