@@ -13,7 +13,8 @@ const VALID_SPECIFIERS = new Set([
   'premajor',
 ]);
 
-const VERSION_PATTERN = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/;
+const VERSION_PATTERN_SOURCE = String.raw`\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?`;
+const VERSION_PATTERN = new RegExp(`^${VERSION_PATTERN_SOURCE}$`);
 
 type Mode = 'prepare' | 'publish' | 'tag';
 
@@ -36,8 +37,8 @@ function usage(): string {
   return `Usage: npm run release -- [prepare|publish|tag] [patch|minor|major|prerelease|prepatch|preminor|premajor|<version>] [--preid <id>|--preid=<id>] [--dry-run] [--skip-empty]
 
 Modes:
-  prepare  Run tests/builds and create the release version-bump commit for a PR.
-           This does not publish to npm and does not push to main.
+  prepare  Run tests/builds and create the local release version-bump commit.
+           This does not publish to npm. CI publishes from this local release state.
   publish  Build and publish package versions that do not already exist on npm.
            CI publishing uses npm trusted publishing via GitHub Actions OIDC.
   tag      Create any missing release git tags for the versions on disk.
@@ -136,6 +137,10 @@ function output(command: string, args: string[] = []): string {
   return result.stdout.trim();
 }
 
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 function commandResult(command: string, args: string[]): { status: number; output: string } {
   const result = spawnSync(command, args, {
     encoding: 'utf8',
@@ -187,26 +192,72 @@ function releaseProjectSpecs(): ReleaseProjectSpec[] {
     });
 }
 
+function latestReleaseTag(project: string): string | null {
+  const tagPattern = new RegExp(`^${escapeRegExp(project)}-${VERSION_PATTERN_SOURCE}$`);
+  const tags = output('git', ['tag', '--sort', '-v:refname'])
+    .split('\n')
+    .map((tag) => tag.trim())
+    .filter(Boolean);
+
+  return tags.find((tag) => tagPattern.test(tag)) ?? null;
+}
+
+function readJsonAtRef(ref: string, path: string): Record<string, unknown> | null {
+  const file = commandResult('git', ['show', `${ref}:${path}`]);
+  if (file.status !== 0) {
+    return null;
+  }
+
+  return JSON.parse(file.output) as Record<string, unknown>;
+}
+
+function withoutVersion(value: Record<string, unknown>): Record<string, unknown> {
+  const copy = { ...value };
+  delete copy.version;
+  return copy;
+}
+
+function packageManifestChangedBeyondVersion(tag: string, packageJsonPath: string): boolean {
+  if (!existsSync(packageJsonPath)) {
+    return false;
+  }
+
+  const previous = readJsonAtRef(tag, packageJsonPath);
+  if (!previous) {
+    return true;
+  }
+
+  const current = JSON.parse(readFileSync(packageJsonPath, 'utf8')) as Record<string, unknown>;
+  return JSON.stringify(withoutVersion(previous)) !== JSON.stringify(withoutVersion(current));
+}
+
+function projectChangedSinceTag(tag: string, root: string): boolean {
+  const packageJsonPath = join(root, 'package.json');
+  const nonManifestDiff = commandResult('git', [
+    'diff',
+    '--quiet',
+    tag,
+    'HEAD',
+    '--',
+    root,
+    `:(exclude)${packageJsonPath}`,
+  ]);
+
+  return nonManifestDiff.status !== 0 || packageManifestChangedBeyondVersion(tag, packageJsonPath);
+}
+
 function changedReleaseProjects(): string[] {
   const changedProjects: string[] = [];
 
-  for (const { project, version, root } of releaseProjectSpecs()) {
-    const tag = `${project}-${version}`;
-    const tagExists = commandResult('git', [
-      'rev-parse',
-      '-q',
-      '--verify',
-      `refs/tags/${tag}`,
-    ]).status === 0;
-
-    if (!tagExists) {
-      console.error(`Including ${project} because release tag ${tag} does not exist`);
+  for (const { project, root } of releaseProjectSpecs()) {
+    const tag = latestReleaseTag(project);
+    if (!tag) {
+      console.error(`Including ${project} because no release tag exists`);
       changedProjects.push(project);
       continue;
     }
 
-    const diff = commandResult('git', ['diff', '--quiet', tag, 'HEAD', '--', root]);
-    if (diff.status !== 0) {
+    if (projectChangedSinceTag(tag, root)) {
       console.error(`Including ${project} because ${root} changed since ${tag}`);
       changedProjects.push(project);
     }
@@ -354,6 +405,7 @@ function publishMissingVersions(options: ReleaseOptions): void {
 
 function tagPublishedVersions(): void {
   const tags: string[] = [];
+  const tagTarget = process.env.RELEASE_TAG_TARGET || 'HEAD';
 
   for (const { project, packageName, version } of releaseProjectSpecs()) {
     const tag = `${project}-${version}`;
@@ -369,8 +421,8 @@ function tagPublishedVersions(): void {
       continue;
     }
 
-    console.log(`Creating tag: ${tag} for ${packageName}@${version}`);
-    run('git', ['tag', '-a', tag, '-m', tag]);
+    console.log(`Creating tag: ${tag} for ${packageName}@${version} at ${tagTarget}`);
+    run('git', ['tag', '-a', tag, '-m', tag, tagTarget]);
     tags.push(`refs/tags/${tag}`);
   }
 
