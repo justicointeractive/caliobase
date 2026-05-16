@@ -58,6 +58,7 @@ describe('swagger', () => {
     const profileModule = createEntityModule(PersonProfile);
 
     const module = await createTestingModule({
+      typeormOptions: { type: 'sqlite', database: ':memory:' },
       imports: [entityModule, profileModule],
     });
 
@@ -91,5 +92,31 @@ describe('swagger', () => {
     expect(
       document.paths['/person/{personId}/notes/{id}'].get?.operationId
     ).toEqual('PersonNoteRelationController_findOneNote');
+
+    expect(
+      JSON.stringify(
+        document.paths['/machine-auth/tokens'].post?.responses?.[201]
+      )
+    ).toContain('CreateMachineTokenResponseDto');
+    expect(
+      JSON.stringify(
+        document.paths['/machine-auth/tokens'].get?.responses?.[200]
+      )
+    ).toContain('MachineTokenSummaryDto');
+    expect(
+      JSON.stringify(
+        document.paths['/machine-auth/tokens/{id}'].delete?.responses?.[200]
+      )
+    ).toContain('MachineTokenSummaryDto');
+    expect(
+      JSON.stringify(
+        document.paths['/machine-auth/exchange'].post?.responses?.[201]
+      )
+    ).toContain('ExchangeMachineTokenResponseDto');
+    expect(
+      JSON.stringify(
+        document.paths['/machine-auth/oidc/exchange'].post?.responses?.[201]
+      )
+    ).toContain('ExchangeMachineOidcTokenResponseDto');
   });
 });
