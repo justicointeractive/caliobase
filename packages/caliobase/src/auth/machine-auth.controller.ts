@@ -9,7 +9,13 @@ import {
   Request,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiProperty, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiProperty,
+  ApiTags,
+} from '@nestjs/swagger';
 import {
   IsArray,
   IsIn,
@@ -61,6 +67,102 @@ class ExchangeMachineOidcTokenDto {
 
 type AuthenticatedRequest = { user: CaliobaseRequestUser };
 
+class MachineTokenSummaryDto {
+  @ApiProperty()
+  id!: string;
+
+  @ApiProperty()
+  name!: string;
+
+  @ApiProperty()
+  tokenPrefix!: string;
+
+  @ApiProperty()
+  organizationId!: string;
+
+  @ApiProperty()
+  userId!: string;
+
+  @ApiProperty({ enum: AllMachineTokenRoles, isArray: true })
+  roles!: Role[];
+
+  @ApiProperty()
+  createdByUserId!: string;
+
+  @ApiProperty({ type: String, format: 'date-time' })
+  createdAt!: Date;
+
+  @ApiProperty({ type: String, format: 'date-time' })
+  updatedAt!: Date;
+
+  @ApiProperty({ type: String, format: 'date-time', nullable: true })
+  revokedAt!: Date | null;
+
+  @ApiProperty({ type: String, format: 'date-time', nullable: true })
+  lastUsedAt!: Date | null;
+}
+
+class CreateMachineTokenResponseDto {
+  @ApiProperty()
+  token!: string;
+
+  @ApiProperty({ type: () => MachineTokenSummaryDto })
+  machineAccessToken!: MachineTokenSummaryDto;
+}
+
+class ExchangeMachineTokenResponseDto {
+  @ApiProperty()
+  accessToken!: string;
+
+  @ApiProperty({ enum: ['Bearer'] })
+  tokenType!: 'Bearer';
+
+  @ApiProperty()
+  expiresIn!: number;
+
+  @ApiProperty({ type: () => MachineTokenSummaryDto })
+  machineAccessToken!: MachineTokenSummaryDto;
+}
+
+class MachineOidcIdentitySummaryDto {
+  @ApiProperty()
+  id!: string;
+
+  @ApiProperty()
+  name!: string;
+
+  @ApiProperty()
+  issuer!: string;
+
+  @ApiProperty()
+  subject!: string;
+
+  @ApiProperty({
+    oneOf: [{ type: 'string' }, { type: 'array', items: { type: 'string' } }],
+  })
+  audience!: string | string[];
+
+  @ApiProperty()
+  organizationId!: string;
+
+  @ApiProperty()
+  userId!: string;
+}
+
+class ExchangeMachineOidcTokenResponseDto {
+  @ApiProperty()
+  accessToken!: string;
+
+  @ApiProperty({ enum: ['Bearer'] })
+  tokenType!: 'Bearer';
+
+  @ApiProperty()
+  expiresIn!: number;
+
+  @ApiProperty({ type: () => MachineOidcIdentitySummaryDto })
+  machineIdentity!: MachineOidcIdentitySummaryDto;
+}
+
 @Controller('machine-auth')
 @ApiTags('machine-auth')
 export class MachineAuthController {
@@ -69,6 +171,7 @@ export class MachineAuthController {
   @Post('tokens')
   @RequireRoleOrHigher('owner')
   @ApiBearerAuth()
+  @ApiCreatedResponse({ type: CreateMachineTokenResponseDto })
   async createToken(
     @Request() { user }: AuthenticatedRequest,
     @Body() body: CreateMachineTokenDto
@@ -82,6 +185,7 @@ export class MachineAuthController {
   @Get('tokens')
   @RequireRoleOrHigher('owner')
   @ApiBearerAuth()
+  @ApiOkResponse({ type: [MachineTokenSummaryDto] })
   async listTokens(@Request() { user }: AuthenticatedRequest) {
     return this.machineAuthService.listMachineTokens(user);
   }
@@ -89,6 +193,7 @@ export class MachineAuthController {
   @Delete('tokens/:id')
   @RequireRoleOrHigher('owner')
   @ApiBearerAuth()
+  @ApiOkResponse({ type: MachineTokenSummaryDto })
   async revokeToken(
     @Request() { user }: AuthenticatedRequest,
     @Param('id') id: string
@@ -99,6 +204,7 @@ export class MachineAuthController {
   @Public()
   @Post('exchange')
   @ApiBearerAuth()
+  @ApiCreatedResponse({ type: ExchangeMachineTokenResponseDto })
   async exchangeToken(
     @Headers('authorization') authorization: string | undefined
   ) {
@@ -114,6 +220,7 @@ export class MachineAuthController {
   @Public()
   @Post('oidc/exchange')
   @ApiBearerAuth()
+  @ApiCreatedResponse({ type: ExchangeMachineOidcTokenResponseDto })
   async exchangeOidcToken(
     @Body() body: ExchangeMachineOidcTokenDto | undefined,
     @Headers('authorization') authorization: string | undefined
