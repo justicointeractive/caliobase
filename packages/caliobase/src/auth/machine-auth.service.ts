@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { randomBytes, createHash } from 'crypto';
 import { Repository } from 'typeorm';
 import { AllRoles, Role } from '../entity-module/roles';
+import { AuthRateLimitService } from './auth-rate-limit.service';
 import { MachineAccessToken } from './entities/machine-access-token.entity';
 import { Member } from './entities/member.entity';
 import { User } from './entities/user.entity';
@@ -52,7 +53,9 @@ export class MachineAuthService {
     private readonly jwtSignerService: JwtSignerService,
     @Optional()
     @Inject(MachineOidcIssuersToken)
-    private readonly oidcIssuers: MachineOidcIssuer[] = []
+    private readonly oidcIssuers: MachineOidcIssuer[] = [],
+    @Optional()
+    private readonly authRateLimit?: AuthRateLimitService
   ) {
     this.oidcVerifier = new MachineOidcVerifier(this.oidcIssuers);
   }
@@ -138,6 +141,11 @@ export class MachineAuthService {
   }
 
   async exchangeMachineToken(token: string) {
+    this.authRateLimit?.consume(
+      'machineTokenExchange',
+      hashMachineToken(token)
+    );
+
     const machineToken = await this.machineTokenRepo.findOne({
       where: { tokenHash: hashMachineToken(token) },
     });
@@ -164,6 +172,8 @@ export class MachineAuthService {
   }
 
   async exchangeOidcToken(token: string) {
+    this.authRateLimit?.consume('machineOidcExchange', hashMachineToken(token));
+
     if (this.oidcIssuers.length === 0) {
       throw new UnauthorizedException('OIDC machine auth is not configured');
     }

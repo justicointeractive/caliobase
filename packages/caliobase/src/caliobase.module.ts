@@ -115,6 +115,8 @@ export class CaliobaseModule {
   >({
     objectStorageProvider,
     socialProviders,
+    machineOidcIssuers,
+    authRateLimit,
     profileEntities,
     controllerEntities,
     otherEntities,
@@ -125,7 +127,12 @@ export class CaliobaseModule {
       module: CaliobaseModule,
       imports: [
         CaliobaseConfigModule.forRootAsync(config),
-        CaliobaseAuthModule.forRootAsync({ socialProviders, profileEntities }),
+        CaliobaseAuthModule.forRootAsync({
+          socialProviders,
+          machineOidcIssuers,
+          authRateLimit,
+          profileEntities,
+        }),
         ...(objectStorageProvider
           ? [
               CaliobaseObjectStorageModule.forRootAsync({

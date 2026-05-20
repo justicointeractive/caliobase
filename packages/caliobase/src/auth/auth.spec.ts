@@ -1,4 +1,9 @@
-import { BadRequestException, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { JSDOM } from 'jsdom';
@@ -211,6 +216,40 @@ describe('auth', () => {
     ).rejects.toThrow(UnauthorizedException);
   });
 
+  describe('auth rate limiting', () => {
+    const { userService } = useTestingModule(async () => {
+      const module = await createTestingModule({
+        authRateLimit: {
+          passwordLogin: { limit: 2, windowMs: 60_000 },
+          otpRequest: { limit: 1, windowMs: 60_000 },
+        },
+      });
+      const userService = module.get(AbstractAuthController);
+      return { module, userService };
+    });
+
+    it('limits repeated password login attempts for the same email', async () => {
+      const userDetails = fakeUser();
+      await userService.createUserWithPassword(userDetails);
+
+      await userService.loginUser(userDetails);
+      await userService.loginUser(userDetails);
+
+      await expectTooManyAuthAttempts(() => userService.loginUser(userDetails));
+    });
+
+    it('limits repeated otp requests for the same email', async () => {
+      const userDetails = fakeUser();
+      await userService.createUserWithoutPassword(userDetails);
+
+      await userService.sendOtpByEmail({ email: userDetails.email });
+
+      await expectTooManyAuthAttempts(() =>
+        userService.sendOtpByEmail({ email: userDetails.email })
+      );
+    });
+  });
+
   describe('get me', () => {
     it('should get me properly', async () => {
       const user1 = await userService.createUserWithPassword(fakeUser());
@@ -339,6 +378,20 @@ describe('auth', () => {
     });
   });
 });
+
+async function expectTooManyAuthAttempts(fn: () => Promise<unknown>) {
+  try {
+    await fn();
+  } catch (error) {
+    expect(error).toBeInstanceOf(HttpException);
+    expect((error as HttpException).getStatus()).toBe(
+      HttpStatus.TOO_MANY_REQUESTS
+    );
+    return;
+  }
+
+  throw new Error('expected auth rate limit to reject the request');
+}
 
 function extractHtmlContent(
   sent: SendMailOptions,

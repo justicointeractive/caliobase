@@ -10,6 +10,27 @@ Run `nx test caliobase` to execute the unit tests via [Jest](https://jestjs.io).
 
 Run `nx lint caliobase` to execute the lint via [ESLint](https://eslint.org/).
 
+## Auth rate limiting
+
+Caliobase applies in-memory rate limits to credential-style auth operations by
+default, including password login, OTP requests/login, password reset, social
+validation, and machine token exchange. Exceeded limits return HTTP `429`.
+
+Override or disable limits with `authRateLimit`:
+
+```ts
+await CaliobaseAuthModule.forRootAsync({
+  profileEntities,
+  authRateLimit: {
+    passwordLogin: { limit: 10, windowMs: 15 * 60 * 1000 },
+    machineTokenExchange: { limit: 60, windowMs: 60 * 1000 },
+    socialValidate: false,
+  },
+});
+```
+
+Set `authRateLimit: false` to disable all built-in auth rate limits.
+
 ## Machine OIDC token exchange
 
 Caliobase can exchange a trusted machine OIDC JWT for a short-lived Caliobase
