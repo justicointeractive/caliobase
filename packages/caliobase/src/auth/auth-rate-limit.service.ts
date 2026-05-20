@@ -55,7 +55,10 @@ export class AuthRateLimitService {
     private readonly options?: AuthRateLimitOptions
   ) {}
 
-  consume(operation: AuthRateLimitOperation, identity: string) {
+  async consume(
+    operation: AuthRateLimitOperation,
+    identity: string
+  ): Promise<void> {
     const rule = this.getRule(operation);
     if (!rule || !identity) {
       return;

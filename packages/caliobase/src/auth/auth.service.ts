@@ -85,7 +85,7 @@ export class AuthService {
   }
 
   async validateSocial(request: SocialValidation) {
-    this.authRateLimit.consume(
+    await this.authRateLimit.consume(
       'socialValidate',
       `${request.provider}:${
         request.nonce ?? request.idToken ?? request.accessToken ?? 'unknown'
@@ -166,7 +166,10 @@ export class AuthService {
     email: string;
     password: string;
   }) {
-    this.authRateLimit.consume('passwordLogin', normalizeEmail(email ?? ''));
+    await this.authRateLimit.consume(
+      'passwordLogin',
+      normalizeEmail(email ?? '')
+    );
 
     if (!email || !password) {
       throw new BadRequestException('email and password required');
@@ -184,7 +187,7 @@ export class AuthService {
   }
 
   async validateOtp({ email, otp }: { email: string; otp: string }) {
-    this.authRateLimit.consume('otpLogin', normalizeEmail(email ?? ''));
+    await this.authRateLimit.consume('otpLogin', normalizeEmail(email ?? ''));
 
     const user = await this.userRepo.findOne({
       where: normalizeEmailOf({ email }),
@@ -240,7 +243,7 @@ export class AuthService {
   }
 
   async sendOtpByEmail(email: string) {
-    this.authRateLimit.consume('otpRequest', normalizeEmail(email ?? ''));
+    await this.authRateLimit.consume('otpRequest', normalizeEmail(email ?? ''));
 
     const user = await this.userRepo.findOne({
       where: normalizeEmailOf({ email }),
@@ -284,7 +287,7 @@ export class AuthService {
   }
 
   async createAndEmailPasswordResetLink(userEmail: string) {
-    this.authRateLimit.consume(
+    await this.authRateLimit.consume(
       'passwordResetRequest',
       normalizeEmail(userEmail ?? '')
     );
@@ -336,7 +339,7 @@ export class AuthService {
   }
 
   async setPasswordWithResetToken(resetToken: string, newPassword: string) {
-    this.authRateLimit.consume('passwordResetToken', resetToken ?? '');
+    await this.authRateLimit.consume('passwordResetToken', resetToken ?? '');
 
     const token = await this.passwordResetTokenRepo
       .findOneOrFail({

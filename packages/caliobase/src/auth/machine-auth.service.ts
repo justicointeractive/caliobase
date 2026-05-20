@@ -141,7 +141,7 @@ export class MachineAuthService {
   }
 
   async exchangeMachineToken(token: string) {
-    this.authRateLimit?.consume(
+    await this.authRateLimit?.consume(
       'machineTokenExchange',
       hashMachineToken(token)
     );
@@ -172,7 +172,10 @@ export class MachineAuthService {
   }
 
   async exchangeOidcToken(token: string) {
-    this.authRateLimit?.consume('machineOidcExchange', hashMachineToken(token));
+    await this.authRateLimit?.consume(
+      'machineOidcExchange',
+      hashMachineToken(token)
+    );
 
     if (this.oidcIssuers.length === 0) {
       throw new UnauthorizedException('OIDC machine auth is not configured');
