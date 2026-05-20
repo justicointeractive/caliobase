@@ -45,6 +45,21 @@ export class CaliobaseUiConfiguration<TApi extends ICaliobaseApi> {
     return this.builder.menuItems;
   }
 
+  get uiBasePath() {
+    return this.builder.uiBasePath;
+  }
+
+  createUiPath(path: string) {
+    const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+    return this.uiBasePath
+      ? `${this.uiBasePath}${normalizedPath}`
+      : normalizedPath;
+  }
+
+  createUiUrl(path: string, base = window.location.href) {
+    return new URL(this.createUiPath(path), base).toString();
+  }
+
   // TODO: exclude this function if no object storage provider
   async uploadFile<TApi extends ICaliobaseApi>(
     api: TApi,

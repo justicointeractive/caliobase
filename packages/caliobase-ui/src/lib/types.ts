@@ -125,6 +125,16 @@ export type ICaliobaseApiProps = {
   preferredLoginMethod: 'password' | 'social';
 };
 
+export type ICaliobaseUiConfigurationOptions = ICaliobaseApiProps & {
+  /**
+   * Browser path prefix where the Caliobase UI is mounted.
+   *
+   * Use this when the same host serves the UI below a subdirectory, for
+   * example `/cms`. Defaults to the host root.
+   */
+  uiBasePath?: string;
+};
+
 export type ICaliobaseLoginRequest = {
   email: string;
   password: string;

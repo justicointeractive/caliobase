@@ -140,6 +140,7 @@ export function OrganizationMemberDetailView() {
 }
 
 function InviteUserView() {
+  const { caliobaseUiConfiguration } = useApiContext();
   const { userOrgApi } = useUserContext();
 
   const [roles, setRoles] = useState<string[]>([]);
@@ -181,7 +182,9 @@ function InviteUserView() {
       <div>
         {invitations.map((invitation) => (
           <div key={invitation.token}>
-            <CopyValueButton value={getInvitationLink(invitation)} />
+            <CopyValueButton
+              value={getInvitationLink(invitation, caliobaseUiConfiguration)}
+            />
           </div>
         ))}
       </div>
@@ -189,11 +192,15 @@ function InviteUserView() {
   );
 }
 
-function getInvitationLink(invitation: CaliobaseMemberInvitationToken) {
-  return new URL(
-    `/invitation?token=${invitation.token}`,
-    window.location.href
-  ).toString();
+function getInvitationLink(
+  invitation: CaliobaseMemberInvitationToken,
+  caliobaseUiConfiguration: ReturnType<
+    typeof useApiContext
+  >['caliobaseUiConfiguration']
+) {
+  return caliobaseUiConfiguration.createUiUrl(
+    `/invitation?token=${invitation.token}`
+  );
 }
 
 function CopyValueButton(props: { value: string }) {

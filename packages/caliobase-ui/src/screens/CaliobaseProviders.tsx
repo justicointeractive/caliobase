@@ -51,7 +51,9 @@ export function CaliobaseProviders<T extends ICaliobaseApi>({
     <ApiContextProvider context={context}>
       <FloatingTree>
         <UserContextProvider showLoader={showLoader}>
-          <BrowserRouter>{children}</BrowserRouter>
+          <BrowserRouter basename={caliobaseUiConfiguration.uiBasePath}>
+            {children}
+          </BrowserRouter>
           <ModalContainer />
         </UserContextProvider>
       </FloatingTree>
