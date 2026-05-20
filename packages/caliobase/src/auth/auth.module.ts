@@ -10,6 +10,11 @@ import {
   AbstractAuthController,
   createAuthController,
 } from './auth.controller';
+import {
+  AuthRateLimitOptions,
+  AuthRateLimitOptionsToken,
+  AuthRateLimitService,
+} from './auth-rate-limit.service';
 import { AuthService, CreateUserRequest } from './auth.service';
 import { AbstractOrganizationProfile } from './entities/abstract-organization-profile.entity';
 import { AbstractUserProfile } from './entities/abstract-user-profile.entity';
@@ -74,6 +79,7 @@ export type CaliobaseAuthModuleOptions<
 > = {
   socialProviders?: SocialProvider[];
   machineOidcIssuers?: MachineOidcIssuer[];
+  authRateLimit?: AuthRateLimitOptions;
   profileEntities: CaliobaseAuthProfileEntities<TUser, TOrganization>;
 };
 
@@ -85,6 +91,7 @@ export class CaliobaseAuthModule {
   >({
     socialProviders = DefaultSocialProviders,
     machineOidcIssuers = [],
+    authRateLimit,
     profileEntities,
   }: CaliobaseAuthModuleOptions<TUser, TOrganization>): Promise<DynamicModule> {
     const builtInEntities = [
@@ -174,6 +181,11 @@ export class CaliobaseAuthModule {
       providers: [
         JwtStrategy,
         JwtSignerService,
+        AuthRateLimitService,
+        {
+          provide: AuthRateLimitOptionsToken,
+          useValue: authRateLimit,
+        },
         MachineAuthService,
         {
           provide: MachineOidcIssuersToken,

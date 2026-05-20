@@ -1,6 +1,8 @@
+import { HttpException, HttpStatus } from '@nestjs/common';
 import { CaliobaseRequestUser } from './jwt.strategy';
 import { exportJWK, generateKeyPair, SignJWT } from 'jose';
 import { Issuer } from 'openid-client';
+import { AuthRateLimitService } from './auth-rate-limit.service';
 import {
   extractMachineToken,
   hashMachineToken,
@@ -146,6 +148,47 @@ describe('machine auth', () => {
     );
   });
 
+  it('rate-limits repeated machine token exchanges for the same token', async () => {
+    const machineTokenRepo = createRepoMock();
+    machineTokenRepo.findOne.mockResolvedValue({
+      id: 'mat_123',
+      name: 'octavius',
+      tokenPrefix: 'cbm_testtok',
+      tokenHash: hashMachineToken('cbm_testtoken'),
+      organizationId: 'org_0',
+      userId: 'user_machine',
+      roles: ['guest'],
+      createdByUserId: 'user_owner',
+      createdAt: new Date('2026-05-02T00:00:00Z'),
+      updatedAt: new Date('2026-05-02T00:00:00Z'),
+    });
+    const jwtSignerService = { sign: jest.fn(async () => 'signed-jwt') };
+    const service = new MachineAuthService(
+      machineTokenRepo as never,
+      createRepoMock() as never,
+      createRepoMock() as never,
+      jwtSignerService as never,
+      [],
+      new AuthRateLimitService({
+        machineTokenExchange: { limit: 1, windowMs: 60_000 },
+      })
+    );
+
+    await service.exchangeMachineToken('cbm_testtoken');
+
+    try {
+      await service.exchangeMachineToken('cbm_testtoken');
+    } catch (error) {
+      expect(error).toBeInstanceOf(HttpException);
+      expect((error as HttpException).getStatus()).toBe(
+        HttpStatus.TOO_MANY_REQUESTS
+      );
+      return;
+    }
+
+    throw new Error('expected machine token exchange to be rate limited');
+  });
+
   it('lists machine tokens scoped to the request organization', async () => {
     const machineTokenRepo = createRepoMock();
     machineTokenRepo.find.mockResolvedValue([
@@ -206,7 +249,10 @@ describe('machine auth', () => {
     expect(machineTokenRepo.save).toHaveBeenCalledWith(
       expect.objectContaining({ revokedAt: expect.any(Date) })
     );
-    expect(result).toMatchObject({ id: 'mat_123', revokedAt: expect.any(Date) });
+    expect(result).toMatchObject({
+      id: 'mat_123',
+      revokedAt: expect.any(Date),
+    });
   });
 
   it('rejects revoked machine tokens', async () => {

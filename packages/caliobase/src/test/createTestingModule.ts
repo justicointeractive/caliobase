@@ -8,6 +8,7 @@ import nodemailerMock from 'nodemailer-mock';
 import * as supertest from 'supertest';
 import { Column, DataSource, Entity } from 'typeorm';
 import {
+  AuthRateLimitOptions,
   AuthService,
   CaliobaseRequestUser,
   Member,
@@ -46,12 +47,14 @@ export async function createTestingModule({
   objectStorage = true,
   allowCreateOwnOrganizations = false,
   guestRole,
+  authRateLimit,
   ...metadata
 }: ModuleMetadata & {
   typeormOptions?: TypeOrmModuleOptions;
   objectStorage?: boolean;
   allowCreateOwnOrganizations?: boolean;
   guestRole?: Role;
+  authRateLimit?: AuthRateLimitOptions;
 } = {}) {
   const module = await Test.createTestingModule({
     ...metadata,
@@ -85,6 +88,7 @@ export async function createTestingModule({
       CaliobaseModule.forRootAsync({
         allowCreateOwnOrganizations,
         guestRole,
+        authRateLimit,
         urls: {
           forgotPassword: `https://example.org/?token=${TOKEN_TOKEN}`,
         },

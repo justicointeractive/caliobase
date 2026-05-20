@@ -1,4 +1,5 @@
 export * from './auth.controller';
+export * from './auth-rate-limit.service';
 export * from './auth.service';
 export * from './decorators';
 export * from './entities';
