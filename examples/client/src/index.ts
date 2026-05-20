@@ -193,6 +193,62 @@ export interface CreateRootRequest {
   organization: ConcreteCreateOrganizationRequest;
 }
 
+export interface CreateMachineTokenDto {
+  name: string;
+  roles?: ('owner' | 'manager' | 'writer' | 'moderator' | 'guest')[];
+}
+
+export interface MachineTokenSummaryDto {
+  id: string;
+  name: string;
+  tokenPrefix: string;
+  organizationId: string;
+  userId: string;
+  roles: ('owner' | 'manager' | 'writer' | 'moderator' | 'guest')[];
+  createdByUserId: string;
+
+  /** @format date-time */
+  createdAt: string;
+
+  /** @format date-time */
+  updatedAt: string;
+
+  /** @format date-time */
+  revokedAt: string | null;
+
+  /** @format date-time */
+  lastUsedAt: string | null;
+}
+
+export interface CreateMachineTokenResponseDto {
+  token: string;
+  machineAccessToken: MachineTokenSummaryDto;
+}
+
+export interface ExchangeMachineTokenResponseDto {
+  accessToken: string;
+  tokenType: 'Bearer';
+  expiresIn: number;
+  machineAccessToken: MachineTokenSummaryDto;
+}
+
+export interface MachineOidcIdentitySummaryDto {
+  id: string;
+  name: string;
+  issuer: string;
+  subject: string;
+  audience: string | string[];
+  organizationId: string;
+  userId: string;
+}
+
+export interface ExchangeMachineOidcTokenResponseDto {
+  accessToken: string;
+  tokenType: 'Bearer';
+  expiresIn: number;
+  machineIdentity: MachineOidcIdentitySummaryDto;
+}
+
 export interface ObjectStorageCreateRequest {
   fileName: string;
   contentType: string;
@@ -1086,6 +1142,94 @@ export class Api<
         method: 'POST',
         body: data,
         type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+  };
+  machineAuth = {
+    /**
+     * No description
+     *
+     * @tags machine-auth
+     * @name CreateToken
+     * @request POST:/api/machine-auth/tokens
+     * @secure
+     */
+    createToken: (data: CreateMachineTokenDto, params: RequestParams = {}) =>
+      this.request<CreateMachineTokenResponseDto, any>({
+        path: `/api/machine-auth/tokens`,
+        method: 'POST',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags machine-auth
+     * @name ListTokens
+     * @request GET:/api/machine-auth/tokens
+     * @secure
+     */
+    listTokens: (params: RequestParams = {}) =>
+      this.request<MachineTokenSummaryDto[], any>({
+        path: `/api/machine-auth/tokens`,
+        method: 'GET',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags machine-auth
+     * @name RevokeToken
+     * @request DELETE:/api/machine-auth/tokens/{id}
+     * @secure
+     */
+    revokeToken: (id: string, params: RequestParams = {}) =>
+      this.request<MachineTokenSummaryDto, any>({
+        path: `/api/machine-auth/tokens/${id}`,
+        method: 'DELETE',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags machine-auth
+     * @name ExchangeToken
+     * @request POST:/api/machine-auth/exchange
+     * @secure
+     */
+    exchangeToken: (params: RequestParams = {}) =>
+      this.request<ExchangeMachineTokenResponseDto, any>({
+        path: `/api/machine-auth/exchange`,
+        method: 'POST',
+        secure: true,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags machine-auth
+     * @name ExchangeOidcToken
+     * @request POST:/api/machine-auth/oidc/exchange
+     * @secure
+     */
+    exchangeOidcToken: (params: RequestParams = {}) =>
+      this.request<ExchangeMachineOidcTokenResponseDto, any>({
+        path: `/api/machine-auth/oidc/exchange`,
+        method: 'POST',
+        secure: true,
         format: 'json',
         ...params,
       }),

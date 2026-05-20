@@ -2,6 +2,9 @@ import {
   CaliobaseMember,
   CaliobaseMemberInvitationToken,
   CaliobaseOrganization,
+  CaliobaseCreateMachineTokenRequest,
+  CaliobaseCreateMachineTokenResponse,
+  CaliobaseMachineTokenSummary,
   ICaliobaseAccessTokenResponse,
   ICaliobaseApiRequestNoBody,
   ICaliobaseApiRequestWithBody,
@@ -50,6 +53,17 @@ export type ICaliobaseApi = {
       string,
       ICaliobaseRefreshUploadUrlsRequest,
       ICaliobaseSignedObjectPutUrl[]
+    >;
+  };
+  machineAuth?: {
+    createToken: ICaliobaseApiRequestWithBody<
+      CaliobaseCreateMachineTokenRequest,
+      CaliobaseCreateMachineTokenResponse
+    >;
+    listTokens: ICaliobaseApiRequestNoBody<CaliobaseMachineTokenSummary[]>;
+    revokeToken: ICaliobaseApiRequestWithParam<
+      string,
+      CaliobaseMachineTokenSummary
     >;
   };
   auth: {
