@@ -131,7 +131,9 @@ function output(command: string, args: string[] = []): string {
   }
 
   if (result.status !== 0) {
-    throw new Error(`${command} ${args.join(' ')} failed:\n${result.stderr || result.stdout}`);
+    throw new Error(
+      `${command} ${args.join(' ')} failed:\n${result.stderr || result.stdout}`,
+    );
   }
 
   return result.stdout.trim();
@@ -141,7 +143,10 @@ function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-function commandResult(command: string, args: string[]): { status: number; output: string } {
+function commandResult(
+  command: string,
+  args: string[],
+): { status: number; output: string } {
   const result = spawnSync(command, args, {
     encoding: 'utf8',
     env: process.env,
@@ -193,7 +198,9 @@ function releaseProjectSpecs(): ReleaseProjectSpec[] {
 }
 
 function latestReleaseTag(project: string): string | null {
-  const tagPattern = new RegExp(`^${escapeRegExp(project)}-${VERSION_PATTERN_SOURCE}$`);
+  const tagPattern = new RegExp(
+    `^${escapeRegExp(project)}-${VERSION_PATTERN_SOURCE}$`,
+  );
   const tags = output('git', ['tag', '--sort', '-v:refname'])
     .split('\n')
     .map((tag) => tag.trim())
@@ -202,7 +209,10 @@ function latestReleaseTag(project: string): string | null {
   return tags.find((tag) => tagPattern.test(tag)) ?? null;
 }
 
-function readJsonAtRef(ref: string, path: string): Record<string, unknown> | null {
+function readJsonAtRef(
+  ref: string,
+  path: string,
+): Record<string, unknown> | null {
   const file = commandResult('git', ['show', `${ref}:${path}`]);
   if (file.status !== 0) {
     return null;
@@ -211,13 +221,46 @@ function readJsonAtRef(ref: string, path: string): Record<string, unknown> | nul
   return JSON.parse(file.output) as Record<string, unknown>;
 }
 
-function withoutVersion(value: Record<string, unknown>): Record<string, unknown> {
+function withoutReleaseOnlyVersions(
+  value: Record<string, unknown>,
+  workspacePackageNames: Set<string>,
+): Record<string, unknown> {
   const copy = { ...value };
   delete copy.version;
+
+  for (const section of [
+    'dependencies',
+    'devDependencies',
+    'peerDependencies',
+    'optionalDependencies',
+  ]) {
+    const dependencies = copy[section];
+    if (
+      !dependencies ||
+      typeof dependencies !== 'object' ||
+      Array.isArray(dependencies)
+    ) {
+      continue;
+    }
+
+    copy[section] = Object.fromEntries(
+      Object.entries(dependencies).map(([name, version]) => [
+        name,
+        workspacePackageNames.has(name)
+          ? '<workspace-release-version>'
+          : version,
+      ]),
+    );
+  }
+
   return copy;
 }
 
-function packageManifestChangedBeyondVersion(tag: string, packageJsonPath: string): boolean {
+function packageManifestChangedBeyondReleaseVersions(
+  tag: string,
+  packageJsonPath: string,
+  workspacePackageNames: Set<string>,
+): boolean {
   if (!existsSync(packageJsonPath)) {
     return false;
   }
@@ -227,11 +270,23 @@ function packageManifestChangedBeyondVersion(tag: string, packageJsonPath: strin
     return true;
   }
 
-  const current = JSON.parse(readFileSync(packageJsonPath, 'utf8')) as Record<string, unknown>;
-  return JSON.stringify(withoutVersion(previous)) !== JSON.stringify(withoutVersion(current));
+  const current = JSON.parse(readFileSync(packageJsonPath, 'utf8')) as Record<
+    string,
+    unknown
+  >;
+  return (
+    JSON.stringify(
+      withoutReleaseOnlyVersions(previous, workspacePackageNames),
+    ) !==
+    JSON.stringify(withoutReleaseOnlyVersions(current, workspacePackageNames))
+  );
 }
 
-function projectChangedSinceTag(tag: string, root: string): boolean {
+function projectChangedSinceTag(
+  tag: string,
+  root: string,
+  workspacePackageNames: Set<string>,
+): boolean {
   const packageJsonPath = join(root, 'package.json');
   const nonManifestDiff = commandResult('git', [
     'diff',
@@ -243,13 +298,24 @@ function projectChangedSinceTag(tag: string, root: string): boolean {
     `:(exclude)${packageJsonPath}`,
   ]);
 
-  return nonManifestDiff.status !== 0 || packageManifestChangedBeyondVersion(tag, packageJsonPath);
+  return (
+    nonManifestDiff.status !== 0 ||
+    packageManifestChangedBeyondReleaseVersions(
+      tag,
+      packageJsonPath,
+      workspacePackageNames,
+    )
+  );
 }
 
 function changedReleaseProjects(): string[] {
   const changedProjects: string[] = [];
+  const specs = releaseProjectSpecs();
+  const workspacePackageNames = new Set(
+    specs.map(({ packageName }) => packageName),
+  );
 
-  for (const { project, root } of releaseProjectSpecs()) {
+  for (const { project, root } of specs) {
     const tag = latestReleaseTag(project);
     if (!tag) {
       console.error(`Including ${project} because no release tag exists`);
@@ -257,8 +323,10 @@ function changedReleaseProjects(): string[] {
       continue;
     }
 
-    if (projectChangedSinceTag(tag, root)) {
-      console.error(`Including ${project} because ${root} changed since ${tag}`);
+    if (projectChangedSinceTag(tag, root, workspacePackageNames)) {
+      console.error(
+        `Including ${project} because ${root} changed since ${tag}`,
+      );
       changedProjects.push(project);
     }
   }
@@ -297,7 +365,12 @@ function syncPackageLockIntoReleaseCommit(): void {
 
   run('npm', ['install', '--package-lock-only', '--ignore-scripts']);
 
-  const lockDiff = commandResult('git', ['diff', '--quiet', '--', 'package-lock.json']);
+  const lockDiff = commandResult('git', [
+    'diff',
+    '--quiet',
+    '--',
+    'package-lock.json',
+  ]);
   if (lockDiff.status === 0) {
     return;
   }
@@ -350,7 +423,9 @@ function prepareRelease(options: ReleaseOptions): void {
 
   const afterHead = output('git', ['rev-parse', 'HEAD']);
   if (afterHead === beforeHead) {
-    throw new Error('Error: release versioning did not create a release commit.');
+    throw new Error(
+      'Error: release versioning did not create a release commit.',
+    );
   }
 
   const changedManifests = output('git', [
@@ -362,9 +437,13 @@ function prepareRelease(options: ReleaseOptions): void {
   ]);
 
   if (!changedManifests) {
-    const changedFiles = output('git', ['diff', '--name-only', `${beforeHead}..${afterHead}`]);
+    const changedFiles = output('git', [
+      'diff',
+      '--name-only',
+      `${beforeHead}..${afterHead}`,
+    ]);
     throw new Error(
-      `Error: release versioning did not change any package manifests; refusing to open an empty release PR.\nChanged files were:\n${changedFiles}`
+      `Error: release versioning did not change any package manifests; refusing to open an empty release PR.\nChanged files were:\n${changedFiles}`,
     );
   }
 }
@@ -390,7 +469,9 @@ function publishMissingVersions(options: ReleaseOptions): void {
   }
 
   if (missingProjects.length === 0) {
-    console.log('All workspace package versions already exist on npm; nothing to publish.');
+    console.log(
+      'All workspace package versions already exist on npm; nothing to publish.',
+    );
     return;
   }
 
@@ -409,19 +490,18 @@ function tagPublishedVersions(): void {
 
   for (const { project, packageName, version } of releaseProjectSpecs()) {
     const tag = `${project}-${version}`;
-    const tagExists = commandResult('git', [
-      'rev-parse',
-      '-q',
-      '--verify',
-      `refs/tags/${tag}`,
-    ]).status === 0;
+    const tagExists =
+      commandResult('git', ['rev-parse', '-q', '--verify', `refs/tags/${tag}`])
+        .status === 0;
 
     if (tagExists) {
       console.log(`Tag already exists: ${tag}`);
       continue;
     }
 
-    console.log(`Creating tag: ${tag} for ${packageName}@${version} at ${tagTarget}`);
+    console.log(
+      `Creating tag: ${tag} for ${packageName}@${version} at ${tagTarget}`,
+    );
     run('git', ['tag', '-a', tag, '-m', tag, tagTarget]);
     tags.push(`refs/tags/${tag}`);
   }
