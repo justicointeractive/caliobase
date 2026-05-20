@@ -1,6 +1,7 @@
 import {
   faBars,
   faClose,
+  faKey,
   faRightFromBracket,
   faUser,
 } from '@fortawesome/free-solid-svg-icons';
@@ -130,6 +131,12 @@ function MenuContent(props: {
           to="/users"
           label="Users"
           icon={faUser}
+          onClick={props.onCloseMenu}
+        />
+        <MenuNavLink
+          to="/machine-tokens"
+          label="Machine Tokens"
+          icon={faKey}
           onClick={props.onCloseMenu}
         />
       </div>

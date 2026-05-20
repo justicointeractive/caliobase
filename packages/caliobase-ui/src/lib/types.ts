@@ -31,6 +31,37 @@ export type CaliobaseMemberInvitationToken = {
   roles: string[];
 };
 
+export type CaliobaseMachineTokenRole =
+  | 'owner'
+  | 'manager'
+  | 'writer'
+  | 'moderator'
+  | 'guest';
+
+export type CaliobaseCreateMachineTokenRequest = {
+  name: string;
+  roles?: CaliobaseMachineTokenRole[];
+};
+
+export type CaliobaseMachineTokenSummary = {
+  id: string;
+  name: string;
+  tokenPrefix: string;
+  organizationId: string;
+  userId: string;
+  roles: CaliobaseMachineTokenRole[];
+  createdByUserId: string;
+  createdAt: string;
+  updatedAt: string;
+  revokedAt: string | null;
+  lastUsedAt: string | null;
+};
+
+export type CaliobaseCreateMachineTokenResponse = {
+  token: string;
+  machineAccessToken: CaliobaseMachineTokenSummary;
+};
+
 export type ICaliobaseApiRequestNoBody<T> = (
   options?: RequestInit
 ) => Promise<{ data: T }>;

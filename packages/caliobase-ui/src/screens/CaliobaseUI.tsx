@@ -14,6 +14,7 @@ import { Dashboard } from './Dashboard';
 import { DetailView } from './DetailView';
 import { ListView } from './ListView';
 import { LoginScreen } from './Login';
+import { MachineTokenListView } from './MachineTokenView';
 import { MenuNavLinkPropsInput } from './MenuNavLink';
 import {
   OrganizationMemberDetailView,
@@ -63,6 +64,10 @@ export function CaliobaseUI<T extends ICaliobaseApi>({
           {
             path: '/users/:orgUserId',
             element: <OrganizationMemberDetailView />,
+          },
+          {
+            path: '/machine-tokens',
+            element: <MachineTokenListView />,
           },
         ],
       },

@@ -159,6 +159,21 @@ jobs:
           marker='<!-- caliobase-release-preview -->'
           body_file='.release-preview.md'
 
+          latest_release_version() {
+            local project_name="$1"
+            local candidate version
+
+            while IFS= read -r candidate; do
+              version="${candidate#${project_name}-}"
+              if [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+                echo "$version"
+                return 0
+              fi
+            done < <(git tag --list "${project_name}-*" --sort=-v:refname)
+
+            return 1
+          }
+
           {
             echo "$marker"
             echo '## Release dry run'
@@ -176,15 +191,25 @@ jobs:
                 echo
                 for manifest in "${manifests[@]}"; do
                   old_name=$(git show "$before_head:$manifest" | jq -r '.name // empty')
-                  old_version=$(git show "$before_head:$manifest" | jq -r '.version // empty')
+                  manifest_version=$(git show "$before_head:$manifest" | jq -r '.version // empty')
                   new_name=$(jq -r '.name // empty' "$manifest")
                   new_version=$(jq -r '.version // empty' "$manifest")
                   project_json="${manifest%/package.json}/project.json"
                   project_name=$(jq -r '.name // empty' "$project_json" 2>/dev/null || true)
                   tag_name="${project_name:-$new_name}-$new_version"
+                  old_version="$manifest_version"
+
+                  if [[ -n "$project_name" ]]; then
+                    tag_version=$(latest_release_version "$project_name" || true)
+                    if [[ -n "$tag_version" ]]; then
+                      old_version="$tag_version"
+                    fi
+                  fi
 
                   echo "- \`${new_name:-$old_name}\`: \`$old_version\` → \`$new_version\` (tag \`$tag_name\`)"
                 done
+                echo
+                echo '_Previous versions are resolved from the latest release tags, not stale package.json versions in main._'
               else
                 echo 'The release command created a local release state, but no package manifest version changes were found.'
               fi
