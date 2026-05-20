@@ -39,7 +39,7 @@
         }
       ],
       "options": {
-        "command": "npx ts-node --project ./examples/api/tsconfig.app.json -r tsconfig-paths/register ./examples/api/src/main.ts --write-swagger-and-exit=./examples/client/assets/openapi.json"
+        "command": "DOTENV_CONFIG_PATH=.env.test npx ts-node --project ./examples/api/tsconfig.app.json -r dotenv/config -r tsconfig-paths/register ./examples/api/src/main.ts --write-swagger=./examples/client/assets/openapi.json --exit-after-codegen"
       },
       "configurations": {
         "staging": {},

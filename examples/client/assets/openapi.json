@@ -907,6 +907,156 @@
         ]
       }
     },
+    "/api/machine-auth/tokens": {
+      "post": {
+        "operationId": "MachineAuthController_createToken",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMachineTokenDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateMachineTokenResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "machine-auth"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "get": {
+        "operationId": "MachineAuthController_listTokens",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MachineTokenSummaryDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "machine-auth"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/machine-auth/tokens/{id}": {
+      "delete": {
+        "operationId": "MachineAuthController_revokeToken",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MachineTokenSummaryDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "machine-auth"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/machine-auth/exchange": {
+      "post": {
+        "operationId": "MachineAuthController_exchangeToken",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExchangeMachineTokenResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "machine-auth"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/machine-auth/oidc/exchange": {
+      "post": {
+        "operationId": "MachineAuthController_exchangeOidcToken",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExchangeMachineOidcTokenResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "machine-auth"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
     "/api/object-storage": {
       "post": {
         "operationId": "ObjectStorageController_createObjectStorageObject",
@@ -2847,6 +2997,209 @@
         "required": [
           "user",
           "organization"
+        ]
+      },
+      "CreateMachineTokenDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "owner",
+                "manager",
+                "writer",
+                "moderator",
+                "guest"
+              ]
+            }
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "MachineTokenSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "tokenPrefix": {
+            "type": "string"
+          },
+          "organizationId": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "owner",
+                "manager",
+                "writer",
+                "moderator",
+                "guest"
+              ]
+            }
+          },
+          "createdByUserId": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "revokedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lastUsedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "tokenPrefix",
+          "organizationId",
+          "userId",
+          "roles",
+          "createdByUserId",
+          "createdAt",
+          "updatedAt",
+          "revokedAt",
+          "lastUsedAt"
+        ]
+      },
+      "CreateMachineTokenResponseDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "machineAccessToken": {
+            "$ref": "#/components/schemas/MachineTokenSummaryDto"
+          }
+        },
+        "required": [
+          "token",
+          "machineAccessToken"
+        ]
+      },
+      "ExchangeMachineTokenResponseDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "tokenType": {
+            "type": "string",
+            "enum": [
+              "Bearer"
+            ]
+          },
+          "expiresIn": {
+            "type": "number"
+          },
+          "machineAccessToken": {
+            "$ref": "#/components/schemas/MachineTokenSummaryDto"
+          }
+        },
+        "required": [
+          "accessToken",
+          "tokenType",
+          "expiresIn",
+          "machineAccessToken"
+        ]
+      },
+      "MachineOidcIdentitySummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "issuer": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "audience": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          },
+          "organizationId": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "issuer",
+          "subject",
+          "audience",
+          "organizationId",
+          "userId"
+        ]
+      },
+      "ExchangeMachineOidcTokenResponseDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "tokenType": {
+            "type": "string",
+            "enum": [
+              "Bearer"
+            ]
+          },
+          "expiresIn": {
+            "type": "number"
+          },
+          "machineIdentity": {
+            "$ref": "#/components/schemas/MachineOidcIdentitySummaryDto"
+          }
+        },
+        "required": [
+          "accessToken",
+          "tokenType",
+          "expiresIn",
+          "machineIdentity"
         ]
       },
       "ObjectStorageCreateRequest": {
