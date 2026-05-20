@@ -25,6 +25,9 @@ describe('social provider', () => {
         provider: 'facebook',
         accessToken: '',
       });
+      // Auth rate limiting runs before provider validation, so let the async
+      // validation flow enqueue the mocked provider request before responding.
+      await Promise.resolve();
       const user = {
         id: faker.random.numeric(10),
         first_name: faker.name.firstName(),
