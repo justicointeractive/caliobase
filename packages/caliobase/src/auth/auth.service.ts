@@ -10,6 +10,7 @@ import { omit } from 'lodash';
 import { DataSource, MoreThanOrEqual } from 'typeorm';
 import { CaliobaseConfig, formatWithToken } from '../config/config';
 import { forgotPasswordEmail } from '../emails/forgotPasswordEmail';
+import { AuthRateLimitService } from './auth-rate-limit.service';
 import { EmailLayout } from '../emails/layout';
 import { otpEmail } from '../emails/otpEmail';
 import { assert } from '../lib/assert';
@@ -59,7 +60,8 @@ export class AuthService {
     @Inject(CaliobaseConfig) private config: CaliobaseConfig,
     private orgService: OrganizationService,
     private profileService: AbstractProfileService,
-    private dataSource: DataSource
+    private dataSource: DataSource,
+    private readonly authRateLimit: AuthRateLimitService
   ) {
     this.providers = new Map(
       socialProviders.map((provider) => [provider.name, provider])
@@ -83,6 +85,13 @@ export class AuthService {
   }
 
   async validateSocial(request: SocialValidation) {
+    await this.authRateLimit.consume(
+      'socialValidate',
+      `${request.provider}:${
+        request.nonce ?? request.idToken ?? request.accessToken ?? 'unknown'
+      }`
+    );
+
     const socialProvider = this.providers.get(request.provider);
 
     if (socialProvider == null) {
@@ -157,6 +166,11 @@ export class AuthService {
     email: string;
     password: string;
   }) {
+    await this.authRateLimit.consume(
+      'passwordLogin',
+      normalizeEmail(email ?? '')
+    );
+
     if (!email || !password) {
       throw new BadRequestException('email and password required');
     }
@@ -173,6 +187,8 @@ export class AuthService {
   }
 
   async validateOtp({ email, otp }: { email: string; otp: string }) {
+    await this.authRateLimit.consume('otpLogin', normalizeEmail(email ?? ''));
+
     const user = await this.userRepo.findOne({
       where: normalizeEmailOf({ email }),
     });
@@ -227,6 +243,8 @@ export class AuthService {
   }
 
   async sendOtpByEmail(email: string) {
+    await this.authRateLimit.consume('otpRequest', normalizeEmail(email ?? ''));
+
     const user = await this.userRepo.findOne({
       where: normalizeEmailOf({ email }),
     });
@@ -269,6 +287,11 @@ export class AuthService {
   }
 
   async createAndEmailPasswordResetLink(userEmail: string) {
+    await this.authRateLimit.consume(
+      'passwordResetRequest',
+      normalizeEmail(userEmail ?? '')
+    );
+
     const user = await this.userRepo.findOneOrFail({
       where: normalizeEmailOf({ email: userEmail }),
     });
@@ -316,6 +339,8 @@ export class AuthService {
   }
 
   async setPasswordWithResetToken(resetToken: string, newPassword: string) {
+    await this.authRateLimit.consume('passwordResetToken', resetToken ?? '');
+
     const token = await this.passwordResetTokenRepo
       .findOneOrFail({
         where: {
