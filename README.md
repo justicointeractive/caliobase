@@ -1,5 +1,9 @@
 # caliobase
 
+## Documentation
+
+- [Deploying Caliobase-backed sites](docs/deploying-caliobase-backed-sites.md) — app-repo infrastructure pattern for public sites backed by Caliobase, including shared ALB routing, shared Postgres, JWT keypairs, CloudFront behaviors, machine-token handling, and regression coverage.
+
 This project was generated using [Nx](https://nx.dev).
 
 <p style="text-align: center;"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="450"></p>
