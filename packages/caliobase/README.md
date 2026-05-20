@@ -67,3 +67,26 @@ Authorization: Bearer <trusted-oidc-jwt>
 The incoming OIDC JWT must match the configured issuer, audience, and exact
 subject binding. The response contains a short-lived Caliobase bearer JWT scoped
 to the configured `userId` and `organizationId`.
+
+## Public app content access
+
+For public or server-rendered apps that need Caliobase content, keep the
+Caliobase machine token on the app server. Store it as a server-only secret,
+exchange it via `POST /machine-auth/exchange`, then use the returned short-lived
+Caliobase bearer JWT for content API calls.
+
+Cache the returned bearer JWT server-side and share that cache entry across
+public-content requests/users. Do not exchange the machine token per browser
+visitor or per request; reuse the cached JWT until it is close to its `expiresIn`
+deadline, refresh it once, and replace the shared cache entry. This avoids
+turning public traffic into machine-token exchange traffic and hitting exchange
+rate limits.
+
+Do not ship machine tokens or the cached app-server JWT to the browser or expose
+them through public client environment variables. Browser code should call the
+app's own loader/API route or receive rendered content from server code.
+
+Downstream apps should prefer generated OpenAPI clients for Caliobase calls. If
+controller or entity changes affect the API shape, regenerate the client and
+commit the generated artifacts rather than maintaining hand-written fetch
+wrappers.

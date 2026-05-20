@@ -77,6 +77,32 @@ Run `nx graph` to see a diagram of the dependencies of your projects.
 
 Visit the [Nx Documentation](https://nx.dev) to learn more.
 
+## App integration notes
+
+### Public content with machine tokens
+
+When a public or server-rendered app needs Caliobase content, keep machine
+tokens on the server side. Treat a Caliobase machine token as an
+organization-scoped secret: store it in the app server environment, exchange it
+from server code for a short-lived Caliobase bearer JWT, and use that bearer JWT
+to call the content API.
+
+Cache that returned Caliobase JWT in the app server, not per browser user or per
+incoming request. Reuse the cached JWT for many public-content requests/users
+until it is close to the `expiresIn` deadline, then refresh it once and replace
+the shared cache entry. This keeps normal public traffic from repeatedly calling
+the machine-token exchange endpoint and tripping exchange rate limits.
+
+Do not expose machine tokens or the cached app-server JWT to browser bundles,
+static client configuration, or `PUBLIC_*`/`VITE_*`-style environment variables.
+Browser code should talk to the app's own loader/API route or receive
+already-rendered content.
+
+Prefer the generated OpenAPI client for app integrations instead of hand-written
+fetch wrappers. After changing Caliobase controllers/entities, regenerate and
+commit the generated client artifacts so downstream apps can consume the updated
+API shape directly.
+
 ## ☁ Nx Cloud
 
 ### Distributed Computation Caching & Distributed Task Execution
