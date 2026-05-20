@@ -8,6 +8,7 @@ import {
   EntityApiConstructedEntityType,
   EntityApiName,
   ICaliobaseApiProps,
+  ICaliobaseUiConfigurationOptions,
   ICaliobaseBrandingComponent,
   ICaliobaseEntityApi,
   ICaliobaseImageHandler,
@@ -32,10 +33,17 @@ export class CaliobaseUiConfigurationBuilder<TApi extends ICaliobaseApi> {
   public brandingComponent?: ICaliobaseBrandingComponent;
   public readonly menuItems: MenuItemDescriptionInput[] = [];
 
+  public readonly baseApiParams: ICaliobaseApiProps;
+  public readonly uiBasePath?: string;
+
   constructor(
     public readonly Api: Constructor<[ICaliobaseApiProps], TApi>,
-    public readonly baseApiParams: ICaliobaseApiProps
-  ) {}
+    options: ICaliobaseUiConfigurationOptions
+  ) {
+    const { uiBasePath, ...baseApiParams } = options;
+    this.baseApiParams = baseApiParams;
+    this.uiBasePath = normalizeUiBasePath(uiBasePath);
+  }
 
   useImageHandler<TImage>(handler: ICaliobaseImageHandler<TApi, TImage>) {
     this.imageHandler = handler;
@@ -108,4 +116,22 @@ export class CaliobaseUiConfigurationBuilder<TApi extends ICaliobaseApi> {
   build() {
     return new CaliobaseUiConfiguration(this);
   }
+}
+
+function normalizeUiBasePath(uiBasePath?: string) {
+  if (uiBasePath == null) {
+    return undefined;
+  }
+
+  const trimmed = uiBasePath.trim();
+  if (trimmed === '' || trimmed === '/') {
+    return undefined;
+  }
+
+  const withLeadingSlash = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+  const withoutTrailingSlashes = withLeadingSlash.replace(/\/+$/, '');
+
+  return withoutTrailingSlashes === '' || withoutTrailingSlashes === '/'
+    ? undefined
+    : withoutTrailingSlashes;
 }
