@@ -2,6 +2,7 @@ import { createRequire } from 'node:module';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { Command } from 'commander';
 import { parse as parseDotenv } from 'dotenv';
 
 type JsonValue = unknown;
@@ -35,15 +36,6 @@ type CliIO = {
 
 const DEFAULT_ENV_FILE = '.env';
 const DEFAULT_BASE_URL = 'http://localhost:4202';
-const VALUE_FLAGS = new Set([
-  'env',
-  'base-url',
-  'email',
-  'password',
-  'organization-id',
-  'token',
-]);
-const BOOLEAN_FLAGS = new Set(['save', 'no-auth']);
 
 export async function runCli(
   argv: string[],
@@ -96,56 +88,85 @@ export async function runCli(
 }
 
 export function parseArgs(argv: string[], env: NodeJS.ProcessEnv = process.env): ParsedArgs {
-  const flags = new Map<string, string | boolean>();
-  const command: string[] = [];
-  let contentClientPath: string | undefined;
-  let envFile = env['CALIOBASE_ENV_FILE'] || DEFAULT_ENV_FILE;
-  let baseUrl: string | undefined;
-  let save = false;
-  let noAuth = false;
+  const parser = createArgumentParser(env);
+  parser.parse(argv, { from: 'user' });
 
-  for (let i = 0; i < argv.length; i += 1) {
-    const arg = argv[i];
-
-    if (arg.startsWith('--')) {
-      const equalsIndex = arg.indexOf('=');
-      const key = arg.slice(2, equalsIndex > -1 ? equalsIndex : undefined);
-      let value: string | boolean = true;
-
-      if (equalsIndex > -1) {
-        value = arg.slice(equalsIndex + 1);
-      } else if (VALUE_FLAGS.has(key)) {
-        value = argv[i + 1] ?? '';
-        if (!value || value.startsWith('--')) {
-          throw new Error(`--${key} requires a value.`);
-        }
-        i += 1;
-      } else if (!BOOLEAN_FLAGS.has(key)) {
-        value = true;
-      }
-
-      flags.set(key, value);
-      if (key === 'env') envFile = String(value);
-      if (key === 'base-url') baseUrl = String(value);
-      if (key === 'save') save = true;
-      if (key === 'no-auth') noAuth = true;
-      continue;
-    }
-
-    if (!contentClientPath) {
-      contentClientPath = arg;
-      continue;
-    }
-
-    command.push(arg);
-  }
+  const opts = parser.opts<{
+    env?: string;
+    baseUrl?: string;
+    email?: string;
+    password?: string;
+    organizationId?: string;
+    token?: string;
+    save?: boolean;
+    auth?: boolean;
+    help?: boolean;
+  }>();
+  const rawArgs = parser.args;
+  const helpRequested = opts.help === true;
+  const [contentClientPath, ...remainingCommand] = rawArgs;
+  const flags = optionFlags(opts);
+  const envFile = opts.env ?? DEFAULT_ENV_FILE;
+  const baseUrl = opts.baseUrl;
+  const save = opts.save === true;
+  const noAuth = opts.auth === false;
 
   return {
     contentClientPath,
-    command,
+    command: helpRequested ? ['--help'] : remainingCommand,
     flags,
     options: { envFile, baseUrl, save, noAuth },
   };
+}
+
+function createArgumentParser(env: NodeJS.ProcessEnv) {
+  return new Command()
+    .name('@caliobase/cli')
+    .description('Call a generated Caliobase content client')
+    .exitOverride()
+    .configureOutput({
+      writeOut: () => undefined,
+      writeErr: () => undefined,
+      outputError: () => undefined,
+    })
+    .helpOption(false)
+    .allowUnknownOption(true)
+    .allowExcessArguments(true)
+    .argument('[contentClientPath]', 'path to a generated content client')
+    .argument('[command...]', 'auth helper, methods, or generated client method')
+    .option('--env <path>', 'env file path', env['CALIOBASE_ENV_FILE'] || DEFAULT_ENV_FILE)
+    .option('--base-url <url>', 'API origin')
+    .option('--email <email>', 'login email')
+    .option('--password <password>', 'login password')
+    .option('--organization-id <id>', 'organization id for login')
+    .option('--token <machine-token>', 'machine token to exchange')
+    .option('--save', 'save exchanged or login access token to the env file')
+    .option('--no-auth', 'do not attach CALIOBASE_ACCESS_TOKEN')
+    .option('-h, --help', 'display help');
+}
+
+function optionFlags(opts: {
+  env?: string;
+  baseUrl?: string;
+  email?: string;
+  password?: string;
+  organizationId?: string;
+  token?: string;
+  save?: boolean;
+  auth?: boolean;
+}) {
+  const flags = new Map<string, string | boolean>();
+
+  if (opts.env) flags.set('env', opts.env);
+  if (opts.baseUrl) flags.set('base-url', opts.baseUrl);
+  if (opts.email) flags.set('email', opts.email);
+  if (opts.password) flags.set('password', opts.password);
+  if (opts.organizationId) flags.set('organization-id', opts.organizationId);
+  if (opts.token) flags.set('token', opts.token);
+  if (opts.save) flags.set('save', true);
+  if (opts.auth === false) flags.set('no-auth', true);
+
+  return flags;
 }
 
 function loadEnvFile(envFile: string, io: CliIO): NodeJS.ProcessEnv {

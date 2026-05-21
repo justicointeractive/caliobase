@@ -81,6 +81,34 @@ describe('@caliobase/cli', () => {
     });
   });
 
+  it('lets commander parse top-level help without loading a content client', async () => {
+    const result = await run(['--help']);
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout[0]).toContain('Usage: @caliobase/cli');
+    expect(result.stdout[0]).toContain('--base-url <url>');
+  });
+
+  it('uses commander parsed env-file and no-auth options', async () => {
+    const cwd = makeWorkspace();
+    writeFileSync(
+      join(cwd, '.caliobase.env'),
+      'CALIOBASE_API_BASE_URL=https://env.example.test\nCALIOBASE_ACCESS_TOKEN=saved-token\n',
+    );
+
+    const result = await run(
+      ['./content-client', 'notes.createNote', '{"body":"hello"}', '--no-auth'],
+      cwd,
+      { CALIOBASE_ENV_FILE: '.caliobase.env' },
+    );
+
+    expect(result.exitCode).toBe(0);
+    expect(JSON.parse(result.stdout[0])).toEqual({
+      body: { body: 'hello' },
+      baseUrl: 'https://env.example.test',
+    });
+  });
+
   it('supports split namespace and method commands', async () => {
     const result = await run(['./content-client', 'notes', 'getNote', 'abc']);
 
