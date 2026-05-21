@@ -107,6 +107,10 @@ fetch wrappers. After changing Caliobase controllers/entities, regenerate and
 commit the generated client artifacts so downstream apps can consume the updated
 API shape directly.
 
+Use `@caliobase/cli <path-to-content-client> command [args...]` for scriptable
+access to a downstream app's generated content client. The CLI can list generated
+methods, call methods with JSON arguments, log in, and exchange machine tokens.
+
 ## ☁ Nx Cloud
 
 ### Distributed Computation Caching & Distributed Task Execution
