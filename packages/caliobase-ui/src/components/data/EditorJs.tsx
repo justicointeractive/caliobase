@@ -1,5 +1,5 @@
 import Attaches from '@editorjs/attaches';
-import EditorJS, { OutputData } from '@editorjs/editorjs';
+import EditorJS, { type EditorConfig, type OutputData } from '@editorjs/editorjs';
 import Header from '@editorjs/header';
 import Image from '@editorjs/image';
 import List from '@editorjs/list';
@@ -11,15 +11,106 @@ import { assert } from '../../lib/assert';
 import { LabeledInput } from '../LabeledInput';
 import { useFormContext } from './FormContext';
 
+export type EditorJsTools = NonNullable<EditorConfig['tools']>;
+
+type UploadedImage = {
+  objectStorageObject: { cdnUrl: string };
+  width: number;
+  height: number;
+};
+
+type UploadedFile = {
+  cdnUrl: string;
+  contentLength: number;
+  contentType: string;
+};
+
+export function createEditorJsTools({
+  tools,
+  uploadImageFile,
+  uploadFile,
+}: {
+  tools?: EditorJsTools;
+  uploadImageFile: (file: File) => Promise<UploadedImage>;
+  uploadFile: (file: File) => Promise<UploadedFile>;
+}): EditorJsTools {
+  return {
+    header: Header,
+    list: List,
+    image: {
+      class: Image,
+      config: {
+        uploader: {
+          async uploadByFile(file: File): Promise<{
+            success: true;
+            file: { url: string; width: number; height: number };
+          }> {
+            const image = await uploadImageFile(file);
+            return {
+              success: true,
+              file: {
+                url: image.objectStorageObject.cdnUrl,
+                width: image.width,
+                height: image.height,
+              },
+            };
+          },
+          async uploadByUrl() {
+            throw new Error('not implemented');
+          },
+        },
+      },
+    },
+    attaches: {
+      class: Attaches,
+      config: {
+        uploader: {
+          async uploadByFile(file: File): Promise<{
+            success: boolean;
+            file: {
+              url: string;
+              name: string;
+              size: number;
+              contentType: string;
+            };
+          }> {
+            const object = await uploadFile(file);
+            return {
+              success: true,
+              file: {
+                url: object.cdnUrl,
+                size: object.contentLength,
+                name: file.name,
+                contentType: object.contentType,
+              },
+            };
+          },
+        },
+      },
+    },
+    ...tools,
+  };
+}
+
 function EditorJs({
   defaultValue,
   field,
+  tools,
+  defaultBlock,
+  inlineToolbar,
+  tunes,
+  i18n,
   ...props
 }: {
   field: ContentField;
   label: string;
   placeholder?: string;
   defaultValue?: OutputData | null;
+  tools?: EditorJsTools;
+  defaultBlock?: EditorConfig['defaultBlock'];
+  inlineToolbar?: EditorConfig['inlineToolbar'];
+  tunes?: EditorConfig['tunes'];
+  i18n?: EditorConfig['i18n'];
 }) {
   defaultValue ??= { blocks: [] };
 
@@ -43,72 +134,29 @@ function EditorJs({
       holder.appendChild(el);
       const editor = new EditorJS({
         data: initialValueRef.current,
+        defaultBlock,
         holder: el,
-        tools: {
-          header: Header,
-          list: List,
-          image: {
-            class: Image,
-            config: {
-              uploader: {
-                async uploadByFile(file: File): Promise<{
-                  success: true;
-                  file: { url: string; width: number; height: number };
-                }> {
-                  const { uploadImageFile } =
-                    caliobaseUiConfigurationRef.current.createImageHandler(
-                      userOrgApiRef.current
-                    );
-                  const image = await uploadImageFile(file);
-                  return {
-                    success: true,
-                    file: {
-                      url: image.objectStorageObject.cdnUrl,
-                      width: image.width,
-                      height: image.height,
-                    },
-                  };
-                },
-                async uploadByUrl() {
-                  throw new Error('not implemented');
-                },
-              },
-            },
+        i18n,
+        inlineToolbar,
+        tools: createEditorJsTools({
+          tools,
+          uploadImageFile: async (file) => {
+            const { uploadImageFile } =
+              caliobaseUiConfigurationRef.current.createImageHandler(
+                userOrgApiRef.current
+              );
+            return uploadImageFile(file);
           },
-          attaches: {
-            class: Attaches,
-            config: {
-              uploader: {
-                async uploadByFile(file: File): Promise<{
-                  success: boolean;
-                  file: {
-                    url: string;
-                    name: string;
-                    size: number;
-                    contentType: string;
-                  };
-                }> {
-                  const userOrgApi = userOrgApiRef.current;
-                  assert(userOrgApi);
-                  const object =
-                    await caliobaseUiConfigurationRef.current.uploadFile(
-                      userOrgApi,
-                      file
-                    );
-                  return {
-                    success: true,
-                    file: {
-                      url: object.cdnUrl,
-                      size: object.contentLength,
-                      name: file.name,
-                      contentType: object.contentType,
-                    },
-                  };
-                },
-              },
-            },
+          uploadFile: async (file) => {
+            const userOrgApi = userOrgApiRef.current;
+            assert(userOrgApi);
+            return caliobaseUiConfigurationRef.current.uploadFile(
+              userOrgApi,
+              file
+            );
           },
-        },
+        }),
+        tunes,
         onChange: () => {
           setHasBlocks(editor.blocks.getBlocksCount() > 0);
         },
@@ -133,7 +181,18 @@ function EditorJs({
       };
     }
     return;
-  }, [caliobaseUiConfigurationRef, field, formContext, holder, userOrgApiRef]);
+  }, [
+    caliobaseUiConfigurationRef,
+    defaultBlock,
+    field,
+    formContext,
+    holder,
+    i18n,
+    inlineToolbar,
+    tools,
+    tunes,
+    userOrgApiRef,
+  ]);
 
   return (
     <LabeledInput
