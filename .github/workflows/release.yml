@@ -254,13 +254,6 @@ jobs:
         if: env.RELEASE_DRY_RUN != 'true' && steps.version.outputs.created == 'true'
         run: npm run release -- tag
 
-      - name: Push release version commit
-        if: env.RELEASE_DRY_RUN != 'true' && steps.version.outputs.created == 'true'
-        run: |
-          # Push the generated version-bump commit only after publish + tags succeed.
-          # The workflow skips chore(release) push events above, so this should not loop.
-          git push origin "HEAD:${GITHUB_REF_NAME}"
-
       - name: Cleanup test infrastructure
         if: always()
         run: |
