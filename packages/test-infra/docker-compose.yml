@@ -63,7 +63,8 @@ services:
       localstack:
         condition: service_healthy
   minio:
-    image: minio/minio
+    image: caliobase-test-minio:local
+    build: ./minio
     command: server --console-address ":9001" /data
     ports:
       - "9000:9000"
@@ -80,7 +81,8 @@ services:
     volumes:
       - minio:/data
   init-minio:
-    image: minio/mc
+    image: caliobase-test-minio:local
+    build: ./minio
     entrypoint: /bin/sh
     command: -c "mc alias set local http://minio:9000 testtest testtest && mc mb local/caliobase"
     depends_on:

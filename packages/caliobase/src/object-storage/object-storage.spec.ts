@@ -13,11 +13,19 @@ import {
 describe('object storage', () => {
   it('should initialize caliobase module with an object storage provider', async () => {
     const module = await createTestingModule({ objectStorage: false });
-    expect(module).toBeTruthy();
+    try {
+      expect(module).toBeTruthy();
+    } finally {
+      await module.close();
+    }
   });
   it('should initialize caliobase module without an object storage provider', async () => {
     const module = await createTestingModule({ objectStorage: true });
-    expect(module).toBeTruthy();
+    try {
+      expect(module).toBeTruthy();
+    } finally {
+      await module.close();
+    }
   });
 
   const { module, organization, owner } = useTestingModule(async () => {
