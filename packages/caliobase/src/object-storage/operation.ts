@@ -41,8 +41,11 @@ export async function withRequest<T>(
   validateOperationOptions(options);
   const controller = new AbortController();
   const abort = () => controller.abort(options.signal?.reason);
-  if (options.signal?.aborted) abort();
-  else options.signal?.addEventListener('abort', abort, { once: true });
+  if (options.signal?.aborted) {
+    abort();
+  } else {
+    options.signal?.addEventListener('abort', abort, { once: true });
+  }
   const timer =
     options.requestTimeoutMs === undefined
       ? undefined
@@ -59,7 +62,9 @@ export async function withRequest<T>(
   try {
     controller.signal.throwIfAborted();
     const result = await operation(controller.signal);
-    if (checkAfter) controller.signal.throwIfAborted();
+    if (checkAfter) {
+      controller.signal.throwIfAborted();
+    }
     return result;
   } catch (error) {
     controller.abort(error);

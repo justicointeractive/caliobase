@@ -162,8 +162,9 @@ describe('cancellable object-storage import', () => {
       return waitForAbort(signal);
     });
     send.mockImplementation(async (command, { abortSignal }) => {
-      if (command instanceof CreateMultipartUploadCommand)
+      if (command instanceof CreateMultipartUploadCommand) {
         return { UploadId: 'upload-id' };
+      }
       if (command instanceof AbortMultipartUploadCommand) {
         cleanupSignal = abortSignal;
         return cleanup.promise;
@@ -225,8 +226,9 @@ describe('cancellable object-storage import', () => {
     const cleanup = pending<any>();
     let completionSignal: AbortSignal;
     send.mockImplementation(async (command, { abortSignal }) => {
-      if (command instanceof CreateMultipartUploadCommand)
+      if (command instanceof CreateMultipartUploadCommand) {
         return { UploadId: 'upload-id' };
+      }
       if (command instanceof CompleteMultipartUploadCommand) {
         completionSignal = abortSignal;
         return waitForAbort(abortSignal);
@@ -279,8 +281,9 @@ describe('cancellable object-storage import', () => {
   it('bounds cleanup independently and reports cleanup failure with recovery metadata', async () => {
     fetchMock.mockRejectedValueOnce(new Error('part failed'));
     send.mockImplementation(async (command, { abortSignal }) => {
-      if (command instanceof CreateMultipartUploadCommand)
+      if (command instanceof CreateMultipartUploadCommand) {
         return { UploadId: 'upload-id' };
+      }
       return waitForAbort(abortSignal);
     });
     const result = storage.uploadFileFromUrl({
@@ -299,8 +302,9 @@ describe('cancellable object-storage import', () => {
   it('retains a known committed object when cancellation arrives with completion success', async () => {
     const job = new AbortController();
     send.mockImplementation(async (command) => {
-      if (command instanceof CreateMultipartUploadCommand)
+      if (command instanceof CreateMultipartUploadCommand) {
         return { UploadId: 'upload-id' };
+      }
       if (command instanceof CompleteMultipartUploadCommand) {
         job.abort('cancel after commit');
         return {};

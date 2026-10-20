@@ -188,8 +188,9 @@ export class S3ObjectStorageProvider extends AbstractObjectStorageProvider {
       );
     } catch (error) {
       // Completion may have succeeded remotely. Never blindly delete the object.
-      if (!(error instanceof Error) || error.name !== 'NoSuchUpload')
+      if (!(error instanceof Error) || error.name !== 'NoSuchUpload') {
         throw error;
+      }
     }
   }
 

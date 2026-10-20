@@ -152,20 +152,24 @@ export class ObjectStorageService {
   ): Promise<File> {
     validateOperationOptions(options);
     options.signal?.throwIfAborted();
-    if (sourceUrlOrBuffer instanceof File) return sourceUrlOrBuffer;
+    if (sourceUrlOrBuffer instanceof File) {
+      return sourceUrlOrBuffer;
+    }
     return withRequest(options, async (signal) => {
       const response = await fetch(sourceUrlOrBuffer, { signal });
       try {
-        if (!response.ok)
+        if (!response.ok) {
           throw new Error(
             `Failed to fetch ${sourceUrlOrBuffer}: ${response.status} ${response.statusText}`
           );
+        }
         const contentType = response.headers.get('content-type') ?? '';
         const buffer = await response.arrayBuffer();
         return new File([buffer], '', { type: contentType });
       } finally {
-        if (response.body && !response.body.locked)
+        if (response.body && !response.body.locked) {
           await response.body.cancel();
+        }
       }
     });
   }
@@ -190,17 +194,19 @@ export class ObjectStorageService {
             signal,
           });
           try {
-            if (!response.ok)
+            if (!response.ok) {
               throw new Error(
                 `Failed to upload part ${part.part}: ${response.status} ${response.statusText}`
               );
+            }
             uploadedParts.push({
               part: part.part,
               etag: response.headers.get('etag') ?? '',
             });
           } finally {
-            if (response.body && !response.body.locked)
+            if (response.body && !response.body.locked) {
               await response.body.cancel();
+            }
           }
         });
       }
