@@ -254,11 +254,31 @@ jobs:
         if: env.RELEASE_DRY_RUN != 'true' && steps.version.outputs.created == 'true'
         run: npm run release -- tag
 
+      - name: Create release bypass token
+        id: release-bypass-token
+        if: env.RELEASE_DRY_RUN != 'true' && steps.version.outputs.created == 'true'
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.RELEASE_BYPASS_APP_ID }}
+          private-key: ${{ secrets.RELEASE_BYPASS_APP_PRIVATE_KEY }}
+
       - name: Push release version commit
         if: env.RELEASE_DRY_RUN != 'true' && steps.version.outputs.created == 'true'
+        env:
+          RELEASE_BYPASS_TOKEN: ${{ steps.release-bypass-token.outputs.token }}
         run: |
-          # Push the generated version-bump commit only after publish + tags succeed.
-          # The workflow skips chore(release) push events above, so this should not loop.
+          set -euo pipefail
+
+          if [[ -z "$RELEASE_BYPASS_TOKEN" ]]; then
+            echo 'RELEASE_BYPASS_APP_ID / RELEASE_BYPASS_APP_PRIVATE_KEY must be configured for release version pushes.' >&2
+            exit 1
+          fi
+
+          # This direct push intentionally uses a dedicated GitHub App token whose
+          # app is the only actor that should bypass the main-branch pull-request
+          # rule. The workflow has already published packages and pushed tags at
+          # this point, so main should record the exact version state released.
+          git remote set-url origin "https://x-access-token:${RELEASE_BYPASS_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           git push origin "HEAD:${GITHUB_REF_NAME}"
 
       - name: Cleanup test infrastructure
