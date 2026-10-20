@@ -1,7 +1,17 @@
 #!/usr/bin/env tsx
 import { spawnSync } from 'node:child_process';
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import {
+  existsSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { join } from 'node:path';
+import {
+  amendReleaseMetadata,
+  restoreReleasedManifests,
+} from './release-state';
 
 const VALID_SPECIFIERS = new Set([
   'patch',
@@ -116,7 +126,9 @@ function run(command: string, args: string[] = []): void {
   }
 
   if (result.status !== 0) {
-    process.exit(result.status ?? 1);
+    throw new Error(
+      `${command} ${args.join(' ')} exited with status ${result.status ?? 1}`,
+    );
   }
 }
 
@@ -201,7 +213,13 @@ function latestReleaseTag(project: string): string | null {
   const tagPattern = new RegExp(
     `^${escapeRegExp(project)}-${VERSION_PATTERN_SOURCE}$`,
   );
-  const tags = output('git', ['tag', '--sort', '-v:refname'])
+  const tags = output('git', [
+    '-c',
+    'versionsort.suffix=-',
+    'tag',
+    '--sort',
+    '-v:refname',
+  ])
     .split('\n')
     .map((tag) => tag.trim())
     .filter(Boolean);
@@ -223,35 +241,9 @@ function readJsonAtRef(
 
 function withoutReleaseOnlyVersions(
   value: Record<string, unknown>,
-  workspacePackageNames: Set<string>,
 ): Record<string, unknown> {
   const copy = { ...value };
   delete copy.version;
-
-  for (const section of [
-    'dependencies',
-    'devDependencies',
-    'peerDependencies',
-    'optionalDependencies',
-  ]) {
-    const dependencies = copy[section];
-    if (
-      !dependencies ||
-      typeof dependencies !== 'object' ||
-      Array.isArray(dependencies)
-    ) {
-      continue;
-    }
-
-    copy[section] = Object.fromEntries(
-      Object.entries(dependencies).map(([name, version]) => [
-        name,
-        workspacePackageNames.has(name)
-          ? '<workspace-release-version>'
-          : version,
-      ]),
-    );
-  }
 
   return copy;
 }
@@ -259,7 +251,6 @@ function withoutReleaseOnlyVersions(
 function packageManifestChangedBeyondReleaseVersions(
   tag: string,
   packageJsonPath: string,
-  workspacePackageNames: Set<string>,
 ): boolean {
   if (!existsSync(packageJsonPath)) {
     return false;
@@ -275,18 +266,12 @@ function packageManifestChangedBeyondReleaseVersions(
     unknown
   >;
   return (
-    JSON.stringify(
-      withoutReleaseOnlyVersions(previous, workspacePackageNames),
-    ) !==
-    JSON.stringify(withoutReleaseOnlyVersions(current, workspacePackageNames))
+    JSON.stringify(withoutReleaseOnlyVersions(previous)) !==
+    JSON.stringify(withoutReleaseOnlyVersions(current))
   );
 }
 
-function projectChangedSinceTag(
-  tag: string,
-  root: string,
-  workspacePackageNames: Set<string>,
-): boolean {
+function projectChangedSinceTag(tag: string, root: string): boolean {
   const packageJsonPath = join(root, 'package.json');
   const nonManifestDiff = commandResult('git', [
     'diff',
@@ -300,20 +285,13 @@ function projectChangedSinceTag(
 
   return (
     nonManifestDiff.status !== 0 ||
-    packageManifestChangedBeyondReleaseVersions(
-      tag,
-      packageJsonPath,
-      workspacePackageNames,
-    )
+    packageManifestChangedBeyondReleaseVersions(tag, packageJsonPath)
   );
 }
 
 function changedReleaseProjects(): string[] {
   const changedProjects: string[] = [];
   const specs = releaseProjectSpecs();
-  const workspacePackageNames = new Set(
-    specs.map(({ packageName }) => packageName),
-  );
 
   for (const { project, root } of specs) {
     const tag = latestReleaseTag(project);
@@ -323,7 +301,7 @@ function changedReleaseProjects(): string[] {
       continue;
     }
 
-    if (projectChangedSinceTag(tag, root, workspacePackageNames)) {
+    if (projectChangedSinceTag(tag, root)) {
       console.error(
         `Including ${project} because ${root} changed since ${tag}`,
       );
@@ -358,25 +336,13 @@ function nxPublishArgs(options: ReleaseOptions): string[] {
   return args;
 }
 
-function syncPackageLockIntoReleaseCommit(): void {
-  if (!existsSync('package-lock.json')) {
-    return;
+function syncPackageLockIntoReleaseCommit(restored: string[]): void {
+  const paths = [...restored];
+  if (existsSync('package-lock.json')) {
+    run('npm', ['install', '--package-lock-only', '--ignore-scripts']);
+    paths.push('package-lock.json');
   }
-
-  run('npm', ['install', '--package-lock-only', '--ignore-scripts']);
-
-  const lockDiff = commandResult('git', [
-    'diff',
-    '--quiet',
-    '--',
-    'package-lock.json',
-  ]);
-  if (lockDiff.status === 0) {
-    return;
-  }
-
-  run('git', ['add', 'package-lock.json']);
-  run('git', ['commit', '--amend', '--no-edit']);
+  amendReleaseMetadata(paths);
 }
 
 function validatePackageLock(): void {
@@ -388,9 +354,42 @@ function validatePackageLock(): void {
 }
 
 function prepareRelease(options: ReleaseOptions): void {
+  if (!options.dryRun) {
+    prepareReleaseInCheckout(options);
+    return;
+  }
+
+  const paths = [
+    ...releaseProjectSpecs().map(({ root }) => join(root, 'package.json')),
+    'package-lock.json',
+  ];
+  const originals = paths.map((path) => ({
+    path,
+    content: existsSync(path) ? readFileSync(path) : null,
+  }));
+  try {
+    prepareReleaseInCheckout(options);
+  } finally {
+    for (const { path, content } of originals) {
+      if (content) {
+        writeFileSync(path, content);
+      } else {
+        rmSync(path, { force: true });
+      }
+    }
+  }
+}
+
+function prepareReleaseInCheckout(options: ReleaseOptions): void {
   const beforeHead = output('git', ['rev-parse', 'HEAD']);
 
   run('git', ['fetch', '--all', '--tags']);
+  const restored = restoreReleasedManifests(releaseProjectSpecs());
+  if (restored.length && existsSync('package-lock.json')) {
+    run('npm', ['install', '--package-lock-only', '--ignore-scripts']);
+    // The graph used by tests/builds must match the restored lock, not the stale checkout.
+    run('npm', ['ci']);
+  }
   run('npm', ['run', 'test']);
   run('npm', ['run', 'build']);
 
@@ -418,15 +417,15 @@ function prepareRelease(options: ReleaseOptions): void {
     return;
   }
 
-  syncPackageLockIntoReleaseCommit();
-  validatePackageLock();
-
-  const afterHead = output('git', ['rev-parse', 'HEAD']);
-  if (afterHead === beforeHead) {
+  if (output('git', ['rev-parse', 'HEAD']) === beforeHead) {
     throw new Error(
       'Error: release versioning did not create a release commit.',
     );
   }
+
+  syncPackageLockIntoReleaseCommit(restored);
+  validatePackageLock();
+  const afterHead = output('git', ['rev-parse', 'HEAD']);
 
   const changedManifests = output('git', [
     'diff',

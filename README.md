@@ -128,11 +128,22 @@ Visit [Nx Cloud](https://nx.app/) to learn more.
 Caliobase packages are released automatically from `main` by GitHub Actions instead of using a separate release PR.
 
 1. Merge changes to `main`.
-2. **Release** runs automatically, tests/builds the repo, versions changed packages in the workflow checkout, then publishes any workspace package versions that do not already exist on npm. If no publishable package changed since its latest release tag, the workflow exits successfully without publishing.
+2. **Release** runs automatically, restores the previous released versions and internal dependency pins into its checkout, tests/builds the repo, versions changed packages, then publishes any workspace package versions that do not already exist on npm. If no publishable package changed since its latest release tag, the workflow exits successfully without publishing.
 3. After publishing succeeds, the same workflow pushes any missing release tags. Release tags are the source of truth for the next automatic version calculation.
 
 Manual **Release** dispatch remains available as an emergency fallback or dry-run smoke test.
 
 Publishing uses npm trusted publishing via GitHub Actions OIDC, so each published package must trust this repository/workflow in npm and no `NPM_TOKEN` secret is required. The release job can publish via OIDC and push release tags, but it does not push version-bump commits directly to `main`.
+
+Source manifests in `main` may therefore contain older versions. Before testing,
+building, or calculating a new release, preparation reconstructs each package's
+own version and its internal dependency pins from that package's latest release
+tag, then refreshes the lockfile. This preserves previously published pins even
+when only a dependent package changes in the next release. Intentional source
+dependency edits are preserved by comparing against the generated release
+commit's source parent; missing provenance needed for reconciliation fails
+closed. Unchanged packages are not republished merely to synchronize metadata.
+`npm run test:release` verifies sequential releases using the installed Nx
+implementation and release-only tags outside main's ancestry.
 
 Local release preparation remains available with `npm run release -- prepare patch`; local publishing can be tested with `npm run release -- publish --dry-run`; local tag backfill can be tested with `npm run release -- tag`.

@@ -7,6 +7,7 @@
     "prepare": "husky install",
     "lint": "nx run-many --all --target=lint --parallel=1 --output-style=stream",
     "test": "nx run-many --all --target=test --parallel=1 --output-style=stream",
+    "test:release": "tsx --test tools/scripts/release-state.test.ts",
     "build": "nx run-many --all --target=build --parallel=1 --output-style=stream",
     "version": "nx run-many --all --target=version --parallel=1 --output-style=stream",
     "release": "tsx tools/scripts/release.ts",

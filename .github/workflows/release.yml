@@ -100,6 +100,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Verify sequential release state
+        run: npm run test:release
+
       - name: Start test infrastructure
         run: |
           cd packages/test-infra
@@ -170,7 +173,7 @@ jobs:
                 echo "$version"
                 return 0
               fi
-            done < <(git tag --list "${project_name}-*" --sort=-v:refname)
+            done < <(git -c versionsort.suffix=- tag --list "${project_name}-*" --sort=-v:refname)
 
             return 1
           }
