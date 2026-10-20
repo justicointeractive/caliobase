@@ -58,21 +58,40 @@ export type ObjectStorageProviderOptions = {
   cdnUrlPrefix: string;
 };
 
+/** Optional cancellation and per-request deadline. Existing callers need no options. */
+export type ObjectStorageOperationOptions = {
+  signal?: AbortSignal;
+  /** Positive integer milliseconds. Covers response-body consumption as well. */
+  requestTimeoutMs?: number;
+};
+
 export abstract class AbstractObjectStorageProvider {
   constructor(
     public readonly options: Readonly<ObjectStorageProviderOptions>
   ) {}
 
-  abstract createUpload(object: ObjectStorageObject): Promise<Upload>;
+  abstract createUpload(
+    object: ObjectStorageObject,
+    options?: ObjectStorageOperationOptions
+  ): Promise<Upload>;
 
   abstract refreshSignedUrls(
     object: ObjectStorageObject,
-    request: RefreshSignedUrlsRequest
+    request: RefreshSignedUrlsRequest,
+    options?: ObjectStorageOperationOptions
   ): Promise<SignedUploadUrl[]>;
 
   abstract completeUpload(
     object: ObjectStorageObject,
-    completion: CompleteUploadRequest
+    completion: CompleteUploadRequest,
+    options?: ObjectStorageOperationOptions
+  ): Promise<void>;
+
+  /** Optional for compatibility with custom providers that do not use multipart uploads. */
+  abortUpload?(
+    object: ObjectStorageObject,
+    uploadId: string,
+    options?: ObjectStorageOperationOptions
   ): Promise<void>;
 
   abstract deleteFile(file: string): Promise<DeleteResult>;

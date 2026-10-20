@@ -90,3 +90,43 @@ Downstream apps should prefer generated OpenAPI clients for Caliobase calls. If
 controller or entity changes affect the API shape, regenerate the client and
 commit the generated artifacts rather than maintaining hand-written fetch
 wrappers.
+
+## Cancellable server-side object storage
+
+`ObjectStorageOperationOptions` adds optional `signal` and `requestTimeoutMs`
+(positive integer milliseconds) to storage creation, completion, source downloads,
+and signed-URL refresh. `uploadFileFromUrl` accepts these fields on its request:
+
+```ts
+const job = new AbortController();
+const deadline = setTimeout(() => job.abort(), 5 * 60_000);
+try {
+  await storage.uploadFileFromUrl({
+    source: new URL('https://example.com/audio.mp3'),
+    fileName: 'audio.mp3',
+    organization: { id: organizationId },
+    signal: job.signal,
+    requestTimeoutMs: 30_000,
+  });
+} finally {
+  clearTimeout(deadline);
+}
+```
+
+Existing callers and custom providers remain source-compatible. Custom providers
+must implement signal handling themselves; `abortUpload` is optional for providers
+without multipart uploads. The S3 provider passes cancellation to SDK requests.
+HTTP deadlines cover source bodies and part uploads, and failures cancel unused
+response bodies. There is no detached-work timeout race: database operations,
+local signing, and credential providers without cancellation are awaited and
+checked before subsequent work, so a deadline can be exceeded while they settle.
+
+On an incomplete multipart failure, cleanup is awaited with an independent
+non-aborted deadline (`requestTimeoutMs`, or 30 seconds when omitted). Errors carry
+`objectStorage` recovery identifiers and an optional `cleanupError`; cleanup does
+not replace the initiating failure. Pending records are retained for recovery.
+Known committed completions are never rolled back: cancellation or a database
+failure after S3 completion sets `objectStorage.committed`. Interrupted remote
+requests can have ambiguous outcomes, so callers must reconcile identifiers
+rather than blindly deleting objects. This API does not implement automatic
+reconciliation or exactly-once uploads.
