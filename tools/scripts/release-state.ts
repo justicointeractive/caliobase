@@ -1,163 +1,189 @@
-import { execFileSync, spawnSync } from 'node:child_process';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { gt, satisfies, valid } from 'semver';
 
-type Manifest = Record<string, unknown>;
-const dependencySections = [
+export const dependencySections = [
   'dependencies',
   'devDependencies',
   'peerDependencies',
   'optionalDependencies',
 ] as const;
-
-function dependencies(manifest: Manifest | null, section: string): Manifest {
-  const value = manifest?.[section];
-  return value && typeof value === 'object' && !Array.isArray(value)
-    ? (value as Manifest)
-    : {};
+export interface Manifest {
+  name: string;
+  version: string;
+  private?: boolean;
+  dependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
+  peerDependencies?: Record<string, string>;
+  optionalDependencies?: Record<string, string>;
 }
-
-/** Restore release-owned metadata without reverting subsequent source edits. */
-export function reconcileReleasedManifest(
-  current: Manifest,
-  released: Manifest,
-  source: Manifest | null,
-  workspaceNames: Set<string>,
-): Manifest {
-  if (current.name !== released.name) {
-    throw new Error(`Release manifest identity changed for ${current.name}`);
-  }
-
-  const result = { ...current, version: released.version };
-  for (const section of dependencySections) {
-    const present = dependencies(current, section);
-    const previous = dependencies(released, section);
-    const base = dependencies(source, section);
-    const next = { ...present };
-
-    for (const name of new Set([
-      ...Object.keys(present),
-      ...Object.keys(previous),
-    ])) {
-      if (!workspaceNames.has(name) || present[name] === previous[name]) {
-        continue;
+export interface ReleaseProject {
+  project: string;
+  root: string;
+  manifest: Manifest;
+}
+export function git(args: string[], cwd = process.cwd()): string {
+  return execFileSync('git', args, {
+    cwd,
+    encoding: 'utf8',
+    stdio: 'pipe',
+    maxBuffer: 32 * 1024 * 1024,
+  }).trim();
+}
+export function json(path: string, cwd = process.cwd()) {
+  return JSON.parse(readFileSync(join(cwd, path), 'utf8'));
+}
+export function projects(cwd = process.cwd()): ReleaseProject[] {
+  return readdirSync(join(cwd, 'packages'), { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .flatMap(({ name }) => {
+      const root = `packages/${name}`;
+      if (!existsSync(join(cwd, root, 'package.json'))) {
+        return [];
       }
-      if (!source) {
+      const manifest: Manifest = json(`${root}/package.json`, cwd);
+      if (manifest.private) {
+        return [];
+      }
+      const config = json(`${root}/project.json`, cwd);
+      if (!manifest.name || !valid(manifest.version)) {
+        throw new Error(`Invalid package identity/version: ${root}`);
+      }
+      return [{ project: config.name || name, root, manifest }];
+    });
+}
+function sorted(value: Record<string, string> = {}): string {
+  return JSON.stringify(
+    Object.entries(value).sort(([a], [b]) => a.localeCompare(b))
+  );
+}
+export function checkManifests(specs: ReleaseProject[], lock: any): void {
+  const names = new Map(
+    specs.map(({ manifest }) => [manifest.name, manifest.version])
+  );
+  for (const { root, manifest } of specs) {
+    const locked = lock.packages?.[root];
+    if (!locked || locked.version !== manifest.version) {
+      throw new Error(
+        `${root}: package-lock.json version does not match package.json`
+      );
+    }
+    for (const section of dependencySections) {
+      if (sorted(manifest[section]) !== sorted(locked[section])) {
         throw new Error(
-          `Cannot reconcile ${current.name} ${section}.${name}: release source manifest is unavailable`,
+          `${root}: package-lock.json ${section} do not match package.json`
         );
       }
-      // A different source value is an intentional edit, not stale release state.
-      if (present[name] !== base[name]) {
-        continue;
+      for (const [name, range] of Object.entries(manifest[section] || {})) {
+        const version = names.get(name);
+        if (version && !satisfies(version, range)) {
+          throw new Error(
+            `${root}: ${section}.${name}=${range} does not include workspace version ${version}; update the dependency and bump this consumer`
+          );
+        }
       }
-      if (previous[name] === undefined) {
-        delete next[name];
-      } else {
-        next[name] = previous[name];
-      }
-    }
-
-    if (Object.keys(next).length || current[section] !== undefined) {
-      result[section] = next;
     }
   }
-  return result;
 }
-
-interface ReleaseProject {
-  project: string;
-  packageName: string;
-  root: string;
-}
-
-export function restoreReleasedManifests(
-  projects: ReleaseProject[],
-  cwd = process.cwd(),
-): string[] {
-  const git = (...args: string[]) =>
-    execFileSync('git', args, {
-      cwd,
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'pipe'],
-    }).trim();
-  const names = new Set(projects.map(({ packageName }) => packageName));
-  // Match Nx's stable-versus-prerelease ordering.
-  const tags = git(
-    '-c',
-    'versionsort.suffix=-',
-    'tag',
-    '--sort=-v:refname',
+/** Main's reviewed manifests, never release tags, are the comparison authority. */
+export function checkVersions(
+  base: string,
+  cwd = process.cwd()
+): ReleaseProject[] {
+  // Resolve before interpolating the revision in git show/diff arguments.
+  const ref = git(['rev-parse', '--verify', `${base}^{commit}`], cwd);
+  const specs = projects(cwd);
+  checkManifests(specs, json('package-lock.json', cwd));
+  const changedFiles = git(
+    ['diff', '--name-only', '--no-renames', ref, '--'],
+    cwd
   ).split('\n');
-  const pending: Array<{ path: string; manifest: Manifest }> = [];
-
-  for (const project of projects) {
-    const prefix = `${project.project}-`;
-    const tag = tags.find(
-      (candidate) =>
-        candidate.startsWith(prefix) &&
-        /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(
-          candidate.slice(prefix.length),
-        ),
+  const priorRoot = JSON.parse(git(['show', `${ref}:package.json`], cwd));
+  const currentRoot = json('package.json', cwd);
+  const previousNx = JSON.parse(git(['show', `${ref}:nx.json`], cwd));
+  const currentNx = json('nx.json', cwd);
+  delete previousNx.release;
+  delete currentNx.release;
+  const previousLock = JSON.parse(
+    git(['show', `${ref}:package-lock.json`], cwd)
+  );
+  const currentLock = json('package-lock.json', cwd);
+  const externalLock = (lock: any) =>
+    JSON.stringify(
+      Object.entries(lock.packages || {})
+        .filter(
+          ([path, entry]: [string, any]) =>
+            path.startsWith('node_modules/') && !entry.link
+        )
+        .sort(([a], [b]) => a.localeCompare(b))
     );
-    if (!tag) {
-      continue; // First release: the manifest is the initial version authority.
+  const sharedChanged =
+    JSON.stringify(previousNx) !== JSON.stringify(currentNx) ||
+    externalLock(previousLock) !== externalLock(currentLock) ||
+    ['dependencies', 'devDependencies'].some(
+      (section) => sorted(priorRoot[section]) !== sorted(currentRoot[section])
+    ) ||
+    changedFiles.some((path) =>
+      /^(tsconfig[^/]*\.json|babel\.config\.json)$/.test(path)
+    );
+  const released: ReleaseProject[] = [];
+  for (const spec of specs) {
+    const path = `${spec.root}/package.json`;
+    const present = git(['ls-tree', '--name-only', ref, '--', path], cwd);
+    if (!present) {
+      released.push(spec);
+      continue;
     }
-    const path = join(project.root, 'package.json');
-    const current = JSON.parse(
-      readFileSync(join(cwd, path), 'utf8'),
-    ) as Manifest;
-    const released = JSON.parse(git('show', `${tag}:${path}`)) as Manifest;
-    if (released.version !== tag.slice(prefix.length)) {
-      throw new Error(`Release tag ${tag} disagrees with ${path}`);
+    const previous: Manifest = JSON.parse(git(['show', `${ref}:${path}`], cwd));
+    if (previous.name !== spec.manifest.name || !valid(previous.version)) {
+      throw new Error(
+        `${path}: package identity changed or base version invalid`
+      );
     }
-
-    let source: Manifest | null = null;
-    // Only generated release commits have a known source/base parent.
-    if (git('log', '-1', '--format=%s', tag).startsWith('chore(release):')) {
-      try {
-        source = JSON.parse(git('show', `${tag}^:${path}`)) as Manifest;
-      } catch {
-        // Reconciliation below fails closed if this missing base is needed.
+    const changed =
+      sharedChanged ||
+      changedFiles.some((file) => file.startsWith(`${spec.root}/`));
+    if (
+      spec.manifest.version !== previous.version &&
+      !gt(spec.manifest.version, previous.version)
+    ) {
+      throw new Error(
+        `${path}: version must increase from ${previous.version}, not ${spec.manifest.version}`
+      );
+    }
+    if (changed && !gt(spec.manifest.version, previous.version)) {
+      throw new Error(
+        `${path}: changed package needs a version bump above ${previous.version}`
+      );
+    }
+    if (spec.manifest.version !== previous.version) {
+      released.push(spec);
+    }
+  }
+  return released;
+}
+/** Build tools may add fields, but may not silently choose versions or internal pins. */
+export function checkBuiltManifests(
+  specs: ReleaseProject[],
+  cwd = process.cwd()
+): void {
+  const names = new Set(specs.map(({ manifest }) => manifest.name));
+  for (const { root, manifest } of specs) {
+    const built: Manifest = json(`dist/${root}/package.json`, cwd);
+    if (built.name !== manifest.name || built.version !== manifest.version) {
+      throw new Error(
+        `${root}: build changed the reviewed package name/version`
+      );
+    }
+    for (const section of dependencySections) {
+      for (const name of names) {
+        if (built[section]?.[name] !== manifest[section]?.[name]) {
+          throw new Error(
+            `${root}: build changed ${section}.${name}; declare the dependency in source`
+          );
+        }
       }
     }
-    const restored = reconcileReleasedManifest(
-      current,
-      released,
-      source,
-      names,
-    );
-    if (JSON.stringify(restored) !== JSON.stringify(current)) {
-      pending.push({ path, manifest: restored });
-    }
   }
-
-  // Validate every package before mutating any manifest.
-  for (const { path, manifest } of pending) {
-    writeFileSync(join(cwd, path), `${JSON.stringify(manifest, null, 2)}\n`);
-    console.log(`Restored released metadata: ${path}`);
-  }
-  return pending.map(({ path }) => path);
-}
-
-/** Nx only stages its own changes, not baseline metadata restored beforehand. */
-export function amendReleaseMetadata(
-  paths: string[],
-  cwd = process.cwd(),
-): void {
-  if (!paths.length) {
-    return;
-  }
-  execFileSync('git', ['add', '--', ...paths], { cwd, stdio: 'pipe' });
-  const diff = spawnSync('git', ['diff', '--cached', '--quiet'], { cwd });
-  if (diff.status === 0) {
-    return;
-  }
-  if (diff.status !== 1) {
-    throw new Error('Unable to inspect staged release metadata');
-  }
-  execFileSync('git', ['commit', '--amend', '--no-edit'], {
-    cwd,
-    stdio: 'pipe',
-  });
 }

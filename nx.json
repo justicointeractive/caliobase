@@ -105,28 +105,22 @@
   "// nxCloudAccessToken": "MTMyODlkOTctOTU5Yi00NzkwLWE1NGEtNWFlMDg2MDY4MTIxfHJlYWQtd3JpdGU=",
   "release": {
     "releaseTagPattern": "{projectName}-{version}",
-    "releaseTagPatternCheckAllBranchesWhen": true,
     "projects": ["packages/*", "!packages/*-e2e", "!packages/test-infra"],
     "projectsRelationship": "independent",
     "version": {
-      "// currentVersionResolver": "Use release tags as the version source because automated releases publish from main without merging version-bump commits.",
-      "currentVersionResolver": "git-tag",
-      "fallbackCurrentVersionResolver": "disk",
+      "currentVersionResolver": "disk",
       "specifierSource": "prompt",
       "git": {
-        "commit": true,
-        "commitArgs": "--no-verify",
-        "tag": true
+        "commit": false,
+        "tag": false
       }
     },
     "changelog": {
-      "automaticFromRef": true,
       "projectChangelogs": {
         "createRelease": false
       },
       "git": {
-        "commit": true,
-        "commitArgs": "--no-verify"
+        "commit": false
       }
     }
   },

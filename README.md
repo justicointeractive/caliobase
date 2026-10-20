@@ -125,25 +125,43 @@ Visit [Nx Cloud](https://nx.app/) to learn more.
 
 ## Releases
 
-Caliobase packages are released automatically from `main` by GitHub Actions instead of using a separate release PR.
+Reviewed package manifests and `package-lock.json` on `main` are authoritative.
+**Include version bumps in the feature PR**, not in a separate release PR or an
+unreviewed CI commit. Tags mark releases; they never reconstruct version state.
 
-1. Merge changes to `main`.
-2. **Release** runs automatically, restores the previous released versions and internal dependency pins into its checkout, tests/builds the repo, versions changed packages, then publishes any workspace package versions that do not already exist on npm. If no publishable package changed since its latest release tag, the workflow exits successfully without publishing.
-3. After publishing succeeds, the same workflow pushes any missing release tags. Release tags are the source of truth for the next automatic version calculation.
+1. Bump every changed public package, including consumers whose dependency pins
+   change. A shared root dependency/devDependency, TypeScript or Babel config
+   change (including non-workspace lockfile changes) conservatively requires bumps
+   for all public packages.
+2. The existing Nx helper can prepare these edits locally without committing or
+   tagging: `npx nx release version patch --projects=caliobase --git-commit=false --git-tag=false`.
+   Review the affected consumer versions/pins, then run
+   `npm install --package-lock-only --ignore-scripts` and commit the manifests and lock.
+3. Run `npm run release -- check --base=origin/main`. CI repeats this against the
+   PR base and rejects unchanged/decreasing/invalid versions for changed packages,
+   mismatched workspace ranges/lock entries, and proposed versions already on npm
+   or behind published versions. Test/readme changes inside a package also require
+   a bump; release-tooling/root-doc-only changes do not. Release checks never edit
+   files or create commits/tags. A passing check cannot infer whether a breaking
+   API change deserves a major bump: that remains a review responsibility.
+4. After merge, **Release** tests and publishes only missing versions directly
+   from the committed manifests, using npm trusted publishing/OIDC. Builds must
+   preserve reviewed versions and internal pins. Stable packages use `latest`;
+   prereleases use `next`. Registry errors fail closed rather than meaning missing.
+5. After all packages are published, push missing tags at that merged commit.
+   Already-published versions are skipped on retry; versions introduced by the
+   current merge must report that exact commit as npm `gitHead`, otherwise fail
+   as an immutable collision (source provenance, not bit-reproducible-build proof).
+   Missing tags can be retried
+   without recalculating or incrementing any version. No direct-main version push.
 
-Manual **Release** dispatch remains available as an emergency fallback or dry-run smoke test.
+Manual **Release** dispatch runs only from `main`, defaults to a non-publishing
+smoke test and accepts no version specifier. Local smoke:
+`npm run release -- publish --dry-run`; tag preview:
+`npm run release -- tag --dry-run` (requires the versions to be published).
 
-Publishing uses npm trusted publishing via GitHub Actions OIDC, so each published package must trust this repository/workflow in npm and no `NPM_TOKEN` secret is required. The release job can publish via OIDC and push release tags, but it does not push version-bump commits directly to `main`.
-
-Source manifests in `main` may therefore contain older versions. Before testing,
-building, or calculating a new release, preparation reconstructs each package's
-own version and its internal dependency pins from that package's latest release
-tag, then refreshes the lockfile. This preserves previously published pins even
-when only a dependent package changes in the next release. Intentional source
-dependency edits are preserved by comparing against the generated release
-commit's source parent; missing provenance needed for reconciliation fails
-closed. Unchanged packages are not republished merely to synchronize metadata.
-`npm run test:release` verifies sequential releases using the installed Nx
-implementation and release-only tags outside main's ancestry.
-
-Local release preparation remains available with `npm run release -- prepare patch`; local publishing can be tested with `npm run release -- publish --dry-run`; local tag backfill can be tested with `npm run release -- tag`.
+The initial transition restores a consistent reviewed baseline using fresh patch
+versions above npm's published versions, including updated internal pins. This is
+an explicit one-time edit in this PR, not recurring registry/tag reconstruction.
+`npm run test:release` covers missing bumps, dependency/lock drift, sequential
+subset releases, read-only checks and publication retry/failure behavior.

@@ -5,344 +5,403 @@ import {
   mkdirSync,
   readFileSync,
   rmSync,
-  symlinkSync,
   writeFileSync,
   chmodSync,
-  existsSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { test } from 'node:test';
-import {
-  reconcileReleasedManifest,
-  restoreReleasedManifests,
-  amendReleaseMetadata,
-} from './release-state';
+import { checkVersions, checkBuiltManifests } from './release-state';
 
-const names = new Set(['@fixture/core', '@fixture/consumer']);
-const source = {
-  name: '@fixture/consumer',
-  version: '1.0.0',
-  dependencies: { '@fixture/core': '1.0.0', external: '^2.0.0' },
-};
-const released = {
-  ...source,
-  version: '1.0.2',
-  dependencies: { ...source.dependencies, '@fixture/core': '1.0.2' },
-};
-
-test('restores released versions and pins without rewriting external dependencies', () => {
-  assert.deepEqual(
-    reconcileReleasedManifest(source, released, source, names),
-    released,
-  );
-});
-
-test('preserves intentional internal range edits and dependency removals', () => {
-  const edited = {
-    ...source,
-    dependencies: { ...source.dependencies, '@fixture/core': '^1.0.3' },
+const repo = resolve(__dirname, '../..');
+function fixture(run: (f: ReturnType<typeof setup>) => void) {
+  const f = setup();
+  try {
+    run(f);
+  } finally {
+    rmSync(f.root, { recursive: true, force: true });
+  }
+}
+function setup() {
+  const root = mkdtempSync(join(tmpdir(), 'caliobase-release-'));
+  const write = (path: string, value: unknown) => {
+    mkdirSync(dirname(join(root, path)), { recursive: true });
+    writeFileSync(
+      join(root, path),
+      typeof value === 'string' ? value : `${JSON.stringify(value, null, 2)}\n`
+    );
   };
-  assert.deepEqual(reconcileReleasedManifest(edited, released, source, names), {
-    ...edited,
-    version: '1.0.2',
+  const git = (...args: string[]) =>
+    execFileSync('git', args, {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: 'pipe',
+    }).trim();
+  const manifest = (name: string) =>
+    JSON.parse(
+      readFileSync(join(root, `packages/${name}/package.json`), 'utf8')
+    );
+  const sync = () =>
+    write('package-lock.json', {
+      lockfileVersion: 3,
+      packages: Object.fromEntries(
+        ['core', 'consumer'].map((name) => [`packages/${name}`, manifest(name)])
+      ),
+    });
+  const commit = () => {
+    git('add', '.');
+    git('-c', 'core.hooksPath=/dev/null', 'commit', '-qm', 'fixture');
+    return git('rev-parse', 'HEAD');
+  };
+  git('init', '-b', 'main');
+  git('config', 'user.name', 'Fixture');
+  git('config', 'user.email', 'fixture@example.invalid');
+  write('package.json', { name: 'fixture', private: true });
+  write('nx.json', {});
+  write('packages/core/package.json', {
+    name: '@fixture/core',
+    version: '1.0.0',
   });
-  const removed = { ...source, dependencies: { external: '^2.0.0' } };
-  assert.deepEqual(
-    reconcileReleasedManifest(removed, released, source, names),
-    { ...removed, version: '1.0.2' },
-  );
-});
+  write('packages/consumer/package.json', {
+    name: '@fixture/consumer',
+    version: '1.0.0',
+    dependencies: { '@fixture/core': '1.0.0' },
+  });
+  for (const name of ['core', 'consumer']) {
+    write(`packages/${name}/project.json`, { name });
+    write(`packages/${name}/src/index.ts`, 'export const value = 0;');
+  }
+  sync();
+  const base = commit();
+  const bump = (
+    name: string,
+    version: string,
+    deps?: Record<string, string>
+  ) => {
+    write(`packages/${name}/package.json`, {
+      ...manifest(name),
+      version,
+      ...(deps ? { dependencies: deps } : {}),
+    });
+    sync();
+  };
+  return { root, write, git, manifest, sync, commit, base, bump };
+}
 
-test('restores peer, optional and dev pins, and fails closed without source provenance', () => {
-  for (const section of [
-    'peerDependencies',
-    'optionalDependencies',
-    'devDependencies',
-  ]) {
-    const base = {
-      name: '@fixture/consumer',
-      version: '1.0.0',
-      [section]: { '@fixture/core': '1.0.0' },
-    };
-    const published = {
-      ...base,
-      version: '1.0.2',
-      [section]: { '@fixture/core': '1.0.2' },
-    };
-    assert.deepEqual(
-      reconcileReleasedManifest(base, published, base, names),
-      published,
-    );
-    assert.throws(
-      () => reconcileReleasedManifest(base, published, null, names),
-      /source manifest is unavailable/,
-    );
+test('unchanged and tooling-only PRs need no release and checks do not mutate', () =>
+  fixture((f) => {
+    f.write('tools/release-note.md', 'tooling');
+    f.commit();
+    const before = f.git('status', '--porcelain');
+    assert.deepEqual(checkVersions(f.base, f.root), []);
+    assert.equal(f.git('status', '--porcelain'), before);
+  }));
+test('source changes, deletions and README edits fail without a bump', () => {
+  for (const kind of ['source', 'delete', 'readme']) {
+    fixture((f) => {
+      if (kind === 'delete') {
+        rmSync(join(f.root, 'packages/core/src/index.ts'));
+      } else {
+        f.write(
+          `packages/core/${kind === 'source' ? 'src/index.ts' : 'README.md'}`,
+          'changed'
+        );
+      }
+      f.commit();
+      assert.throws(
+        () => checkVersions(f.base, f.root),
+        /needs a version bump/
+      );
+    });
   }
 });
+test('invalid and decreasing versions fail', () => {
+  for (const version of ['1.0', '0.9.9', '1.0.0-beta.1']) {
+    fixture((f) => {
+      f.bump('core', version);
+      f.commit();
+      assert.throws(
+        () => checkVersions(f.base, f.root),
+        /Invalid|must increase|does not include/
+      );
+    });
+  }
+});
+test('core bump requires updating exact pins and bumping the consumer', () =>
+  fixture((f) => {
+    f.bump('core', '1.0.1');
+    f.commit();
+    assert.throws(
+      () => checkVersions(f.base, f.root),
+      /does not include workspace version/
+    );
+    f.bump('consumer', '1.0.0', { '@fixture/core': '1.0.1' });
+    f.commit();
+    assert.throws(() => checkVersions(f.base, f.root), /needs a version bump/);
+    f.bump('consumer', '1.0.1');
+    f.commit();
+    assert.equal(checkVersions(f.base, f.root).length, 2);
+  }));
+test('compatible consumer range can remain without an unnecessary release', () =>
+  fixture((f) => {
+    f.bump('consumer', '1.0.0', { '@fixture/core': '^1.0.0' });
+    const base = f.commit();
+    f.bump('core', '1.0.1');
+    f.commit();
+    assert.deepEqual(
+      checkVersions(base, f.root).map((s) => s.project),
+      ['core']
+    );
+  }));
+test('sequential core then consumer-only release preserves authoritative pins without tags', () =>
+  fixture((f) => {
+    f.bump('core', '1.0.1');
+    f.bump('consumer', '1.0.1', { '@fixture/core': '1.0.1' });
+    const first = f.commit();
+    assert.equal(checkVersions(f.base, f.root).length, 2);
+    f.write('packages/consumer/src/index.ts', 'export const value = 1;');
+    f.bump('consumer', '1.0.2');
+    f.commit();
+    assert.deepEqual(
+      checkVersions(first, f.root).map((s) => s.project),
+      ['consumer']
+    );
+    assert.equal(f.manifest('consumer').dependencies['@fixture/core'], '1.0.1');
+    assert.equal(f.git('tag', '--list'), '');
+  }));
+test('stale lock versions and dependency ranges fail', () =>
+  fixture((f) => {
+    const lock = JSON.parse(
+      readFileSync(join(f.root, 'package-lock.json'), 'utf8')
+    );
+    f.bump('consumer', '1.0.1');
+    f.write('package-lock.json', lock);
+    assert.throws(
+      () => checkVersions(f.base, f.root),
+      /package-lock.json version/
+    );
+    f.sync();
+    lock.packages['packages/consumer'].version = '1.0.1';
+    lock.packages['packages/consumer'].dependencies['@fixture/core'] = '^0.9.0';
+    f.write('package-lock.json', lock);
+    assert.throws(
+      () => checkVersions(f.base, f.root),
+      /package-lock.json dependencies/
+    );
+  }));
+test('shared compiler/dependency changes require all public packages bumped', () =>
+  fixture((f) => {
+    f.write('tsconfig.base.json', { compilerOptions: { target: 'es2022' } });
+    f.commit();
+    assert.throws(() => checkVersions(f.base, f.root), /needs a version bump/);
+    f.bump('core', '1.0.1');
+    f.bump('consumer', '1.0.1', { '@fixture/core': '1.0.1' });
+    f.commit();
+    assert.equal(checkVersions(f.base, f.root).length, 2);
+  }));
+test('artifact validation catches build-generated internal pin/version drift', () =>
+  fixture((f) => {
+    const specs = checkVersions(f.base, f.root);
+    assert.equal(specs.length, 0);
+    const { projects } = require('./release-state');
+    const all = projects(f.root);
+    for (const name of ['core', 'consumer']) {
+      f.write(`dist/packages/${name}/package.json`, f.manifest(name));
+    }
+    checkBuiltManifests(all, f.root);
+    f.write('dist/packages/consumer/package.json', {
+      ...f.manifest('consumer'),
+      dependencies: { '@fixture/core': '0.9.0' },
+    });
+    assert.throws(
+      () => checkBuiltManifests(all, f.root),
+      /build changed dependencies/
+    );
+  }));
+
+test('actual CLI rejects published candidates, permits main retries and fails closed on registry errors', () =>
+  fixture((f) => {
+    f.bump('consumer', '1.0.1');
+    f.commit();
+    const bin = join(f.root, 'bin');
+    mkdirSync(bin);
+    f.write(
+      'bin/npm',
+      `#!/usr/bin/env node
+if (process.env.FIXTURE_NPM_ERROR === '1') { console.log(JSON.stringify({error:{code:'E401'}})); process.exit(1); }
+console.log(JSON.stringify(process.argv.includes('gitHead') ? process.env.FIXTURE_HEAD : ['1.0.0','1.0.1']));
+`
+    );
+    chmodSync(join(bin, 'npm'), 0o755);
+    const cli = (extra: string[] = [], error = '0') =>
+      spawnSync(
+        process.execPath,
+        [
+          join(repo, 'node_modules/tsx/dist/cli.mjs'),
+          join(repo, 'tools/scripts/release.ts'),
+          'check',
+          `--base=${f.base}`,
+          ...extra,
+        ],
+        {
+          cwd: f.root,
+          env: {
+            ...process.env,
+            PATH: `${bin}:${process.env.PATH}`,
+            FIXTURE_NPM_ERROR: error,
+            FIXTURE_HEAD: f.git('rev-parse', 'HEAD'),
+          },
+          encoding: 'utf8',
+        }
+      );
+    assert.match(cli().stderr, /already exists/);
+    const retry = cli(['--allow-published']);
+    assert.equal(retry.status, 0, retry.stderr);
+    f.git('commit', '--allow-empty', '-qm', 'different commit');
+    // Wrong registry provenance must not be accepted as a retry.
+    const collision = spawnSync(
+      process.execPath,
+      [
+        join(repo, 'node_modules/tsx/dist/cli.mjs'),
+        join(repo, 'tools/scripts/release.ts'),
+        'check',
+        `--base=${f.base}`,
+        '--allow-published',
+      ],
+      {
+        cwd: f.root,
+        env: {
+          ...process.env,
+          PATH: `${bin}:${process.env.PATH}`,
+          FIXTURE_HEAD: f.base,
+        },
+        encoding: 'utf8',
+      }
+    );
+    assert.match(collision.stderr, /immutable version collision/);
+    assert.match(
+      cli(['--allow-published'], '1').stderr,
+      /Unable to read registry/
+    );
+    assert.equal(f.git('status', '--porcelain', '--untracked-files=no'), '');
+  }));
+
+test('actual publish CLI retries only missing versions and dry-run never tags/pushes', () =>
+  fixture((f) => {
+    f.bump('consumer', '1.0.1');
+    f.commit();
+    mkdirSync(join(f.root, 'bin'));
+    f.write(
+      'bin/npm',
+      `#!/bin/sh\nif [ "$1" = 'view' ]; then echo '["1.0.0"]'; else echo "npm $*" >> "$FIXTURE_CALLS"; fi\n`
+    );
+    f.write('bin/npx', '#!/bin/sh\necho "npx $*" >> "$FIXTURE_CALLS"\n');
+    for (const name of ['npm', 'npx']) {
+      chmodSync(join(f.root, 'bin', name), 0o755);
+    }
+    for (const name of ['core', 'consumer']) {
+      f.write(`dist/packages/${name}/package.json`, f.manifest(name));
+    }
+    const calls = join(f.root, 'calls.log');
+    const run = (mode: string) =>
+      spawnSync(
+        process.execPath,
+        [
+          join(repo, 'node_modules/tsx/dist/cli.mjs'),
+          join(repo, 'tools/scripts/release.ts'),
+          mode,
+          '--dry-run',
+        ],
+        {
+          cwd: f.root,
+          env: {
+            ...process.env,
+            PATH: `${join(f.root, 'bin')}:${process.env.PATH}`,
+            FIXTURE_CALLS: calls,
+            FIXTURE_HEAD: f.git('rev-parse', 'HEAD'),
+          },
+          encoding: 'utf8',
+        }
+      );
+    const publish = run('publish');
+    assert.equal(publish.status, 0, publish.stderr);
+    const commands = readFileSync(calls, 'utf8');
+    assert.match(commands, /--projects=consumer.*--dry-run/);
+    assert.doesNotMatch(commands, /--projects=core/);
+    // A missing version may never be marked as published.
+    assert.match(run('tag').stderr, /have not been published/);
+    // All published: an existing local tag must not trigger a push in dry-run.
+    f.write(
+      'bin/npm',
+      '#!/bin/sh\nif [ "$3" = "gitHead" ]; then echo "\\"$FIXTURE_HEAD\\""; else echo \'["1.0.0","1.0.1"]\'; fi\n'
+    );
+    chmodSync(join(f.root, 'bin/npm'), 0o755);
+    f.git('tag', 'core-1.0.0');
+    const tag = run('tag');
+    assert.equal(tag.status, 0, tag.stderr);
+    assert.match(tag.stdout, /Would tag HEAD: consumer-1.0.1/);
+    assert.equal(f.git('tag', '--list'), 'core-1.0.0');
+  }));
 
 test(
-  'sequential subset releases preserve published pins from off-main tags',
-  { timeout: 120_000 },
-  () => {
-    const root = mkdtempSync(join(tmpdir(), 'caliobase-release-state-'));
-    const repo = resolve(__dirname, '../..');
-    const env: NodeJS.ProcessEnv = {
-      ...process.env,
-      NX_DAEMON: 'false',
-      NX_ISOLATE_PLUGINS: 'false',
-      NX_NO_CLOUD: 'true',
-      CI: 'true',
-      HUSKY: '0',
-    };
-    const git = (...args: string[]) =>
-      execFileSync('git', args, {
-        cwd: root,
-        env,
-        encoding: 'utf8',
-        stdio: 'pipe',
-      }).trim();
-    const write = (path: string, value: unknown) => {
-      mkdirSync(dirname(join(root, path)), { recursive: true });
-      writeFileSync(join(root, path), `${JSON.stringify(value, null, 2)}\n`);
-    };
-    const manifest = (project: string) =>
-      JSON.parse(
-        readFileSync(join(root, `packages/${project}/package.json`), 'utf8'),
+  'installed Nx prepares version edits from disk without commits or tags',
+  { timeout: 60_000 },
+  () =>
+    fixture((f) => {
+      const { symlinkSync } = require('node:fs');
+      symlinkSync(
+        join(repo, 'node_modules'),
+        join(f.root, 'node_modules'),
+        'dir'
       );
-    const projects = ['core', 'consumer'].map((project) => ({
-      project,
-      packageName: `@fixture/${project}`,
-      root: `packages/${project}`,
-    }));
-    const commit = (message: string) => {
-      git('add', '.');
-      git('commit', '-m', message);
-    };
-    const version = (project: string) =>
-      execFileSync(
+      f.write('.gitignore', 'node_modules\n.nx\n');
+      f.write('package.json', {
+        name: 'fixture',
+        private: true,
+        workspaces: ['packages/*'],
+      });
+      f.write('nx.json', {
+        release: {
+          projects: ['packages/*'],
+          projectsRelationship: 'independent',
+          version: {
+            currentVersionResolver: 'disk',
+            git: { commit: false, tag: false },
+          },
+        },
+      });
+      const base = f.commit();
+      const result = spawnSync(
         process.execPath,
         [
           join(repo, 'node_modules/nx/bin/nx.js'),
           'release',
           'version',
           'patch',
-          `--projects=${project}`,
+          '--projects=core',
+          '--git-commit=false',
           '--git-tag=false',
-          '--git-push=false',
-        ],
-        { cwd: root, env, encoding: 'utf8', stdio: 'pipe' },
-      );
-    const tagVersions = () => {
-      for (const { project } of projects) {
-        const tag = `${project}-${manifest(project).version}`;
-        if (!git('tag', '--list', tag)) {
-          git('tag', tag);
-        }
-      }
-    };
-
-    try {
-      write('package.json', {
-        name: 'release-state-fixture',
-        private: true,
-        workspaces: ['packages/*'],
-      });
-      const config = JSON.parse(readFileSync(join(repo, 'nx.json'), 'utf8'));
-      write('nx.json', { release: config.release, defaultBase: 'main' });
-      writeFileSync(join(root, '.gitignore'), 'node_modules\n.nx\n');
-      symlinkSync(
-        join(repo, 'node_modules'),
-        join(root, 'node_modules'),
-        'dir',
-      );
-      for (const { project } of projects) {
-        write(
-          `packages/${project}/package.json`,
-          project === 'consumer'
-            ? source
-            : { name: '@fixture/core', version: '1.0.0' },
-        );
-        write(`packages/${project}/project.json`, {
-          name: project,
-          projectType: 'library',
-          targets: {},
-        });
-        write(`packages/${project}/index.json`, { revision: 0 });
-      }
-      // No external registry dependency is needed by this isolated Nx fixture.
-      const consumer = manifest('consumer');
-      delete consumer.dependencies.external;
-      write('packages/consumer/package.json', consumer);
-      git('init', '-b', 'main');
-      git('config', 'user.name', 'Release fixture');
-      git('config', 'user.email', 'release@example.invalid');
-      commit('initial source');
-      const sourceHead = git('rev-parse', 'HEAD');
-      git('checkout', '-b', 'release-only');
-      write('packages/core/package.json', {
-        name: '@fixture/core',
-        version: '1.0.2',
-      });
-      write('packages/consumer/package.json', {
-        ...consumer,
-        version: '1.0.2',
-        dependencies: { '@fixture/core': '1.0.2' },
-      });
-      commit('chore(release): publish');
-      tagVersions();
-      git('checkout', '-b', 'prerelease-only', sourceHead);
-      write('packages/core/package.json', {
-        name: '@fixture/core',
-        version: '1.0.2-beta.1',
-      });
-      write('packages/consumer/package.json', {
-        ...consumer,
-        version: '1.0.2-beta.1',
-        dependencies: { '@fixture/core': '1.0.2-beta.1' },
-      });
-      commit('chore(release): publish');
-      tagVersions();
-      git('checkout', 'main');
-      assert.notEqual(
-        git('merge-base', 'HEAD', 'core-1.0.2'),
-        git('rev-parse', 'core-1.0.2'),
-      );
-
-      write('packages/core/index.json', { revision: 1 });
-      commit('fix: core change');
-      let restored = restoreReleasedManifests(projects, root);
-      version('core');
-      amendReleaseMetadata(restored, root);
-      assert.equal(manifest('core').version, '1.0.3');
-      assert.equal(manifest('consumer').version, '1.0.3');
-      assert.equal(manifest('consumer').dependencies['@fixture/core'], '1.0.3');
-      tagVersions();
-
-      // Simulate a fresh main checkout: none of the generated metadata landed.
-      git('reset', '--hard', sourceHead);
-      write('packages/core/index.json', { revision: 1 });
-      write('packages/consumer/index.json', { revision: 1 });
-      commit('fix: consumer-only change');
-      restored = restoreReleasedManifests(projects, root);
-      version('consumer');
-      amendReleaseMetadata(restored, root);
-      assert.equal(manifest('consumer').version, '1.0.4');
-      assert.equal(manifest('consumer').dependencies['@fixture/core'], '1.0.3');
-      assert.equal(manifest('core').version, '1.0.3');
-      for (const { project, root: projectRoot } of projects) {
-        assert.deepEqual(
-          JSON.parse(git('show', `HEAD:${projectRoot}/package.json`)),
-          manifest(project),
-        );
-      }
-      tagVersions();
-
-      // An unchanged source checkout reconstructs the published state, not a release.
-      git('reset', '--hard', sourceHead);
-      write('packages/core/index.json', { revision: 1 });
-      write('packages/consumer/index.json', { revision: 1 });
-      commit('source content unchanged');
-      restoreReleasedManifests(projects, root);
-      assert.deepEqual(
-        manifest('consumer'),
-        JSON.parse(
-          git('show', 'consumer-1.0.4:packages/consumer/package.json'),
-        ),
-      );
-      assert.deepEqual(restoreReleasedManifests(projects, root), []);
-
-      // Exercise the actual helper entrypoint. Only expensive install/test/build
-      // commands are stubbed; Git, restoration, selection and Nx are real.
-      git('reset', '--hard', sourceHead);
-      write('packages/core/index.json', { revision: 1 });
-      write('packages/consumer/index.json', { revision: 2 });
-      commit('fix: next consumer change');
-      const beforeHead = git('rev-parse', 'HEAD');
-      const original = projects.map(({ root: projectRoot }) =>
-        readFileSync(join(root, projectRoot, 'package.json'), 'utf8'),
-      );
-      const lockPath = join(root, 'package-lock.json');
-      const originalLock = existsSync(lockPath)
-        ? readFileSync(lockPath, 'utf8')
-        : null;
-      const bin = join(root, 'fixture-bin');
-      mkdirSync(bin);
-      writeFileSync(
-        join(bin, 'npm'),
-        '#!/bin/sh\nif [ "$1 $2" = "run test" ] && [ "$FIXTURE_FAIL_TEST" = "1" ]; then exit 42; fi\nexit 0\n',
-      );
-      writeFileSync(
-        join(bin, 'npx'),
-        `#!/bin/sh\nshift\nexec '${process.execPath}' '${join(
-          repo,
-          'node_modules/nx/bin/nx.js',
-        )}' "$@"\n`,
-      );
-      chmodSync(join(bin, 'npm'), 0o755);
-      chmodSync(join(bin, 'npx'), 0o755);
-      for (const fail of ['0', '1']) {
-        const result = spawnSync(
-          process.execPath,
-          [
-            join(repo, 'node_modules/tsx/dist/cli.mjs'),
-            join(repo, 'tools/scripts/release.ts'),
-            'prepare',
-            'patch',
-            '--dry-run',
-          ],
-          {
-            cwd: root,
-            env: {
-              ...env,
-              PATH: `${bin}:${env.PATH}`,
-              FIXTURE_FAIL_TEST: fail,
-            },
-            encoding: 'utf8',
-          },
-        );
-        assert.equal(
-          result.status,
-          fail === '0' ? 0 : 1,
-          result.stdout + result.stderr,
-        );
-        assert.equal(git('rev-parse', 'HEAD'), beforeHead);
-        assert.deepEqual(
-          projects.map(({ root: projectRoot }) =>
-            readFileSync(join(root, projectRoot, 'package.json'), 'utf8'),
-          ),
-          original,
-        );
-        assert.equal(
-          existsSync(lockPath) ? readFileSync(lockPath, 'utf8') : null,
-          originalLock,
-        );
-      }
-      git('reset', '--hard', sourceHead);
-      write('packages/core/index.json', { revision: 1 });
-      write('packages/consumer/index.json', { revision: 1 });
-      commit('unchanged published source content');
-      const unchangedHead = git('rev-parse', 'HEAD');
-      const noRelease = spawnSync(
-        process.execPath,
-        [
-          join(repo, 'node_modules/tsx/dist/cli.mjs'),
-          join(repo, 'tools/scripts/release.ts'),
-          'prepare',
-          'patch',
-          '--skip-empty',
         ],
         {
-          cwd: root,
-          env: { ...env, PATH: `${bin}:${env.PATH}` },
+          cwd: f.root,
+          env: {
+            ...process.env,
+            NX_DAEMON: 'false',
+            NX_ISOLATE_PLUGINS: 'false',
+            NX_NO_CLOUD: 'true',
+            CI: 'true',
+          },
           encoding: 'utf8',
-        },
+        }
       );
-      assert.equal(noRelease.status, 0, noRelease.stdout + noRelease.stderr);
-      assert.match(noRelease.stdout, /No publishable package projects changed/);
-      assert.equal(git('rev-parse', 'HEAD'), unchangedHead);
-    } finally {
-      rmSync(root, { recursive: true, force: true });
-    }
-  },
+      assert.equal(result.status, 0, result.stdout + result.stderr);
+      assert.equal(f.manifest('core').version, '1.0.1');
+      assert.equal(
+        f.manifest('consumer').dependencies['@fixture/core'],
+        '1.0.1'
+      );
+      assert.equal(f.manifest('consumer').version, '1.0.1');
+      assert.equal(f.git('rev-parse', 'HEAD'), base);
+      assert.equal(f.git('tag', '--list'), '');
+    })
 );
