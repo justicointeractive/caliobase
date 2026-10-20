@@ -148,12 +148,15 @@ unreviewed CI commit. Tags mark releases; they never reconstruct version state.
    from the committed manifests, using npm trusted publishing/OIDC. Builds must
    preserve reviewed versions and internal pins. Stable packages use `latest`;
    prereleases use `next`. Registry errors fail closed rather than meaning missing.
-5. After all packages are published, push missing tags at that merged commit.
+5. After all packages are published, push missing tags for versions introduced by
+   that merge at its exact commit.
    Already-published versions are skipped on retry; versions introduced by the
    current merge must report that exact commit as npm `gitHead`, otherwise fail
    as an immutable collision (source provenance, not bit-reproducible-build proof).
    Missing tags can be retried
-   without recalculating or incrementing any version. No direct-main version push.
+   by rerunning that original release workflow, without recalculating or
+   incrementing any version. A later unrelated merge does not guess/backfill
+   older missing markers at its newer commit. No direct-main version push.
 
 Manual **Release** dispatch runs only from `main`, defaults to a non-publishing
 smoke test and accepts no version specifier. Local smoke:

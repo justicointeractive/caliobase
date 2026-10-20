@@ -170,7 +170,8 @@ function main(): void {
     }
     return;
   }
-  // Tags only mark exact committed versions after publication. No tag selects a version.
+  // Mark only versions introduced by this merge. Replay its run for recovery;
+  // never backfill older missing markers at an unrelated newer HEAD.
   const unpublished = validateRegistry(specs, true, verifyExisting);
   if (unpublished.length) {
     throw new Error(
@@ -178,7 +179,7 @@ function main(): void {
     );
   }
   const tags: string[] = [];
-  for (const { project, manifest } of specs) {
+  for (const { project, manifest } of changed) {
     const tag = `${project}-${manifest.version}`;
     const existing = spawnSync('git', [
       'rev-parse',

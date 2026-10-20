@@ -341,6 +341,18 @@ test('actual publish CLI retries only missing versions and dry-run never tags/pu
     assert.equal(tag.status, 0, tag.stderr);
     assert.match(tag.stdout, /Would tag HEAD: consumer-1.0.1/);
     assert.equal(f.git('tag', '--list'), 'core-1.0.0');
+    f.git('tag', 'consumer-1.0.1', f.base);
+    assert.match(run('tag').stderr, /already points at another commit/);
+    f.git('tag', '-d', 'consumer-1.0.1');
+    f.git('commit', '--allow-empty', '-qm', 'unrelated later merge');
+    const laterTag = run('tag');
+    assert.equal(laterTag.status, 0, laterTag.stderr);
+    assert.doesNotMatch(laterTag.stdout, /Would tag/);
+    // A completed publication still must exercise build/artifact qualification.
+    rmSync(join(f.root, 'dist'), { recursive: true });
+    const smoke = run('publish');
+    assert.notEqual(smoke.status, 0);
+    assert.match(smoke.stderr, /ENOENT/);
   }));
 
 test(
