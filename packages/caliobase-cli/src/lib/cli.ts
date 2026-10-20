@@ -157,14 +157,30 @@ function optionFlags(opts: {
 }) {
   const flags = new Map<string, string | boolean>();
 
-  if (opts.env) flags.set('env', opts.env);
-  if (opts.baseUrl) flags.set('base-url', opts.baseUrl);
-  if (opts.email) flags.set('email', opts.email);
-  if (opts.password) flags.set('password', opts.password);
-  if (opts.organizationId) flags.set('organization-id', opts.organizationId);
-  if (opts.token) flags.set('token', opts.token);
-  if (opts.save) flags.set('save', true);
-  if (opts.auth === false) flags.set('no-auth', true);
+  if (opts.env) {
+    flags.set('env', opts.env);
+  }
+  if (opts.baseUrl) {
+    flags.set('base-url', opts.baseUrl);
+  }
+  if (opts.email) {
+    flags.set('email', opts.email);
+  }
+  if (opts.password) {
+    flags.set('password', opts.password);
+  }
+  if (opts.organizationId) {
+    flags.set('organization-id', opts.organizationId);
+  }
+  if (opts.token) {
+    flags.set('token', opts.token);
+  }
+  if (opts.save) {
+    flags.set('save', true);
+  }
+  if (opts.auth === false) {
+    flags.set('no-auth', true);
+  }
 
   return flags;
 }
@@ -398,7 +414,9 @@ function resolveGeneratedMethod(api: GeneratedApi, command: string[]) {
 
   for (const candidate of candidates) {
     const method = methods.get(candidate.key);
-    if (method) return { method, args: candidate.args };
+    if (method) {
+      return { method, args: candidate.args };
+    }
   }
 
   const attempted = command.length ? command.join(' ') : '(none)';
@@ -424,10 +442,14 @@ function getGeneratedMethods(api: GeneratedApi) {
   const methods = new Map<string, GeneratedMethod>();
 
   for (const [namespace, value] of Object.entries(api)) {
-    if (!value || typeof value !== 'object') continue;
+    if (!value || typeof value !== 'object') {
+      continue;
+    }
 
     for (const [method, fn] of Object.entries(value as Record<string, unknown>)) {
-      if (typeof fn !== 'function') continue;
+      if (typeof fn !== 'function') {
+        continue;
+      }
       const path = `${namespace}.${method}`;
       methods.set(path, { path, fn: fn as GeneratedMethod['fn'] });
     }
@@ -503,7 +525,9 @@ async function unwrapResponse(value: JsonValue): Promise<JsonValue> {
 
     if (typeof maybeResponse.text === 'function') {
       const text = await maybeResponse.text();
-      if (!text) return { ok: maybeResponse.ok, status: maybeResponse.status };
+      if (!text) {
+        return { ok: maybeResponse.ok, status: maybeResponse.status };
+      }
       return parseJsonIfPossible(text);
     }
   }
@@ -549,7 +573,9 @@ function saveEnvValue(cwd: string, envFile: string, key: string, value: string) 
   });
 
   if (!replaced) {
-    if (next.length && next[next.length - 1] !== '') next.push('');
+    if (next.length && next[next.length - 1] !== '') {
+      next.push('');
+    }
     next.push(`${key}=${quoteEnv(value)}`);
   }
 
@@ -557,7 +583,9 @@ function saveEnvValue(cwd: string, envFile: string, key: string, value: string) 
 }
 
 function quoteEnv(value: string) {
-  if (/^[A-Za-z0-9_./:@+-]+$/.test(value)) return value;
+  if (/^[A-Za-z0-9_./:@+-]+$/.test(value)) {
+    return value;
+  }
   return JSON.stringify(value);
 }
 

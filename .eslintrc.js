@@ -55,5 +55,12 @@ module.exports = {
         ],
       },
     },
+    // Keep this after the Nx language presets, which disable curly.
+    {
+      files: ['*.ts', '*.tsx', '*.js', '*.jsx'],
+      rules: {
+        curly: ['error', 'all'],
+      },
+    },
   ],
 };

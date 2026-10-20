@@ -3,7 +3,9 @@ export function assert<T>(
   error: new (message?: string) => Error = Error,
   message = `assertion failed, ${value} is falsey`
 ): asserts value {
-  if (!value) throw new error(message);
+  if (!value) {
+    throw new error(message);
+  }
 }
 
 export function assertEqual<T>(expected: T, actual: T) {

@@ -19,7 +19,9 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   override handleRequest<
     TUser extends CaliobaseRequestUser = CaliobaseRequestUser
   >(err: Error, user: TUser, info: unknown, context: ExecutionContext): TUser {
-    if (err) throw err;
+    if (err) {
+      throw err;
+    }
 
     const isPublic = this.reflector.getAllAndOverride(IS_PUBLIC, [
       context.getHandler(),

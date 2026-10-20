@@ -3,9 +3,15 @@ import { format } from 'date-fns';
 import { DataSource } from 'typeorm';
 import { URL } from 'url';
 import {
+  storageError,
+  validateOperationOptions,
+  withRequest,
+} from './operation';
+import {
   AbstractObjectStorageProvider,
   CompleteUploadRequest,
   ObjectStorageObject,
+  ObjectStorageOperationOptions,
   RefreshSignedUrlsRequest,
   SignedUploadUrl,
   SignedUploadUrlResult,
@@ -36,7 +42,8 @@ export type ObjectCreateRequest = {
 
 export type ObjectCreateFromUrlRequest = {
   source: URL | File;
-} & Omit<ObjectCreateRequest, 'contentLength' | 'contentType'>;
+} & ObjectStorageOperationOptions &
+  Omit<ObjectCreateRequest, 'contentLength' | 'contentType'>;
 
 @Injectable()
 export class ObjectStorageService {
@@ -55,7 +62,12 @@ export class ObjectStorageService {
     return `${organization.id}/${format(date, 'yyyy/MM/dd')}/${fileName}`;
   }
 
-  async createObject(file: ObjectCreateRequest) {
+  async createObject(
+    file: ObjectCreateRequest,
+    options: ObjectStorageOperationOptions = {}
+  ) {
+    validateOperationOptions(options);
+    options.signal?.throwIfAborted();
     const { contentLength, contentType, organization, uploadedBy } = file;
 
     const key = this.getKeyForFile(file);
@@ -74,89 +86,155 @@ export class ObjectStorageService {
       })
     );
 
-    const upload = await this.objectStorageProvider.createUpload(object);
-
-    return { object, upload };
+    try {
+      options.signal?.throwIfAborted();
+      const upload = await this.objectStorageProvider.createUpload(
+        object,
+        options
+      );
+      return { object, upload };
+    } catch (error) {
+      throw storageError(error, { objectId: object.id, key: object.key });
+    }
   }
 
-  async completeUpload(objectId: string, completion: CompleteUploadRequest) {
+  async completeUpload(
+    objectId: string,
+    completion: CompleteUploadRequest,
+    options: ObjectStorageOperationOptions = {}
+  ) {
+    validateOperationOptions(options);
+    options.signal?.throwIfAborted();
     const object = await this.objectRepo.findOneOrFail({
       where: { id: objectId },
     });
 
-    await this.objectStorageProvider.completeUpload(object, completion);
-
-    object.status = 'ready';
-
-    return await this.objectRepo.save(object);
+    options.signal?.throwIfAborted();
+    await this.objectStorageProvider.completeUpload(
+      object,
+      completion,
+      options
+    );
+    try {
+      options.signal?.throwIfAborted();
+      object.status = 'ready';
+      return await this.objectRepo.save(object);
+    } catch (error) {
+      throw storageError(error, {
+        objectId: object.id,
+        key: object.key,
+        committed: true,
+      });
+    }
   }
 
   async refreshUploadUrls(
     objectId: string,
-    request: RefreshSignedUrlsRequest
+    request: RefreshSignedUrlsRequest,
+    options: ObjectStorageOperationOptions = {}
   ): Promise<SignedUploadUrl[]> {
+    validateOperationOptions(options);
+    options.signal?.throwIfAborted();
     const object = await this.objectRepo.findOneOrFail({
       where: { id: objectId },
     });
-
-    return await this.objectStorageProvider.refreshSignedUrls(object, request);
+    options.signal?.throwIfAborted();
+    return await this.objectStorageProvider.refreshSignedUrls(
+      object,
+      request,
+      options
+    );
   }
 
-  async urlOrFileToFile(sourceUrlOrBuffer: URL | File): Promise<File> {
+  async urlOrFileToFile(
+    sourceUrlOrBuffer: URL | File,
+    options: ObjectStorageOperationOptions = {}
+  ): Promise<File> {
+    validateOperationOptions(options);
+    options.signal?.throwIfAborted();
     if (sourceUrlOrBuffer instanceof File) {
       return sourceUrlOrBuffer;
     }
-
-    const response = await fetch(sourceUrlOrBuffer);
-
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch ${sourceUrlOrBuffer}: ${response.status} ${response.statusText}`
-      );
-    }
-
-    const contentType = response.headers.get('content-type') ?? '';
-
-    const buffer = await response.arrayBuffer();
-
-    const file = new File([buffer], '', { type: contentType });
-
-    return file;
+    return withRequest(options, async (signal) => {
+      const response = await fetch(sourceUrlOrBuffer, { signal });
+      try {
+        if (!response.ok) {
+          throw new Error(
+            `Failed to fetch ${sourceUrlOrBuffer}: ${response.status} ${response.statusText}`
+          );
+        }
+        const contentType = response.headers.get('content-type') ?? '';
+        const buffer = await response.arrayBuffer();
+        return new File([buffer], '', { type: contentType });
+      } finally {
+        if (response.body && !response.body.locked) {
+          await response.body.cancel();
+        }
+      }
+    });
   }
 
   async uploadFileFromUrl(file: ObjectCreateFromUrlRequest) {
-    const buffer = await this.urlOrFileToFile(file.source);
-
-    const { object, upload } = await this.createObject({
-      ...file,
-      contentLength: buffer.size,
-      contentType: buffer.type,
-    });
-
-    const uploadedParts: SignedUploadUrlResult[] = [];
-    for (const part of upload.parts) {
-      const resp = await fetch(part.url, {
-        method: part.method,
-        body: buffer.slice(part.rangeStart, part.rangeEnd),
-      });
-
-      if (!resp.ok) {
-        throw new Error(
-          `Failed to upload part ${part.part}: ${resp.status} ${resp.statusText}`
-        );
+    const options = {
+      signal: file.signal,
+      requestTimeoutMs: file.requestTimeoutMs,
+    };
+    const buffer = await this.urlOrFileToFile(file.source, options);
+    const { object, upload } = await this.createObject(
+      { ...file, contentLength: buffer.size, contentType: buffer.type },
+      options
+    );
+    try {
+      const uploadedParts: SignedUploadUrlResult[] = [];
+      for (const part of upload.parts) {
+        await withRequest(options, async (signal) => {
+          const response = await fetch(part.url, {
+            method: part.method,
+            body: buffer.slice(part.rangeStart, part.rangeEnd),
+            signal,
+          });
+          try {
+            if (!response.ok) {
+              throw new Error(
+                `Failed to upload part ${part.part}: ${response.status} ${response.statusText}`
+              );
+            }
+            uploadedParts.push({
+              part: part.part,
+              etag: response.headers.get('etag') ?? '',
+            });
+          } finally {
+            if (response.body && !response.body.locked) {
+              await response.body.cancel();
+            }
+          }
+        });
       }
-
-      uploadedParts.push({
-        part: part.part,
-        etag: resp.headers.get('etag') ?? '',
+      await this.completeUpload(
+        object.id,
+        { uploadId: upload.uploadId, parts: uploadedParts },
+        options
+      );
+      return object;
+    } catch (cause) {
+      const error = storageError(cause, {
+        objectId: object.id,
+        key: object.key,
+        uploadId: upload.uploadId,
       });
+      try {
+        if (!error.objectStorage?.committed) {
+          await this.objectStorageProvider.abortUpload?.(
+            object,
+            upload.uploadId,
+            { requestTimeoutMs: options.requestTimeoutMs ?? 30_000 }
+          );
+        }
+      } catch (cleanupError) {
+        error.cleanupError = cleanupError;
+      }
+      // Keep pending metadata for reconciliation of ambiguous remote outcomes.
+      throw error;
     }
-
-    await this.completeUpload(object.id, {
-      uploadId: upload.uploadId,
-      parts: uploadedParts,
-    });
-
-    return object;
   }
 }

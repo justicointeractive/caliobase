@@ -62,29 +62,42 @@ services:
     depends_on:
       localstack:
         condition: service_healthy
-  minio:
-    image: minio/minio
-    command: server --console-address ":9001" /data
+  rustfs:
+    image: rustfs/rustfs:1.0.3@sha256:9ca9559533b537d10482fe923288b676ad08f92a7069d9a17327fbae3cab688b
     ports:
       - "9000:9000"
       - "9001:9001"
     environment:
-      MINIO_ROOT_USER: testtest
-      MINIO_ROOT_PASSWORD: testtest
-      MINIO_DOMAIN: s3.localhost.localstack.cloud
+      RUSTFS_VOLUMES: /data
+      RUSTFS_ADDRESS: 0.0.0.0:9000
+      RUSTFS_CONSOLE_ADDRESS: 0.0.0.0:9001
+      RUSTFS_ACCESS_KEY: testtest
+      RUSTFS_SECRET_KEY: testtest
+      RUSTFS_SERVER_DOMAINS: s3.localhost.localstack.cloud
+      RUSTFS_REGION: us-east-1
     healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:9000/health"]
       interval: 5s
       timeout: 10s
-      retries: 5
+      retries: 12
+      start_period: 10s
     volumes:
-      - minio:/data
-  init-minio:
-    image: minio/mc
+      - rustfs:/data
+  init-rustfs:
+    image: amazon/aws-cli:2.31.16@sha256:8d4162b313590e71cfd5083e4d33079792137a5ddac3b10ead25aa2da4a558a4
     entrypoint: /bin/sh
-    command: -c "mc alias set local http://minio:9000 testtest testtest && mc mb local/caliobase"
+    command:
+      - -ec
+      - >-
+        aws --endpoint-url http://rustfs:9000 s3api head-bucket --bucket caliobase ||
+        aws --endpoint-url http://rustfs:9000 s3api create-bucket --bucket caliobase
+    environment:
+      AWS_ACCESS_KEY_ID: testtest
+      AWS_SECRET_ACCESS_KEY: testtest
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_EC2_METADATA_DISABLED: "true"
     depends_on:
-      minio:
+      rustfs:
         condition: service_healthy
   init-postgres:
     image: postgres:13.1
@@ -103,7 +116,7 @@ services:
       mysql:
         condition: service_healthy
 volumes:
-  minio:
+  rustfs:
   postgres:
   mysql:
   redis:
