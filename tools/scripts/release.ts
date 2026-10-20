@@ -1,536 +1,215 @@
 #!/usr/bin/env tsx
 import { spawnSync } from 'node:child_process';
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { prerelease, gt, valid } from 'semver';
+import {
+  checkBuiltManifests,
+  checkManifests,
+  checkVersions,
+  git,
+  json,
+  projects,
+  ReleaseProject,
+} from './release-state';
 
-const VALID_SPECIFIERS = new Set([
-  'patch',
-  'minor',
-  'major',
-  'prerelease',
-  'prepatch',
-  'preminor',
-  'premajor',
-]);
-
-const VERSION_PATTERN_SOURCE = String.raw`\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?`;
-const VERSION_PATTERN = new RegExp(`^${VERSION_PATTERN_SOURCE}$`);
-
-type Mode = 'prepare' | 'publish' | 'tag';
-
-interface ReleaseOptions {
-  mode: Mode;
-  specifier: string;
-  preid: string;
-  dryRun: boolean;
-  skipEmpty: boolean;
-}
-
-interface ReleaseProjectSpec {
-  project: string;
-  packageName: string;
-  version: string;
-  root: string;
-}
-
-function usage(): string {
-  return `Usage: npm run release -- [prepare|publish|tag] [patch|minor|major|prerelease|prepatch|preminor|premajor|<version>] [--preid <id>|--preid=<id>] [--dry-run] [--skip-empty]
-
-Modes:
-  prepare  Run tests/builds and create the local release version-bump commit.
-           This does not publish to npm. CI publishes from this local release state.
-  publish  Build and publish package versions that do not already exist on npm.
-           CI publishing uses npm trusted publishing via GitHub Actions OIDC.
-  tag      Create any missing release git tags for the versions on disk.
-           This does not publish to npm.
-
-Default mode is prepare.`;
-}
-
-function parseArgs(argv: string[]): ReleaseOptions {
-  const options: ReleaseOptions = {
-    mode: 'prepare',
-    specifier: 'patch',
-    preid: '',
-    dryRun: false,
-    skipEmpty: false,
-  };
-
-  for (let i = 0; i < argv.length; i += 1) {
-    const arg = argv[i];
-
-    if (arg === 'prepare' || arg === 'publish' || arg === 'tag') {
-      options.mode = arg;
-      continue;
-    }
-
-    if (arg === '--dry-run') {
-      options.dryRun = true;
-      continue;
-    }
-
-    if (arg === '--skip-empty') {
-      options.skipEmpty = true;
-      continue;
-    }
-
-    if (arg === '--preid') {
-      const value = argv[i + 1] ?? '';
-      if (!value) {
-        throw new Error('Error: --preid requires a value');
-      }
-      options.preid = value;
-      i += 1;
-      continue;
-    }
-
-    if (arg.startsWith('--preid=')) {
-      options.preid = arg.slice('--preid='.length);
-      continue;
-    }
-
-    if (arg === '-h' || arg === '--help') {
-      console.log(usage());
-      process.exit(0);
-    }
-
-    if (VALID_SPECIFIERS.has(arg) || VERSION_PATTERN.test(arg)) {
-      options.specifier = arg;
-      continue;
-    }
-
-    throw new Error(`Error: unknown release argument '${arg}'\n${usage()}`);
-  }
-
-  return options;
-}
-
-function run(command: string, args: string[] = []): void {
-  const result = spawnSync(command, args, {
-    stdio: 'inherit',
-    env: process.env,
-  });
-
-  if (result.error) {
-    throw result.error;
-  }
-
-  if (result.status !== 0) {
-    process.exit(result.status ?? 1);
-  }
-}
-
-function output(command: string, args: string[] = []): string {
+function command(command: string, args: string[], inherit = false): string {
   const result = spawnSync(command, args, {
     encoding: 'utf8',
+    stdio: inherit ? 'inherit' : 'pipe',
     env: process.env,
   });
-
   if (result.error) {
     throw result.error;
   }
-
   if (result.status !== 0) {
     throw new Error(
-      `${command} ${args.join(' ')} failed:\n${result.stderr || result.stdout}`,
+      `${command} ${args.join(' ')} failed: ${
+        result.stderr || result.stdout || result.status
+      }`
     );
   }
-
-  return result.stdout.trim();
+  return (result.stdout || '').trim();
 }
-
-function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-function commandResult(
-  command: string,
-  args: string[],
-): { status: number; output: string } {
-  const result = spawnSync(command, args, {
+function registryVersions(name: string): string[] {
+  const result = spawnSync('npm', ['view', name, 'versions', '--json'], {
     encoding: 'utf8',
-    env: process.env,
   });
-
   if (result.error) {
     throw result.error;
   }
-
-  return {
-    status: result.status ?? 1,
-    output: `${result.stdout ?? ''}${result.stderr ?? ''}`,
-  };
-}
-
-function releaseProjectSpecs(): ReleaseProjectSpec[] {
-  return readdirSync('packages', { withFileTypes: true })
-    .filter((dirent) => dirent.isDirectory())
-    .flatMap((dirent) => {
-      const root = join('packages', dirent.name);
-      const packageJsonPath = join(root, 'package.json');
-      const projectJsonPath = join(root, 'project.json');
-      if (!existsSync(packageJsonPath) || !existsSync(projectJsonPath)) {
-        return [];
-      }
-
-      const pkg = JSON.parse(readFileSync(packageJsonPath, 'utf8')) as {
-        name?: string;
-        version?: string;
-        private?: boolean;
-      };
-      const project = JSON.parse(readFileSync(projectJsonPath, 'utf8')) as {
-        name?: string;
-      };
-
-      if (!pkg.name || !pkg.version || pkg.private) {
-        return [];
-      }
-
-      return [
-        {
-          project: project.name || dirent.name,
-          packageName: pkg.name,
-          version: pkg.version,
-          root,
-        },
-      ];
-    });
-}
-
-function latestReleaseTag(project: string): string | null {
-  const tagPattern = new RegExp(
-    `^${escapeRegExp(project)}-${VERSION_PATTERN_SOURCE}$`,
-  );
-  const tags = output('git', ['tag', '--sort', '-v:refname'])
-    .split('\n')
-    .map((tag) => tag.trim())
-    .filter(Boolean);
-
-  return tags.find((tag) => tagPattern.test(tag)) ?? null;
-}
-
-function readJsonAtRef(
-  ref: string,
-  path: string,
-): Record<string, unknown> | null {
-  const file = commandResult('git', ['show', `${ref}:${path}`]);
-  if (file.status !== 0) {
-    return null;
-  }
-
-  return JSON.parse(file.output) as Record<string, unknown>;
-}
-
-function withoutReleaseOnlyVersions(
-  value: Record<string, unknown>,
-  workspacePackageNames: Set<string>,
-): Record<string, unknown> {
-  const copy = { ...value };
-  delete copy.version;
-
-  for (const section of [
-    'dependencies',
-    'devDependencies',
-    'peerDependencies',
-    'optionalDependencies',
-  ]) {
-    const dependencies = copy[section];
+  if (result.status === 0) {
+    const parsed = JSON.parse(result.stdout);
+    const versions = typeof parsed === 'string' ? [parsed] : parsed;
     if (
-      !dependencies ||
-      typeof dependencies !== 'object' ||
-      Array.isArray(dependencies)
+      !Array.isArray(versions) ||
+      !versions.every((version) => valid(version))
     ) {
-      continue;
+      throw new Error(`Invalid registry version response for ${name}`);
     }
-
-    copy[section] = Object.fromEntries(
-      Object.entries(dependencies).map(([name, version]) => [
-        name,
-        workspacePackageNames.has(name)
-          ? '<workspace-release-version>'
-          : version,
-      ]),
+    return versions;
+  }
+  // Only npm's structured E404 means missing. Auth/network failures are errors.
+  let error: any;
+  try {
+    error = JSON.parse(result.stdout);
+  } catch {
+    /* handled below */
+  }
+  if (error?.error?.code === 'E404') {
+    return [];
+  }
+  throw new Error(
+    `Unable to read registry versions for ${name}: ${
+      result.stderr || result.stdout
+    }`
+  );
+}
+function validateRegistry(
+  specs: ReleaseProject[],
+  allowExisting: boolean,
+  verifyExisting = new Set<string>()
+): ReleaseProject[] {
+  return specs.filter((spec) => {
+    const { name, version } = spec.manifest;
+    const versions = registryVersions(name);
+    if (versions.includes(version)) {
+      if (!allowExisting) {
+        throw new Error(
+          `${name}@${version} already exists on npm; choose a fresh version in this PR`
+        );
+      }
+      if (verifyExisting.has(name)) {
+        const publishedHead = JSON.parse(
+          command('npm', ['view', `${name}@${version}`, 'gitHead', '--json'])
+        );
+        if (publishedHead !== git(['rev-parse', 'HEAD'])) {
+          throw new Error(
+            `${name}@${version} was published from a different or unknown commit; immutable version collision`
+          );
+        }
+      }
+      console.log(`Already published: ${name}@${version}`);
+      return false;
+    }
+    if (versions.some((published) => gt(published, version))) {
+      throw new Error(
+        `${name}@${version} is behind an already published version; bump the manifest`
+      );
+    }
+    return true;
+  });
+}
+function main(): void {
+  const [mode = 'check', ...args] = process.argv.slice(2);
+  const baseArg = args.find((arg) => arg.startsWith('--base='));
+  const dryRun = args.includes('--dry-run');
+  const allowPublished = args.includes('--allow-published');
+  if (
+    !['check', 'publish', 'tag'].includes(mode) ||
+    args.some(
+      (arg) =>
+        !['--dry-run', '--allow-published'].includes(arg) &&
+        !arg.startsWith('--base=')
+    )
+  ) {
+    throw new Error(
+      'Usage: npm run release -- check --base=<ref> [--allow-published] | publish [--dry-run] | tag [--dry-run]'
     );
   }
-
-  return copy;
-}
-
-function packageManifestChangedBeyondReleaseVersions(
-  tag: string,
-  packageJsonPath: string,
-  workspacePackageNames: Set<string>,
-): boolean {
-  if (!existsSync(packageJsonPath)) {
-    return false;
-  }
-
-  const previous = readJsonAtRef(tag, packageJsonPath);
-  if (!previous) {
-    return true;
-  }
-
-  const current = JSON.parse(readFileSync(packageJsonPath, 'utf8')) as Record<
-    string,
-    unknown
-  >;
-  return (
-    JSON.stringify(
-      withoutReleaseOnlyVersions(previous, workspacePackageNames),
-    ) !==
-    JSON.stringify(withoutReleaseOnlyVersions(current, workspacePackageNames))
-  );
-}
-
-function projectChangedSinceTag(
-  tag: string,
-  root: string,
-  workspacePackageNames: Set<string>,
-): boolean {
-  const packageJsonPath = join(root, 'package.json');
-  const nonManifestDiff = commandResult('git', [
-    'diff',
-    '--quiet',
-    tag,
-    'HEAD',
-    '--',
-    root,
-    `:(exclude)${packageJsonPath}`,
-  ]);
-
-  return (
-    nonManifestDiff.status !== 0 ||
-    packageManifestChangedBeyondReleaseVersions(
-      tag,
-      packageJsonPath,
-      workspacePackageNames,
-    )
-  );
-}
-
-function changedReleaseProjects(): string[] {
-  const changedProjects: string[] = [];
-  const specs = releaseProjectSpecs();
-  const workspacePackageNames = new Set(
-    specs.map(({ packageName }) => packageName),
-  );
-
-  for (const { project, root } of specs) {
-    const tag = latestReleaseTag(project);
-    if (!tag) {
-      console.error(`Including ${project} because no release tag exists`);
-      changedProjects.push(project);
-      continue;
+  const specs = projects();
+  checkManifests(specs, json('package-lock.json'));
+  if (mode === 'check') {
+    if (!baseArg) {
+      throw new Error('check requires --base=<PR base SHA or branch>');
     }
-
-    if (projectChangedSinceTag(tag, root, workspacePackageNames)) {
-      console.error(
-        `Including ${project} because ${root} changed since ${tag}`,
-      );
-      changedProjects.push(project);
+    const changed = checkVersions(baseArg.slice('--base='.length));
+    validateRegistry(
+      changed,
+      allowPublished,
+      new Set(changed.map(({ manifest }) => manifest.name))
+    );
+    for (const { manifest } of changed) {
+      console.log(`Release: ${manifest.name}@${manifest.version}`);
     }
-  }
-
-  return changedProjects;
-}
-
-function nxVersionArgs(options: ReleaseOptions): string[] {
-  const args = [options.specifier, '--git-tag=false', '--git-push=false'];
-
-  if (options.preid) {
-    args.push('--preid', options.preid);
-  }
-
-  if (options.dryRun) {
-    args.push('--dry-run');
-  }
-
-  return args;
-}
-
-function nxPublishArgs(options: ReleaseOptions): string[] {
-  const args = ['--outputStyle=static'];
-
-  if (options.dryRun) {
-    args.push('--dry-run');
-  }
-
-  return args;
-}
-
-function syncPackageLockIntoReleaseCommit(): void {
-  if (!existsSync('package-lock.json')) {
+    if (!changed.length) {
+      console.log('No package version changes.');
+    }
     return;
   }
-
-  run('npm', ['install', '--package-lock-only', '--ignore-scripts']);
-
-  const lockDiff = commandResult('git', [
-    'diff',
-    '--quiet',
-    '--',
-    'package-lock.json',
-  ]);
-  if (lockDiff.status === 0) {
-    return;
+  if (git(['status', '--porcelain', '--untracked-files=no'])) {
+    throw new Error(
+      'Publishing/tagging requires a clean tracked checkout of the reviewed commit'
+    );
   }
-
-  run('git', ['add', 'package-lock.json']);
-  run('git', ['commit', '--amend', '--no-edit']);
-}
-
-function validatePackageLock(): void {
-  if (!existsSync('package-lock.json')) {
-    return;
-  }
-
-  run('npm', ['ci', '--ignore-scripts', '--dry-run']);
-}
-
-function prepareRelease(options: ReleaseOptions): void {
-  const beforeHead = output('git', ['rev-parse', 'HEAD']);
-
-  run('git', ['fetch', '--all', '--tags']);
-  run('npm', ['run', 'test']);
-  run('npm', ['run', 'build']);
-
-  const releaseProjects = changedReleaseProjects();
-  if (releaseProjects.length === 0) {
-    const message =
-      'No publishable package projects changed since their current release tags; no release PR needed.';
-    if (options.skipEmpty) {
-      console.log(message);
+  const changed = checkVersions(
+    baseArg ? baseArg.slice('--base='.length) : 'HEAD^'
+  );
+  const verifyExisting = new Set(changed.map(({ manifest }) => manifest.name));
+  if (mode === 'publish') {
+    const missing = validateRegistry(specs, true, verifyExisting);
+    command('npm', ['run', 'build'], true);
+    checkBuiltManifests(specs);
+    if (!missing.length) {
+      console.log('All manifest versions already published.');
       return;
     }
-
-    throw new Error(`Error: ${message}`);
-  }
-
-  run('npx', [
-    'nx',
-    'release',
-    'version',
-    ...nxVersionArgs(options),
-    `--projects=${releaseProjects.join(',')}`,
-  ]);
-
-  if (options.dryRun) {
+    // Per-project calls let prereleases use next without moving latest backwards.
+    for (const { project, manifest } of missing) {
+      command(
+        'npx',
+        [
+          'nx',
+          'release',
+          'publish',
+          `--projects=${project}`,
+          `--tag=${prerelease(manifest.version) ? 'next' : 'latest'}`,
+          '--outputStyle=static',
+          ...(dryRun ? ['--dry-run'] : []),
+        ],
+        true
+      );
+    }
     return;
   }
-
-  syncPackageLockIntoReleaseCommit();
-  validatePackageLock();
-
-  const afterHead = output('git', ['rev-parse', 'HEAD']);
-  if (afterHead === beforeHead) {
+  // Mark only versions introduced by this merge. Replay its run for recovery;
+  // never backfill older missing markers at an unrelated newer HEAD.
+  const unpublished = validateRegistry(specs, true, verifyExisting);
+  if (unpublished.length) {
     throw new Error(
-      'Error: release versioning did not create a release commit.',
+      'Cannot tag: some manifest versions have not been published'
     );
   }
-
-  const changedManifests = output('git', [
-    'diff',
-    '--name-only',
-    `${beforeHead}..${afterHead}`,
-    '--',
-    'packages/*/package.json',
-  ]);
-
-  if (!changedManifests) {
-    const changedFiles = output('git', [
-      'diff',
-      '--name-only',
-      `${beforeHead}..${afterHead}`,
-    ]);
-    throw new Error(
-      `Error: release versioning did not change any package manifests; refusing to open an empty release PR.\nChanged files were:\n${changedFiles}`,
-    );
-  }
-}
-
-function publishMissingVersions(options: ReleaseOptions): void {
-  const missingProjects: string[] = [];
-
-  for (const { project, packageName, version } of releaseProjectSpecs()) {
-    const spec = `${packageName}@${version}`;
-    const view = commandResult('npm', ['view', spec, 'version', '--json']);
-
-    if (view.status === 0) {
-      console.error(`Already published: ${spec}`);
-      continue;
-    }
-
-    if (!view.output.includes('E404')) {
-      throw new Error(view.output);
-    }
-
-    console.error(`Will publish: ${spec}`);
-    missingProjects.push(project);
-  }
-
-  if (missingProjects.length === 0) {
-    console.log(
-      'All workspace package versions already exist on npm; nothing to publish.',
-    );
-    return;
-  }
-
-  run('npx', [
-    'nx',
-    'release',
-    'publish',
-    `--projects=${missingProjects.join(',')}`,
-    ...nxPublishArgs(options),
-  ]);
-}
-
-function tagPublishedVersions(): void {
   const tags: string[] = [];
-  const tagTarget = process.env.RELEASE_TAG_TARGET || 'HEAD';
-
-  for (const { project, packageName, version } of releaseProjectSpecs()) {
-    const tag = `${project}-${version}`;
-    const tagExists =
-      commandResult('git', ['rev-parse', '-q', '--verify', `refs/tags/${tag}`])
-        .status === 0;
-
-    if (tagExists) {
-      console.log(`Tag already exists: ${tag}`);
+  for (const { project, manifest } of changed) {
+    const tag = `${project}-${manifest.version}`;
+    const existing = spawnSync('git', [
+      'rev-parse',
+      '-q',
+      '--verify',
+      `refs/tags/${tag}`,
+    ]);
+    if (existing.status === 0) {
+      if (
+        verifyExisting.has(manifest.name) &&
+        git(['rev-parse', `${tag}^{commit}`]) !== git(['rev-parse', 'HEAD'])
+      ) {
+        throw new Error(
+          `Release marker ${tag} already points at another commit`
+        );
+      }
+      tags.push(`refs/tags/${tag}`);
       continue;
     }
-
-    console.log(
-      `Creating tag: ${tag} for ${packageName}@${version} at ${tagTarget}`,
-    );
-    run('git', ['tag', '-a', tag, '-m', tag, tagTarget]);
+    if (dryRun) {
+      console.log(`Would tag HEAD: ${tag}`);
+      continue;
+    }
+    command('git', ['tag', '-a', tag, '-m', tag, 'HEAD']);
     tags.push(`refs/tags/${tag}`);
   }
-
-  if (tags.length === 0) {
-    console.log('All release tags already exist; nothing to push.');
-    return;
-  }
-
-  run('git', ['push', 'origin', ...tags]);
-}
-
-function main(): void {
-  const options = parseArgs(process.argv.slice(2));
-
-  switch (options.mode) {
-    case 'prepare':
-      prepareRelease(options);
-      break;
-    case 'publish':
-      run('npm', ['run', 'build']);
-      publishMissingVersions(options);
-      break;
-    case 'tag':
-      tagPublishedVersions();
-      break;
+  if (tags.length && !dryRun) {
+    command('git', ['push', '--atomic', 'origin', ...tags], true);
   }
 }
-
 try {
   main();
 } catch (error) {
